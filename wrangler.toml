@@ -1,0 +1,17 @@
+name = "openshop"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "dist"
+
+[env.production]
+compatibility_date = "2024-01-01"
+
+[[env.production.kv_namespaces]]
+binding = "OPENSHOP_KV"
+id = "" # This will be set during setup
+
+[env.production.vars]
+SITE_URL = "" # This will be set during setup
+
+# Environment variables (secrets will be set via wrangler)
+# STRIPE_SECRET_KEY - Set via: wrangler secret put STRIPE_SECRET_KEY
+# VITE_STRIPE_PUBLISHABLE_KEY - Set via: wrangler secret put VITE_STRIPE_PUBLISHABLE_KEY

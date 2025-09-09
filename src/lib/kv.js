@@ -1,0 +1,124 @@
+// Cloudflare KV operations
+// This will be used by Cloudflare Functions to interact with KV storage
+
+export class KVManager {
+  constructor(namespace) {
+    this.namespace = namespace
+  }
+
+  // Product operations
+  async createProduct(product) {
+    const key = `product:${product.id}`
+    // Ensure images is always an array
+    const productData = {
+      ...product,
+      images: Array.isArray(product.images) ? product.images : (product.imageUrl ? [product.imageUrl] : [])
+    }
+    await this.namespace.put(key, JSON.stringify(productData))
+    
+    // Also update the products list
+    const allProducts = await this.getAllProducts()
+    allProducts.push(product.id)
+    await this.namespace.put('products:all', JSON.stringify(allProducts))
+    
+    return productData
+  }
+
+  async getProduct(id) {
+    const key = `product:${id}`
+    const product = await this.namespace.get(key)
+    return product ? JSON.parse(product) : null
+  }
+
+  async updateProduct(id, updates) {
+    const existing = await this.getProduct(id)
+    if (!existing) throw new Error('Product not found')
+    
+    const updated = { 
+      ...existing, 
+      ...updates,
+      // Ensure images is always an array
+      images: Array.isArray(updates.images) ? updates.images : 
+              (updates.imageUrl ? [updates.imageUrl] : existing.images || [])
+    }
+    const key = `product:${id}`
+    await this.namespace.put(key, JSON.stringify(updated))
+    return updated
+  }
+
+  async deleteProduct(id) {
+    const key = `product:${id}`
+    await this.namespace.delete(key)
+    
+    // Remove from products list
+    const allProducts = await this.getAllProducts()
+    const filtered = allProducts.filter(pid => pid !== id)
+    await this.namespace.put('products:all', JSON.stringify(filtered))
+  }
+
+  async getAllProducts() {
+    const productIds = await this.namespace.get('products:all')
+    if (!productIds) return []
+    
+    const ids = JSON.parse(productIds)
+    const products = await Promise.all(
+      ids.map(id => this.getProduct(id))
+    )
+    return products.filter(Boolean)
+  }
+
+  // Collection operations
+  async createCollection(collection) {
+    const key = `collection:${collection.id}`
+    await this.namespace.put(key, JSON.stringify(collection))
+    
+    // Also update the collections list
+    const allCollections = await this.getAllCollections()
+    allCollections.push(collection.id)
+    await this.namespace.put('collections:all', JSON.stringify(allCollections))
+    
+    return collection
+  }
+
+  async getCollection(id) {
+    const key = `collection:${id}`
+    const collection = await this.namespace.get(key)
+    return collection ? JSON.parse(collection) : null
+  }
+
+  async updateCollection(id, updates) {
+    const existing = await this.getCollection(id)
+    if (!existing) throw new Error('Collection not found')
+    
+    const updated = { ...existing, ...updates }
+    const key = `collection:${id}`
+    await this.namespace.put(key, JSON.stringify(updated))
+    return updated
+  }
+
+  async deleteCollection(id) {
+    const key = `collection:${id}`
+    await this.namespace.delete(key)
+    
+    // Remove from collections list
+    const allCollections = await this.getAllCollections()
+    const filtered = allCollections.filter(cid => cid !== id)
+    await this.namespace.put('collections:all', JSON.stringify(filtered))
+  }
+
+  async getAllCollections() {
+    const collectionIds = await this.namespace.get('collections:all')
+    if (!collectionIds) return []
+    
+    const ids = JSON.parse(collectionIds)
+    const collections = await Promise.all(
+      ids.map(id => this.getCollection(id))
+    )
+    return collections.filter(Boolean)
+  }
+
+  async getProductsByCollection(collectionId) {
+    const allProducts = await this.getAllProducts()
+    return allProducts.filter(product => product.collectionId === collectionId)
+  }
+}
