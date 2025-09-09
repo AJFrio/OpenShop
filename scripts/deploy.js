@@ -34,11 +34,11 @@ async function deploy() {
   // Build the project
   execCommand('npm run build', 'Building project')
 
-  // Deploy to Cloudflare Pages with correct project name
-  execCommand(`wrangler pages deploy dist --project-name=${projectName}`, `Deploying to Cloudflare Pages (${projectName})`)
+  // Deploy Cloudflare Worker
+  execCommand(`wrangler deploy`, `Deploying Cloudflare Worker (${projectName})`)
 
   console.log('\n🎉 Deployment completed successfully!')
-  console.log(`\n💡 Your changes are now live at: https://${projectName}.pages.dev`)
+  console.log(`\n💡 Your changes are now live at: https://${projectName}.workers.dev`)
 }
 
 deploy().catch(error => {

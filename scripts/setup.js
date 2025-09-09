@@ -93,19 +93,19 @@ async function setup() {
   writeFileSync('wrangler.toml', wranglerConfig)
   console.log('✅ Updated wrangler.toml with project name and KV namespace')
 
-  // Create Pages project with custom name
-  console.log('\n📄 Creating Cloudflare Pages project...')
+  // Build and deploy Worker
+  console.log('\n🔧 Building and deploying Cloudflare Worker...')
   execCommand('npm run build', 'Building project')
-  execCommand(`wrangler pages project create ${sanitizedProjectName}`, `Creating Pages project "${sanitizedProjectName}"`)
+  execCommand(`wrangler deploy`, `Deploying Worker "${sanitizedProjectName}"`)
 
-  // Get the Pages URL with custom name
-  const pagesUrl = `https://${sanitizedProjectName}.pages.dev`
+  // Get the Worker URL with custom name
+  const workerUrl = `https://${sanitizedProjectName}.workers.dev`
   
   // Update wrangler.toml with site URL
   wranglerConfig = readFileSync('wrangler.toml', 'utf8')
-  wranglerConfig = wranglerConfig.replace('SITE_URL = ""', `SITE_URL = "${pagesUrl}"`)
+  wranglerConfig = wranglerConfig.replace('SITE_URL = ""', `SITE_URL = "${workerUrl}"`)
   writeFileSync('wrangler.toml', wranglerConfig)
-  console.log('✅ Updated wrangler.toml with site URL')
+  console.log('✅ Updated wrangler.toml with worker URL')
 
   // Set secrets
   console.log('\n🔒 Setting up secrets...')
@@ -128,15 +128,11 @@ SITE_URL=${pagesUrl}
   writeFileSync('.env', envContent)
   console.log('✅ Created .env file for local development')
 
-  // Deploy to Pages
-  console.log('\n🚀 Deploying to Cloudflare Pages...')
-  execCommand('npm run deploy', 'Deploying to Cloudflare Pages')
-
   console.log('\n🎉 Setup completed successfully!')
-  console.log(`\n📱 Your "${projectName}" store is now live at: ${pagesUrl}`)
-  console.log(`🔧 Admin dashboard: ${pagesUrl}/admin`)
+  console.log(`\n📱 Your "${projectName}" store is now live at: ${workerUrl}`)
+  console.log(`🔧 Admin dashboard: ${workerUrl}/admin`)
   console.log(`🗃️ KV Namespace: ${kvNamespaceName}`)
-  console.log(`📄 Pages Project: ${sanitizedProjectName}`)
+  console.log(`⚡ Worker: ${sanitizedProjectName}`)
   console.log('\n📝 Next steps:')
   console.log('1. Visit your admin dashboard to add products and collections')
   console.log(`2. Login with password: ${adminPassword}`)

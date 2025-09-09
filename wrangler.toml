@@ -1,17 +1,23 @@
 name = "openshop"
-compatibility_date = "2024-01-01"
-pages_build_output_dir = "dist"
+main = "src/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
 
-[env.production]
-compatibility_date = "2024-01-01"
+# Static assets configuration for serving React build
+[assets]
+directory = "dist"
+binding = "ASSETS"
 
-[[env.production.kv_namespaces]]
+# KV namespace binding
+[[kv_namespaces]]
 binding = "OPENSHOP_KV"
 id = "" # This will be set during setup
 
-[env.production.vars]
+# Environment variables
+[vars]
 SITE_URL = "" # This will be set during setup
 
-# Environment variables (secrets will be set via wrangler)
-# STRIPE_SECRET_KEY - Set via: wrangler secret put STRIPE_SECRET_KEY
-# VITE_STRIPE_PUBLISHABLE_KEY - Set via: wrangler secret put VITE_STRIPE_PUBLISHABLE_KEY
+# Secrets (set via wrangler secret put)
+# STRIPE_SECRET_KEY
+# VITE_STRIPE_PUBLISHABLE_KEY  
+# ADMIN_PASSWORD
