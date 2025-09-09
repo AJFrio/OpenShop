@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/logo.png" alt="OpenShop Logo" width="500" height="500">
+  <img src="public/logo.png" alt="OpenShop Logo" width="200" height="200">
 </div>
 
 # OpenShop - Cloudflare E-commerce Platform
