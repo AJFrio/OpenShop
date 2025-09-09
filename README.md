@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="public/logo.png" alt="OpenShop Logo" width="500" height="500">
+</div>
+
 # OpenShop - Cloudflare E-commerce Platform
 
 > A lightweight, open-source e-commerce platform built entirely on the Cloudflare ecosystem. Leverages Cloudflare Workers for hosting, Cloudflare KV for data storage, and Stripe for payments - designed to stay within Cloudflare's generous free tier.
