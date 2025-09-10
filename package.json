@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "setup": "node scripts/setup.js",
+    "preview:theme": "node scripts/preview-themes.js",
     "deploy": "node scripts/deploy.js",
     "worker:dev": "wrangler dev --local",
     "wrangler:login": "wrangler auth login"

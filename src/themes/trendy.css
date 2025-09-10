@@ -1,0 +1,34 @@
+:root {
+  --color-background: #ffffff;
+  --color-text-primary: #111827;
+  --color-text-secondary: #4b5563;
+  --color-accent: #9333ea;
+  --color-muted: #f3f4f6;
+  --color-border: #e5e7eb;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+  }
+}
+
+@layer utilities {
+  .bg-white { background-color: var(--color-background) !important; }
+  .text-gray-900 { color: var(--color-text-primary) !important; }
+  .text-gray-600 { color: var(--color-text-secondary) !important; }
+  .text-gray-500 { color: var(--color-text-secondary) !important; }
+  .text-gray-400 { color: var(--color-text-secondary) !important; }
+  .bg-gray-50 { background-color: var(--color-muted) !important; }
+  .bg-gray-100 { background-color: var(--color-muted) !important; }
+  .hover\\:bg-gray-50:hover { background-color: var(--color-muted) !important; }
+  .hover\\:bg-gray-100:hover { background-color: var(--color-muted) !important; }
+  .text-purple-600 { color: var(--color-accent) !important; }
+  .hover\\:text-purple-600:hover { color: var(--color-accent) !important; }
+  .bg-purple-600 { background-color: var(--color-accent) !important; }
+  .hover\\:bg-purple-600:hover { background-color: var(--color-accent) !important; }
+  .border-b { border-bottom-color: var(--color-border) !important; }
+  .border-t { border-top-color: var(--color-border) !important; }
+  .border { border-color: var(--color-border) !important; }
+}

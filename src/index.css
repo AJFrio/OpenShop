@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./theme.css";
 
 /* Custom animations for cart */
 @keyframes fade-in {

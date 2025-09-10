@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execSync } from 'child_process'
-import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync, copyFileSync, rmSync } from 'fs'
 import { createInterface } from 'readline'
 
 const rl = createInterface({
@@ -47,6 +47,10 @@ async function setup() {
   
   console.log(`✅ Using sanitized project name: ${sanitizedProjectName}\n`)
 
+  const themeInput = await question('Starter Theme (trendy, modern, elegant) [trendy]: ')
+  const selectedTheme = (themeInput.trim().toLowerCase()) || 'trendy'
+  console.log(`✅ Selected ${selectedTheme} theme\n`)
+
   // Collect required credentials
   console.log('🔑 Required Credentials:\n')
   
@@ -57,6 +61,20 @@ async function setup() {
   const adminPassword = await question('Admin Password (default: admin123): ') || 'admin123'
   
   rl.close()
+
+  const validThemes = ['trendy', 'modern', 'elegant']
+  if (!validThemes.includes(selectedTheme)) {
+    console.error('❌ Invalid theme selected!')
+    process.exit(1)
+  }
+  try {
+    copyFileSync(`src/themes/${selectedTheme}.css`, 'src/theme.css')
+    rmSync('src/themes', { recursive: true, force: true })
+    console.log(`✅ Applied ${selectedTheme} theme`)
+  } catch (err) {
+    console.error('❌ Failed to apply theme:', err.message)
+    process.exit(1)
+  }
 
   // Install Wrangler CLI if not present
   try {

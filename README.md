@@ -73,11 +73,17 @@ graph TB
    npm install
    ```
 
-2. **Automated Deployment**
+2. **Preview Themes (Optional)**
+   ```bash
+   npm run preview:theme
+   ```
+   Select a theme to view the storefront with sample products. Exit the dev server with `Ctrl+C` when done.
+
+3. **Automated Deployment**
    ```bash
    npm run setup
    ```
-   
+
    **Setup prompts:**
    - **Project Name** - Unique name for your store (e.g., "my-electronics-store")
    - **Cloudflare API Token** - [Get token here](https://dash.cloudflare.com/profile/api-tokens)
@@ -86,7 +92,7 @@ graph TB
    - **Stripe Publishable Key** - From your Stripe dashboard
    - **Admin Password** - Custom password (default: admin123)
 
-3. **🎉 Your Store is Live!**
+4. **🎉 Your Store is Live!**
    
    Access your store at: `https://your-project-name.workers.dev`
 

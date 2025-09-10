@@ -4,12 +4,14 @@ import { Hero } from '../../components/storefront/Hero'
 import { Carousel } from '../../components/storefront/Carousel'
 import { ProductCard } from '../../components/storefront/ProductCard'
 import { Button } from '../../components/ui/button'
+import { mockProducts, mockCollections } from '../../mockData'
 
 export function Storefront() {
   const [products, setProducts] = useState([])
   const [collections, setCollections] = useState([])
   const [selectedCollection, setSelectedCollection] = useState(null)
   const [loading, setLoading] = useState(true)
+  const useMockData = import.meta.env.VITE_USE_MOCK_DATA === 'true'
 
   useEffect(() => {
     fetchData()
@@ -18,7 +20,13 @@ export function Storefront() {
   const fetchData = async () => {
     try {
       setLoading(true)
-      
+
+      if (useMockData) {
+        setProducts(mockProducts)
+        setCollections(mockCollections)
+        return
+      }
+
       // Fetch products and collections
       const [productsResponse, collectionsResponse] = await Promise.all([
         fetch('/api/products'),
