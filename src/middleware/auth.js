@@ -52,8 +52,23 @@ function getKVNamespace(env) {
 }
 
 export async function verifyAdminAuth(request, env) {
-  const adminToken = request.headers.get('X-Admin-Token')
-  
+  // Support both Hono's HonoRequest (c.req) and the native Request
+  let adminToken
+  try {
+    if (request && typeof request.header === 'function') {
+      // HonoRequest API
+      adminToken = request.header('X-Admin-Token') || request.header('x-admin-token')
+    } else if (request && request.headers && typeof request.headers.get === 'function') {
+      // Native Request API
+      adminToken = request.headers.get('X-Admin-Token') || request.headers.get('x-admin-token')
+    } else if (request && request.raw && request.raw.headers && typeof request.raw.headers.get === 'function') {
+      // Some frameworks expose the raw Request on .raw
+      adminToken = request.raw.headers.get('X-Admin-Token') || request.raw.headers.get('x-admin-token')
+    }
+  } catch (e) {
+    console.error('Auth middleware - error reading admin token header:', e)
+  }
+
   if (!adminToken) {
     return { 
       isValid: false, 
