@@ -1,10 +1,60 @@
 // Main Cloudflare Worker with Hono framework
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { serveStatic } from 'hono/cloudflare-workers'
 import { KVManager } from './lib/kv.js'
 import { verifyAdminAuth } from './middleware/auth.js'
 import Stripe from 'stripe'
+
+// Helper function to get KV namespace dynamically
+function getKVNamespace(env) {
+  console.log('Available env bindings:', Object.keys(env))
+  
+  // Try direct access to known binding names first
+  const possibleBindings = [
+    'OPENSHOP-TEST3_KV',
+    'OPENSHOP_TEST3_KV', 
+    'OPENSHOP_KV'
+  ]
+  
+  for (const bindingName of possibleBindings) {
+    // Use bracket notation for property names with hyphens
+    if (bindingName in env && env[bindingName]) {
+      console.log(`Found KV namespace via direct access: ${bindingName}`)
+      const kvNamespace = env[bindingName]
+      console.log('KV namespace object:', !!kvNamespace, typeof kvNamespace)
+      console.log('KV namespace has get method:', typeof kvNamespace?.get)
+      return kvNamespace
+    }
+  }
+  
+  // Look for KV namespace by checking for KV-like binding names
+  const kvBindingName = Object.keys(env).find(key => 
+    key.endsWith('_KV') || key.endsWith('-KV') || key.includes('KV')
+  )
+  
+  console.log('Found KV binding name via search:', kvBindingName)
+  
+  if (kvBindingName) {
+    const kvNamespace = env[kvBindingName]
+    console.log('KV namespace object via search:', !!kvNamespace, typeof kvNamespace)
+    if (kvNamespace) {
+      return kvNamespace
+    }
+  }
+  
+  // Fallback: look for any binding with get/put methods
+  const kvNamespace = Object.values(env).find(binding => 
+    binding && typeof binding.get === 'function' && typeof binding.put === 'function'
+  )
+  console.log('Fallback KV namespace found:', !!kvNamespace)
+  
+  if (!kvNamespace) {
+    console.error('No KV namespace found! Available bindings:', Object.keys(env))
+    console.error('Environment values:', Object.values(env).map(v => typeof v))
+  }
+  
+  return kvNamespace
+}
 
 const app = new Hono()
 
@@ -14,9 +64,6 @@ app.use('*', cors({
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'X-Admin-Token'],
 }))
-
-// Serve static assets (React build)
-app.use('/*', serveStatic({ root: './' }))
 
 // Health check endpoint
 app.get('/api/health', (c) => {
@@ -30,7 +77,7 @@ app.get('/api/health', (c) => {
 // Get all products
 app.get('/api/products', async (c) => {
   try {
-    const kv = new KVManager(c.env.OPENSHOP_KV)
+    const kv = new KVManager(getKVNamespace(c.env))
     const products = await kv.getAllProducts()
     return c.json(products)
   } catch (error) {
@@ -42,7 +89,7 @@ app.get('/api/products', async (c) => {
 // Get single product
 app.get('/api/products/:id', async (c) => {
   try {
-    const kv = new KVManager(c.env.OPENSHOP_KV)
+    const kv = new KVManager(getKVNamespace(c.env))
     const product = await kv.getProduct(c.req.param('id'))
     
     if (!product) {
@@ -59,7 +106,7 @@ app.get('/api/products/:id', async (c) => {
 // Get all collections
 app.get('/api/collections', async (c) => {
   try {
-    const kv = new KVManager(c.env.OPENSHOP_KV)
+    const kv = new KVManager(getKVNamespace(c.env))
     const collections = await kv.getAllCollections()
     return c.json(collections)
   } catch (error) {
@@ -71,7 +118,7 @@ app.get('/api/collections', async (c) => {
 // Get single collection
 app.get('/api/collections/:id', async (c) => {
   try {
-    const kv = new KVManager(c.env.OPENSHOP_KV)
+    const kv = new KVManager(getKVNamespace(c.env))
     const collection = await kv.getCollection(c.req.param('id'))
     
     if (!collection) {
@@ -88,7 +135,7 @@ app.get('/api/collections/:id', async (c) => {
 // Get products in collection
 app.get('/api/collections/:id/products', async (c) => {
   try {
-    const kv = new KVManager(c.env.OPENSHOP_KV)
+    const kv = new KVManager(getKVNamespace(c.env))
     const products = await kv.getProductsByCollection(c.req.param('id'))
     return c.json(products)
   } catch (error) {
@@ -100,7 +147,7 @@ app.get('/api/collections/:id/products', async (c) => {
 // Get store settings
 app.get('/api/store-settings', async (c) => {
   try {
-    const kv = new KVManager(c.env.OPENSHOP_KV)
+    const kv = new KVManager(getKVNamespace(c.env))
     const settings = await kv.namespace.get('store:settings')
     
     const defaultSettings = {
@@ -183,6 +230,28 @@ app.post('/api/create-cart-checkout-session', async (c) => {
   }
 })
 
+// Get checkout session details (for success page)
+app.get('/api/checkout-session/:sessionId', async (c) => {
+  try {
+    const sessionId = c.req.param('sessionId')
+    const stripe = new Stripe(c.env.STRIPE_SECRET_KEY)
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId)
+    
+    return c.json({
+      id: session.id,
+      amount_total: session.amount_total,
+      currency: session.currency,
+      customer_email: session.customer_details?.email,
+      payment_status: session.payment_status,
+      created: session.created
+    })
+  } catch (error) {
+    console.error('Error fetching checkout session:', error)
+    return c.json({ error: 'Failed to fetch checkout session' }, 500)
+  }
+})
+
 // =====================================
 // ADMIN API ENDPOINTS (Authenticated)
 // =====================================
@@ -194,12 +263,18 @@ app.use('/api/admin/*', async (c, next) => {
     return next()
   }
 
-  const authResult = await verifyAdminAuth(c.req, c.env)
-  if (!authResult.isValid) {
-    return c.json({ error: authResult.error }, authResult.status)
-  }
+  try {
+    const authResult = await verifyAdminAuth(c.req, c.env)
+    if (!authResult.isValid) {
+      console.error('Auth failed:', authResult.error)
+      return c.json({ error: authResult.error }, authResult.status)
+    }
 
-  return next()
+    return next()
+  } catch (error) {
+    console.error('Auth middleware error:', error)
+    return c.json({ error: 'Authentication middleware failed' }, 500)
+  }
 })
 
 // Admin login
@@ -214,7 +289,7 @@ app.post('/api/admin/login', async (c) => {
 
     const token = btoa(Date.now() + Math.random().toString(36)).replace(/[^a-zA-Z0-9]/g, '')
     
-    await c.env.OPENSHOP_KV.put(`admin_token:${token}`, Date.now().toString(), {
+    await getKVNamespace(c.env).put(`admin_token:${token}`, Date.now().toString(), {
       expirationTtl: 86400 // 24 hours
     })
 
@@ -229,7 +304,7 @@ app.post('/api/admin/login', async (c) => {
 app.post('/api/admin/products', async (c) => {
   try {
     const productData = await c.req.json()
-    const kv = new KVManager(c.env.OPENSHOP_KV)
+    const kv = new KVManager(getKVNamespace(c.env))
     const stripe = new Stripe(c.env.STRIPE_SECRET_KEY)
 
     const stripeImages = Array.isArray(productData.images) ? productData.images : 
@@ -261,11 +336,159 @@ app.post('/api/admin/products', async (c) => {
   }
 })
 
+// Admin create collection
+app.post('/api/admin/collections', async (c) => {
+  try {
+    console.log('Creating collection - starting')
+    const collectionData = await c.req.json()
+    console.log('Collection data received:', collectionData)
+    
+    const kvNamespace = getKVNamespace(c.env)
+    if (!kvNamespace) {
+      console.error('KV namespace not found in environment')
+      return c.json({ error: 'KV namespace not configured' }, 500)
+    }
+    console.log('KV namespace found')
+    
+    const kv = new KVManager(kvNamespace)
+    console.log('KVManager created')
+    
+    const savedCollection = await kv.createCollection(collectionData)
+    console.log('Collection saved:', savedCollection)
+    
+    return c.json(savedCollection, 201)
+  } catch (error) {
+    console.error('Error creating collection:', error)
+    console.error('Error stack:', error.stack)
+    return c.json({ 
+      error: 'Failed to create collection', 
+      details: error.message,
+      stack: error.stack 
+    }, 500)
+  }
+})
+
+// Admin update collection
+app.put('/api/admin/collections/:id', async (c) => {
+  try {
+    const updates = await c.req.json()
+    const kv = new KVManager(getKVNamespace(c.env))
+
+    const updatedCollection = await kv.updateCollection(c.req.param('id'), updates)
+    return c.json(updatedCollection)
+  } catch (error) {
+    console.error('Error updating collection:', error)
+    return c.json({ error: 'Failed to update collection' }, 500)
+  }
+})
+
+// Admin delete collection
+app.delete('/api/admin/collections/:id', async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace(c.env))
+
+    const existingCollection = await kv.getCollection(c.req.param('id'))
+    if (!existingCollection) {
+      return c.json({ error: 'Collection not found' }, 404)
+    }
+
+    await kv.deleteCollection(c.req.param('id'))
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting collection:', error)
+    return c.json({ error: 'Failed to delete collection' }, 500)
+  }
+})
+
+// Admin update product
+app.put('/api/admin/products/:id', async (c) => {
+  try {
+    const updates = await c.req.json()
+    const kv = new KVManager(getKVNamespace(c.env))
+    const stripe = new Stripe(c.env.STRIPE_SECRET_KEY)
+
+    const existingProduct = await kv.getProduct(c.req.param('id'))
+    if (!existingProduct) {
+      return c.json({ error: 'Product not found' }, 404)
+    }
+
+    // Update Stripe product if necessary
+    if (updates.name || updates.description || updates.images || updates.imageUrl) {
+      const stripeImages = Array.isArray(updates.images) ? updates.images : 
+                          (updates.imageUrl ? [updates.imageUrl] : 
+                          (Array.isArray(existingProduct.images) ? existingProduct.images : 
+                          (existingProduct.imageUrl ? [existingProduct.imageUrl] : [])))
+      
+      await stripe.products.update(existingProduct.stripeProductId, {
+        name: updates.name || existingProduct.name,
+        description: updates.description || existingProduct.description,
+        images: stripeImages.slice(0, 8),
+      })
+    }
+
+    // If price changed, create new price in Stripe
+    if (updates.price && updates.price !== existingProduct.price) {
+      const newPrice = await stripe.prices.create({
+        unit_amount: Math.round(updates.price * 100),
+        currency: updates.currency || existingProduct.currency,
+        product: existingProduct.stripeProductId,
+      })
+      
+      // Archive old price
+      if (existingProduct.stripePriceId) {
+        await stripe.prices.update(existingProduct.stripePriceId, {
+          active: false,
+        })
+      }
+      
+      updates.stripePriceId = newPrice.id
+    }
+
+    const updatedProduct = await kv.updateProduct(c.req.param('id'), updates)
+    return c.json(updatedProduct)
+  } catch (error) {
+    console.error('Error updating product:', error)
+    return c.json({ error: 'Failed to update product' }, 500)
+  }
+})
+
+// Admin delete product
+app.delete('/api/admin/products/:id', async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace(c.env))
+    const stripe = new Stripe(c.env.STRIPE_SECRET_KEY)
+
+    const existingProduct = await kv.getProduct(c.req.param('id'))
+    if (!existingProduct) {
+      return c.json({ error: 'Product not found' }, 404)
+    }
+
+    // Archive Stripe product and price
+    if (existingProduct.stripePriceId) {
+      await stripe.prices.update(existingProduct.stripePriceId, {
+        active: false,
+      })
+    }
+    
+    if (existingProduct.stripeProductId) {
+      await stripe.products.update(existingProduct.stripeProductId, {
+        active: false,
+      })
+    }
+
+    await kv.deleteProduct(c.req.param('id'))
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting product:', error)
+    return c.json({ error: 'Failed to delete product' }, 500)
+  }
+})
+
 // Admin update store settings
 app.put('/api/admin/store-settings', async (c) => {
   try {
     const settings = await c.req.json()
-    const kv = new KVManager(c.env.OPENSHOP_KV)
+    const kv = new KVManager(getKVNamespace(c.env))
 
     // Validation
     if (!settings.logoType || !['text', 'image'].includes(settings.logoType)) {
@@ -290,8 +513,8 @@ app.put('/api/admin/store-settings', async (c) => {
   }
 })
 
-// Analytics endpoint
-app.get('/api/analytics', async (c) => {
+// Admin analytics endpoint (requires authentication)
+app.get('/api/admin/analytics', async (c) => {
   try {
     const period = c.req.query('period') || '30d'
     const stripe = new Stripe(c.env.STRIPE_SECRET_KEY)
@@ -352,7 +575,84 @@ app.get('/api/analytics', async (c) => {
   }
 })
 
-// Fallback route - serve React app for all non-API routes
-app.get('*', serveStatic({ path: './index.html' }))
+// Handle static assets using Workers Assets
+app.get('*', async (c) => {
+  const url = new URL(c.req.url)
+  const pathname = url.pathname
+  
+  // Skip API routes - they're handled above
+  if (pathname.startsWith('/api/')) {
+    return c.notFound()
+  }
+  
+  try {
+    // Try to serve the requested file first
+    if (pathname !== '/' && !pathname.startsWith('/admin') && !pathname.startsWith('/collections') && !pathname.startsWith('/success')) {
+      const asset = await c.env.ASSETS.fetch(c.req)
+      if (asset.ok) {
+        return asset
+      }
+    }
+    
+    // For SPA routes (/admin, /collections, etc.) or root, serve index.html
+    const indexRequest = new Request(c.req.url.replace(pathname, '/index.html'), c.req)
+    const indexAsset = await c.env.ASSETS.fetch(indexRequest)
+    
+    if (indexAsset.ok) {
+      return indexAsset
+    } else {
+      throw new Error('index.html not found')
+    }
+  } catch (error) {
+    console.error('Error serving static asset:', error, 'for path:', pathname)
+    
+    // Fallback HTML for when assets can't be loaded
+    return c.html(`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>OpenShop - Loading Error</title>
+          <style>
+            body { 
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              text-align: center; 
+              padding: 50px 20px; 
+              background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%);
+              color: white;
+              margin: 0;
+              min-height: 100vh;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+            }
+            .container { max-width: 500px; }
+            h1 { font-size: 3rem; margin-bottom: 1rem; }
+            .error { font-size: 1.2rem; margin: 20px 0; opacity: 0.9; }
+            .help { font-size: 1rem; margin-top: 30px; opacity: 0.8; }
+            a { color: white; text-decoration: underline; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>OpenShop</h1>
+            <div class="error">Application loading error</div>
+            <p>The application assets could not be loaded.</p>
+            <div class="help">
+              <p>Try:</p>
+              <ul style="text-align: left; display: inline-block;">
+                <li>Refreshing the page</li>
+                <li>Checking your internet connection</li>
+                <li>Contacting support if the issue persists</li>
+              </ul>
+            </div>
+          </div>
+        </body>
+      </html>
+    `, 500)
+  }
+})
 
 export default app

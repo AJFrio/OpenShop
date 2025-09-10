@@ -1,4 +1,4 @@
-name = "openshop"
+name = "openshop-test3"
 main = "src/worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
@@ -8,16 +8,16 @@ compatibility_flags = ["nodejs_compat"]
 directory = "dist"
 binding = "ASSETS"
 
-# KV namespace binding
-[[kv_namespaces]]
-binding = "OPENSHOP_KV"
-id = "" # This will be set during setup
-
 # Environment variables
 [vars]
-SITE_URL = "" # This will be set during setup
+SITE_URL = "https://openshop-test3.workers.dev" # This will be set during setup
 
-# Secrets (set via wrangler secret put)
-# STRIPE_SECRET_KEY
-# VITE_STRIPE_PUBLISHABLE_KEY  
-# ADMIN_PASSWORD
+
+# KV namespace binding
+[[kv_namespaces]]
+binding = "OPENSHOP-TEST3_KV"
+id = "3ccaf8edbb1a44edb897087d970b72f1"
+
+[observability]
+enabled = true
+head_sampling_rate = 1 # optional. default = 1.

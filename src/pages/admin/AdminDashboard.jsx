@@ -10,6 +10,7 @@ import { StoreSettingsForm } from '../../components/admin/StoreSettingsForm'
 import { RevenueChart, OrdersChart } from '../../components/admin/AnalyticsCharts'
 import { MetricCard, RecentOrdersCard } from '../../components/admin/AnalyticsCards'
 import { formatCurrency } from '../../lib/utils'
+import { adminApiRequest } from '../../lib/auth'
 import { Package, FolderOpen, Plus, Edit, Trash2, Home, Settings, DollarSign, ShoppingBag, BarChart3 } from 'lucide-react'
 
 function AdminSidebar({ onLogout }) {
@@ -106,7 +107,7 @@ function Dashboard() {
   const fetchAnalytics = async () => {
     try {
       setAnalyticsLoading(true)
-      const response = await fetch(`/api/analytics?period=${selectedPeriod}`)
+      const response = await adminApiRequest(`/api/admin/analytics?period=${selectedPeriod}`)
       if (response.ok) {
         const data = await response.json()
         setAnalytics(data)
@@ -273,7 +274,7 @@ function ProductsManager() {
     if (!confirm('Are you sure you want to delete this product?')) return
 
     try {
-      const response = await fetch(`/api/products/${productId}`, {
+      const response = await adminApiRequest(`/api/admin/products/${productId}`, {
         method: 'DELETE'
       })
 
@@ -410,7 +411,7 @@ function CollectionsManager() {
     if (!confirm('Are you sure you want to delete this collection?')) return
 
     try {
-      const response = await fetch(`/api/collections/${collectionId}`, {
+      const response = await adminApiRequest(`/api/admin/collections/${collectionId}`, {
         method: 'DELETE'
       })
 

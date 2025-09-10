@@ -1,10 +1,10 @@
 <div align="center">
-  <img src="public/logo.png" alt="OpenShop Logo" width="200" height="200">
+  <img src="public/logo.svg" alt="OpenShop Logo" width="300" height="75" />
+  
+  # OpenShop - Cloudflare E-commerce Platform
+
+  > A lightweight, open-source e-commerce platform built entirely on the Cloudflare ecosystem. Leverages Cloudflare Workers for hosting, Cloudflare KV for data storage, and Stripe for payments - designed to stay within Cloudflare's generous free tier.
 </div>
-
-# OpenShop - Cloudflare E-commerce Platform
-
-> A lightweight, open-source e-commerce platform built entirely on the Cloudflare ecosystem. Leverages Cloudflare Workers for hosting, Cloudflare KV for data storage, and Stripe for payments - designed to stay within Cloudflare's generous free tier.
 
 [![Deploy to Cloudflare Workers](https://img.shields.io/badge/Deploy%20to-Cloudflare%20Workers-orange?logo=cloudflare)](https://workers.cloudflare.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -420,6 +420,51 @@ src/middleware/
 # Business logic
 src/lib/
 ```
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Setup Issues
+
+**Issue: KV Namespace Creation Error**
+```bash
+# Error: Unknown arguments: preview, kv:namespace, create
+```
+**Solution**: Using correct Wrangler command syntax (fixed in latest version)
+
+**Issue: Authentication Error**
+```bash
+# Error: You are logged in with an API Token
+```
+**Solution**: Script now uses API Token directly without OAuth login
+
+**Issue: Empty KV ID in wrangler.toml**
+```bash
+# Error: "id" field but got {"binding":"OPENSHOP_KV","id":""}
+```
+**Solution**: KV binding added after namespace creation (fixed)
+
+**Issue: 500 Error on /admin Route**
+```bash
+# Error: 500 Internal Server Error when visiting /admin
+```
+**Solution**: Fixed SPA routing to properly serve React app for client-side routes (fixed)
+
+**Issue: 404 Error When Creating Collections/Products**
+```bash
+# Error: POST /api/collections 404 (Not Found)
+```
+**Solution**: Updated admin components to use authenticated `/api/admin/*` endpoints (fixed)
+
+### Getting Help
+
+If you encounter issues:
+
+1. **Check Node.js Version** - Ensure you have Node.js 18+ installed
+2. **Verify Credentials** - Double-check your Cloudflare API token and account ID
+3. **Check Wrangler Version** - Run `wrangler --version` (should be 3.0+)
+4. **Review Logs** - Check the Wrangler logs mentioned in error messages
 
 ---
 
