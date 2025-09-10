@@ -587,7 +587,7 @@ app.get('*', async (c) => {
   
   try {
     // Try to serve the requested file first
-    if (pathname !== '/' && !pathname.startsWith('/admin') && !pathname.startsWith('/collections') && !pathname.startsWith('/success')) {
+    if (pathname !== '/' && !pathname.startsWith('/admin') && !pathname.startsWith('/collections') && !pathname.startsWith('/products') && !pathname.startsWith('/success')) {
       const asset = await c.env.ASSETS.fetch(c.req)
       if (asset.ok) {
         return asset

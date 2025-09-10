@@ -5,6 +5,7 @@ import { AdminDashboard } from './pages/admin/AdminDashboard'
 import { CollectionPage } from './pages/storefront/CollectionPage'
 import { Success } from './pages/storefront/Success'
 import { Cart } from './components/storefront/Cart'
+import { ProductPage } from './pages/storefront/ProductPage'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             {/* Storefront Routes */}
             <Route path="/" element={<Storefront />} />
             <Route path="/collections/:collectionId" element={<CollectionPage />} />
+            <Route path="/products/:id" element={<ProductPage />} />
             <Route path="/success" element={<Success />} />
             
             {/* Admin Routes */}

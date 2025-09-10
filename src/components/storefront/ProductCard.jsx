@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Card, CardContent, CardFooter } from '../ui/card'
 import { Button } from '../ui/button'
 import { formatCurrency } from '../../lib/utils'
@@ -36,6 +37,7 @@ export function ProductCard({ product }) {
 
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      <Link to={`/products/${product.id}`} className="block">
       <div className="relative aspect-w-16 aspect-h-12 bg-gray-200">
         {images.length > 0 ? (
           <>
@@ -80,13 +82,16 @@ export function ProductCard({ product }) {
           </div>
         )}
       </div>
+      </Link>
       
       <CardContent className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-          {product.name}
-        </h3>
+        <Link to={`/products/${product.id}`} className="hover:text-purple-600">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+            {product.name}
+          </h3>
+        </Link>
         <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-          {product.description}
+          {product.tagline || product.description}
         </p>
         <div className="flex items-center justify-between">
           <span className="text-2xl font-bold text-gray-900">
@@ -95,22 +100,24 @@ export function ProductCard({ product }) {
         </div>
       </CardContent>
       
-      <CardFooter className="p-4 pt-0 space-y-2">
-        <Button 
-          onClick={handleAddToCart}
-          variant="outline"
-          className="w-full hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent transition-all duration-300"
-        >
-          <ShoppingCart className="w-4 h-4 mr-2" />
-          Add to Cart
-        </Button>
-        <Button 
-          onClick={handleBuyNow}
-          className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 transition-all duration-300"
-          disabled={!product.stripePriceId}
-        >
-          Buy Now
-        </Button>
+      <CardFooter className="p-4 pt-0">
+        <div className="grid grid-cols-2 gap-2 w-full">
+          <Button 
+            onClick={handleAddToCart}
+            variant="outline"
+            className="w-full hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent transition-all duration-300"
+          >
+            <ShoppingCart className="w-4 h-4 mr-2" />
+            Add to Cart
+          </Button>
+          <Button 
+            onClick={handleBuyNow}
+            className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 transition-all duration-300"
+            disabled={!product.stripePriceId}
+          >
+            Buy Now
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   )
