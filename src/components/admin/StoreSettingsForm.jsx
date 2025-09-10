@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Select } from '../ui/select'
+import { adminApiRequest } from '../../lib/auth'
 
 export function StoreSettingsForm() {
   const [settings, setSettings] = useState({
@@ -55,11 +56,8 @@ export function StoreSettingsForm() {
     setSaving(true)
 
     try {
-      const response = await fetch('/api/store-settings', {
+      const response = await adminApiRequest('/api/admin/store-settings', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(settings),
       })
 

@@ -5,6 +5,7 @@ import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
 import { Select } from '../ui/select'
 import { generateId } from '../../lib/utils'
+import { adminApiRequest } from '../../lib/auth'
 
 export function ProductForm({ product, onSave, onCancel }) {
   const [formData, setFormData] = useState({
@@ -87,14 +88,11 @@ export function ProductForm({ product, onSave, onCancel }) {
         images: formData.images.filter(img => img.trim() !== '')
       }
 
-      const url = product ? `/api/products/${product.id}` : '/api/products'
+      const url = product ? `/api/admin/products/${product.id}` : '/api/admin/products'
       const method = product ? 'PUT' : 'POST'
 
-      const response = await fetch(url, {
+      const response = await adminApiRequest(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(productData),
       })
 

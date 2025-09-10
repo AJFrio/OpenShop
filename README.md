@@ -1,122 +1,196 @@
-# OpenShop - Cloudflare E-commerce Platform
+<div align="center">
+  <img src="public/logo.png" alt="OpenShop Logo" width="400" height="400" />
+  
+  # OpenShop - Cloudflare E-commerce Platform
 
-A lightweight, open-source e-commerce platform built entirely on the Cloudflare ecosystem. OpenShop leverages Cloudflare Pages for hosting, Cloudflare KV for data storage, and Stripe for payments - all designed to stay within Cloudflare's free tier.
+  > A lightweight, open-source e-commerce platform built entirely on the Cloudflare ecosystem. Leverages Cloudflare Workers for hosting, Cloudflare KV for data storage, and Stripe for payments - designed to stay within Cloudflare's generous free tier.
+</div>
+
+[![Deploy to Cloudflare Workers](https://img.shields.io/badge/Deploy%20to-Cloudflare%20Workers-orange?logo=cloudflare)](https://workers.cloudflare.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org)
+
+---
 
 ## 🌟 Features
 
-- **⚡ Lightning Fast**: Built on Cloudflare's global edge network
-- **💰 Cost Effective**: Designed to run on Cloudflare's free tier
-- **🎨 Modern UI**: Clean, responsive design with Tailwind CSS and ShadCN/UI
-- **🛒 Full E-commerce**: Product management, collections, and Stripe checkout
-- **🛍️ Smart Shopping Cart**: Persistent cart with quantity management and responsive design
-- **📱 Mobile Ready**: Fully responsive design with mobile-optimized cart
-- **🖼️ Rich Media**: Multiple product images and collection hero banners
-- **🎨 Store Customization**: Dynamic logo management (text or image) via admin dashboard
-- **📊 Analytics Dashboard**: Real-time Stripe analytics with revenue tracking and order insights
-- **🧭 Smart Navigation**: Individual collection links with product preview dropdowns
-- **🔧 Easy Setup**: One-command deployment and configuration
+### Core Functionality
+- **⚡ Lightning Fast** - Built on Cloudflare's global edge network
+- **💰 Cost Effective** - Designed for Cloudflare's generous free tier (100k requests/day)
+- **🛒 Complete E-commerce** - Product management, collections, and Stripe checkout
+- **🔧 One-Command Setup** - Automated deployment and configuration
 
-## 🏗️ Architecture
+### User Experience
+- **🛍️ Smart Shopping Cart** - Persistent cart with quantity management
+- **📱 Mobile Optimized** - Fully responsive with mobile-specific cart experience
+- **🧭 Intuitive Navigation** - Collection links with product preview dropdowns
+- **🎨 Beautiful UI** - Modern design with Tailwind CSS and ShadCN/UI
 
-- **Frontend**: Vite + React + Tailwind CSS
-- **Hosting**: Cloudflare Pages
-- **Database**: Cloudflare KV
-- **Payments**: Stripe
-- **Functions**: Cloudflare Functions
-- **Deployment**: Wrangler CLI
+### Advanced Features
+- **🖼️ Rich Media Support** - Multiple product images with carousel navigation
+- **🎨 Store Customization** - Dynamic logo management (text or image)
+- **📊 Analytics Dashboard** - Real-time Stripe analytics with revenue insights
+- **🔒 Secure Admin System** - Token-based authentication with session management
+
+---
+
+## 🏗️ Technical Architecture
+
+```mermaid
+graph TB
+    A[Cloudflare Worker] --> B[Static Assets]
+    A --> C[API Endpoints]
+    A --> D[Authentication]
+    C --> E[Cloudflare KV]
+    C --> F[Stripe API]
+    D --> E
+```
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **Frontend** | Vite + React + Tailwind CSS | User interface and experience |
+| **Backend** | Cloudflare Workers + Hono | API endpoints and business logic |
+| **Database** | Cloudflare KV | Product, collection, and settings storage |
+| **Payments** | Stripe API | Payment processing and checkout |
+| **Authentication** | Token-based system | Secure admin access |
+| **Deployment** | Wrangler CLI | Automated deployment pipeline |
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ 
-- A Cloudflare account
-- A Stripe account
+- **Node.js 18+** - [Download here](https://nodejs.org)
+- **Cloudflare Account** - [Sign up free](https://dash.cloudflare.com/sign-up)
+- **Stripe Account** - [Create account](https://stripe.com)
 
-### Installation
+### One-Command Setup
 
-1. **Clone and install dependencies:**
-   \`\`\`bash
+1. **Clone and Install**
+   ```bash
    git clone <your-repo-url> openshop
    cd openshop
    npm install
-   \`\`\`
+   ```
 
-2. **Run the automated setup:**
-   \`\`\`bash
+2. **Automated Deployment**
+   ```bash
    npm run setup
-   \`\`\`
+   ```
    
-   This will prompt you for:
-   - Project Name (for multiple store support)
-   - Cloudflare API Token
-   - Cloudflare Account ID  
-   - Stripe Secret Key
-   - Stripe Publishable Key
-   - Admin Password (default: admin123)
+   **Setup prompts:**
+   - **Project Name** - Unique name for your store (e.g., "my-electronics-store")
+   - **Cloudflare API Token** - [Get token here](https://dash.cloudflare.com/profile/api-tokens)
+   - **Cloudflare Account ID** - Found in your Cloudflare dashboard
+   - **Stripe Secret Key** - From your Stripe dashboard
+   - **Stripe Publishable Key** - From your Stripe dashboard
+   - **Admin Password** - Custom password (default: admin123)
 
-3. **Your store is now live!** 🎉
+3. **🎉 Your Store is Live!**
+   
+   Access your store at: `https://your-project-name.workers.dev`
 
-### Admin Access & Security
+---
 
-The admin dashboard is accessible at `/admin` (e.g., `https://your-project-name.pages.dev/admin`). 
+## 🔒 Admin Dashboard
 
-**Security Features:**
-- **Password Protection**: Admin login required (default: admin123)
-- **Token-Based Auth**: Secure 24-hour session tokens
-- **No Public Access**: Admin button removed from storefront for security
-- **Separate API Endpoints**: Admin operations use authenticated endpoints
+### Access & Security
 
-### Multiple Store Support
+**URL**: `https://your-project-name.workers.dev/admin`
 
-You can deploy multiple stores with different names:
-- Each store gets its own KV namespace: `PROJECT-NAME_KV`
-- Each store gets its own Pages project: `project-name.pages.dev`
-- Run setup multiple times with different project names
+> **Note**: For security, there's no visible admin button on the storefront. Access the admin dashboard directly via URL.
+
+### Security Features
+
+| Feature | Description |
+|---------|-------------|
+| **🔐 Password Protection** | Admin login required with configurable password |
+| **🎫 Token-Based Auth** | Secure 24-hour session tokens stored in KV |
+| **🛡️ API Separation** | Separate authenticated endpoints for admin operations |
+| **⏰ Auto Logout** | Expired sessions automatically redirect to login |
+
+### Admin Capabilities
+
+- **📦 Product Management** - Create, edit, delete products with multiple images
+- **📁 Collection Management** - Organize products with hero banner images
+- **🎨 Store Customization** - Dynamic logo and branding management
+- **📊 Analytics Dashboard** - Real-time revenue and order insights
+- **⚙️ Settings Management** - Configure store appearance and behavior
+
+---
+
+## 🏪 Multiple Store Support
+
+Deploy unlimited stores with unique configurations:
+
+```bash
+# Electronics Store
+npm run setup
+# Project Name: "electronics-hub"
+# Result: https://electronics-hub.workers.dev
+
+# Fashion Store
+npm run setup  
+# Project Name: "fashion-boutique"
+# Result: https://fashion-boutique.workers.dev
+
+# Book Store
+npm run setup
+# Project Name: "online-bookstore" 
+# Result: https://online-bookstore.workers.dev
+```
+
+### Resource Isolation
+
+Each store gets completely isolated resources:
+
+| Resource | Naming Convention | Example |
+|----------|-------------------|---------|
+| **Worker** | `project-name.workers.dev` | `electronics-hub.workers.dev` |
+| **KV Namespace** | `PROJECT-NAME_KV` | `ELECTRONICS-HUB_KV` |
+| **Admin Access** | `/admin` on each domain | `electronics-hub.workers.dev/admin` |
+
+---
 
 ## 🛠️ Development
 
-### Local Development
+### Local Development Commands
 
-\`\`\`bash
-# Start development server
+```bash
+# Full-stack development (Worker + Frontend)
 npm run dev
+
+# Frontend-only development (Vite dev server)
+npm run dev:frontend
 
 # Build for production
 npm run build
 
-# Preview production build
+# Deploy to production
+npm run deploy
+
+# Preview production build locally
 npm run preview
-\`\`\`
+```
 
-### Project Structure
+### Development Workflow
 
-\`\`\`
-openshop/
-├── src/
-│   ├── components/
-│   │   ├── ui/              # ShadCN/UI components
-│   │   ├── admin/           # Admin dashboard components
-│   │   └── storefront/      # Public storefront components
-│   ├── pages/
-│   │   ├── admin/           # Admin pages
-│   │   └── storefront/      # Public pages
-│   ├── lib/                 # Utilities and helpers
-│   └── hooks/               # Custom React hooks
-├── functions/
-│   └── api/                 # Cloudflare Functions
-├── scripts/                 # Setup and deployment scripts
-└── public/                  # Static assets
-\`\`\`
+1. **Local Development** - Use `npm run dev` for full-stack development with hot reload
+2. **Frontend Changes** - Use `npm run dev:frontend` for faster frontend-only development
+3. **Testing** - Build and test locally before deployment
+4. **Deployment** - Use `npm run deploy` to push changes to production
 
-## 📊 Data Model
+---
 
-### Products
-\`\`\`json
+## 📊 Data Models
+
+### Product Schema
+```json
 {
   "id": "prod_1a2b3c4d5e",
   "name": "Classic Cotton T-Shirt",
-  "description": "A comfortable, high-quality t-shirt...",
+  "description": "A comfortable, high-quality t-shirt made from premium cotton.",
   "price": 25.00,
   "currency": "usd",
   "images": [
@@ -125,156 +199,370 @@ openshop/
     "https://example.com/image3.jpg"
   ],
   "stripePriceId": "price_AbC987zyx",
+  "stripeProductId": "prod_AbC123xyz",
   "collectionId": "coll_xyz789"
 }
-\`\`\`
+```
 
-### Collections
-\`\`\`json
+### Collection Schema
+```json
 {
   "id": "coll_xyz789",
   "name": "Summer Collection",
   "description": "Our hottest items for the summer season.",
   "heroImage": "https://example.com/hero-banner.jpg"
 }
-\`\`\`
+```
+
+### Store Settings Schema
+```json
+{
+  "logoType": "text|image",
+  "logoText": "OpenShop",
+  "logoImageUrl": "https://example.com/logo.png",
+  "storeName": "OpenShop",
+  "storeDescription": "Your amazing online store"
+}
+```
+
+---
+
+## 📝 API Reference
+
+### Public Endpoints (Read-Only)
+
+| Endpoint | Method | Description | Authentication |
+|----------|--------|-------------|----------------|
+| `/api/products` | `GET` | List all products | None |
+| `/api/products/:id` | `GET` | Get single product | None |
+| `/api/collections` | `GET` | List all collections | None |
+| `/api/collections/:id` | `GET` | Get single collection | None |
+| `/api/collections/:id/products` | `GET` | Get products in collection | None |
+| `/api/store-settings` | `GET` | Get store configuration | None |
+
+### Checkout Endpoints
+
+| Endpoint | Method | Description | Authentication |
+|----------|--------|-------------|----------------|
+| `/api/create-checkout-session` | `POST` | Single item checkout | None |
+| `/api/create-cart-checkout-session` | `POST` | Multi-item cart checkout | None |
+
+### Admin Endpoints (Authenticated)
+
+| Endpoint | Method | Description | Authentication |
+|----------|--------|-------------|----------------|
+| `/api/admin/login` | `POST` | Admin authentication | Password |
+| `/api/admin/products` | `POST` | Create product | Admin Token |
+| `/api/admin/products/:id` | `PUT, DELETE` | Update/delete product | Admin Token |
+| `/api/admin/store-settings` | `PUT` | Update store settings | Admin Token |
+| `/api/analytics` | `GET` | Revenue and order analytics | Admin Token |
+
+---
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-Copy \`env.example\` to \`.env\` and fill in your values:
+Create a `.env` file for local development:
 
-\`\`\`env
-CLOUDFLARE_API_TOKEN=your_token_here
-CLOUDFLARE_ACCOUNT_ID=your_account_id_here
-STRIPE_SECRET_KEY=sk_test_your_key_here
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here
-SITE_URL=https://your-site.pages.dev
-\`\`\`
+```env
+# Cloudflare Configuration
+CLOUDFLARE_API_TOKEN=your_cloudflare_api_token
+CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
+
+# Stripe Configuration  
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
+
+# Admin Configuration
+ADMIN_PASSWORD=your_secure_admin_password
+
+# Site Configuration
+SITE_URL=https://your-project.workers.dev
+```
 
 ### Cloudflare Setup
 
-The setup script automatically:
-- Creates KV namespace
-- Creates Pages project
-- Sets up environment variables
-- Deploys your site
+The setup script automatically configures:
+
+- ✅ **KV Namespace** - Creates isolated data storage
+- ✅ **Worker Deployment** - Deploys your application
+- ✅ **Environment Variables** - Sets all required secrets
+- ✅ **Static Assets** - Configures asset serving
+- ✅ **Custom Domain** - Sets up your unique subdomain
+
+---
 
 ## 💳 Stripe Integration
 
-### Automatic Setup
-- Products sync automatically with Stripe
-- Prices are managed in Stripe
-- Checkout sessions redirect to Stripe
+### Automatic Synchronization
 
-### Webhook Configuration (Optional)
-For advanced features, configure Stripe webhooks:
-1. Go to Stripe Dashboard > Webhooks
-2. Add endpoint: \`https://your-site.pages.dev/api/stripe-webhook\`
-3. Select relevant events
+- **Product Creation** - Automatically creates Stripe products and prices
+- **Price Management** - Updates handled seamlessly
+- **Checkout Sessions** - Secure payment processing
+- **Multiple Items** - Cart checkout with line items
+
+### Webhook Setup (Optional)
+
+For advanced order tracking:
+
+1. **Stripe Dashboard** → Webhooks
+2. **Add Endpoint**: `https://your-project.workers.dev/api/stripe-webhook`
+3. **Select Events**: `checkout.session.completed`, `payment_intent.succeeded`
+
+---
 
 ## 🚀 Deployment
 
 ### Automated Deployment
-\`\`\`bash
+
+```bash
+# Deploy updates
 npm run deploy
-\`\`\`
+```
 
 ### Manual Deployment
-\`\`\`bash
+
+```bash
 # Build the project
 npm run build
 
-# Deploy to Cloudflare Pages
-wrangler pages deploy dist --project-name=openshop
-\`\`\`
+# Deploy to Cloudflare Workers
+wrangler deploy
+```
 
-## 📝 API Endpoints
+### Deployment Process
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| \`/api/products\` | GET, POST | Manage products |
-| \`/api/products/[id]\` | GET, PUT, DELETE | Individual product |
-| \`/api/collections\` | GET, POST | Manage collections |
-| \`/api/collections/[id]\` | GET, PUT, DELETE | Individual collection |
-| \`/api/collections/[id]/products\` | GET | Products in collection |
-| \`/api/store-settings\` | GET, PUT | Manage store settings (logo, branding) |
-| \`/api/analytics\` | GET | Retrieve Stripe analytics and revenue data |
-| \`/api/create-checkout-session\` | POST | Create Stripe checkout (single item) |
-| \`/api/create-cart-checkout-session\` | POST | Create Stripe checkout (multiple items) |
-
-## 🎨 Customization
-
-### Styling
-- Built with Tailwind CSS
-- ShadCN/UI components
-- Fully customizable themes
-
-### Components
-- Modular component architecture
-- Easy to extend and modify
-- TypeScript support ready
-
-## 🔒 Security
-
-### Admin Authentication
-- **Token-Based System**: Secure session tokens with 24-hour expiration
-- **KV Token Storage**: Server-side token validation using Cloudflare KV
-- **Password Protection**: Configurable admin password (set during setup)
-- **Automatic Logout**: Expired sessions redirect to login
-
-### API Security
-- **Separated Endpoints**: Public (read-only) vs Admin (authenticated write)
-- **Authentication Headers**: X-Admin-Token header required for admin operations
-- **Input Validation**: Server-side validation on all endpoints
-- **Error Handling**: Proper 401/403 responses for unauthorized access
-
-### Data Protection
-- **Read-Only Public APIs**: Storefront cannot modify data
-- **Admin-Only Writes**: All create/update/delete operations require authentication
-- **Secret Management**: API keys stored as Cloudflare secrets
-- **HTTPS Only**: Automatic HTTPS via Cloudflare Pages
-
-### Token Lifecycle
-1. **Login**: Admin enters password → server validates → generates token
-2. **Storage**: Token stored in KV (server) and localStorage (client)
-3. **Validation**: Every admin request validates token against KV
-4. **Expiration**: 24-hour automatic expiration with cleanup
-5. **Logout**: Manual token removal from both locations
-
-## 📈 Performance
-
-- Global CDN via Cloudflare
-- Edge functions for fast API responses
-- Optimized build with Vite
-- Lazy loading and code splitting
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 🆘 Support
-
-- 📚 Documentation: [Link to docs]
-- 💬 Community: [Link to Discord/Forum]
-- 🐛 Issues: [GitHub Issues]
-
-## 🙏 Acknowledgments
-
-- Cloudflare for the amazing platform
-- Stripe for payment processing
-- ShadCN/UI for beautiful components
-- The open-source community
+1. **Build Frontend** - Vite builds React app to `dist/`
+2. **Deploy Worker** - Wrangler deploys Worker with static assets
+3. **Update Configuration** - Environment variables and bindings applied
+4. **Global Distribution** - Deployed to Cloudflare's edge network
 
 ---
 
+## 🔒 Security Architecture
+
+### Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant W as Worker
+    participant KV as Cloudflare KV
+    
+    U->>W: POST /api/admin/login {password}
+    W->>W: Validate password
+    W->>KV: Store token with TTL
+    W->>U: Return token
+    U->>U: Store token in localStorage
+    
+    U->>W: Admin request + X-Admin-Token header
+    W->>KV: Validate token
+    KV->>W: Token valid/invalid
+    W->>U: Allow/Deny request
+```
+
+### Data Protection
+
+| Layer | Protection Method |
+|-------|------------------|
+| **Transport** | HTTPS encryption (Cloudflare SSL) |
+| **Storage** | KV encryption at rest and in transit |
+| **Authentication** | Token-based with server-side validation |
+| **Authorization** | Endpoint-level access control |
+| **Input Validation** | Server-side sanitization and validation |
+
+---
+
+## 📈 Performance Metrics
+
+### Cloudflare Workers Benefits
+
+- **🚀 Global Edge** - Sub-100ms response times worldwide
+- **⚡ Zero Cold Starts** - Instant function execution
+- **📊 100k Requests/Day** - Generous free tier limits
+- **🔄 Auto-scaling** - Handles traffic spikes automatically
+- **💾 KV Storage** - 100k reads, 1k writes daily (free tier)
+
+### Optimization Features
+
+- **Static Asset Caching** - CDN caching for images, CSS, JS
+- **API Response Caching** - Smart caching for product/collection data
+- **Image Optimization** - Cloudflare image resizing and optimization
+- **Minification** - Automatic JS/CSS minification
+
+---
+
+## 🎨 Customization
+
+### Frontend Customization
+
+```bash
+# Tailwind CSS configuration
+tailwind.config.js
+
+# Component customization
+src/components/ui/
+
+# Theme customization  
+src/index.css
+```
+
+### Backend Customization
+
+```bash
+# API routes
+src/worker.js
+
+# Middleware
+src/middleware/
+
+# Business logic
+src/lib/
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Setup Issues
+
+**Issue: KV Namespace Creation Error**
+```bash
+# Error: Unknown arguments: preview, kv:namespace, create
+```
+**Solution**: Using correct Wrangler command syntax (fixed in latest version)
+
+**Issue: Authentication Error**
+```bash
+# Error: You are logged in with an API Token
+```
+**Solution**: Script now uses API Token directly without OAuth login
+
+**Issue: Empty KV ID in wrangler.toml**
+```bash
+# Error: "id" field but got {"binding":"OPENSHOP_KV","id":""}
+```
+**Solution**: KV binding added after namespace creation (fixed)
+
+**Issue: 500 Error on /admin Route**
+```bash
+# Error: 500 Internal Server Error when visiting /admin
+```
+**Solution**: Fixed SPA routing to properly serve React app for client-side routes (fixed)
+
+**Issue: 404 Error When Creating Collections/Products**
+```bash
+# Error: POST /api/collections 404 (Not Found)
+```
+**Solution**: Updated admin components to use authenticated `/api/admin/*` endpoints (fixed)
+
+### Getting Help
+
+If you encounter issues:
+
+1. **Check Node.js Version** - Ensure you have Node.js 18+ installed
+2. **Verify Credentials** - Double-check your Cloudflare API token and account ID
+3. **Check Wrangler Version** - Run `wrangler --version` (should be 3.0+)
+4. **Review Logs** - Check the Wrangler logs mentioned in error messages
+
+---
+
+## 🧪 Testing
+
+### Manual Testing Checklist
+
+**Storefront:**
+- [ ] Browse products and collections
+- [ ] Add items to cart
+- [ ] Complete checkout process
+- [ ] Test mobile responsiveness
+
+**Admin Dashboard:**
+- [ ] Login with admin credentials
+- [ ] Create/edit products and collections
+- [ ] Upload multiple product images
+- [ ] Customize store settings
+- [ ] View analytics dashboard
+
+### API Testing
+
+```bash
+# Test public endpoints
+curl https://your-project.workers.dev/api/products
+
+# Test admin authentication
+curl -X POST https://your-project.workers.dev/api/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"password":"your_password"}'
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Development Guidelines
+
+- Follow existing code style and patterns
+- Add tests for new functionality
+- Update documentation for any changes
+- Ensure all builds pass before submitting
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🆘 Support & Community
+
+### Getting Help
+
+- **📚 Documentation** - Complete guides in this repository
+- **🐛 Bug Reports** - [GitHub Issues](https://github.com/your-repo/issues)
+- **💡 Feature Requests** - [GitHub Discussions](https://github.com/your-repo/discussions)
+- **💬 Community Chat** - [Discord Server](https://discord.gg/your-invite)
+
+### Resources
+
+- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
+- [Stripe API Documentation](https://stripe.com/docs/api)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [ShadCN/UI Documentation](https://ui.shadcn.com/)
+
+---
+
+## 🙏 Acknowledgments
+
+Special thanks to:
+
+- **Cloudflare** - For the incredible Workers platform and generous free tier
+- **Stripe** - For reliable payment processing and excellent developer experience  
+- **Vercel** - For the ShadCN/UI component library
+- **The Open Source Community** - For the amazing tools and libraries
+
+---
+
+## 🌟 Showcase
+
+> **Built something awesome with OpenShop?** We'd love to feature your store! Open an issue with your store URL and a brief description.
+
+---
+
+<div align="center">
+
 **Made with ❤️ for the open-source community**
+
+[⭐ Star this repo](https://github.com/your-repo) • [🐛 Report Bug](https://github.com/your-repo/issues) • [💡 Request Feature](https://github.com/your-repo/discussions)
+
+</div>

@@ -17,9 +17,10 @@ export class KVManager {
     await this.namespace.put(key, JSON.stringify(productData))
     
     // Also update the products list
-    const allProducts = await this.getAllProducts()
-    allProducts.push(product.id)
-    await this.namespace.put('products:all', JSON.stringify(allProducts))
+    const productIds = await this.namespace.get('products:all')
+    const existingIds = productIds ? JSON.parse(productIds) : []
+    existingIds.push(product.id)
+    await this.namespace.put('products:all', JSON.stringify(existingIds))
     
     return productData
   }
@@ -51,9 +52,12 @@ export class KVManager {
     await this.namespace.delete(key)
     
     // Remove from products list
-    const allProducts = await this.getAllProducts()
-    const filtered = allProducts.filter(pid => pid !== id)
-    await this.namespace.put('products:all', JSON.stringify(filtered))
+    const productIds = await this.namespace.get('products:all')
+    if (productIds) {
+      const existingIds = JSON.parse(productIds)
+      const filtered = existingIds.filter(pid => pid !== id)
+      await this.namespace.put('products:all', JSON.stringify(filtered))
+    }
   }
 
   async getAllProducts() {
@@ -73,9 +77,10 @@ export class KVManager {
     await this.namespace.put(key, JSON.stringify(collection))
     
     // Also update the collections list
-    const allCollections = await this.getAllCollections()
-    allCollections.push(collection.id)
-    await this.namespace.put('collections:all', JSON.stringify(allCollections))
+    const collectionIds = await this.namespace.get('collections:all')
+    const existingIds = collectionIds ? JSON.parse(collectionIds) : []
+    existingIds.push(collection.id)
+    await this.namespace.put('collections:all', JSON.stringify(existingIds))
     
     return collection
   }
@@ -101,9 +106,12 @@ export class KVManager {
     await this.namespace.delete(key)
     
     // Remove from collections list
-    const allCollections = await this.getAllCollections()
-    const filtered = allCollections.filter(cid => cid !== id)
-    await this.namespace.put('collections:all', JSON.stringify(filtered))
+    const collectionIds = await this.namespace.get('collections:all')
+    if (collectionIds) {
+      const existingIds = JSON.parse(collectionIds)
+      const filtered = existingIds.filter(cid => cid !== id)
+      await this.namespace.put('collections:all', JSON.stringify(filtered))
+    }
   }
 
   async getAllCollections() {

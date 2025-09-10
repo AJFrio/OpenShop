@@ -66,46 +66,74 @@ async function setup() {
     execCommand('npm install -g wrangler', 'Installing Wrangler CLI')
   }
 
-  // Authenticate with Cloudflare
+  // Set up Cloudflare authentication
   console.log('\n🔐 Setting up Cloudflare authentication...')
   process.env.CLOUDFLARE_API_TOKEN = cloudflareApiToken
-  execCommand(`wrangler auth login`, 'Authenticating with Cloudflare')
+  process.env.CLOUDFLARE_ACCOUNT_ID = cloudflareAccountId
+  console.log('✅ Using API Token authentication (skipping OAuth login)')
+  
+  // Verify Wrangler can access account
+  try {
+    execSync('wrangler whoami', { stdio: 'ignore' })
+    console.log('✅ Cloudflare authentication verified')
+  } catch (error) {
+    console.log('⚠️  Authentication check failed, but continuing with API token...')
+  }
 
   // Create KV namespace with project name
   console.log('\n🗃️ Creating KV namespace...')
   const kvNamespaceName = `${sanitizedProjectName.toUpperCase()}_KV`
-  const kvResult = execSync(`wrangler kv:namespace create "${kvNamespaceName}" --preview false`, { encoding: 'utf8' })
-  const kvIdMatch = kvResult.match(/id = "([^"]+)"/)
+  const kvResult = execSync(`wrangler kv namespace create "${kvNamespaceName}"`, { encoding: 'utf8' })
+  console.log('KV Creation Output:', kvResult) // Debug output
+  
+  // Try multiple regex patterns for different Wrangler output formats
+  let kvIdMatch = kvResult.match(/id = "([^"]+)"/) || 
+                  kvResult.match(/ID:\s*([a-f0-9-]+)/) ||
+                  kvResult.match(/"id":\s*"([^"]+)"/) ||
+                  kvResult.match(/([a-f0-9]{32})/)
   
   if (!kvIdMatch) {
-    console.error('❌ Failed to extract KV namespace ID')
+    console.error('❌ Failed to extract KV namespace ID from output:', kvResult)
     process.exit(1)
   }
   
   const kvId = kvIdMatch[1]
   console.log(`✅ KV namespace "${kvNamespaceName}" created with ID: ${kvId}`)
 
-  // Update wrangler.toml with project name and KV namespace
+  // Update wrangler.toml with project name and add KV namespace
   let wranglerConfig = readFileSync('wrangler.toml', 'utf8')
   wranglerConfig = wranglerConfig.replace('name = "openshop"', `name = "${sanitizedProjectName}"`)
-  wranglerConfig = wranglerConfig.replace('binding = "OPENSHOP_KV"', `binding = "${kvNamespaceName}"`)
-  wranglerConfig = wranglerConfig.replace('id = ""', `id = "${kvId}"`)
+  
+  // Add KV namespace configuration
+  const kvConfig = `
+# KV namespace binding
+[[kv_namespaces]]
+binding = "${kvNamespaceName}"
+id = "${kvId}"
+`
+  
+  // Insert KV config before the last comment line
+  wranglerConfig = wranglerConfig.replace(
+    '# KV namespace and secrets will be added during setup',
+    `${kvConfig}`
+  )
+  
   writeFileSync('wrangler.toml', wranglerConfig)
   console.log('✅ Updated wrangler.toml with project name and KV namespace')
 
-  // Create Pages project with custom name
-  console.log('\n📄 Creating Cloudflare Pages project...')
+  // Build and deploy Worker
+  console.log('\n🔧 Building and deploying Cloudflare Worker...')
   execCommand('npm run build', 'Building project')
-  execCommand(`wrangler pages project create ${sanitizedProjectName}`, `Creating Pages project "${sanitizedProjectName}"`)
+  execCommand(`wrangler deploy`, `Deploying Worker "${sanitizedProjectName}"`)
 
-  // Get the Pages URL with custom name
-  const pagesUrl = `https://${sanitizedProjectName}.pages.dev`
+  // Get the Worker URL with custom name
+  const workerUrl = `https://${sanitizedProjectName}.workers.dev`
   
   // Update wrangler.toml with site URL
   wranglerConfig = readFileSync('wrangler.toml', 'utf8')
-  wranglerConfig = wranglerConfig.replace('SITE_URL = ""', `SITE_URL = "${pagesUrl}"`)
+  wranglerConfig = wranglerConfig.replace('SITE_URL = ""', `SITE_URL = "${workerUrl}"`)
   writeFileSync('wrangler.toml', wranglerConfig)
-  console.log('✅ Updated wrangler.toml with site URL')
+  console.log('✅ Updated wrangler.toml with worker URL')
 
   // Set secrets
   console.log('\n🔒 Setting up secrets...')
@@ -123,20 +151,16 @@ CLOUDFLARE_ACCOUNT_ID=${cloudflareAccountId}
 STRIPE_SECRET_KEY=${stripeSecretKey}
 VITE_STRIPE_PUBLISHABLE_KEY=${stripePublishableKey}
 ADMIN_PASSWORD=${adminPassword}
-SITE_URL=${pagesUrl}
+SITE_URL=${workerUrl}
 `
   writeFileSync('.env', envContent)
   console.log('✅ Created .env file for local development')
 
-  // Deploy to Pages
-  console.log('\n🚀 Deploying to Cloudflare Pages...')
-  execCommand('npm run deploy', 'Deploying to Cloudflare Pages')
-
   console.log('\n🎉 Setup completed successfully!')
-  console.log(`\n📱 Your "${projectName}" store is now live at: ${pagesUrl}`)
-  console.log(`🔧 Admin dashboard: ${pagesUrl}/admin`)
+  console.log(`\n📱 Your "${projectName}" store is now live at: ${workerUrl}`)
+  console.log(`🔧 Admin dashboard: ${workerUrl}/admin`)
   console.log(`🗃️ KV Namespace: ${kvNamespaceName}`)
-  console.log(`📄 Pages Project: ${sanitizedProjectName}`)
+  console.log(`⚡ Worker: ${sanitizedProjectName}`)
   console.log('\n📝 Next steps:')
   console.log('1. Visit your admin dashboard to add products and collections')
   console.log(`2. Login with password: ${adminPassword}`)

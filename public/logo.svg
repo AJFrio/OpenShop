@@ -1,0 +1,16 @@
+<svg width="200" height="50" viewBox="0 0 200 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="50" rx="8" fill="url(#gradient)"/>
+  <text x="15" y="32" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="white">OpenShop</text>
+  <g transform="translate(160, 12)">
+    <path d="M3 3h18l-1 10H14l-1-3H6l-1 3H4L3 3z" fill="white"/>
+    <path d="M7 13h10l-1 7H8l-1-7z" fill="white"/>
+    <circle cx="9" cy="21" r="1" fill="white"/>
+    <circle cx="20" cy="21" r="1" fill="white"/>
+  </g>
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#9333ea"/>
+      <stop offset="100%" style="stop-color:#2563eb"/>
+    </linearGradient>
+  </defs>
+</svg>

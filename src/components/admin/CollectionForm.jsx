@@ -4,6 +4,7 @@ import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
 import { generateId } from '../../lib/utils'
+import { adminApiRequest } from '../../lib/auth'
 
 export function CollectionForm({ collection, onSave, onCancel }) {
   const [formData, setFormData] = useState({
@@ -35,14 +36,11 @@ export function CollectionForm({ collection, onSave, onCancel }) {
     setLoading(true)
 
     try {
-      const url = collection ? `/api/collections/${collection.id}` : '/api/collections'
+      const url = collection ? `/api/admin/collections/${collection.id}` : '/api/admin/collections'
       const method = collection ? 'PUT' : 'POST'
 
-      const response = await fetch(url, {
+      const response = await adminApiRequest(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(formData),
       })
 
