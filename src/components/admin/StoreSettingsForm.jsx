@@ -4,6 +4,16 @@ import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Select } from '../ui/select'
 import { adminApiRequest } from '../../lib/auth'
+import { normalizeImageUrl } from '../../lib/utils'
+import { 
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction
+} from '../ui/alert-dialog'
 
 export function StoreSettingsForm() {
   const [settings, setSettings] = useState({
@@ -11,10 +21,17 @@ export function StoreSettingsForm() {
     logoText: 'OpenShop',
     logoImageUrl: '',
     storeName: 'OpenShop',
-    storeDescription: 'Your amazing online store'
+    storeDescription: 'Your amazing online store',
+    heroImageUrl: '',
+    heroTitle: 'Welcome to OpenShop',
+    heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.'
   })
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [modalImage, setModalImage] = useState(null)
+  const [savedOpen, setSavedOpen] = useState(false)
+  const [errorOpen, setErrorOpen] = useState(false)
+  const [errorText, setErrorText] = useState('')
 
   useEffect(() => {
     fetchSettings()
@@ -64,17 +81,17 @@ export function StoreSettingsForm() {
       if (response.ok) {
         const updatedSettings = await response.json()
         setSettings(updatedSettings)
-        alert('Store settings updated successfully!')
+        setSavedOpen(true)
         
-        // Trigger a page refresh to update the navbar
-        window.location.reload()
+        // Refresh navbar/logo by reloading after dialog closes
       } else {
         const error = await response.json()
         throw new Error(error.error || 'Failed to update settings')
       }
     } catch (error) {
       console.error('Error saving store settings:', error)
-      alert('Error saving settings: ' + error.message)
+      setErrorText('Error saving settings: ' + (error?.message || 'Unknown error'))
+      setErrorOpen(true)
     } finally {
       setSaving(false)
     }
@@ -94,6 +111,7 @@ export function StoreSettingsForm() {
   }
 
   return (
+    <>
     <Card className="w-full max-w-2xl">
       <CardHeader>
         <CardTitle>Store Settings</CardTitle>
@@ -130,14 +148,27 @@ export function StoreSettingsForm() {
             ) : (
               <div>
                 <label className="block text-sm font-medium mb-2">Logo Image URL *</label>
-                <Input
-                  name="logoImageUrl"
-                  type="url"
-                  value={settings.logoImageUrl}
-                  onChange={handleChange}
-                  placeholder="https://example.com/logo.png"
-                  required
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    name="logoImageUrl"
+                    type="url"
+                    value={settings.logoImageUrl}
+                    onChange={handleChange}
+                    placeholder="https://example.com/logo.png"
+                    required
+                    className="flex-1"
+                  />
+                  {settings.logoImageUrl && (
+                    <button
+                      type="button"
+                      className="w-12 h-12 rounded overflow-hidden border bg-white"
+                      onClick={() => setModalImage(normalizeImageUrl(settings.logoImageUrl))}
+                      title="Preview"
+                    >
+                      <img src={normalizeImageUrl(settings.logoImageUrl)} alt="logo preview" className="w-full h-full object-cover" />
+                    </button>
+                  )}
+                </div>
                 <p className="text-sm text-gray-500 mt-1">
                   Recommended size: 200x50px or similar aspect ratio
                 </p>
@@ -167,6 +198,70 @@ export function StoreSettingsForm() {
                 onChange={handleChange}
                 placeholder="Brief description of your store"
               />
+            </div>
+          </div>
+
+          {/* Home Hero Settings */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900">Home Hero</h3>
+            <div>
+              <label className="block text-sm font-medium mb-2">Hero Image URL</label>
+              <div className="flex items-center gap-2">
+                <Input
+                  name="heroImageUrl"
+                  type="url"
+                  value={settings.heroImageUrl}
+                  onChange={handleChange}
+                  placeholder="https://example.com/hero.jpg"
+                  className="flex-1"
+                />
+                {settings.heroImageUrl && (
+                  <button
+                    type="button"
+                    className="w-12 h-12 rounded overflow-hidden border bg-white"
+                    onClick={() => setModalImage(normalizeImageUrl(settings.heroImageUrl))}
+                    title="Preview"
+                  >
+                    <img src={normalizeImageUrl(settings.heroImageUrl)} alt="hero preview" className="w-full h-full object-cover" />
+                  </button>
+                )}
+              </div>
+              <p className="text-sm text-gray-500 mt-1">Large, wide image recommended (e.g. 1600x600).</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Hero Title (H1)</label>
+              <Input
+                name="heroTitle"
+                value={settings.heroTitle}
+                onChange={handleChange}
+                placeholder="Welcome to OpenShop"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Hero Subtitle (H2)</label>
+              <Input
+                name="heroSubtitle"
+                value={settings.heroSubtitle}
+                onChange={handleChange}
+                placeholder="Short supporting statement"
+              />
+            </div>
+
+            {/* Hero Preview */}
+            <div className="border rounded-lg overflow-hidden">
+              <div className="relative">
+                {settings.heroImageUrl ? (
+                  <img src={settings.heroImageUrl} alt="Hero" className="w-full h-48 object-cover opacity-80" />
+                ) : (
+                  <div className="w-full h-48 bg-gradient-to-r from-purple-600 to-blue-600" />
+                )}
+                <div className="absolute inset-0 flex items-center justify-center text-center px-4">
+                  <div className="text-white">
+                    <h1 className="text-2xl font-bold mb-2">{settings.heroTitle || 'Welcome to OpenShop'}</h1>
+                    <p className="opacity-90">{settings.heroSubtitle || 'Discover amazing products at unbeatable prices.'}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -216,5 +311,40 @@ export function StoreSettingsForm() {
         </form>
       </CardContent>
     </Card>
+    {modalImage && (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
+        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
+          <img src={modalImage} alt="preview" className="w-full h-auto object-contain rounded" />
+          <div className="p-3 border-t text-center">
+            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-purple-600 hover:text-purple-700">Open original</a>
+          </div>
+        </div>
+      </div>
+    )}
+    <AlertDialog open={savedOpen} onOpenChange={setSavedOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Settings saved</AlertDialogTitle>
+          <AlertDialogDescription>
+            Store settings updated successfully.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction onClick={() => window.location.reload()}>OK</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    <AlertDialog open={errorOpen} onOpenChange={setErrorOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Something went wrong</AlertDialogTitle>
+          <AlertDialogDescription>{errorText}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction>OK</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }

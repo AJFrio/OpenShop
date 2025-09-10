@@ -3,15 +3,17 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { isAdminAuthenticated, clearAdminToken } from '../../lib/auth'
 import { AdminLogin } from '../../components/admin/AdminLogin'
 import { Button } from '../../components/ui/button'
+import { Select } from '../../components/ui/select'
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card'
 import { ProductForm } from '../../components/admin/ProductForm'
 import { CollectionForm } from '../../components/admin/CollectionForm'
 import { StoreSettingsForm } from '../../components/admin/StoreSettingsForm'
 import { RevenueChart, OrdersChart } from '../../components/admin/AnalyticsCharts'
 import { MetricCard, RecentOrdersCard } from '../../components/admin/AnalyticsCards'
-import { formatCurrency } from '../../lib/utils'
+import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
-import { Package, FolderOpen, Plus, Edit, Trash2, Home, Settings, DollarSign, ShoppingBag, BarChart3 } from 'lucide-react'
+import { Package, FolderOpen, Plus, Edit, Trash2, Home, Settings, DollarSign, ShoppingBag, BarChart3, Image as ImageIcon, X } from 'lucide-react'
+import { Switch } from '../../components/ui/switch'
 
 function AdminSidebar({ onLogout }) {
   const location = useLocation()
@@ -20,6 +22,7 @@ function AdminSidebar({ onLogout }) {
     { path: '/admin', label: 'Dashboard', icon: Home },
     { path: '/admin/products', label: 'Products', icon: Package },
     { path: '/admin/collections', label: 'Collections', icon: FolderOpen },
+    { path: '/admin/media', label: 'Media', icon: ImageIcon },
     { path: '/admin/store-settings', label: 'Store Settings', icon: Settings },
   ]
 
@@ -129,6 +132,7 @@ function Dashboard() {
         {/* Period Selector */}
         <div className="flex gap-2">
           {[
+            { value: '1d', label: '1 Day' },
             { value: '7d', label: '7 Days' },
             { value: '30d', label: '30 Days' },
             { value: '90d', label: '90 Days' },
@@ -241,22 +245,38 @@ function Dashboard() {
 
 function ProductsManager() {
   const [products, setProducts] = useState([])
+  const [collections, setCollections] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
+  const [collectionFilter, setCollectionFilter] = useState('')
+  const [archivedFilter, setArchivedFilter] = useState('all')
 
   useEffect(() => {
     fetchProducts()
+    fetchCollections()
   }, [])
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products')
+      const response = await adminApiRequest('/api/admin/products')
       if (response.ok) {
         const data = await response.json()
         setProducts(data)
       }
     } catch (error) {
       console.error('Error fetching products:', error)
+    }
+  }
+
+  const fetchCollections = async () => {
+    try {
+      const response = await adminApiRequest('/api/admin/collections')
+      if (response.ok) {
+        const data = await response.json()
+        setCollections(data)
+      }
+    } catch (error) {
+      console.error('Error fetching collections:', error)
     }
   }
 
@@ -301,6 +321,12 @@ function ProductsManager() {
     )
   }
 
+  const filteredProducts = products.filter(p => {
+    const byCollection = collectionFilter ? p.collectionId === collectionFilter : true
+    const byArchived = archivedFilter === 'all' ? true : archivedFilter === 'archived' ? !!p.archived : !p.archived
+    return byCollection && byArchived
+  })
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -311,12 +337,33 @@ function ProductsManager() {
         </Button>
       </div>
 
-      {products.length === 0 ? (
+      {/* Filters */}
+      <div className="flex flex-wrap gap-4 items-center">
+        <div>
+          <label className="block text-sm font-medium mb-1">Filter by Collection</label>
+          <Select value={collectionFilter} onChange={(e) => setCollectionFilter(e.target.value)}>
+            <option value="">All Collections</option>
+            {collections.map(col => (
+              <option key={col.id} value={col.id}>{col.name}</option>
+            ))}
+          </Select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Filter by Archived</label>
+          <Select value={archivedFilter} onChange={(e) => setArchivedFilter(e.target.value)}>
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="archived">Archived</option>
+          </Select>
+        </div>
+      </div>
+
+      {filteredProducts.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No products yet</h3>
-            <p className="text-gray-600 mb-6">Get started by creating your first product.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No products</h3>
+            <p className="text-gray-600 mb-6">Try adjusting your filters or create a product.</p>
             <Button onClick={() => setShowForm(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Add Product
@@ -325,7 +372,7 @@ function ProductsManager() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <Card key={product.id}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -347,7 +394,21 @@ function ProductsManager() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 items-center">
+                    <label className="flex items-center gap-3 text-sm text-gray-700">
+                      <Switch
+                        checked={!!product.archived}
+                        onCheckedChange={async (v) => {
+                          const updated = { archived: v }
+                          const res = await adminApiRequest(`/api/admin/products/${product.id}`, { method: 'PUT', body: JSON.stringify(updated) })
+                          if (res.ok) {
+                            const saved = await res.json()
+                            setProducts(products.map(p => p.id === saved.id ? saved : p))
+                          }
+                        }}
+                      />
+                      Archived
+                    </label>
                     <Button
                       variant="outline"
                       size="sm"
@@ -380,6 +441,7 @@ function CollectionsManager() {
   const [collections, setCollections] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingCollection, setEditingCollection] = useState(null)
+  const [archivedFilter, setArchivedFilter] = useState('all')
 
   useEffect(() => {
     fetchCollections()
@@ -387,7 +449,7 @@ function CollectionsManager() {
 
   const fetchCollections = async () => {
     try {
-      const response = await fetch('/api/collections')
+      const response = await adminApiRequest('/api/admin/collections')
       if (response.ok) {
         const data = await response.json()
         setCollections(data)
@@ -448,7 +510,17 @@ function CollectionsManager() {
         </Button>
       </div>
 
-      {collections.length === 0 ? (
+      {/* Filters */}
+      <div>
+        <label className="block text-sm font-medium mb-1">Filter by Archived</label>
+        <Select value={archivedFilter} onChange={(e) => setArchivedFilter(e.target.value)}>
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="archived">Archived</option>
+        </Select>
+      </div>
+
+      {collections.filter(c => archivedFilter === 'all' ? true : archivedFilter === 'archived' ? !!c.archived : !c.archived).length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <FolderOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -462,7 +534,7 @@ function CollectionsManager() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {collections.map((collection) => (
+          {collections.filter(c => archivedFilter === 'all' ? true : archivedFilter === 'archived' ? !!c.archived : !c.archived).map((collection) => (
             <Card key={collection.id}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -470,7 +542,21 @@ function CollectionsManager() {
                     <h3 className="text-lg font-medium text-gray-900">{collection.name}</h3>
                     <p className="text-sm text-gray-600">{collection.description}</p>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 items-center">
+                    <label className="flex items-center gap-3 text-sm text-gray-700">
+                      <Switch
+                        checked={!!collection.archived}
+                        onCheckedChange={async (v) => {
+                          const updated = { archived: v }
+                          const res = await adminApiRequest(`/api/admin/collections/${collection.id}`, { method: 'PUT', body: JSON.stringify(updated) })
+                          if (res.ok) {
+                            const saved = await res.json()
+                            setCollections(collections.map(c => c.id === saved.id ? saved : c))
+                          }
+                        }}
+                      />
+                      Archived
+                    </label>
                     <Button
                       variant="outline"
                       size="sm"
@@ -493,6 +579,110 @@ function CollectionsManager() {
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MediaLibrary() {
+  const [images, setImages] = useState([])
+  const [modalImage, setModalImage] = useState(null)
+
+  useEffect(() => {
+    collectImages()
+  }, [])
+
+  const collectImages = async () => {
+    try {
+      const [productsRes, collectionsRes, settingsRes] = await Promise.all([
+        fetch('/api/products'),
+        fetch('/api/collections'),
+        fetch('/api/store-settings')
+      ])
+
+      const products = productsRes.ok ? await productsRes.json() : []
+      const collections = collectionsRes.ok ? await collectionsRes.json() : []
+      const settings = settingsRes.ok ? await settingsRes.json() : {}
+
+      const gathered = new Set()
+      const add = (url, label, link) => {
+        if (url && typeof url === 'string') {
+          const normalized = normalizeImageUrl(url)
+          gathered.add(JSON.stringify({ url: normalized, label, link }))
+        }
+      }
+
+      products.forEach(p => {
+        ;(Array.isArray(p.images) ? p.images : (p.imageUrl ? [p.imageUrl] : [])).forEach(u => add(u, `Product: ${p.name}`, `/admin/products`))
+        if (Array.isArray(p.variants)) {
+          p.variants.forEach(v => {
+            add(v.selectorImageUrl, `Variant (${p.variantStyle || 'Variant'}) ${v.name} selector`, `/admin/products`)
+            add(v.displayImageUrl, `Variant (${p.variantStyle || 'Variant'}) ${v.name} display`, `/admin/products`)
+            if (v.imageUrl) add(v.imageUrl, `Variant (${p.variantStyle || 'Variant'}) ${v.name}`, `/admin/products`)
+          })
+        }
+      })
+
+      collections.forEach(c => add(c.heroImage, `Collection: ${c.name} hero`, `/admin/collections`))
+      add(settings.logoImageUrl, 'Store Logo', '/admin/store-settings')
+      add(settings.heroImageUrl, 'Home Hero', '/admin/store-settings')
+
+      const list = Array.from(gathered).map(s => JSON.parse(s))
+      setImages(list)
+    } catch (e) {
+      console.error('Error collecting images', e)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-900">Media Library</h1>
+        <Button variant="outline" onClick={collectImages}>Refresh</Button>
+      </div>
+
+      {images.length === 0 ? (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No images found</h3>
+            <p className="text-gray-600">Images from products, variants, collections, and hero settings will appear here.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {images.map((img, idx) => (
+            <button
+              key={idx}
+              onClick={() => setModalImage(img)}
+              className="group relative rounded-lg overflow-hidden border hover:shadow-md transition"
+              title={img.label}
+            >
+              <img src={img.url} alt={img.label} className="w-full h-28 object-cover" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition" />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {modalImage && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative" onClick={(e) => e.stopPropagation()}>
+            <button className="absolute top-3 right-3 p-2 rounded-full border hover:bg-gray-50" onClick={() => setModalImage(null)}>
+              <X className="w-5 h-5" />
+            </button>
+            <img src={modalImage.url} alt={modalImage.label} className="w-full h-auto object-contain rounded-t-lg" />
+            <div className="p-4 border-t space-y-2">
+              <p className="text-sm text-gray-700 break-all">{modalImage.label}</p>
+              <div className="flex gap-4 items-center text-sm">
+                <a href={modalImage.url} target="_blank" rel="noreferrer" className="text-purple-600 hover:text-purple-700">Open original</a>
+                {modalImage.link && (
+                  <a href={modalImage.link} className="text-purple-600 hover:text-purple-700">Open related editor</a>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -553,6 +743,7 @@ export function AdminDashboard() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/products" element={<ProductsManager />} />
           <Route path="/collections" element={<CollectionsManager />} />
+          <Route path="/media" element={<MediaLibrary />} />
           <Route path="/store-settings" element={<StoreSettingsManager />} />
         </Routes>
       </div>

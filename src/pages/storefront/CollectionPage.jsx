@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { normalizeImageUrl } from '../../lib/utils'
 import { useParams } from 'react-router-dom'
 import { Navbar } from '../../components/storefront/Navbar'
 import { ProductCard } from '../../components/storefront/ProductCard'
@@ -25,7 +26,9 @@ export function CollectionPage() {
 
       if (collectionResponse.ok) {
         const collectionData = await collectionResponse.json()
-        setCollection(collectionData)
+        // Normalize hero image URLs (e.g., Google Drive links)
+        const normalized = collectionData.heroImage ? normalizeImageUrl(collectionData.heroImage) : ''
+        setCollection({ ...collectionData, heroImage: normalized })
       }
 
       if (productsResponse.ok) {

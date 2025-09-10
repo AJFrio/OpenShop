@@ -3,17 +3,31 @@ import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
-import { generateId } from '../../lib/utils'
+import { generateId, normalizeImageUrl } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
+import { 
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction
+} from '../ui/alert-dialog'
+import { Switch } from '../ui/switch'
 
 export function CollectionForm({ collection, onSave, onCancel }) {
   const [formData, setFormData] = useState({
     id: '',
     name: '',
     description: '',
-    heroImage: ''
+    heroImage: '',
+    archived: false
   })
   const [loading, setLoading] = useState(false)
+  const [modalImage, setModalImage] = useState(null)
+  const [errorOpen, setErrorOpen] = useState(false)
+  const [errorText, setErrorText] = useState('')
 
   useEffect(() => {
     if (collection) {
@@ -52,13 +66,15 @@ export function CollectionForm({ collection, onSave, onCancel }) {
       }
     } catch (error) {
       console.error('Error saving collection:', error)
-      alert('Error saving collection. Please try again.')
+      setErrorText('Error saving collection. Please try again.')
+      setErrorOpen(true)
     } finally {
       setLoading(false)
     }
   }
 
   return (
+    <>
     <Card className="w-full max-w-2xl">
       <CardHeader>
         <CardTitle>
@@ -78,6 +94,15 @@ export function CollectionForm({ collection, onSave, onCancel }) {
             />
           </div>
 
+          <div className="flex items-center gap-3">
+            <Switch
+              id="collection-archived"
+              checked={!!formData.archived}
+              onCheckedChange={(v) => setFormData(prev => ({ ...prev, archived: v }))}
+            />
+            <label htmlFor="collection-archived" className="text-sm text-gray-700 select-none">Archived (hide from storefront)</label>
+          </div>
+
           <div>
             <label className="block text-sm font-medium mb-2">Description</label>
             <Textarea
@@ -91,13 +116,26 @@ export function CollectionForm({ collection, onSave, onCancel }) {
 
           <div>
             <label className="block text-sm font-medium mb-2">Hero Banner Image</label>
-            <Input
-              name="heroImage"
-              type="url"
-              value={formData.heroImage}
-              onChange={handleChange}
-              placeholder="https://example.com/hero-banner.jpg"
-            />
+            <div className="flex items-center gap-2">
+              <Input
+                name="heroImage"
+                type="url"
+                value={formData.heroImage}
+                onChange={handleChange}
+                placeholder="https://example.com/hero-banner.jpg"
+                className="flex-1"
+              />
+              {formData.heroImage && (
+                <button
+                  type="button"
+                  className="w-12 h-12 rounded overflow-hidden border bg-white"
+                  onClick={() => setModalImage(normalizeImageUrl(formData.heroImage))}
+                  title="Preview"
+                >
+                  <img src={normalizeImageUrl(formData.heroImage)} alt="preview" className="w-full h-full object-cover" />
+                </button>
+              )}
+            </div>
             <p className="text-sm text-gray-500 mt-1">
               This image will be displayed as a banner on the collection page
             </p>
@@ -114,5 +152,27 @@ export function CollectionForm({ collection, onSave, onCancel }) {
         </form>
       </CardContent>
     </Card>
+    {modalImage && (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
+        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
+          <img src={modalImage} alt="preview" className="w-full h-auto object-contain rounded" />
+          <div className="p-3 border-t text-center">
+            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-purple-600 hover:text-purple-700">Open original</a>
+          </div>
+        </div>
+      </div>
+    )}
+    <AlertDialog open={errorOpen} onOpenChange={setErrorOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Something went wrong</AlertDialogTitle>
+          <AlertDialogDescription>{errorText}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction>OK</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }

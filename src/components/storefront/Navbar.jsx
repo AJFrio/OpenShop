@@ -62,7 +62,7 @@ export function Navbar() {
   return (
     <nav className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="grid grid-cols-3 items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
             {storeSettings.logoType === 'image' && storeSettings.logoImageUrl ? (
@@ -86,9 +86,9 @@ export function Navbar() {
             </h1>
           </Link>
 
-          {/* Navigation Links */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-6">
+          {/* Navigation Links centered */}
+          <div className="hidden md:flex justify-center">
+            <div className="flex items-baseline space-x-6 justify-center">
               <Link
                 to="/"
                 className="text-gray-900 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
@@ -120,9 +120,10 @@ export function Navbar() {
                         </div>
                         <div className="max-h-80 overflow-y-auto">
                           {collection.products.map((product) => (
-                            <div
+                            <Link
                               key={product.id}
-                              className="px-4 py-3 hover:bg-gray-50 transition-colors duration-150"
+                              to={`/products/${product.id}`}
+                              className="block px-4 py-3 hover:bg-gray-50 transition-colors duration-150"
                             >
                               <div className="flex items-center space-x-3">
                                 <div className="flex-shrink-0">
@@ -165,7 +166,7 @@ export function Navbar() {
                                   </p>
                                 </div>
                               </div>
-                            </div>
+                            </Link>
                           ))}
                         </div>
                         <div className="border-t px-4 py-2">
@@ -185,7 +186,7 @@ export function Navbar() {
           </div>
 
           {/* Cart Button */}
-          <div className="flex items-center">
+          <div className="flex items-center justify-end">
             <button
               onClick={toggleCart}
               className="relative p-2 text-gray-900 hover:text-gray-600 transition-all duration-200 hover:scale-110"
@@ -245,9 +246,11 @@ export function Navbar() {
                 {collection.products.length > 0 && (
                   <div className="pl-6 space-y-1">
                     {collection.products.slice(0, 5).map((product) => (
-                      <div
+                      <Link
                         key={product.id}
-                        className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                        to={`/products/${product.id}`}
+                        className="block px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                        onClick={() => setMobileMenuOpen(false)}
                       >
                         <div className="flex items-center space-x-3">
                           <div className="flex-shrink-0">
@@ -276,7 +279,7 @@ export function Navbar() {
                             <p className="text-purple-600 font-semibold">${product.price}</p>
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                     {collection.products.length > 5 && (
                       <Link

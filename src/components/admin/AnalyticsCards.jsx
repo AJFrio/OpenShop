@@ -13,7 +13,9 @@ export function MetricCard({ title, value, change, changeType, icon: Icon, prefi
           <div>
             <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
             <p className="text-2xl font-bold text-gray-900">
-              {prefix}{typeof value === 'number' && prefix === '$' ? formatCurrency(value) : value}
+              {typeof value === 'number'
+                ? (prefix === '$' ? formatCurrency(value) : `${prefix}${value}`)
+                : `${prefix}${value}`}
             </p>
             {change !== undefined && (
               <div className={`flex items-center mt-2 text-sm ${

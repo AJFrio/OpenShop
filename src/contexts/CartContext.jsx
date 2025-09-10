@@ -8,7 +8,8 @@ const CART_ACTIONS = {
   REMOVE_ITEM: 'REMOVE_ITEM',
   UPDATE_QUANTITY: 'UPDATE_QUANTITY',
   CLEAR_CART: 'CLEAR_CART',
-  TOGGLE_CART: 'TOGGLE_CART'
+  TOGGLE_CART: 'TOGGLE_CART',
+  OPEN_CART: 'OPEN_CART'
 }
 
 // Cart reducer
@@ -73,6 +74,13 @@ function cartReducer(state, action) {
       }
     }
 
+    case CART_ACTIONS.OPEN_CART: {
+      return {
+        ...state,
+        isOpen: true
+      }
+    }
+
     default:
       return state
   }
@@ -117,6 +125,7 @@ export function CartProvider({ children }) {
   // Cart actions
   const addItem = (product) => {
     dispatch({ type: CART_ACTIONS.ADD_ITEM, payload: product })
+    dispatch({ type: CART_ACTIONS.OPEN_CART })
   }
 
   const removeItem = (productId) => {
@@ -134,6 +143,9 @@ export function CartProvider({ children }) {
   const toggleCart = () => {
     dispatch({ type: CART_ACTIONS.TOGGLE_CART })
   }
+  const openCart = () => {
+    dispatch({ type: CART_ACTIONS.OPEN_CART })
+  }
 
   // Computed values
   const itemCount = state.items.reduce((total, item) => total + item.quantity, 0)
@@ -148,7 +160,8 @@ export function CartProvider({ children }) {
     removeItem,
     updateQuantity,
     clearCart,
-    toggleCart
+    toggleCart,
+    openCart
   }
 
   return (

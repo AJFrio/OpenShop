@@ -12,6 +12,7 @@ export function ProductPage() {
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [currentImage, setCurrentImage] = useState(0)
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(null)
   const { addItem } = useCart()
 
   useEffect(() => {
@@ -39,10 +40,15 @@ export function ProductPage() {
 
   const images = useMemo(() => {
     if (!product) return []
-    return Array.isArray(product.images)
+    // If a variant is selected and has a display image, prioritize it
+    const displayImage = (product.variants && selectedVariantIndex != null)
+      ? (product.variants[selectedVariantIndex]?.displayImageUrl || product.variants[selectedVariantIndex]?.imageUrl)
+      : null
+    const baseImages = Array.isArray(product.images)
       ? product.images
       : (product?.imageUrl ? [product.imageUrl] : [])
-  }, [product])
+    return displayImage ? [displayImage, ...baseImages] : baseImages
+  }, [product, selectedVariantIndex])
 
   const handleBuyNow = async () => {
     if (!product?.stripePriceId) return
@@ -127,6 +133,36 @@ export function ProductPage() {
                 <p className="text-gray-600">{product.tagline}</p>
               )}
             </div>
+
+            {/* Variant Selector */}
+            {Array.isArray(product.variants) && product.variants.length > 0 && (
+              <div className="mb-6">
+                <p className="text-sm text-gray-700 mb-2 font-medium">
+                  {product.variantStyle || 'Variant'}
+                </p>
+                <div className="grid grid-cols-5 gap-3">
+                  {product.variants.map((v, idx) => (
+                    <button
+                      key={v.id || idx}
+                      onClick={() => { setSelectedVariantIndex(idx); setCurrentImage(0) }}
+                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-500 ${idx === selectedVariantIndex ? 'border-purple-600 ring-2 ring-purple-200' : 'border-gray-200'}`}
+                      title={v.name}
+                    >
+                      {v.selectorImageUrl || v.imageUrl ? (
+                        <img src={v.selectorImageUrl || v.imageUrl} alt={v.name} className="w-full h-16 object-cover" />
+                      ) : (
+                        <div className="w-full h-16 flex items-center justify-center text-sm text-gray-600 bg-gray-50">
+                          {v.name || 'Option'}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                {selectedVariantIndex != null && product.variants[selectedVariantIndex]?.name && (
+                  <p className="text-sm text-gray-600 mt-2">Selected: {product.variants[selectedVariantIndex].name}</p>
+                )}
+              </div>
+            )}
             <div className="mb-8">
               <span className="text-4xl font-bold text-gray-900">
                 {formatCurrency(product.price, product.currency)}

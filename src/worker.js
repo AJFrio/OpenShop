@@ -79,7 +79,8 @@ app.get('/api/products', async (c) => {
   try {
     const kv = new KVManager(getKVNamespace(c.env))
     const products = await kv.getAllProducts()
-    return c.json(products)
+    const visible = products.filter(p => !p.archived)
+    return c.json(visible)
   } catch (error) {
     console.error('Error fetching products:', error)
     return c.json({ error: 'Failed to fetch products' }, 500)
@@ -108,7 +109,8 @@ app.get('/api/collections', async (c) => {
   try {
     const kv = new KVManager(getKVNamespace(c.env))
     const collections = await kv.getAllCollections()
-    return c.json(collections)
+    const visible = collections.filter(col => !col.archived)
+    return c.json(visible)
   } catch (error) {
     console.error('Error fetching collections:', error)
     return c.json({ error: 'Failed to fetch collections' }, 500)
@@ -137,7 +139,12 @@ app.get('/api/collections/:id/products', async (c) => {
   try {
     const kv = new KVManager(getKVNamespace(c.env))
     const products = await kv.getProductsByCollection(c.req.param('id'))
-    return c.json(products)
+    // If collection is archived, hide all products in that collection regardless of product flag
+    const collection = await kv.getCollection(c.req.param('id'))
+    const visible = (collection && collection.archived)
+      ? []
+      : products.filter(p => !p.archived)
+    return c.json(visible)
   } catch (error) {
     console.error('Error fetching collection products:', error)
     return c.json({ error: 'Failed to fetch collection products' }, 500)
@@ -156,6 +163,9 @@ app.get('/api/store-settings', async (c) => {
       logoImageUrl: '',
       storeName: 'OpenShop',
       storeDescription: 'Your amazing online store',
+      heroImageUrl: '',
+      heroTitle: 'Welcome to OpenShop',
+      heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.',
     }
     
     if (settings) {
@@ -382,6 +392,18 @@ app.put('/api/admin/collections/:id', async (c) => {
   }
 })
 
+// Admin list collections (include archived)
+app.get('/api/admin/collections', async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace(c.env))
+    const collections = await kv.getAllCollections()
+    return c.json(collections)
+  } catch (error) {
+    console.error('Error listing admin collections:', error)
+    return c.json({ error: 'Failed to list collections' }, 500)
+  }
+})
+
 // Admin delete collection
 app.delete('/api/admin/collections/:id', async (c) => {
   try {
@@ -452,6 +474,18 @@ app.put('/api/admin/products/:id', async (c) => {
   }
 })
 
+// Admin list products (include archived)
+app.get('/api/admin/products', async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace(c.env))
+    const products = await kv.getAllProducts()
+    return c.json(products)
+  } catch (error) {
+    console.error('Error listing admin products:', error)
+    return c.json({ error: 'Failed to list products' }, 500)
+  }
+})
+
 // Admin delete product
 app.delete('/api/admin/products/:id', async (c) => {
   try {
@@ -501,6 +535,9 @@ app.put('/api/admin/store-settings', async (c) => {
       logoImageUrl: '',
       storeName: 'OpenShop',
       storeDescription: 'Your amazing online store',
+      heroImageUrl: '',
+      heroTitle: 'Welcome to OpenShop',
+      heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.',
     }
 
     const updatedSettings = { ...defaultSettings, ...settings }
@@ -520,7 +557,7 @@ app.get('/api/admin/analytics', async (c) => {
     const stripe = new Stripe(c.env.STRIPE_SECRET_KEY)
 
     const now = new Date()
-    const periodDays = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 }
+    const periodDays = { '1d': 1, '7d': 7, '30d': 30, '90d': 90, '1y': 365 }
     const days = periodDays[period] || 30
     const startDate = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000))
     

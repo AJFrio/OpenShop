@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Button } from '../ui/button'
+import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export function Carousel({ products = [] }) {
@@ -39,7 +40,7 @@ export function Carousel({ products = [] }) {
   return (
     <div className="relative w-full h-96 bg-gray-900 rounded-lg overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0" onClick={goToNext}>
         {currentProduct.images && currentProduct.images.length > 0 ? (
           <img
             src={currentProduct.images[0]}
@@ -62,34 +63,40 @@ export function Carousel({ products = [] }) {
         <div>
           <h2 className="text-4xl font-bold mb-4">{currentProduct.name}</h2>
           <p className="text-lg mb-6 max-w-2xl">{currentProduct.description}</p>
-          <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
-            Shop Now - ${currentProduct.price}
-          </Button>
+          <Link to={`/products/${currentProduct.id}`} onClick={(e) => e.stopPropagation()}>
+            <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 cursor-pointer">
+              Shop Now - ${currentProduct.price}
+            </Button>
+          </Link>
         </div>
       </div>
 
       {/* Navigation Buttons */}
       <button
+        type="button"
         onClick={goToPrevious}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all"
+        aria-label="Previous product"
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all z-20 cursor-pointer"
       >
         <ChevronLeft className="w-6 h-6" />
       </button>
       
       <button
+        type="button"
         onClick={goToNext}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all"
+        aria-label="Next product"
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all z-20 cursor-pointer"
       >
         <ChevronRight className="w-6 h-6" />
       </button>
 
       {/* Dots Indicator */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
         {products.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
-            className={`w-3 h-3 rounded-full transition-all ${
+            className={`w-3 h-3 rounded-full transition-all cursor-pointer ${
               index === currentIndex ? 'bg-white' : 'bg-white bg-opacity-50'
             }`}
           />
