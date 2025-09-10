@@ -11,6 +11,7 @@ export function ProductForm({ product, onSave, onCancel }) {
   const [formData, setFormData] = useState({
     id: '',
     name: '',
+    tagline: '',
     description: '',
     price: '',
     currency: 'usd',
@@ -25,6 +26,7 @@ export function ProductForm({ product, onSave, onCancel }) {
     if (product) {
       setFormData({
         ...product,
+        tagline: product.tagline || product.description || '',
         images: Array.isArray(product.images) ? product.images : 
                (product.imageUrl ? [product.imageUrl] : [''])
       })
@@ -131,12 +133,22 @@ export function ProductForm({ product, onSave, onCancel }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Description</label>
+            <label className="block text-sm font-medium mb-2">Tagline (short)</label>
+            <Input
+              name="tagline"
+              value={formData.tagline}
+              onChange={handleChange}
+              placeholder="A short one-liner for cards"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Description (detailed)</label>
             <Textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Enter product description"
+              placeholder="Enter a multi-sentence product description for the PDP"
               rows={3}
             />
           </div>

@@ -1,12 +1,11 @@
 <div align="center">
   <img src="public/skinnylogo.png" alt="OpenShop Logo" width="400" height="400" />
   
-  # OpenShop - Cloudflare E-commerce Platform
+  # OpenShop - Cloudflare Based E-commerce Platform
 
   > A lightweight, open-source e-commerce platform built entirely on the Cloudflare ecosystem. Leverages Cloudflare Workers for hosting, Cloudflare KV for data storage, and Stripe for payments - designed to stay within Cloudflare's generous free tier.
 </div>
 
-[![Deploy to Cloudflare Workers](https://img.shields.io/badge/Deploy%20to-Cloudflare%20Workers-orange?logo=cloudflare)](https://workers.cloudflare.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org)
 
@@ -69,7 +68,7 @@ graph TB
 
 1. **Clone and Install**
    ```bash
-   git clone <your-repo-url> openshop
+   git clone https://github.com/AJFrio/OpenShop openshop
    cd openshop
    npm install
    ```
