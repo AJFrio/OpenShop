@@ -1,7 +1,7 @@
 <div align="center">
   <img src="public/skinnylogo.png" alt="OpenShop Logo" width="400" height="400" />
   
-  # OpenShop - Cloudflare Based E-commerce Platform
+  # OpenShop - Free Cloudflare Based E-commerce Platform
 
   > A lightweight, open-source e-commerce platform built entirely on the Cloudflare ecosystem. Leverages Cloudflare Workers for hosting, Cloudflare KV for data storage, and Stripe for payments - designed to stay within Cloudflare's generous free tier.
 </div>
@@ -169,7 +169,7 @@ Each store gets completely isolated resources:
 
 | Resource | Naming Convention | Example |
 |----------|-------------------|---------|
-| **Worker** | `project-name.workers.dev` | `electronics-hub.workers.dev` |
+| **Worker** | `project-name.username.workers.dev` | `electronics-hub.username.workers.dev` |
 | **KV Namespace** | `PROJECT-NAME_KV` | `ELECTRONICS-HUB_KV` |
 | **Admin Access** | `/admin` on each domain | `electronics-hub.workers.dev/admin` |
 
