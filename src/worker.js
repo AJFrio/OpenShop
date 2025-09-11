@@ -612,6 +612,84 @@ app.get('/api/admin/analytics', async (c) => {
   }
 })
 
+// Admin orders (fulfillment) endpoint with cursor-based pagination
+// Query params: limit (default 20), direction ('next'|'prev'), cursor (session id)
+app.get('/api/admin/orders', async (c) => {
+  try {
+    const stripe = new Stripe(c.env.STRIPE_SECRET_KEY)
+    const limit = Math.min(parseInt(c.req.query('limit') || '20', 10), 50)
+    const direction = c.req.query('direction') || 'next'
+    const cursor = c.req.query('cursor') || undefined
+
+    const listParams = { limit }
+    if (cursor) {
+      if (direction === 'prev') {
+        listParams.ending_before = cursor
+      } else {
+        listParams.starting_after = cursor
+      }
+    }
+
+    // List completed sessions (orders)
+    const sessions = await stripe.checkout.sessions.list({
+      ...listParams
+    })
+
+    // Oldest at top within the current page
+    const ordered = [...sessions.data].reverse()
+
+    // Fetch line items for each session
+    const orders = []
+    for (const s of ordered) {
+      try {
+        const lineItems = await stripe.checkout.sessions.listLineItems(s.id, { limit: 100 })
+        orders.push({
+          id: s.id,
+          created: s.created,
+          amount_total: s.amount_total,
+          currency: s.currency,
+          customer_email: s.customer_details?.email || s.customer_email || null,
+          customer_name: s.customer_details?.name || null,
+          shipping: s.shipping_details || null,
+          items: lineItems.data.map(li => ({
+            id: li.id,
+            description: li.description,
+            quantity: li.quantity,
+            amount_total: li.amount_total,
+            currency: li.currency
+          }))
+        })
+      } catch (e) {
+        console.error('Error fetching line items for session', s.id, e)
+        orders.push({
+          id: s.id,
+          created: s.created,
+          amount_total: s.amount_total,
+          currency: s.currency,
+          customer_email: s.customer_details?.email || s.customer_email || null,
+          customer_name: s.customer_details?.name || null,
+          shipping: s.shipping_details || null,
+          items: []
+        })
+      }
+    }
+
+    // Cursors for next/prev paging
+    const nextCursor = sessions.data.length > 0 ? sessions.data[0].id : null // since we reversed
+    const prevCursor = sessions.data.length > 0 ? sessions.data[sessions.data.length - 1].id : null
+
+    return c.json({
+      limit,
+      orders,
+      cursors: { next: nextCursor, prev: prevCursor },
+      has_more: sessions.has_more
+    })
+  } catch (error) {
+    console.error('Error fetching orders:', error)
+    return c.json({ error: 'Failed to fetch orders' }, 500)
+  }
+})
+
 // Handle static assets using Workers Assets
 app.get('*', async (c) => {
   const url = new URL(c.req.url)

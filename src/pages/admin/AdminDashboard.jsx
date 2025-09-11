@@ -22,6 +22,7 @@ function AdminSidebar({ onLogout }) {
     { path: '/admin', label: 'Dashboard', icon: Home },
     { path: '/admin/products', label: 'Products', icon: Package },
     { path: '/admin/collections', label: 'Collections', icon: FolderOpen },
+    { path: '/admin/fulfillment', label: 'Fulfillment', icon: ShoppingBag },
     { path: '/admin/media', label: 'Media', icon: ImageIcon },
     { path: '/admin/store-settings', label: 'Store Settings', icon: Settings },
   ]
@@ -703,6 +704,125 @@ function StoreSettingsManager() {
   )
 }
 
+function FulfillmentManager() {
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [cursorNext, setCursorNext] = useState(null)
+  const [cursorPrev, setCursorPrev] = useState(null)
+  const [direction, setDirection] = useState('next')
+  const limit = 20
+
+  useEffect(() => {
+    fetchOrders()
+  }, [])
+
+  const fetchOrders = async (dir = 'next', cursor) => {
+    try {
+      setLoading(true)
+      setError('')
+      const params = new URLSearchParams({ limit: String(limit) })
+      if (cursor) params.set('cursor', cursor)
+      if (dir) params.set('direction', dir)
+      const res = await adminApiRequest(`/api/admin/orders?${params.toString()}`)
+      if (!res.ok) throw new Error('Failed to fetch orders')
+      const data = await res.json()
+      setOrders(data.orders || [])
+      setCursorNext(data.cursors?.next || null)
+      setCursorPrev(data.cursors?.prev || null)
+      setDirection(dir)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-900">Fulfillment</h1>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => fetchOrders('prev', cursorPrev)} disabled={!cursorPrev || loading}>Prev</Button>
+          <Button variant="outline" onClick={() => fetchOrders('next', cursorNext)} disabled={!cursorNext || loading}>Next</Button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <span className="ml-2">Loading orders...</span>
+        </div>
+      ) : error ? (
+        <Card>
+          <CardContent className="p-6 text-red-600">{error}</CardContent>
+        </Card>
+      ) : orders.length === 0 ? (
+        <Card>
+          <CardContent className="p-12 text-center">No orders found.</CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {/* Top pager */}
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => fetchOrders('prev', cursorPrev)} disabled={!cursorPrev || loading}>Prev</Button>
+            <Button variant="outline" onClick={() => fetchOrders('next', cursorNext)} disabled={!cursorNext || loading}>Next</Button>
+          </div>
+
+          <Card>
+            <CardContent className="p-0">
+              <div className="divide-y">
+                {orders.map((order) => (
+                  <details key={order.id} className="group">
+                    <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">{new Date(order.created * 1000).toLocaleString()}</span>
+                        <span className="text-gray-900 font-medium">{order.customer_name || 'Unknown Customer'}</span>
+                        <span className="text-gray-600 text-sm">{order.customer_email || ''}</span>
+                      </div>
+                      <div className="text-right font-semibold">{formatCurrency((order.amount_total || 0) / 100, order.currency?.toUpperCase() || 'USD')}</div>
+                    </summary>
+                    <div className="px-4 pb-4">
+                      {order.shipping && (
+                        <div className="mb-4">
+                          <h4 className="font-semibold mb-1">Shipping</h4>
+                          <p className="text-sm text-gray-700">
+                            {order.shipping.name || ''}<br/>
+                            {order.shipping.address?.line1 || ''}{order.shipping.address?.line2 ? `, ${order.shipping.address.line2}` : ''}<br/>
+                            {order.shipping.address?.city || ''}, {order.shipping.address?.state || ''} {order.shipping.address?.postal_code || ''}<br/>
+                            {order.shipping.address?.country || ''}
+                          </p>
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="font-semibold mb-2">Items</h4>
+                        <div className="space-y-2">
+                          {order.items.map(item => (
+                            <div key={item.id} className="flex justify-between text-sm">
+                              <span>{item.description} × {item.quantity}</span>
+                              <span>{formatCurrency((item.amount_total || 0) / 100, item.currency?.toUpperCase() || 'USD')}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Bottom pager */}
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => fetchOrders('prev', cursorPrev)} disabled={!cursorPrev || loading}>Prev</Button>
+            <Button variant="outline" onClick={() => fetchOrders('next', cursorNext)} disabled={!cursorNext || loading}>Next</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -712,6 +832,15 @@ export function AdminDashboard() {
     const authenticated = isAdminAuthenticated()
     setIsAuthenticated(authenticated)
     setLoading(false)
+
+    const handleLogout = () => setIsAuthenticated(false)
+    const handleLogin = () => setIsAuthenticated(true)
+    window.addEventListener('openshop-admin-logout', handleLogout)
+    window.addEventListener('openshop-admin-login', handleLogin)
+    return () => {
+      window.removeEventListener('openshop-admin-logout', handleLogout)
+      window.removeEventListener('openshop-admin-login', handleLogin)
+    }
   }, [])
 
   const handleLoginSuccess = () => {
@@ -743,6 +872,7 @@ export function AdminDashboard() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/products" element={<ProductsManager />} />
           <Route path="/collections" element={<CollectionsManager />} />
+          <Route path="/fulfillment" element={<FulfillmentManager />} />
           <Route path="/media" element={<MediaLibrary />} />
           <Route path="/store-settings" element={<StoreSettingsManager />} />
         </Routes>
