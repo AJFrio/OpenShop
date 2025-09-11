@@ -5,6 +5,7 @@ import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
 import { Select } from '../ui/select'
 import { generateId, normalizeImageUrl } from '../../lib/utils'
+import ImageUrlField from './ImageUrlField'
 import { 
   AlertDialog,
   AlertDialogContent,
@@ -41,6 +42,8 @@ export function ProductForm({ product, onSave, onCancel }) {
   const [errorOpen, setErrorOpen] = useState(false)
   const [errorText, setErrorText] = useState('')
   const [loading, setLoading] = useState(false)
+  const [driveNotice, setDriveNotice] = useState('')
+  const [driveNoticeTimer, setDriveNoticeTimer] = useState(null)
 
   useEffect(() => {
     if (product) {
@@ -81,9 +84,10 @@ export function ProductForm({ product, onSave, onCancel }) {
   }
 
   const handleImageChange = (index, value) => {
+    const normalized = maybeNormalizeDriveUrl(value)
     setFormData(prev => ({
       ...prev,
-      images: prev.images.map((img, i) => i === index ? value : img)
+      images: prev.images.map((img, i) => i === index ? normalized : img)
     }))
   }
 
@@ -109,17 +113,44 @@ export function ProductForm({ product, onSave, onCancel }) {
   }
 
   const updateVariant = (index, key, value) => {
+    const newVal = (key === 'selectorImageUrl' || key === 'displayImageUrl')
+      ? maybeNormalizeDriveUrl(value)
+      : value
     setFormData(prev => ({
       ...prev,
-      variants: (prev.variants || []).map((v, i) => i === index ? { ...v, [key]: value } : v)
+      variants: (prev.variants || []).map((v, i) => i === index ? { ...v, [key]: newVal } : v)
     }))
   }
 
   const updateVariant2 = (index, key, value) => {
+    const newVal = (key === 'selectorImageUrl' || key === 'displayImageUrl')
+      ? maybeNormalizeDriveUrl(value)
+      : value
     setFormData(prev => ({
       ...prev,
-      variants2: (prev.variants2 || []).map((v, i) => i === index ? { ...v, [key]: value } : v)
+      variants2: (prev.variants2 || []).map((v, i) => i === index ? { ...v, [key]: newVal } : v)
     }))
+  }
+
+  function maybeNormalizeDriveUrl(input) {
+    const val = (input || '').trim()
+    if (!val) return input
+    const isDrive = val.includes('drive.google.com') || val.includes('drive.usercontent.google.com')
+    if (!isDrive) return input
+    // Extract file id
+    const fileMatch = val.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+    const idMatch = val.match(/[?&#]id=([a-zA-Z0-9_-]+)/)
+    const id = (fileMatch && fileMatch[1]) || (idMatch && idMatch[1]) || null
+    const normalized = id
+      ? `https://drive.usercontent.google.com/download?id=${id}&export=view`
+      : val
+    if (normalized !== val) {
+      setDriveNotice('Google Drive link detected — converted for reliable preview and delivery.')
+      if (driveNoticeTimer) clearTimeout(driveNoticeTimer)
+      const t = setTimeout(() => setDriveNotice(''), 3000)
+      setDriveNoticeTimer(t)
+    }
+    return normalized
   }
 
   const removeVariant = (index) => {
@@ -288,38 +319,19 @@ export function ProductForm({ product, onSave, onCancel }) {
             </div>
             <div className="space-y-2">
               {formData.images.map((image, index) => (
-                <div key={index} className="flex gap-2 items-center">
-                  <Input
-                    type="url"
-                    value={image}
-                    onChange={(e) => handleImageChange(index, e.target.value)}
-                    placeholder={`Image URL ${index + 1}`}
-                    className="flex-1"
-                  />
-                  {image && (
-                    <button
-                      type="button"
-                      className="w-12 h-12 rounded overflow-hidden border bg-white"
-                      title="Preview"
-                      onClick={() => setModalImage(normalizeImageUrl(image))}
-                    >
-                      <img src={normalizeImageUrl(image)} alt="preview" className="w-full h-full object-cover" />
-                    </button>
-                  )}
-                  {formData.images.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeImageField(index)}
-                      className="px-3"
-                    >
-                      ×
-                    </Button>
-                  )}
-                </div>
+                <ImageUrlField
+                  key={index}
+                  value={image}
+                  onChange={(val) => handleImageChange(index, val)}
+                  placeholder={`Image URL ${index + 1}`}
+                  onPreview={(src) => setModalImage(src)}
+                  onRemove={formData.images.length > 1 ? () => removeImageField(index) : undefined}
+                />
               ))}
             </div>
+            {driveNotice && (
+              <p className="text-xs text-purple-700 mt-2">{driveNotice}</p>
+            )}
             <p className="text-sm text-gray-500 mt-1">
               Add multiple images for your product. The first image will be the primary image.
             </p>
@@ -378,44 +390,22 @@ export function ProductForm({ product, onSave, onCancel }) {
                         </div>
                         <div className="col-span-4">
                           <div className="flex items-center gap-2">
-                            <Input
-                              type="url"
+                            <ImageUrlField
                               value={variant.selectorImageUrl || ''}
-                              onChange={(e) => updateVariant(index, 'selectorImageUrl', e.target.value)}
+                              onChange={(val) => updateVariant(index, 'selectorImageUrl', val)}
                               placeholder="Selector image URL"
-                              className="flex-1"
+                              onPreview={(src) => setModalImage(src)}
                             />
-                            {(variant.selectorImageUrl) && (
-                              <button
-                                type="button"
-                                className="w-12 h-12 rounded overflow-hidden border bg-white"
-                                title="Preview selector image"
-                                onClick={() => setModalImage(normalizeImageUrl(variant.selectorImageUrl))}
-                              >
-                                <img src={normalizeImageUrl(variant.selectorImageUrl)} alt="selector" className="w-full h-full object-cover" />
-                              </button>
-                            )}
                           </div>
                         </div>
                         <div className="col-span-4">
                           <div className="flex items-center gap-2">
-                            <Input
-                              type="url"
+                            <ImageUrlField
                               value={variant.displayImageUrl || ''}
-                              onChange={(e) => updateVariant(index, 'displayImageUrl', e.target.value)}
+                              onChange={(val) => updateVariant(index, 'displayImageUrl', val)}
                               placeholder="Display image URL"
-                              className="flex-1"
+                              onPreview={(src) => setModalImage(src)}
                             />
-                            {(variant.displayImageUrl) && (
-                              <button
-                                type="button"
-                                className="w-12 h-12 rounded overflow-hidden border bg-white"
-                                title="Preview display image"
-                                onClick={() => setModalImage(normalizeImageUrl(variant.displayImageUrl))}
-                              >
-                                <img src={normalizeImageUrl(variant.displayImageUrl)} alt="display" className="w-full h-full object-cover" />
-                              </button>
-                            )}
                           </div>
                         </div>
                         <div className="col-span-12 grid grid-cols-12 gap-2 items-center">
@@ -486,44 +476,22 @@ export function ProductForm({ product, onSave, onCancel }) {
                         </div>
                         <div className="col-span-4">
                           <div className="flex items-center gap-2">
-                            <Input
-                              type="url"
+                            <ImageUrlField
                               value={variant.selectorImageUrl || ''}
-                              onChange={(e) => updateVariant2(index, 'selectorImageUrl', e.target.value)}
+                              onChange={(val) => updateVariant2(index, 'selectorImageUrl', val)}
                               placeholder="Selector image URL"
-                              className="flex-1"
+                              onPreview={(src) => setModalImage(src)}
                             />
-                            {(variant.selectorImageUrl) && (
-                              <button
-                                type="button"
-                                className="w-12 h-12 rounded overflow-hidden border bg-white"
-                                title="Preview selector image"
-                                onClick={() => setModalImage(normalizeImageUrl(variant.selectorImageUrl))}
-                              >
-                                <img src={normalizeImageUrl(variant.selectorImageUrl)} alt="selector" className="w-full h-full object-cover" />
-                              </button>
-                            )}
                           </div>
                         </div>
                         <div className="col-span-4">
                           <div className="flex items-center gap-2">
-                            <Input
-                              type="url"
+                            <ImageUrlField
                               value={variant.displayImageUrl || ''}
-                              onChange={(e) => updateVariant2(index, 'displayImageUrl', e.target.value)}
+                              onChange={(val) => updateVariant2(index, 'displayImageUrl', val)}
                               placeholder="Display image URL"
-                              className="flex-1"
+                              onPreview={(src) => setModalImage(src)}
                             />
-                            {(variant.displayImageUrl) && (
-                              <button
-                                type="button"
-                                className="w-12 h-12 rounded overflow-hidden border bg-white"
-                                title="Preview display image"
-                                onClick={() => setModalImage(normalizeImageUrl(variant.displayImageUrl))}
-                              >
-                                <img src={normalizeImageUrl(variant.displayImageUrl)} alt="display" className="w-full h-full object-cover" />
-                              </button>
-                            )}
                           </div>
                         </div>
                         <div className="col-span-12 grid grid-cols-12 gap-2 items-center">

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { Navbar } from '../../components/storefront/Navbar'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
-import { formatCurrency } from '../../lib/utils'
+import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { redirectToCheckout } from '../../lib/stripe'
 import { useCart } from '../../contexts/CartContext'
 
@@ -47,7 +47,8 @@ export function ProductPage() {
     const baseImages = Array.isArray(product.images)
       ? product.images
       : (product?.imageUrl ? [product.imageUrl] : [])
-    return displayImage ? [displayImage, ...baseImages] : baseImages
+    const list = displayImage ? [displayImage, ...baseImages] : baseImages
+    return list.map(normalizeImageUrl)
   }, [product, selectedVariantIndex])
 
   const effectiveVariant = useMemo(() => {

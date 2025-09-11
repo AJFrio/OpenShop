@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardFooter } from '../ui/card'
 import { Button } from '../ui/button'
-import { formatCurrency } from '../../lib/utils'
+import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { redirectToCheckout } from '../../lib/stripe'
 import { useCart } from '../../contexts/CartContext'
 import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
@@ -11,8 +11,9 @@ export function ProductCard({ product }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { addItem } = useCart()
   
-  const images = Array.isArray(product.images) ? product.images : 
-                (product.imageUrl ? [product.imageUrl] : [])
+  const images = (Array.isArray(product.images) ? product.images : 
+                (product.imageUrl ? [product.imageUrl] : []))
+                .map(normalizeImageUrl)
   const hasMultipleImages = images.length > 1
   const handleBuyNow = async () => {
     try {

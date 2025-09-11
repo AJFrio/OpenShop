@@ -133,7 +133,7 @@ function Dashboard() {
         {/* Period Selector */}
         <div className="flex gap-2">
           {[
-            { value: '1d', label: '1 Day' },
+            { value: '1d', label: '24 Hours' },
             { value: '7d', label: '7 Days' },
             { value: '30d', label: '30 Days' },
             { value: '90d', label: '90 Days' },
@@ -742,10 +742,6 @@ function FulfillmentManager() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Fulfillment</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => fetchOrders('prev', cursorPrev)} disabled={!cursorPrev || loading}>Prev</Button>
-          <Button variant="outline" onClick={() => fetchOrders('next', cursorNext)} disabled={!cursorNext || loading}>Next</Button>
-        </div>
       </div>
 
       {loading ? (

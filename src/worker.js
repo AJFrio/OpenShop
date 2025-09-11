@@ -70,6 +70,76 @@ app.get('/api/health', (c) => {
   return c.json({ status: 'healthy', timestamp: new Date().toISOString() })
 })
 
+// Image proxy for Google Drive links to avoid browser-side 403/CORS
+app.get('/api/image-proxy', async (c) => {
+  try {
+    const src = c.req.query('src')
+    if (!src) return c.json({ error: 'Missing src' }, 400)
+
+    let targetUrl
+    try {
+      const u = new URL(src)
+      const allowedHosts = [
+        'drive.google.com',
+        'drive.usercontent.google.com',
+        'lh3.googleusercontent.com',
+      ]
+      const isAllowed = allowedHosts.some(h => u.hostname === h || u.hostname.endsWith('.' + h))
+      if (!isAllowed) return c.json({ error: 'Host not allowed' }, 400)
+
+      // Normalize Google Drive links to direct download CDN form
+      if (u.hostname.endsWith('drive.google.com')) {
+        // Extract id from /file/d/<id>/... or ?id=
+        const pathId = u.pathname.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+        const queryId = u.searchParams.get('id')
+        const id = (pathId && pathId[1]) || queryId
+        if (!id) return c.json({ error: 'Missing Google Drive file id' }, 400)
+        targetUrl = `https://drive.usercontent.google.com/download?id=${id}&export=view`
+      } else if (u.hostname.endsWith('drive.usercontent.google.com')) {
+        const id = u.searchParams.get('id')
+        if (!id) return c.json({ error: 'Missing Google Drive file id' }, 400)
+        const newUrl = new URL('https://drive.usercontent.google.com/download')
+        newUrl.searchParams.set('id', id)
+        newUrl.searchParams.set('export', 'view')
+        targetUrl = newUrl.toString()
+      } else {
+        // Other googleusercontent hosts (e.g., thumbnails) pass-through
+        targetUrl = u.toString()
+      }
+    } catch (_) {
+      return c.json({ error: 'Invalid src url' }, 400)
+    }
+
+    const upstream = await fetch(targetUrl, {
+      redirect: 'follow',
+      headers: {
+        // Emulate a standard browser fetch
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36',
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': 'https://drive.google.com/',
+      },
+      cf: { cacheEverything: true },
+    })
+
+    if (!upstream.ok) {
+      return c.json({ error: 'Upstream error', status: upstream.status }, upstream.status)
+    }
+
+    const headers = new Headers()
+    const contentType = upstream.headers.get('content-type') || 'image/jpeg'
+    headers.set('Content-Type', contentType)
+    headers.set('Cache-Control', 'public, max-age=86400')
+    headers.set('Access-Control-Allow-Origin', '*')
+    headers.set('Cross-Origin-Resource-Policy', 'cross-origin')
+
+    return new Response(upstream.body, { headers })
+  } catch (e) {
+    console.error('Image proxy error', e)
+    return c.json({ error: 'Proxy failed' }, 500)
+  }
+})
+
 // =====================================
 // PUBLIC API ENDPOINTS (Read-only)
 // =====================================
@@ -729,25 +799,58 @@ app.get('/api/admin/analytics', async (c) => {
 
     // Create chart data
     const chartData = []
-    const dailyData = {}
-    const revenueByDate = {}
-    
-    successfulPayments.forEach(payment => {
-      const date = new Date(payment.created * 1000).toISOString().split('T')[0]
-      dailyData[date] = (dailyData[date] || 0) + 1
-      revenueByDate[date] = (revenueByDate[date] || 0) + (payment.amount / 100)
-    })
 
-    const currentDate = new Date(startDate)
-    while (currentDate <= now) {
-      const dateStr = currentDate.toISOString().split('T')[0]
-      chartData.push({
-        date: dateStr,
-        orders: dailyData[dateStr] || 0,
-        revenue: revenueByDate[dateStr] || 0,
-        formattedDate: currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    if (period === '1d') {
+      // Hourly breakdown for last 24 hours
+      const hourlyOrders = {}
+      const hourlyRevenue = {}
+
+      successfulPayments.forEach(payment => {
+        const d = new Date(payment.created * 1000)
+        const bucket = new Date(d)
+        bucket.setMinutes(0, 0, 0)
+        const key = bucket.toISOString()
+        hourlyOrders[key] = (hourlyOrders[key] || 0) + 1
+        hourlyRevenue[key] = (hourlyRevenue[key] || 0) + (payment.amount / 100)
       })
-      currentDate.setDate(currentDate.getDate() + 1)
+
+      const cursor = new Date(now)
+      cursor.setMinutes(0, 0, 0)
+      // iterate oldest to newest across 24 hours
+      const startHour = new Date(cursor.getTime() - 23 * 60 * 60 * 1000)
+      const iter = new Date(startHour)
+      while (iter <= cursor) {
+        const key = new Date(iter).toISOString()
+        chartData.push({
+          date: key,
+          orders: hourlyOrders[key] || 0,
+          revenue: Math.round(((hourlyRevenue[key] || 0) + Number.EPSILON) * 100) / 100,
+          formattedDate: new Date(iter).toLocaleTimeString('en-US', { hour: 'numeric' })
+        })
+        iter.setHours(iter.getHours() + 1)
+      }
+    } else {
+      // Daily breakdown for longer periods
+      const dailyData = {}
+      const revenueByDate = {}
+      
+      successfulPayments.forEach(payment => {
+        const date = new Date(payment.created * 1000).toISOString().split('T')[0]
+        dailyData[date] = (dailyData[date] || 0) + 1
+        revenueByDate[date] = (revenueByDate[date] || 0) + (payment.amount / 100)
+      })
+
+      const currentDate = new Date(startDate)
+      while (currentDate <= now) {
+        const dateStr = currentDate.toISOString().split('T')[0]
+        chartData.push({
+          date: dateStr,
+          orders: dailyData[dateStr] || 0,
+          revenue: revenueByDate[dateStr] || 0,
+          formattedDate: currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        })
+        currentDate.setDate(currentDate.getDate() + 1)
+      }
     }
 
     return c.json({
@@ -758,8 +861,8 @@ app.get('/api/admin/analytics', async (c) => {
       chartData,
       recentOrders: [], // Simplified for this implementation
       dateRange: {
-        start: startDate.toISOString().split('T')[0],
-        end: now.toISOString().split('T')[0]
+        start: startDate.toISOString(),
+        end: now.toISOString()
       }
     })
   } catch (error) {
