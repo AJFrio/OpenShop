@@ -81,9 +81,29 @@ graph TB
    **Setup prompts:**
    - **Project Name** - Unique name for your store (e.g., "my-electronics-store")
    - **Cloudflare API Token** - [Get token here](https://dash.cloudflare.com/?to=/:account/api-tokens)
-    - API settings Containers:Edit, Secrets Store:Edit, Workers Pipelines:Edit, Workers AI:Edit, Queues:Edit, Vectorize:Edit, Hyperdrive:Edit, Cloudchamber:Edit, D1:Edit, Workers R2 Storage:Edit, Workers KV Storage:Edit, Workers Scripts:Edit, Account Settings:Read
-    All zones - Workers Routes:Edit
-    All users - Memberships:Read, User Details:Read
+     <details>
+       <summary><strong>Required token permissions</strong></summary>
+
+       - **Account — API settings**
+         - Containers: Edit
+         - Secrets Store: Edit
+         - Workers Pipelines: Edit
+         - Workers AI: Edit
+         - Queues: Edit
+         - Vectorize: Edit
+         - Hyperdrive: Edit
+         - Cloudchamber: Edit
+         - D1: Edit
+         - Workers R2 Storage: Edit
+         - Workers KV Storage: Edit
+         - Workers Scripts: Edit
+         - Account Settings: Read
+       - **All zones**
+         - Workers Routes: Edit
+       - **All users**
+         - Memberships: Read
+         - User Details: Read
+     </details>
    - **Cloudflare Account ID** - Found in your Cloudflare dashboard
    - **Stripe Secret Key** - From your Stripe dashboard
    - **Stripe Publishable Key** - From your Stripe dashboard
