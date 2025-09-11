@@ -50,10 +50,54 @@ export function ProductPage() {
     return displayImage ? [displayImage, ...baseImages] : baseImages
   }, [product, selectedVariantIndex])
 
+  const effectiveVariant = useMemo(() => {
+    if (!product || !Array.isArray(product.variants)) return null
+    if (selectedVariantIndex == null) return null
+    return product.variants[selectedVariantIndex] || null
+  }, [product, selectedVariantIndex])
+
+  const [selectedVariant2Index, setSelectedVariant2Index] = useState(null)
+  const effectiveVariant2 = useMemo(() => {
+    if (!product || !Array.isArray(product.variants2)) return null
+    if (selectedVariant2Index == null) return null
+    return product.variants2[selectedVariant2Index] || null
+  }, [product, selectedVariant2Index])
+
+  const effectivePriceCents = useMemo(() => {
+    if (!product) return 0
+    if (effectiveVariant?.hasCustomPrice && typeof effectiveVariant.price === 'number') {
+      return Math.round(effectiveVariant.price * 100)
+    }
+    if (effectiveVariant2?.hasCustomPrice && typeof effectiveVariant2.price === 'number') {
+      return Math.round(effectiveVariant2.price * 100)
+    }
+    return Math.round((product.price || 0) * 100)
+  }, [product, effectiveVariant, effectiveVariant2])
+
+  const effectiveStripePriceId = useMemo(() => {
+    return effectiveVariant?.stripePriceId || effectiveVariant2?.stripePriceId || product?.stripePriceId
+  }, [effectiveVariant, effectiveVariant2, product])
+
   const handleBuyNow = async () => {
-    if (!product?.stripePriceId) return
+    // Use the cart checkout API to preserve line item context (variant names)
+    if (!product) return
     try {
-      await redirectToCheckout(product.stripePriceId)
+      const tempItem = {
+        id: effectiveVariant?.id || effectiveVariant2?.id || product.id,
+        stripePriceId: effectiveStripePriceId,
+        quantity: 1
+      }
+      const response = await fetch('/api/create-cart-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: [tempItem] })
+      })
+      const session = await response.json()
+      if (session.error) throw new Error(session.error)
+      const { loadStripe } = await import('@stripe/stripe-js')
+      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
+      const result = await stripe.redirectToCheckout({ sessionId: session.sessionId })
+      if (result.error) throw new Error(result.error.message)
     } catch (error) {
       console.error('Error initiating checkout:', error)
       alert('Error starting checkout. Please try again.')
@@ -62,7 +106,26 @@ export function ProductPage() {
 
   const handleAddToCart = () => {
     if (!product) return
-    addItem(product)
+    const variant = effectiveVariant
+    const variant2 = effectiveVariant2
+    const priceToUse = (variant?.hasCustomPrice && typeof variant.price === 'number')
+      ? variant.price
+      : (variant2?.hasCustomPrice && typeof variant2.price === 'number')
+        ? variant2.price
+        : product.price
+    const stripePriceIdToUse = variant?.stripePriceId || variant2?.stripePriceId || product.stripePriceId
+    const idSegments = [product.id]
+    if (variant) idSegments.push(variant.id)
+    if (variant2) idSegments.push(variant2.id)
+    const idWithVariant = idSegments.join(':')
+    addItem({
+      ...product,
+      id: idWithVariant,
+      price: priceToUse,
+      stripePriceId: stripePriceIdToUse,
+      selectedVariant: variant ? { id: variant.id, name: variant.name } : undefined,
+      selectedVariant2: variant2 ? { id: variant2.id, name: variant2.name } : undefined,
+    })
   }
 
   if (loading) {
@@ -163,9 +226,39 @@ export function ProductPage() {
                 )}
               </div>
             )}
+
+            {/* Second Variant Selector */}
+            {Array.isArray(product.variants2) && product.variants2.length > 0 && (
+              <div className="mb-6">
+                <p className="text-sm text-gray-700 mb-2 font-medium">
+                  {product.variantStyle2 || 'Variant'}
+                </p>
+                <div className="grid grid-cols-5 gap-3">
+                  {product.variants2.map((v, idx) => (
+                    <button
+                      key={v.id || idx}
+                      onClick={() => { setSelectedVariant2Index(idx); setCurrentImage(0) }}
+                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-500 ${idx === selectedVariant2Index ? 'border-purple-600 ring-2 ring-purple-200' : 'border-gray-200'}`}
+                      title={v.name}
+                    >
+                      {v.selectorImageUrl || v.imageUrl ? (
+                        <img src={v.selectorImageUrl || v.imageUrl} alt={v.name} className="w-full h-16 object-cover" />
+                      ) : (
+                        <div className="w-full h-16 flex items-center justify-center text-sm text-gray-600 bg-gray-50">
+                          {v.name || 'Option'}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                {selectedVariant2Index != null && product.variants2[selectedVariant2Index]?.name && (
+                  <p className="text-sm text-gray-600 mt-2">Selected: {product.variants2[selectedVariant2Index].name}</p>
+                )}
+              </div>
+            )}
             <div className="mb-8">
               <span className="text-4xl font-bold text-gray-900">
-                {formatCurrency(product.price, product.currency)}
+                {formatCurrency(effectivePriceCents / 100, product.currency)}
               </span>
             </div>
 
@@ -180,7 +273,7 @@ export function ProductPage() {
               <Button 
                 onClick={handleBuyNow}
                 className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600"
-                disabled={!product.stripePriceId}
+                disabled={!effectiveStripePriceId}
               >
                 Buy Now
               </Button>

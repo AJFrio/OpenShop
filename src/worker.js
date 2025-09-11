@@ -194,6 +194,8 @@ app.post('/api/create-checkout-session', async (c) => {
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'payment',
+      shipping_address_collection: { allowed_countries: ['US', 'CA', 'GB', 'AU'] },
+      billing_address_collection: 'required',
       success_url: `${c.env.SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${c.env.SITE_URL}/`,
     })
@@ -224,6 +226,8 @@ app.post('/api/create-cart-checkout-session', async (c) => {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
+      shipping_address_collection: { allowed_countries: ['US', 'CA', 'GB', 'AU'] },
+      billing_address_collection: 'required',
       success_url: `${c.env.SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${c.env.SITE_URL}/`,
       metadata: {
@@ -330,12 +334,67 @@ app.post('/api/admin/products', async (c) => {
       unit_amount: Math.round(productData.price * 100),
       currency: productData.currency,
       product: stripeProduct.id,
+      nickname: `${productData.name} - Base`,
+      metadata: {
+        price_type: 'base'
+      }
     })
+
+    // Handle variant custom prices
+    const variants = Array.isArray(productData.variants) ? productData.variants : []
+    const enrichedVariants = []
+    for (const v of variants) {
+      const hasCustomPrice = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
+      if (hasCustomPrice) {
+        const variantPrice = await stripe.prices.create({
+          unit_amount: Math.round(v.price * 100),
+          currency: productData.currency,
+          product: stripeProduct.id,
+          nickname: `${productData.name}${productData.variantStyle ? ` - ${productData.variantStyle}: ${v.name}` : ` - ${v.name}`}`,
+          metadata: {
+            price_type: 'variant_primary',
+            variant_id: v.id || '',
+            variant_name: v.name || '',
+            variant1_name: v.name || ''
+          }
+        })
+        enrichedVariants.push({ ...v, stripePriceId: variantPrice.id })
+      } else {
+        // Fallback to base price
+        enrichedVariants.push({ ...v, stripePriceId: stripePrice.id, hasCustomPrice: false })
+      }
+    }
+
+    // Secondary variants (optional)
+    const variants2 = Array.isArray(productData.variants2) ? productData.variants2 : []
+    const enrichedVariants2 = []
+    for (const v of variants2) {
+      const hasCustomPrice = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
+      if (hasCustomPrice) {
+        const variantPrice = await stripe.prices.create({
+          unit_amount: Math.round(v.price * 100),
+          currency: productData.currency,
+          product: stripeProduct.id,
+          nickname: `${productData.name}${productData.variantStyle2 ? ` - ${productData.variantStyle2}: ${v.name}` : ` - ${v.name}`}`,
+          metadata: {
+            price_type: 'variant_secondary',
+            variant_id: v.id || '',
+            variant_name: v.name || '',
+            variant2_name: v.name || ''
+          }
+        })
+        enrichedVariants2.push({ ...v, stripePriceId: variantPrice.id })
+      } else {
+        enrichedVariants2.push({ ...v, stripePriceId: stripePrice.id, hasCustomPrice: false })
+      }
+    }
 
     const product = {
       ...productData,
       stripePriceId: stripePrice.id,
       stripeProductId: stripeProduct.id,
+      variants: enrichedVariants,
+      variants2: enrichedVariants2
     }
 
     const savedProduct = await kv.createProduct(product)
@@ -449,9 +508,10 @@ app.put('/api/admin/products/:id', async (c) => {
     }
 
     // If price changed, create new price in Stripe
-    if (updates.price && updates.price !== existingProduct.price) {
+    if (typeof updates.price !== 'undefined' && updates.price !== existingProduct.price) {
+      const numericPrice = typeof updates.price === 'number' ? updates.price : parseFloat(String(updates.price))
       const newPrice = await stripe.prices.create({
-        unit_amount: Math.round(updates.price * 100),
+        unit_amount: Math.round(numericPrice * 100),
         currency: updates.currency || existingProduct.currency,
         product: existingProduct.stripeProductId,
       })
@@ -464,6 +524,102 @@ app.put('/api/admin/products/:id', async (c) => {
       }
       
       updates.stripePriceId = newPrice.id
+      updates.price = numericPrice
+    }
+
+    // Handle variant updates and custom prices (primary group)
+    if (Array.isArray(updates.variants)) {
+      const incomingVariants = updates.variants
+      const existingVariants = Array.isArray(existingProduct.variants) ? existingProduct.variants : []
+      const baseStripePriceId = updates.stripePriceId || existingProduct.stripePriceId
+
+      const updatedVariants = []
+      for (const v of incomingVariants) {
+        const prior = v.id ? existingVariants.find(ev => ev.id === v.id) : undefined
+        const wantsCustom = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
+
+        if (wantsCustom) {
+          const desiredUnitAmount = Math.round(v.price * 100)
+          let priceIdToUse = prior?.stripePriceId
+
+          const priorWasCustom = !!prior?.hasCustomPrice && typeof prior?.price === 'number'
+          const priorAmount = priorWasCustom ? Math.round(prior.price * 100) : null
+
+          if (!priceIdToUse || !priorWasCustom || priorAmount !== desiredUnitAmount) {
+            // Create a new price for this variant
+            const newVariantPrice = await stripe.prices.create({
+              unit_amount: desiredUnitAmount,
+              currency: updates.currency || existingProduct.currency,
+              product: existingProduct.stripeProductId,
+            })
+            // Archive old variant price if it existed and was custom
+            if (prior?.stripePriceId && priorWasCustom) {
+              try { await stripe.prices.update(prior.stripePriceId, { active: false }) } catch (_) {}
+            }
+            priceIdToUse = newVariantPrice.id
+          }
+
+          updatedVariants.push({ ...v, stripePriceId: priceIdToUse, hasCustomPrice: true })
+        } else {
+          // No custom price → point to base product price
+          // If prior had a custom price, archive that old variant price
+          if (prior?.stripePriceId && prior?.hasCustomPrice) {
+            try { await stripe.prices.update(prior.stripePriceId, { active: false }) } catch (_) {}
+          }
+          updatedVariants.push({ ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: undefined })
+        }
+      }
+
+      updates.variants = updatedVariants
+    }
+
+    // Handle secondary variant group
+    if (Array.isArray(updates.variants2)) {
+      const incomingVariants = updates.variants2
+      const existingVariants = Array.isArray(existingProduct.variants2) ? existingProduct.variants2 : []
+      const baseStripePriceId = updates.stripePriceId || existingProduct.stripePriceId
+
+      const updatedVariants = []
+      for (const v of incomingVariants) {
+        const prior = v.id ? existingVariants.find(ev => ev.id === v.id) : undefined
+        const wantsCustom = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
+
+        if (wantsCustom) {
+          const desiredUnitAmount = Math.round(v.price * 100)
+          let priceIdToUse = prior?.stripePriceId
+
+          const priorWasCustom = !!prior?.hasCustomPrice && typeof prior?.price === 'number'
+          const priorAmount = priorWasCustom ? Math.round(prior.price * 100) : null
+
+          if (!priceIdToUse || !priorWasCustom || priorAmount !== desiredUnitAmount) {
+            const newVariantPrice = await stripe.prices.create({
+              unit_amount: desiredUnitAmount,
+              currency: updates.currency || existingProduct.currency,
+              product: existingProduct.stripeProductId,
+              nickname: `${updates.name || existingProduct.name}${(updates.variantStyle2 || existingProduct.variantStyle2) ? ` - ${(updates.variantStyle2 || existingProduct.variantStyle2)}: ${v.name}` : ` - ${v.name}`}`,
+              metadata: {
+                price_type: 'variant_secondary',
+                variant_id: v.id || '',
+                variant_name: v.name || '',
+                variant2_name: v.name || ''
+              }
+            })
+            if (prior?.stripePriceId && priorWasCustom) {
+              try { await stripe.prices.update(prior.stripePriceId, { active: false }) } catch (_) {}
+            }
+            priceIdToUse = newVariantPrice.id
+          }
+
+          updatedVariants.push({ ...v, stripePriceId: priceIdToUse, hasCustomPrice: true })
+        } else {
+          if (prior?.stripePriceId && prior?.hasCustomPrice) {
+            try { await stripe.prices.update(prior.stripePriceId, { active: false }) } catch (_) {}
+          }
+          updatedVariants.push({ ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: undefined })
+        }
+      }
+
+      updates.variants2 = updatedVariants
     }
 
     const updatedProduct = await kv.updateProduct(c.req.param('id'), updates)
@@ -630,19 +786,21 @@ app.get('/api/admin/orders', async (c) => {
       }
     }
 
-    // List completed sessions (orders)
+    // List sessions and filter to paid/completed only
     const sessions = await stripe.checkout.sessions.list({
       ...listParams
     })
 
     // Oldest at top within the current page
-    const ordered = [...sessions.data].reverse()
+    const ordered = [...sessions.data]
+      .filter(s => s.payment_status === 'paid' || s.status === 'complete' || s.status === 'completed')
+      .reverse()
 
     // Fetch line items for each session
     const orders = []
     for (const s of ordered) {
       try {
-        const lineItems = await stripe.checkout.sessions.listLineItems(s.id, { limit: 100 })
+        const lineItems = await stripe.checkout.sessions.listLineItems(s.id, { limit: 100, expand: ['data.price'] })
         orders.push({
           id: s.id,
           created: s.created,
@@ -651,12 +809,20 @@ app.get('/api/admin/orders', async (c) => {
           customer_email: s.customer_details?.email || s.customer_email || null,
           customer_name: s.customer_details?.name || null,
           shipping: s.shipping_details || null,
+          billing: {
+            name: s.customer_details?.name || null,
+            email: s.customer_details?.email || null,
+            address: s.customer_details?.address || null
+          },
           items: lineItems.data.map(li => ({
             id: li.id,
             description: li.description,
             quantity: li.quantity,
             amount_total: li.amount_total,
-            currency: li.currency
+            currency: li.currency,
+            price_nickname: li.price?.nickname || li.price?.metadata?.variant_name || null,
+            variant1_name: li.price?.metadata?.variant1_name || li.price?.metadata?.variant_name || null,
+            variant2_name: li.price?.metadata?.variant2_name || null
           }))
         })
       } catch (e) {
@@ -669,6 +835,11 @@ app.get('/api/admin/orders', async (c) => {
           customer_email: s.customer_details?.email || s.customer_email || null,
           customer_name: s.customer_details?.name || null,
           shipping: s.shipping_details || null,
+          billing: {
+            name: s.customer_details?.name || null,
+            email: s.customer_details?.email || null,
+            address: s.customer_details?.address || null
+          },
           items: []
         })
       }

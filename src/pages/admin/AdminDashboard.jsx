@@ -343,7 +343,7 @@ function ProductsManager() {
         <div>
           <label className="block text-sm font-medium mb-1">Filter by Collection</label>
           <Select value={collectionFilter} onChange={(e) => setCollectionFilter(e.target.value)}>
-            <option value="">All Collections</option>
+            <option value="">All</option>
             {collections.map(col => (
               <option key={col.id} value={col.id}>{col.name}</option>
             ))}
@@ -798,9 +798,21 @@ function FulfillmentManager() {
                         <h4 className="font-semibold mb-2">Items</h4>
                         <div className="space-y-2">
                           {order.items.map(item => (
-                            <div key={item.id} className="flex justify-between text-sm">
-                              <span>{item.description} × {item.quantity}</span>
-                              <span>{formatCurrency((item.amount_total || 0) / 100, item.currency?.toUpperCase() || 'USD')}</span>
+                            <div key={item.id} className="flex flex-col gap-0.5 text-sm">
+                              <div className="flex justify-between">
+                                <span>
+                                  {item.description}
+                                  {item.price_nickname ? ` (${item.price_nickname})` : ''}
+                                  × {item.quantity}
+                                </span>
+                                <span>{formatCurrency((item.amount_total || 0) / 100, item.currency?.toUpperCase() || 'USD')}</span>
+                              </div>
+                              {(item.variant1_name || item.variant2_name) && (
+                                <div className="text-xs text-gray-600">
+                                  {item.variant1_name && <div>Variant 1 - {item.variant1_name}</div>}
+                                  {item.variant2_name && <div>Variant 2 - {item.variant2_name}</div>}
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>

@@ -30,8 +30,12 @@ export function ProductForm({ product, onSave, onCancel }) {
     stripePriceId: '',
     variantStyle: '',
     variants: [],
+    variantStyle2: '',
+    variants2: [],
     archived: false
   })
+  const [enableVariants1, setEnableVariants1] = useState(false)
+  const [enableVariants2, setEnableVariants2] = useState(false)
   const [collections, setCollections] = useState([])
   const [modalImage, setModalImage] = useState(null)
   const [errorOpen, setErrorOpen] = useState(false)
@@ -46,8 +50,12 @@ export function ProductForm({ product, onSave, onCancel }) {
         images: Array.isArray(product.images) ? product.images : 
                (product.imageUrl ? [product.imageUrl] : [''])
       })
+      setEnableVariants1(!!(product.variants && product.variants.length > 0 || product.variantStyle))
+      setEnableVariants2(!!(product.variants2 && product.variants2.length > 0 || product.variantStyle2))
     } else {
       setFormData(prev => ({ ...prev, id: generateId() }))
+      setEnableVariants1(false)
+      setEnableVariants2(false)
     }
     fetchCollections()
   }, [product])
@@ -89,7 +97,14 @@ export function ProductForm({ product, onSave, onCancel }) {
   const addVariant = () => {
     setFormData(prev => ({
       ...prev,
-      variants: [...(prev.variants || []), { id: generateId(), name: '', selectorImageUrl: '', displayImageUrl: '' }]
+      variants: [...(prev.variants || []), { id: generateId(), name: '', selectorImageUrl: '', displayImageUrl: '', hasCustomPrice: false, price: '' }]
+    }))
+  }
+
+  const addVariant2 = () => {
+    setFormData(prev => ({
+      ...prev,
+      variants2: [...(prev.variants2 || []), { id: generateId(), name: '', selectorImageUrl: '', displayImageUrl: '', hasCustomPrice: false, price: '' }]
     }))
   }
 
@@ -100,10 +115,24 @@ export function ProductForm({ product, onSave, onCancel }) {
     }))
   }
 
+  const updateVariant2 = (index, key, value) => {
+    setFormData(prev => ({
+      ...prev,
+      variants2: (prev.variants2 || []).map((v, i) => i === index ? { ...v, [key]: value } : v)
+    }))
+  }
+
   const removeVariant = (index) => {
     setFormData(prev => ({
       ...prev,
       variants: (prev.variants || []).filter((_, i) => i !== index)
+    }))
+  }
+
+  const removeVariant2 = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      variants2: (prev.variants2 || []).filter((_, i) => i !== index)
     }))
   }
 
@@ -129,7 +158,17 @@ export function ProductForm({ product, onSave, onCancel }) {
           id: v.id || generateId(), 
           name: v.name, 
           selectorImageUrl: v.selectorImageUrl || v.imageUrl || v.displayImageUrl || '',
-          displayImageUrl: v.displayImageUrl || v.imageUrl || v.selectorImageUrl || ''
+          displayImageUrl: v.displayImageUrl || v.imageUrl || v.selectorImageUrl || '',
+          hasCustomPrice: !!v.hasCustomPrice,
+          price: v.hasCustomPrice ? parseFloat(v.price || '0') : undefined,
+        })),
+        variants2: (formData.variants2 || []).map(v => ({
+          id: v.id || generateId(),
+          name: v.name,
+          selectorImageUrl: v.selectorImageUrl || v.imageUrl || v.displayImageUrl || '',
+          displayImageUrl: v.displayImageUrl || v.imageUrl || v.selectorImageUrl || '',
+          hasCustomPrice: !!v.hasCustomPrice,
+          price: v.hasCustomPrice ? parseFloat(v.price || '0') : undefined,
         })),
       }
 
@@ -304,81 +343,217 @@ export function ProductForm({ product, onSave, onCancel }) {
 
           {/* Variants */}
           <div className="space-y-3">
-            <h3 className="text-lg font-medium text-gray-900">Variants</h3>
-            <div>
-              <label className="block text-sm font-medium mb-2">Variant Style (e.g., Color, Logo)</label>
-              <Input
-                name="variantStyle"
-                value={formData.variantStyle || ''}
-                onChange={handleChange}
-                placeholder="Color"
-              />
+            <div className="flex items-center gap-3">
+              <Switch id="enableVariants1" checked={enableVariants1} onCheckedChange={setEnableVariants1} />
+              <label htmlFor="enableVariants1" className="text-sm text-gray-700 select-none">Enable Variant Group 1</label>
             </div>
-            <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium">Variant Options</label>
-              <Button type="button" variant="outline" size="sm" onClick={addVariant}>Add Variant</Button>
-            </div>
-            {(formData.variants || []).length === 0 ? (
-              <p className="text-sm text-gray-500">No variants added. Add at least one to enable variant selection on the PDP.</p>
-            ) : (
-              <div className="space-y-2">
-                {(formData.variants || []).map((variant, index) => (
-                  <div key={variant.id || index} className="grid grid-cols-12 gap-2 items-center">
-                    <div className="col-span-3">
-                      <Input
-                        value={variant.name}
-                        onChange={(e) => updateVariant(index, 'name', e.target.value)}
-                        placeholder="Variant name (e.g., Green)"
-                      />
-                    </div>
-                    <div className="col-span-4">
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="url"
-                          value={variant.selectorImageUrl || ''}
-                          onChange={(e) => updateVariant(index, 'selectorImageUrl', e.target.value)}
-                          placeholder="Selector image URL"
-                          className="flex-1"
-                        />
-                        {(variant.selectorImageUrl) && (
-                          <button
-                            type="button"
-                            className="w-12 h-12 rounded overflow-hidden border bg-white"
-                            title="Preview selector image"
-                            onClick={() => setModalImage(normalizeImageUrl(variant.selectorImageUrl))}
-                          >
-                            <img src={normalizeImageUrl(variant.selectorImageUrl)} alt="selector" className="w-full h-full object-cover" />
-                          </button>
-                        )}
+            {enableVariants1 && (
+              <>
+                <h3 className="text-lg font-medium text-gray-900">Variants</h3>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Variant Style (e.g., Color, Logo)</label>
+                  <Input
+                    name="variantStyle"
+                    value={formData.variantStyle || ''}
+                    onChange={handleChange}
+                    placeholder="Color"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-medium">Variant Options</label>
+                  <Button type="button" variant="outline" size="sm" onClick={addVariant}>Add Variant</Button>
+                </div>
+                {(formData.variants || []).length === 0 ? (
+                  <p className="text-sm text-gray-500">No variants added. Add at least one to enable variant selection on the PDP.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {(formData.variants || []).map((variant, index) => (
+                      <div key={variant.id || index} className="grid grid-cols-12 gap-2 items-center">
+                        <div className="col-span-3">
+                          <Input
+                            value={variant.name}
+                            onChange={(e) => updateVariant(index, 'name', e.target.value)}
+                            placeholder="Variant name (e.g., Green)"
+                          />
+                        </div>
+                        <div className="col-span-4">
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="url"
+                              value={variant.selectorImageUrl || ''}
+                              onChange={(e) => updateVariant(index, 'selectorImageUrl', e.target.value)}
+                              placeholder="Selector image URL"
+                              className="flex-1"
+                            />
+                            {(variant.selectorImageUrl) && (
+                              <button
+                                type="button"
+                                className="w-12 h-12 rounded overflow-hidden border bg-white"
+                                title="Preview selector image"
+                                onClick={() => setModalImage(normalizeImageUrl(variant.selectorImageUrl))}
+                              >
+                                <img src={normalizeImageUrl(variant.selectorImageUrl)} alt="selector" className="w-full h-full object-cover" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div className="col-span-4">
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="url"
+                              value={variant.displayImageUrl || ''}
+                              onChange={(e) => updateVariant(index, 'displayImageUrl', e.target.value)}
+                              placeholder="Display image URL"
+                              className="flex-1"
+                            />
+                            {(variant.displayImageUrl) && (
+                              <button
+                                type="button"
+                                className="w-12 h-12 rounded overflow-hidden border bg-white"
+                                title="Preview display image"
+                                onClick={() => setModalImage(normalizeImageUrl(variant.displayImageUrl))}
+                              >
+                                <img src={normalizeImageUrl(variant.displayImageUrl)} alt="display" className="w-full h-full object-cover" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div className="col-span-12 grid grid-cols-12 gap-2 items-center">
+                          <label className="col-span-3 flex items-center gap-2 text-sm text-gray-700">
+                            <Switch
+                              checked={!!variant.hasCustomPrice}
+                              onCheckedChange={(v) => updateVariant(index, 'hasCustomPrice', v)}
+                            />
+                            Custom price for this variant
+                          </label>
+                          <div className="col-span-3">
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              disabled={!variant.hasCustomPrice}
+                              value={variant.price ?? ''}
+                              onChange={(e) => updateVariant(index, 'price', e.target.value)}
+                              placeholder="Variant price"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-span-1 text-right">
+                          <Button type="button" variant="outline" size="sm" className="px-3" onClick={() => removeVariant(index)}>×</Button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="col-span-4">
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="url"
-                          value={variant.displayImageUrl || ''}
-                          onChange={(e) => updateVariant(index, 'displayImageUrl', e.target.value)}
-                          placeholder="Display image URL"
-                          className="flex-1"
-                        />
-                        {(variant.displayImageUrl) && (
-                          <button
-                            type="button"
-                            className="w-12 h-12 rounded overflow-hidden border bg-white"
-                            title="Preview display image"
-                            onClick={() => setModalImage(normalizeImageUrl(variant.displayImageUrl))}
-                          >
-                            <img src={normalizeImageUrl(variant.displayImageUrl)} alt="display" className="w-full h-full object-cover" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                    <div className="col-span-1 text-right">
-                      <Button type="button" variant="outline" size="sm" className="px-3" onClick={() => removeVariant(index)}>×</Button>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Secondary Variants */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <Switch id="enableVariants2" checked={enableVariants2} onCheckedChange={setEnableVariants2} />
+              <label htmlFor="enableVariants2" className="text-sm text-gray-700 select-none">Enable Variant Group 2</label>
+            </div>
+            {enableVariants2 && (
+              <>
+                <h3 className="text-lg font-medium text-gray-900">Second Variant Group (optional)</h3>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Variant Style (e.g., Size)</label>
+                  <Input
+                    name="variantStyle2"
+                    value={formData.variantStyle2 || ''}
+                    onChange={handleChange}
+                    placeholder="Size"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-medium">Variant Options</label>
+                  <Button type="button" variant="outline" size="sm" onClick={addVariant2}>Add Variant</Button>
+                </div>
+                {(formData.variants2 || []).length === 0 ? (
+                  <p className="text-sm text-gray-500">No options added.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {(formData.variants2 || []).map((variant, index) => (
+                      <div key={variant.id || index} className="grid grid-cols-12 gap-2 items-center">
+                        <div className="col-span-3">
+                          <Input
+                            value={variant.name}
+                            onChange={(e) => updateVariant2(index, 'name', e.target.value)}
+                            placeholder="Variant name (e.g., Large)"
+                          />
+                        </div>
+                        <div className="col-span-4">
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="url"
+                              value={variant.selectorImageUrl || ''}
+                              onChange={(e) => updateVariant2(index, 'selectorImageUrl', e.target.value)}
+                              placeholder="Selector image URL"
+                              className="flex-1"
+                            />
+                            {(variant.selectorImageUrl) && (
+                              <button
+                                type="button"
+                                className="w-12 h-12 rounded overflow-hidden border bg-white"
+                                title="Preview selector image"
+                                onClick={() => setModalImage(normalizeImageUrl(variant.selectorImageUrl))}
+                              >
+                                <img src={normalizeImageUrl(variant.selectorImageUrl)} alt="selector" className="w-full h-full object-cover" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div className="col-span-4">
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="url"
+                              value={variant.displayImageUrl || ''}
+                              onChange={(e) => updateVariant2(index, 'displayImageUrl', e.target.value)}
+                              placeholder="Display image URL"
+                              className="flex-1"
+                            />
+                            {(variant.displayImageUrl) && (
+                              <button
+                                type="button"
+                                className="w-12 h-12 rounded overflow-hidden border bg-white"
+                                title="Preview display image"
+                                onClick={() => setModalImage(normalizeImageUrl(variant.displayImageUrl))}
+                              >
+                                <img src={normalizeImageUrl(variant.displayImageUrl)} alt="display" className="w-full h-full object-cover" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div className="col-span-12 grid grid-cols-12 gap-2 items-center">
+                          <label className="col-span-3 flex items-center gap-2 text-sm text-gray-700">
+                            <Switch
+                              checked={!!variant.hasCustomPrice}
+                              onCheckedChange={(v) => updateVariant2(index, 'hasCustomPrice', v)}
+                            />
+                            Custom price for this option
+                          </label>
+                          <div className="col-span-3">
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              disabled={!variant.hasCustomPrice}
+                              value={variant.price ?? ''}
+                              onChange={(e) => updateVariant2(index, 'price', e.target.value)}
+                              placeholder="Option price"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-span-1 text-right">
+                          <Button type="button" variant="outline" size="sm" className="px-3" onClick={() => removeVariant2(index)}>×</Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
 

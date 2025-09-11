@@ -10,7 +10,7 @@ binding = "ASSETS"
 
 # Environment variables
 [vars]
-SITE_URL = "https://openshop-test3.workers.dev" # This will be set during setup
+SITE_URL = "https://openshop-test3.frioaj1.workers.dev" # This will be set during setup
 
 
 # KV namespace binding
