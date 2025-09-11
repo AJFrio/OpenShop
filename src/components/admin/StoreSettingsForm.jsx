@@ -5,6 +5,7 @@ import { Button } from '../ui/button'
 import { Select } from '../ui/select'
 import { adminApiRequest } from '../../lib/auth'
 import { normalizeImageUrl } from '../../lib/utils'
+import ImageUrlField from './ImageUrlField'
 import { 
   AlertDialog,
   AlertDialogContent,
@@ -32,6 +33,8 @@ export function StoreSettingsForm() {
   const [savedOpen, setSavedOpen] = useState(false)
   const [errorOpen, setErrorOpen] = useState(false)
   const [errorText, setErrorText] = useState('')
+  const [driveNotice, setDriveNotice] = useState('')
+  const [driveNoticeTimer, setDriveNoticeTimer] = useState(null)
 
   useEffect(() => {
     fetchSettings()
@@ -54,9 +57,11 @@ export function StoreSettingsForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    const shouldNormalize = name === 'logoImageUrl' || name === 'heroImageUrl'
+    const normalized = shouldNormalize ? maybeNormalizeDriveUrl(value) : value
     setSettings(prev => ({
       ...prev,
-      [name]: value
+      [name]: normalized
     }))
   }
 
@@ -66,6 +71,26 @@ export function StoreSettingsForm() {
       ...prev,
       logoType
     }))
+  }
+
+  function maybeNormalizeDriveUrl(input) {
+    const val = (input || '').trim()
+    if (!val) return input
+    const isDrive = val.includes('drive.google.com') || val.includes('drive.usercontent.google.com')
+    if (!isDrive) return input
+    const fileMatch = val.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+    const idMatch = val.match(/[?&#]id=([a-zA-Z0-9_-]+)/)
+    const id = (fileMatch && fileMatch[1]) || (idMatch && idMatch[1]) || null
+    const normalized = id
+      ? `https://drive.usercontent.google.com/download?id=${id}&export=view`
+      : val
+    if (normalized !== val) {
+      setDriveNotice('Google Drive link detected — converted for reliable preview and delivery.')
+      if (driveNoticeTimer) clearTimeout(driveNoticeTimer)
+      const t = setTimeout(() => setDriveNotice(''), 3000)
+      setDriveNoticeTimer(t)
+    }
+    return normalized
   }
 
   const handleSubmit = async (e) => {
@@ -148,27 +173,15 @@ export function StoreSettingsForm() {
             ) : (
               <div>
                 <label className="block text-sm font-medium mb-2">Logo Image URL *</label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    name="logoImageUrl"
-                    type="url"
-                    value={settings.logoImageUrl}
-                    onChange={handleChange}
-                    placeholder="https://example.com/logo.png"
-                    required
-                    className="flex-1"
-                  />
-                  {settings.logoImageUrl && (
-                    <button
-                      type="button"
-                      className="w-12 h-12 rounded overflow-hidden border bg-white"
-                      onClick={() => setModalImage(normalizeImageUrl(settings.logoImageUrl))}
-                      title="Preview"
-                    >
-                      <img src={normalizeImageUrl(settings.logoImageUrl)} alt="logo preview" className="w-full h-full object-cover" />
-                    </button>
-                  )}
-                </div>
+                <ImageUrlField
+                  value={settings.logoImageUrl}
+                  onChange={(val) => setSettings(prev => ({ ...prev, logoImageUrl: val }))}
+                  placeholder="https://example.com/logo.png"
+                  onPreview={(src) => setModalImage(src)}
+                />
+                {driveNotice && (
+                  <p className="text-xs text-purple-700 mt-2">{driveNotice}</p>
+                )}
                 <p className="text-sm text-gray-500 mt-1">
                   Recommended size: 200x50px or similar aspect ratio
                 </p>
@@ -206,26 +219,15 @@ export function StoreSettingsForm() {
             <h3 className="text-lg font-medium text-gray-900">Home Hero</h3>
             <div>
               <label className="block text-sm font-medium mb-2">Hero Image URL</label>
-              <div className="flex items-center gap-2">
-                <Input
-                  name="heroImageUrl"
-                  type="url"
-                  value={settings.heroImageUrl}
-                  onChange={handleChange}
-                  placeholder="https://example.com/hero.jpg"
-                  className="flex-1"
-                />
-                {settings.heroImageUrl && (
-                  <button
-                    type="button"
-                    className="w-12 h-12 rounded overflow-hidden border bg-white"
-                    onClick={() => setModalImage(normalizeImageUrl(settings.heroImageUrl))}
-                    title="Preview"
-                  >
-                    <img src={normalizeImageUrl(settings.heroImageUrl)} alt="hero preview" className="w-full h-full object-cover" />
-                  </button>
-                )}
-              </div>
+              <ImageUrlField
+                value={settings.heroImageUrl}
+                onChange={(val) => setSettings(prev => ({ ...prev, heroImageUrl: val }))}
+                placeholder="https://example.com/hero.jpg"
+                onPreview={(src) => setModalImage(src)}
+              />
+              {driveNotice && (
+                <p className="text-xs text-purple-700 mt-2">{driveNotice}</p>
+              )}
               <p className="text-sm text-gray-500 mt-1">Large, wide image recommended (e.g. 1600x600).</p>
             </div>
             <div>
@@ -251,7 +253,7 @@ export function StoreSettingsForm() {
             <div className="border rounded-lg overflow-hidden">
               <div className="relative">
                 {settings.heroImageUrl ? (
-                  <img src={settings.heroImageUrl} alt="Hero" className="w-full h-48 object-cover opacity-80" />
+                  <img src={normalizeImageUrl(settings.heroImageUrl)} alt="Hero" className="w-full h-48 object-cover opacity-80" />
                 ) : (
                   <div className="w-full h-48 bg-gradient-to-r from-purple-600 to-blue-600" />
                 )}

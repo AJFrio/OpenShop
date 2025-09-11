@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { normalizeImageUrl } from '../../lib/utils'
 import { Button } from '../ui/button'
 
 export function Hero() {
@@ -34,7 +35,7 @@ export function Hero() {
     <div className="relative text-white">
       {/* Background */}
       {settings.heroImageUrl ? (
-        <img src={settings.heroImageUrl} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-70" />
+        <img src={normalizeImageUrl(settings.heroImageUrl)} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-70" />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600" />
       )}

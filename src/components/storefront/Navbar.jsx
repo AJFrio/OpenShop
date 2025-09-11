@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { normalizeImageUrl } from '../../lib/utils'
 import { Link } from 'react-router-dom'
 import { Button } from '../ui/button'
 import { useCart } from '../../contexts/CartContext'
@@ -129,7 +130,7 @@ export function Navbar() {
                                 <div className="flex-shrink-0">
                                   {(product.images && product.images.length > 0) ? (
                                     <img
-                                      src={product.images[0]}
+                                      src={normalizeImageUrl(product.images[0])}
                                       alt={product.name}
                                       className="w-10 h-10 object-cover rounded-md"
                                       onError={(e) => {
@@ -139,7 +140,7 @@ export function Navbar() {
                                     />
                                   ) : product.imageUrl ? (
                                     <img
-                                      src={product.imageUrl}
+                                      src={normalizeImageUrl(product.imageUrl)}
                                       alt={product.name}
                                       className="w-10 h-10 object-cover rounded-md"
                                       onError={(e) => {

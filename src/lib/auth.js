@@ -11,6 +11,9 @@ export function generateAdminToken() {
 // Store admin token in localStorage
 export function setAdminToken(token) {
   localStorage.setItem(ADMIN_TOKEN_KEY, token)
+  try {
+    window.dispatchEvent(new CustomEvent('openshop-admin-login'))
+  } catch (_) {}
 }
 
 // Get admin token from localStorage
@@ -21,6 +24,9 @@ export function getAdminToken() {
 // Remove admin token
 export function clearAdminToken() {
   localStorage.removeItem(ADMIN_TOKEN_KEY)
+  try {
+    window.dispatchEvent(new CustomEvent('openshop-admin-logout'))
+  } catch (_) {}
 }
 
 // Check if user is authenticated as admin
@@ -34,6 +40,7 @@ export async function adminApiRequest(url, options = {}) {
   const token = getAdminToken()
   
   if (!token) {
+    clearAdminToken()
     throw new Error('Admin authentication required')
   }
 

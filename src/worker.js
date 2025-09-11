@@ -70,6 +70,76 @@ app.get('/api/health', (c) => {
   return c.json({ status: 'healthy', timestamp: new Date().toISOString() })
 })
 
+// Image proxy for Google Drive links to avoid browser-side 403/CORS
+app.get('/api/image-proxy', async (c) => {
+  try {
+    const src = c.req.query('src')
+    if (!src) return c.json({ error: 'Missing src' }, 400)
+
+    let targetUrl
+    try {
+      const u = new URL(src)
+      const allowedHosts = [
+        'drive.google.com',
+        'drive.usercontent.google.com',
+        'lh3.googleusercontent.com',
+      ]
+      const isAllowed = allowedHosts.some(h => u.hostname === h || u.hostname.endsWith('.' + h))
+      if (!isAllowed) return c.json({ error: 'Host not allowed' }, 400)
+
+      // Normalize Google Drive links to direct download CDN form
+      if (u.hostname.endsWith('drive.google.com')) {
+        // Extract id from /file/d/<id>/... or ?id=
+        const pathId = u.pathname.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+        const queryId = u.searchParams.get('id')
+        const id = (pathId && pathId[1]) || queryId
+        if (!id) return c.json({ error: 'Missing Google Drive file id' }, 400)
+        targetUrl = `https://drive.usercontent.google.com/download?id=${id}&export=view`
+      } else if (u.hostname.endsWith('drive.usercontent.google.com')) {
+        const id = u.searchParams.get('id')
+        if (!id) return c.json({ error: 'Missing Google Drive file id' }, 400)
+        const newUrl = new URL('https://drive.usercontent.google.com/download')
+        newUrl.searchParams.set('id', id)
+        newUrl.searchParams.set('export', 'view')
+        targetUrl = newUrl.toString()
+      } else {
+        // Other googleusercontent hosts (e.g., thumbnails) pass-through
+        targetUrl = u.toString()
+      }
+    } catch (_) {
+      return c.json({ error: 'Invalid src url' }, 400)
+    }
+
+    const upstream = await fetch(targetUrl, {
+      redirect: 'follow',
+      headers: {
+        // Emulate a standard browser fetch
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36',
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': 'https://drive.google.com/',
+      },
+      cf: { cacheEverything: true },
+    })
+
+    if (!upstream.ok) {
+      return c.json({ error: 'Upstream error', status: upstream.status }, upstream.status)
+    }
+
+    const headers = new Headers()
+    const contentType = upstream.headers.get('content-type') || 'image/jpeg'
+    headers.set('Content-Type', contentType)
+    headers.set('Cache-Control', 'public, max-age=86400')
+    headers.set('Access-Control-Allow-Origin', '*')
+    headers.set('Cross-Origin-Resource-Policy', 'cross-origin')
+
+    return new Response(upstream.body, { headers })
+  } catch (e) {
+    console.error('Image proxy error', e)
+    return c.json({ error: 'Proxy failed' }, 500)
+  }
+})
+
 // =====================================
 // PUBLIC API ENDPOINTS (Read-only)
 // =====================================
@@ -194,6 +264,8 @@ app.post('/api/create-checkout-session', async (c) => {
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'payment',
+      shipping_address_collection: { allowed_countries: ['US', 'CA', 'GB', 'AU'] },
+      billing_address_collection: 'required',
       success_url: `${c.env.SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${c.env.SITE_URL}/`,
     })
@@ -224,6 +296,8 @@ app.post('/api/create-cart-checkout-session', async (c) => {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
+      shipping_address_collection: { allowed_countries: ['US', 'CA', 'GB', 'AU'] },
+      billing_address_collection: 'required',
       success_url: `${c.env.SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${c.env.SITE_URL}/`,
       metadata: {
@@ -330,12 +404,67 @@ app.post('/api/admin/products', async (c) => {
       unit_amount: Math.round(productData.price * 100),
       currency: productData.currency,
       product: stripeProduct.id,
+      nickname: `${productData.name} - Base`,
+      metadata: {
+        price_type: 'base'
+      }
     })
+
+    // Handle variant custom prices
+    const variants = Array.isArray(productData.variants) ? productData.variants : []
+    const enrichedVariants = []
+    for (const v of variants) {
+      const hasCustomPrice = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
+      if (hasCustomPrice) {
+        const variantPrice = await stripe.prices.create({
+          unit_amount: Math.round(v.price * 100),
+          currency: productData.currency,
+          product: stripeProduct.id,
+          nickname: `${productData.name}${productData.variantStyle ? ` - ${productData.variantStyle}: ${v.name}` : ` - ${v.name}`}`,
+          metadata: {
+            price_type: 'variant_primary',
+            variant_id: v.id || '',
+            variant_name: v.name || '',
+            variant1_name: v.name || ''
+          }
+        })
+        enrichedVariants.push({ ...v, stripePriceId: variantPrice.id })
+      } else {
+        // Fallback to base price
+        enrichedVariants.push({ ...v, stripePriceId: stripePrice.id, hasCustomPrice: false })
+      }
+    }
+
+    // Secondary variants (optional)
+    const variants2 = Array.isArray(productData.variants2) ? productData.variants2 : []
+    const enrichedVariants2 = []
+    for (const v of variants2) {
+      const hasCustomPrice = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
+      if (hasCustomPrice) {
+        const variantPrice = await stripe.prices.create({
+          unit_amount: Math.round(v.price * 100),
+          currency: productData.currency,
+          product: stripeProduct.id,
+          nickname: `${productData.name}${productData.variantStyle2 ? ` - ${productData.variantStyle2}: ${v.name}` : ` - ${v.name}`}`,
+          metadata: {
+            price_type: 'variant_secondary',
+            variant_id: v.id || '',
+            variant_name: v.name || '',
+            variant2_name: v.name || ''
+          }
+        })
+        enrichedVariants2.push({ ...v, stripePriceId: variantPrice.id })
+      } else {
+        enrichedVariants2.push({ ...v, stripePriceId: stripePrice.id, hasCustomPrice: false })
+      }
+    }
 
     const product = {
       ...productData,
       stripePriceId: stripePrice.id,
       stripeProductId: stripeProduct.id,
+      variants: enrichedVariants,
+      variants2: enrichedVariants2
     }
 
     const savedProduct = await kv.createProduct(product)
@@ -449,9 +578,10 @@ app.put('/api/admin/products/:id', async (c) => {
     }
 
     // If price changed, create new price in Stripe
-    if (updates.price && updates.price !== existingProduct.price) {
+    if (typeof updates.price !== 'undefined' && updates.price !== existingProduct.price) {
+      const numericPrice = typeof updates.price === 'number' ? updates.price : parseFloat(String(updates.price))
       const newPrice = await stripe.prices.create({
-        unit_amount: Math.round(updates.price * 100),
+        unit_amount: Math.round(numericPrice * 100),
         currency: updates.currency || existingProduct.currency,
         product: existingProduct.stripeProductId,
       })
@@ -464,6 +594,102 @@ app.put('/api/admin/products/:id', async (c) => {
       }
       
       updates.stripePriceId = newPrice.id
+      updates.price = numericPrice
+    }
+
+    // Handle variant updates and custom prices (primary group)
+    if (Array.isArray(updates.variants)) {
+      const incomingVariants = updates.variants
+      const existingVariants = Array.isArray(existingProduct.variants) ? existingProduct.variants : []
+      const baseStripePriceId = updates.stripePriceId || existingProduct.stripePriceId
+
+      const updatedVariants = []
+      for (const v of incomingVariants) {
+        const prior = v.id ? existingVariants.find(ev => ev.id === v.id) : undefined
+        const wantsCustom = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
+
+        if (wantsCustom) {
+          const desiredUnitAmount = Math.round(v.price * 100)
+          let priceIdToUse = prior?.stripePriceId
+
+          const priorWasCustom = !!prior?.hasCustomPrice && typeof prior?.price === 'number'
+          const priorAmount = priorWasCustom ? Math.round(prior.price * 100) : null
+
+          if (!priceIdToUse || !priorWasCustom || priorAmount !== desiredUnitAmount) {
+            // Create a new price for this variant
+            const newVariantPrice = await stripe.prices.create({
+              unit_amount: desiredUnitAmount,
+              currency: updates.currency || existingProduct.currency,
+              product: existingProduct.stripeProductId,
+            })
+            // Archive old variant price if it existed and was custom
+            if (prior?.stripePriceId && priorWasCustom) {
+              try { await stripe.prices.update(prior.stripePriceId, { active: false }) } catch (_) {}
+            }
+            priceIdToUse = newVariantPrice.id
+          }
+
+          updatedVariants.push({ ...v, stripePriceId: priceIdToUse, hasCustomPrice: true })
+        } else {
+          // No custom price → point to base product price
+          // If prior had a custom price, archive that old variant price
+          if (prior?.stripePriceId && prior?.hasCustomPrice) {
+            try { await stripe.prices.update(prior.stripePriceId, { active: false }) } catch (_) {}
+          }
+          updatedVariants.push({ ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: undefined })
+        }
+      }
+
+      updates.variants = updatedVariants
+    }
+
+    // Handle secondary variant group
+    if (Array.isArray(updates.variants2)) {
+      const incomingVariants = updates.variants2
+      const existingVariants = Array.isArray(existingProduct.variants2) ? existingProduct.variants2 : []
+      const baseStripePriceId = updates.stripePriceId || existingProduct.stripePriceId
+
+      const updatedVariants = []
+      for (const v of incomingVariants) {
+        const prior = v.id ? existingVariants.find(ev => ev.id === v.id) : undefined
+        const wantsCustom = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
+
+        if (wantsCustom) {
+          const desiredUnitAmount = Math.round(v.price * 100)
+          let priceIdToUse = prior?.stripePriceId
+
+          const priorWasCustom = !!prior?.hasCustomPrice && typeof prior?.price === 'number'
+          const priorAmount = priorWasCustom ? Math.round(prior.price * 100) : null
+
+          if (!priceIdToUse || !priorWasCustom || priorAmount !== desiredUnitAmount) {
+            const newVariantPrice = await stripe.prices.create({
+              unit_amount: desiredUnitAmount,
+              currency: updates.currency || existingProduct.currency,
+              product: existingProduct.stripeProductId,
+              nickname: `${updates.name || existingProduct.name}${(updates.variantStyle2 || existingProduct.variantStyle2) ? ` - ${(updates.variantStyle2 || existingProduct.variantStyle2)}: ${v.name}` : ` - ${v.name}`}`,
+              metadata: {
+                price_type: 'variant_secondary',
+                variant_id: v.id || '',
+                variant_name: v.name || '',
+                variant2_name: v.name || ''
+              }
+            })
+            if (prior?.stripePriceId && priorWasCustom) {
+              try { await stripe.prices.update(prior.stripePriceId, { active: false }) } catch (_) {}
+            }
+            priceIdToUse = newVariantPrice.id
+          }
+
+          updatedVariants.push({ ...v, stripePriceId: priceIdToUse, hasCustomPrice: true })
+        } else {
+          if (prior?.stripePriceId && prior?.hasCustomPrice) {
+            try { await stripe.prices.update(prior.stripePriceId, { active: false }) } catch (_) {}
+          }
+          updatedVariants.push({ ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: undefined })
+        }
+      }
+
+      updates.variants2 = updatedVariants
     }
 
     const updatedProduct = await kv.updateProduct(c.req.param('id'), updates)
@@ -573,25 +799,58 @@ app.get('/api/admin/analytics', async (c) => {
 
     // Create chart data
     const chartData = []
-    const dailyData = {}
-    const revenueByDate = {}
-    
-    successfulPayments.forEach(payment => {
-      const date = new Date(payment.created * 1000).toISOString().split('T')[0]
-      dailyData[date] = (dailyData[date] || 0) + 1
-      revenueByDate[date] = (revenueByDate[date] || 0) + (payment.amount / 100)
-    })
 
-    const currentDate = new Date(startDate)
-    while (currentDate <= now) {
-      const dateStr = currentDate.toISOString().split('T')[0]
-      chartData.push({
-        date: dateStr,
-        orders: dailyData[dateStr] || 0,
-        revenue: revenueByDate[dateStr] || 0,
-        formattedDate: currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    if (period === '1d') {
+      // Hourly breakdown for last 24 hours
+      const hourlyOrders = {}
+      const hourlyRevenue = {}
+
+      successfulPayments.forEach(payment => {
+        const d = new Date(payment.created * 1000)
+        const bucket = new Date(d)
+        bucket.setMinutes(0, 0, 0)
+        const key = bucket.toISOString()
+        hourlyOrders[key] = (hourlyOrders[key] || 0) + 1
+        hourlyRevenue[key] = (hourlyRevenue[key] || 0) + (payment.amount / 100)
       })
-      currentDate.setDate(currentDate.getDate() + 1)
+
+      const cursor = new Date(now)
+      cursor.setMinutes(0, 0, 0)
+      // iterate oldest to newest across 24 hours
+      const startHour = new Date(cursor.getTime() - 23 * 60 * 60 * 1000)
+      const iter = new Date(startHour)
+      while (iter <= cursor) {
+        const key = new Date(iter).toISOString()
+        chartData.push({
+          date: key,
+          orders: hourlyOrders[key] || 0,
+          revenue: Math.round(((hourlyRevenue[key] || 0) + Number.EPSILON) * 100) / 100,
+          formattedDate: new Date(iter).toLocaleTimeString('en-US', { hour: 'numeric' })
+        })
+        iter.setHours(iter.getHours() + 1)
+      }
+    } else {
+      // Daily breakdown for longer periods
+      const dailyData = {}
+      const revenueByDate = {}
+      
+      successfulPayments.forEach(payment => {
+        const date = new Date(payment.created * 1000).toISOString().split('T')[0]
+        dailyData[date] = (dailyData[date] || 0) + 1
+        revenueByDate[date] = (revenueByDate[date] || 0) + (payment.amount / 100)
+      })
+
+      const currentDate = new Date(startDate)
+      while (currentDate <= now) {
+        const dateStr = currentDate.toISOString().split('T')[0]
+        chartData.push({
+          date: dateStr,
+          orders: dailyData[dateStr] || 0,
+          revenue: revenueByDate[dateStr] || 0,
+          formattedDate: currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        })
+        currentDate.setDate(currentDate.getDate() + 1)
+      }
     }
 
     return c.json({
@@ -602,13 +861,106 @@ app.get('/api/admin/analytics', async (c) => {
       chartData,
       recentOrders: [], // Simplified for this implementation
       dateRange: {
-        start: startDate.toISOString().split('T')[0],
-        end: now.toISOString().split('T')[0]
+        start: startDate.toISOString(),
+        end: now.toISOString()
       }
     })
   } catch (error) {
     console.error('Error fetching analytics:', error)
     return c.json({ error: 'Failed to fetch analytics' }, 500)
+  }
+})
+
+// Admin orders (fulfillment) endpoint with cursor-based pagination
+// Query params: limit (default 20), direction ('next'|'prev'), cursor (session id)
+app.get('/api/admin/orders', async (c) => {
+  try {
+    const stripe = new Stripe(c.env.STRIPE_SECRET_KEY)
+    const limit = Math.min(parseInt(c.req.query('limit') || '20', 10), 50)
+    const direction = c.req.query('direction') || 'next'
+    const cursor = c.req.query('cursor') || undefined
+
+    const listParams = { limit }
+    if (cursor) {
+      if (direction === 'prev') {
+        listParams.ending_before = cursor
+      } else {
+        listParams.starting_after = cursor
+      }
+    }
+
+    // List sessions and filter to paid/completed only
+    const sessions = await stripe.checkout.sessions.list({
+      ...listParams
+    })
+
+    // Oldest at top within the current page
+    const ordered = [...sessions.data]
+      .filter(s => s.payment_status === 'paid' || s.status === 'complete' || s.status === 'completed')
+      .reverse()
+
+    // Fetch line items for each session
+    const orders = []
+    for (const s of ordered) {
+      try {
+        const lineItems = await stripe.checkout.sessions.listLineItems(s.id, { limit: 100, expand: ['data.price'] })
+        orders.push({
+          id: s.id,
+          created: s.created,
+          amount_total: s.amount_total,
+          currency: s.currency,
+          customer_email: s.customer_details?.email || s.customer_email || null,
+          customer_name: s.customer_details?.name || null,
+          shipping: s.shipping_details || null,
+          billing: {
+            name: s.customer_details?.name || null,
+            email: s.customer_details?.email || null,
+            address: s.customer_details?.address || null
+          },
+          items: lineItems.data.map(li => ({
+            id: li.id,
+            description: li.description,
+            quantity: li.quantity,
+            amount_total: li.amount_total,
+            currency: li.currency,
+            price_nickname: li.price?.nickname || li.price?.metadata?.variant_name || null,
+            variant1_name: li.price?.metadata?.variant1_name || li.price?.metadata?.variant_name || null,
+            variant2_name: li.price?.metadata?.variant2_name || null
+          }))
+        })
+      } catch (e) {
+        console.error('Error fetching line items for session', s.id, e)
+        orders.push({
+          id: s.id,
+          created: s.created,
+          amount_total: s.amount_total,
+          currency: s.currency,
+          customer_email: s.customer_details?.email || s.customer_email || null,
+          customer_name: s.customer_details?.name || null,
+          shipping: s.shipping_details || null,
+          billing: {
+            name: s.customer_details?.name || null,
+            email: s.customer_details?.email || null,
+            address: s.customer_details?.address || null
+          },
+          items: []
+        })
+      }
+    }
+
+    // Cursors for next/prev paging
+    const nextCursor = sessions.data.length > 0 ? sessions.data[0].id : null // since we reversed
+    const prevCursor = sessions.data.length > 0 ? sessions.data[sessions.data.length - 1].id : null
+
+    return c.json({
+      limit,
+      orders,
+      cursors: { next: nextCursor, prev: prevCursor },
+      has_more: sessions.has_more
+    })
+  } catch (error) {
+    console.error('Error fetching orders:', error)
+    return c.json({ error: 'Failed to fetch orders' }, 500)
   }
 })
 

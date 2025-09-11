@@ -232,6 +232,13 @@ function CartItem({ item, updateQuantity, removeItem }) {
       {/* Product Details */}
       <div className="flex-1 min-w-0">
         <h4 className="font-medium text-gray-900 truncate">{item.name}</h4>
+        {(item.selectedVariant?.name || item.selectedVariant2?.name) && (
+          <p className="text-xs text-gray-600 mt-0.5">
+            {item.selectedVariant?.name ? `Variant: ${item.selectedVariant.name}` : ''}
+            {item.selectedVariant?.name && item.selectedVariant2?.name ? ' · ' : ''}
+            {item.selectedVariant2?.name ? `Variant 2: ${item.selectedVariant2.name}` : ''}
+          </p>
+        )}
         <p className="text-sm text-gray-500 mt-1">{formatCurrency(item.price)}</p>
 
         {/* Quantity Controls */}

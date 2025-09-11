@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Button } from '../ui/button'
+import { normalizeImageUrl } from '../../lib/utils'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -43,13 +44,13 @@ export function Carousel({ products = [] }) {
       <div className="absolute inset-0" onClick={goToNext}>
         {currentProduct.images && currentProduct.images.length > 0 ? (
           <img
-            src={currentProduct.images[0]}
+            src={normalizeImageUrl(currentProduct.images[0])}
             alt={currentProduct.name}
             className="w-full h-full object-cover opacity-50"
           />
         ) : currentProduct.imageUrl ? (
           <img
-            src={currentProduct.imageUrl}
+            src={normalizeImageUrl(currentProduct.imageUrl)}
             alt={currentProduct.name}
             className="w-full h-full object-cover opacity-50"
           />

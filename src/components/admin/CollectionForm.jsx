@@ -5,6 +5,7 @@ import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
 import { generateId, normalizeImageUrl } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
+import ImageUrlField from './ImageUrlField'
 import { 
   AlertDialog,
   AlertDialogContent,
@@ -28,6 +29,8 @@ export function CollectionForm({ collection, onSave, onCancel }) {
   const [modalImage, setModalImage] = useState(null)
   const [errorOpen, setErrorOpen] = useState(false)
   const [errorText, setErrorText] = useState('')
+  const [driveNotice, setDriveNotice] = useState('')
+  const [driveNoticeTimer, setDriveNoticeTimer] = useState(null)
 
   useEffect(() => {
     if (collection) {
@@ -39,10 +42,31 @@ export function CollectionForm({ collection, onSave, onCancel }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    const normalized = name === 'heroImage' ? maybeNormalizeDriveUrl(value) : value
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: normalized
     }))
+  }
+
+  function maybeNormalizeDriveUrl(input) {
+    const val = (input || '').trim()
+    if (!val) return input
+    const isDrive = val.includes('drive.google.com') || val.includes('drive.usercontent.google.com')
+    if (!isDrive) return input
+    const fileMatch = val.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+    const idMatch = val.match(/[?&#]id=([a-zA-Z0-9_-]+)/)
+    const id = (fileMatch && fileMatch[1]) || (idMatch && idMatch[1]) || null
+    const normalized = id
+      ? `https://drive.usercontent.google.com/download?id=${id}&export=view`
+      : val
+    if (normalized !== val) {
+      setDriveNotice('Google Drive link detected — converted for reliable preview and delivery.')
+      if (driveNoticeTimer) clearTimeout(driveNoticeTimer)
+      const t = setTimeout(() => setDriveNotice(''), 3000)
+      setDriveNoticeTimer(t)
+    }
+    return normalized
   }
 
   const handleSubmit = async (e) => {
@@ -93,6 +117,9 @@ export function CollectionForm({ collection, onSave, onCancel }) {
               required
             />
           </div>
+          {driveNotice && (
+            <p className="text-xs text-purple-700 mt-2">{driveNotice}</p>
+          )}
 
           <div className="flex items-center gap-3">
             <Switch
@@ -116,26 +143,12 @@ export function CollectionForm({ collection, onSave, onCancel }) {
 
           <div>
             <label className="block text-sm font-medium mb-2">Hero Banner Image</label>
-            <div className="flex items-center gap-2">
-              <Input
-                name="heroImage"
-                type="url"
-                value={formData.heroImage}
-                onChange={handleChange}
-                placeholder="https://example.com/hero-banner.jpg"
-                className="flex-1"
-              />
-              {formData.heroImage && (
-                <button
-                  type="button"
-                  className="w-12 h-12 rounded overflow-hidden border bg-white"
-                  onClick={() => setModalImage(normalizeImageUrl(formData.heroImage))}
-                  title="Preview"
-                >
-                  <img src={normalizeImageUrl(formData.heroImage)} alt="preview" className="w-full h-full object-cover" />
-                </button>
-              )}
-            </div>
+            <ImageUrlField
+              value={formData.heroImage}
+              onChange={(val) => setFormData(prev => ({ ...prev, heroImage: val }))}
+              placeholder="https://example.com/hero-banner.jpg"
+              onPreview={(src) => setModalImage(src)}
+            />
             <p className="text-sm text-gray-500 mt-1">
               This image will be displayed as a banner on the collection page
             </p>

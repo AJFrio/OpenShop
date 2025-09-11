@@ -1,7 +1,7 @@
 <div align="center">
   <img src="public/skinnylogo.png" alt="OpenShop Logo" width="400" height="400" />
   
-  # OpenShop - Cloudflare Based E-commerce Platform
+  # OpenShop - Free Cloudflare Based E-commerce Platform
 
   > A lightweight, open-source e-commerce platform built entirely on the Cloudflare ecosystem. Leverages Cloudflare Workers for hosting, Cloudflare KV for data storage, and Stripe for payments - designed to stay within Cloudflare's generous free tier.
 </div>
@@ -80,7 +80,30 @@ graph TB
    
    **Setup prompts:**
    - **Project Name** - Unique name for your store (e.g., "my-electronics-store")
-   - **Cloudflare API Token** - [Get token here](https://dash.cloudflare.com/profile/api-tokens)
+   - **Cloudflare API Token** - [Get token here](https://dash.cloudflare.com/?to=/:account/api-tokens)
+     <details>
+       <summary><strong>Required token permissions</strong></summary>
+
+       - **Account — API settings**
+         - Containers: Edit
+         - Secrets Store: Edit
+         - Workers Pipelines: Edit
+         - Workers AI: Edit
+         - Queues: Edit
+         - Vectorize: Edit
+         - Hyperdrive: Edit
+         - Cloudchamber: Edit
+         - D1: Edit
+         - Workers R2 Storage: Edit
+         - Workers KV Storage: Edit
+         - Workers Scripts: Edit
+         - Account Settings: Read
+       - **All zones**
+         - Workers Routes: Edit
+       - **All users**
+         - Memberships: Read
+         - User Details: Read
+     </details>
    - **Cloudflare Account ID** - Found in your Cloudflare dashboard
    - **Stripe Secret Key** - From your Stripe dashboard
    - **Stripe Publishable Key** - From your Stripe dashboard
@@ -88,7 +111,7 @@ graph TB
 
 3. **🎉 Your Store is Live!**
    
-   Access your store at: `https://your-project-name.workers.dev`
+   Access your store at: `https://your-project-name.username.workers.dev`
 
 ---
 
@@ -96,7 +119,7 @@ graph TB
 
 ### Access & Security
 
-**URL**: `https://your-project-name.workers.dev/admin`
+**URL**: `https://your-project-name.username.workers.dev/admin`
 
 > **Note**: For security, there's no visible admin button on the storefront. Access the admin dashboard directly via URL.
 
@@ -146,7 +169,7 @@ Each store gets completely isolated resources:
 
 | Resource | Naming Convention | Example |
 |----------|-------------------|---------|
-| **Worker** | `project-name.workers.dev` | `electronics-hub.workers.dev` |
+| **Worker** | `project-name.username.workers.dev` | `electronics-hub.username.workers.dev` |
 | **KV Namespace** | `PROJECT-NAME_KV` | `ELECTRONICS-HUB_KV` |
 | **Admin Access** | `/admin` on each domain | `electronics-hub.workers.dev/admin` |
 
