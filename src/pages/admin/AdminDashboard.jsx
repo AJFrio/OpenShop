@@ -669,12 +669,12 @@ function MediaLibrary() {
 
       {modalImage && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
-          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative" onClick={(e) => e.stopPropagation()}>
-            <button className="absolute top-3 right-3 p-2 rounded-full border hover:bg-gray-50" onClick={() => setModalImage(null)}>
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative flex flex-col max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <button className="absolute top-3 right-3 p-2 rounded-full border bg-white/90 hover:bg-white" onClick={() => setModalImage(null)} aria-label="Close">
               <X className="w-5 h-5" />
             </button>
-            <img src={modalImage.url} alt={modalImage.label} className="w-full h-auto object-contain rounded-t-lg" />
-            <div className="p-4 border-t space-y-2">
+            <img src={modalImage.url} alt={modalImage.label} className="w-full h-auto max-h-[75vh] object-contain rounded-t-lg" />
+            <div className="p-4 border-t space-y-2 flex-shrink-0">
               <p className="text-sm text-gray-700 break-all">{modalImage.label}</p>
               <div className="flex gap-4 items-center text-sm">
                 <a href={modalImage.url} target="_blank" rel="noreferrer" className="text-purple-600 hover:text-purple-700">Open original</a>

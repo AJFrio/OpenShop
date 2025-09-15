@@ -1,98 +1,7 @@
 <div align="center">
   <img src="public/skinnylogo.png" alt="OpenShop Logo" width="400" height="400" />
   
-  # OpenShop - Free Cloudflare Based E-commerce Platform
-
-## Admin AI Image Generation (Gemini + Google Drive)
-
-This project includes an admin-only AI image generator powered by Google's Gemini API, with optional one-click upload of generated images to Google Drive. It also includes a smart image proxy and URL normalization for reliable Drive-hosted images on the storefront and admin.
-
-Environment variables (set via `wrangler secret put` in production):
-
-- `GEMINI_API_KEY` — Google AI Studio API key for Gemini.
-- `GOOGLE_CLIENT_ID` — OAuth 2.0 Client ID from Google Cloud Console.
-- `GOOGLE_CLIENT_SECRET` — OAuth 2.0 Client Secret.
-- `DRIVE_ROOT_FOLDER` (optional) — Folder name at Drive root for uploads. Default: `OpenShop`.
-- `SITE_URL` — Your deployed Worker URL (informational; setup script also writes it).
-
-Google Cloud setup:
-
-- Create an OAuth 2.0 Client (type: Web application) in Google Cloud Console.
-- Add Authorized redirect URI: `https://<your-worker-domain>/api/admin/drive/oauth/callback`
-- Enable the Google Drive API in your project.
-
-Server endpoints:
-
-- `POST /api/admin/ai/generate-image` (admin) — Calls Gemini REST with body `{ prompt, inputs: [{ mimeType, dataBase64 }] }`. Returns `{ mimeType, dataBase64 }` of the generated image.
-- `GET /api/admin/drive/oauth/start` (no auth) — Starts Google Drive OAuth (scope `https://www.googleapis.com/auth/drive.file`, offline access).
-- `GET /api/admin/drive/oauth/callback` (no auth) — Handles OAuth callback, exchanges code for tokens, stores in KV, and closes the popup.
-- `GET /api/admin/drive/status` (admin) — Returns `{ connected: boolean }` to indicate Drive linkage.
-- `POST /api/admin/drive/upload` (admin) — Uploads `{ mimeType, dataBase64, filename }` to Drive, ensures a root folder (by `DRIVE_ROOT_FOLDER`), sets file permission to `anyone:reader`, returns:
-  ```json
-  {
-    "id": "<fileId>",
-    "viewUrl": "https://drive.usercontent.google.com/download?id=<fileId>&export=view",
-    "webViewLink": "https://drive.google.com/file/d/<fileId>/view",
-    "downloadUrl": "https://drive.usercontent.google.com/download?id=<fileId>&export=view",
-    "folder": { "id": "...", "name": "..." }
-  }
-  ```
-- `GET /api/image-proxy?src=<url>` (public) — Proxies Google Drive-hosted images to avoid 403/CORS, normalizing to the `drive.usercontent.google.com` CDN when possible.
-
-Implementation details:
-
-- Gemini model used: `gemini-2.5-flash-image-preview` via `https://generativelanguage.googleapis.com/v1beta/...:generateContent` with header `x-goog-api-key`.
-- Drive OAuth tokens are stored in KV under `drive:oauth:tokens` and silently refreshed using `refresh_token` when available.
-- The desired upload folder is created at Drive root if missing. Name is from `DRIVE_ROOT_FOLDER` or defaults to `OpenShop`.
-- Frontend normalizes and proxies Drive links for reliable previews via `normalizeImageUrl` and the `/api/image-proxy` endpoint.
-
-Admin UI usage:
-
-- In admin image fields (`ImageUrlField`), click "Generate" to open the Gemini modal.
-- Enter a prompt and optionally add up to 4 reference images.
-- Click Generate to create an image. Preview appears in the modal.
-- Choose "Use data URL" or connect Drive and then "Upload to Drive" to insert a shareable URL.
-
-Key frontend components/utilities:
-
-- `src/components/admin/AiImageModal.jsx` — Gemini generation, Drive connect/upload.
-- `src/components/admin/ImageUrlField.jsx` — Image URL input with Generate button and Drive URL normalization.
-- `src/lib/utils.js` → `normalizeImageUrl(url)` — Proxies known Drive URLs through `/api/image-proxy` and normalizes to direct-view links.
-
-Example requests:
-
-- Generate with Gemini
-  ```bash
-  curl -X POST "https://<your-worker>/api/admin/ai/generate-image" \
-    -H "Content-Type: application/json" \
-    -H "X-Admin-Token: <token>" \
-    -d '{
-      "prompt": "A minimal product photo on white background",
-      "inputs": []
-    }'
-  ```
-
-- Upload generated image to Drive
-  ```bash
-  curl -X POST "https://<your-worker>/api/admin/drive/upload" \
-    -H "Content-Type: application/json" \
-    -H "X-Admin-Token: <token>" \
-    -d '{
-      "mimeType": "image/png",
-      "dataBase64": "<base64>",
-      "filename": "openshop-image.png"
-    }'
-  ```
-
-Troubleshooting:
-
-- Invalid redirect URI during OAuth — Ensure the exact callback URL is in Google Cloud Console.
-- 403/CORS loading Drive images — Use the returned `viewUrl` or rely on `normalizeImageUrl` which routes through `/api/image-proxy`.
-
-References:
-
-- Gemini image editing: https://ai.google.dev/gemini-api/docs/image-generation#gemini-image-editing
-- Google Drive API: https://developers.google.com/drive/api
+  # OpenShop - An Open-Source AI Platform for Smarter Stores.
 
   > A lightweight, open-source e-commerce platform built entirely on the Cloudflare ecosystem. Leverages Cloudflare Workers for hosting, Cloudflare KV for data storage, and Stripe for payments - designed to stay within Cloudflare's generous free tier.
 </div>
@@ -199,6 +108,8 @@ graph TB
    - **Stripe Secret Key** - From your Stripe dashboard
    - **Stripe Publishable Key** - From your Stripe dashboard
    - **Admin Password** - Custom password (default: admin123)
+   - *(Optional)* **Gemini API Key** - Required for AI image generation in admin
+   - *(Optional)* **Google OAuth Client ID/Secret** - Required to upload images to Google Drive from admin
 
 3. **🎉 Your Store is Live!**
    
@@ -230,6 +141,8 @@ graph TB
 - **🎨 Store Customization** - Dynamic logo and branding management
 - **📊 Analytics Dashboard** - Real-time revenue and order insights
 - **⚙️ Settings Management** - Configure store appearance and behavior
+- **🧠 AI Image Generation (Optional)** - Generate product/hero images via Gemini
+- **☁️ Google Drive Uploads (Optional)** - Save generated or local images to Drive and use public links via the built-in image proxy
 
 ---
 
@@ -376,6 +289,8 @@ npm run preview
 | `/api/admin/drive/oauth/callback` | `GET` | Handle Drive OAuth callback | None |
 | `/api/admin/drive/upload` | `POST` | Upload image to Google Drive | Admin Token |
 
+> Note: Drive OAuth endpoints are intentionally unauthenticated to support the popup OAuth flow. All other Drive actions require admin auth.
+
 ---
 
 ## 🔧 Configuration
@@ -398,6 +313,14 @@ ADMIN_PASSWORD=your_secure_admin_password
 
 # Site Configuration
 SITE_URL=https://your-project.workers.dev
+
+# Optional: AI (Gemini) & Google Drive
+# Used for admin-side AI image generation and Drive uploads
+GEMINI_API_KEY=your_gemini_api_key
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+# Optional: customize the root folder created/used in Drive
+DRIVE_ROOT_FOLDER=OpenShop
 ```
 
 ### Cloudflare Setup
@@ -407,6 +330,7 @@ The setup script automatically configures:
 - ✅ **KV Namespace** - Creates isolated data storage
 - ✅ **Worker Deployment** - Deploys your application
 - ✅ **Environment Variables** - Sets all required secrets
+- ✅ **Optional Secrets** - You can add `GEMINI_API_KEY`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET` later via `wrangler secret put` to enable AI and Drive features
 - ✅ **Static Assets** - Configures asset serving
 - ✅ **Custom Domain** - Sets up your unique subdomain
 
@@ -421,6 +345,13 @@ The setup script automatically configures:
 - **Checkout Sessions** - Secure payment processing
 - **Multiple Items** - Cart checkout with line items
 
+### Update Behavior
+
+- **Product edits**: Updating name, description, or images syncs to the corresponding Stripe Product. Description is only updated if non-empty. Up to 8 images are sent to Stripe.
+- **Base price change**: When the product base price changes, a new Stripe Price is created; existing Prices are preserved for historical data.
+- **Variant prices**: Variants with `hasCustomPrice` create dedicated Stripe Prices. Variants without a custom price use the base price. Secondary variant set (if used) follows the same rules.
+- **KV storage**: Product records in KV are merged on update, and image fields are normalized to arrays to maintain consistency across the UI and Stripe sync.
+
 ### Webhook Setup (Optional)
 
 For advanced order tracking:
@@ -428,6 +359,30 @@ For advanced order tracking:
 1. **Stripe Dashboard** → Webhooks
 2. **Add Endpoint**: `https://your-project.workers.dev/api/stripe-webhook`
 3. **Select Events**: `checkout.session.completed`, `payment_intent.succeeded`
+
+---
+
+## 🧠 AI & Media Integrations (Optional)
+
+### Gemini Image Generation
+
+- **What it does**: From the admin, generate product or hero images using Google's Gemini image generation API. You can provide a prompt and up to 4 reference images.
+- **Enable it**: Set `GEMINI_API_KEY` as a secret and/or in your local `.env`.
+  - Local: add to `.env`
+  - Production: `wrangler secret put GEMINI_API_KEY`
+- **Endpoint**: `POST /api/admin/ai/generate-image` (requires admin token).
+
+### Google Drive Uploads
+
+- **What it does**: Upload generated images (or local files) from admin to your Google Drive and make them publicly viewable. The app returns a direct-view URL suitable for product images.
+- **Enable it**: Create OAuth credentials and set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
+  - Local: add to `.env`
+  - Production: `wrangler secret put GOOGLE_CLIENT_ID` and `wrangler secret put GOOGLE_CLIENT_SECRET`
+- **OAuth flow**: From the admin media picker, click “Connect Google Drive”. This opens `GET /api/admin/drive/oauth/start`, which redirects to Google and returns to `/api/admin/drive/oauth/callback`. Tokens are stored in KV.
+- **Upload**: After connecting, “Upload to Drive” calls `POST /api/admin/drive/upload`. Files are stored under a root folder (default derived from `SITE_URL`, override with `DRIVE_ROOT_FOLDER`). The file is made public and a direct-view URL is returned.
+- **Image proxy**: Use `/api/image-proxy?src=<url>` to serve Google Drive images reliably (avoids 403/CORS). The UI normalizes Drive links automatically.
+
+> These features are optional. The rest of the platform works without them.
 
 ---
 
@@ -648,9 +603,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ### Getting Help
 
 - **📚 Documentation** - Complete guides in this repository
-- **🐛 Bug Reports** - [GitHub Issues](https://github.com/your-repo/issues)
-- **💡 Feature Requests** - [GitHub Discussions](https://github.com/your-repo/discussions)
-- **💬 Community Chat** - [Discord Server](https://discord.gg/your-invite)
+- **🐛 Bug Reports** - [GitHub Issues](https://github.com/ajfrio/openshop/issues)
+- **💡 Feature Requests** - [GitHub Discussions](https://github.com/ajfrio/openshop/discussions)
+- **💬 Community Chat** - [Discord Server](https://discord.gg/qAnDxHmEmS)
 
 ### Resources
 
@@ -682,6 +637,6 @@ Special thanks to:
 
 **Made with ❤️ for the open-source community**
 
-[⭐ Star this repo](https://github.com/your-repo) • [🐛 Report Bug](https://github.com/your-repo/issues) • [💡 Request Feature](https://github.com/your-repo/discussions)
+[⭐ Star this repo](https://github.com/ajfrio/openshop) • [🐛 Report Bug](https://github.com/ajfrio/openshop/issues) • [💡 Request Feature](https://github.com/ajfrio/openshop/discussions)
 
 </div>
