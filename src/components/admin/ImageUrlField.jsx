@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { normalizeImageUrl } from '../../lib/utils'
+import MediaPickerModal from './MediaPickerModal'
 
 export function ImageUrlField({
   value,
@@ -11,9 +12,11 @@ export function ImageUrlField({
   onRemove,
   required = false,
   inputName,
+  hideInput = false,
 }) {
   const [notice, setNotice] = useState('')
   const timerRef = useRef(null)
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   const handleChange = (e) => {
     const next = maybeNormalizeDriveUrl(e.target.value)
@@ -42,15 +45,21 @@ export function ImageUrlField({
   return (
     <div>
       <div className="flex items-center gap-2">
-        <Input
-          name={inputName}
-          type="url"
-          value={value}
-          onChange={handleChange}
-          placeholder={placeholder}
-          required={required}
-          className="flex-1"
-        />
+        {!hideInput && (
+          <Input
+            name={inputName}
+            type="url"
+            value={value}
+            onChange={handleChange}
+            placeholder={placeholder}
+            required={required}
+            className="flex-1"
+          />
+        )}
+        <Button type="button" onClick={() => setPickerOpen(true)} className="flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Upload image
+        </Button>
         {value && (
           <button
             type="button"
@@ -68,6 +77,11 @@ export function ImageUrlField({
       {notice && (
         <p className="text-xs text-purple-700 mt-2">{notice}</p>
       )}
+      <MediaPickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onPick={(url) => { onChange(url); setPickerOpen(false) }}
+      />
     </div>
   )
 }

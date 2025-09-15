@@ -342,8 +342,13 @@ app.get('/api/checkout-session/:sessionId', async (c) => {
 
 // Admin authentication middleware
 app.use('/api/admin/*', async (c, next) => {
-  // Skip auth for login endpoint
-  if (c.req.path === '/api/admin/login') {
+  // Skip auth for login and Drive OAuth endpoints (popup has no headers)
+  const unauthenticatedPaths = new Set([
+    '/api/admin/login',
+    '/api/admin/drive/oauth/start',
+    '/api/admin/drive/oauth/callback'
+  ])
+  if (unauthenticatedPaths.has(c.req.path)) {
     return next()
   }
 
@@ -358,6 +363,303 @@ app.use('/api/admin/*', async (c, next) => {
   } catch (error) {
     console.error('Auth middleware error:', error)
     return c.json({ error: 'Authentication middleware failed' }, 500)
+  }
+})
+
+// =====================================
+// ADMIN: AI Image Generation (Gemini REST)
+// =====================================
+
+app.post('/api/admin/ai/generate-image', async (c) => {
+  try {
+    const { prompt, inputs } = await c.req.json()
+    if (!prompt || typeof prompt !== 'string') {
+      return c.json({ error: 'Missing prompt' }, 400)
+    }
+    const parts = []
+    parts.push({ text: prompt })
+    if (Array.isArray(inputs)) {
+      for (const item of inputs.slice(0, 4)) {
+        if (item && item.dataBase64 && item.mimeType) {
+          parts.push({
+            inline_data: {
+              mime_type: item.mimeType,
+              data: item.dataBase64
+            }
+          })
+        }
+      }
+    }
+
+    const apiKey = c.env.GEMINI_API_KEY
+    if (!apiKey) {
+      return c.json({ error: 'GEMINI_API_KEY not configured' }, 500)
+    }
+
+    const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent'
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'x-goog-api-key': apiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [ { parts } ]
+      })
+    })
+    if (!res.ok) {
+      const errText = await res.text()
+      console.error('Gemini API error', res.status, errText)
+      return c.json({ error: 'Gemini API failed', details: errText }, res.status)
+    }
+    const data = await res.json()
+    const candidates = data?.candidates || []
+    let foundBase64 = null
+    let mime = 'image/png'
+    for (const cand of candidates) {
+      const parts = cand?.content?.parts || []
+      for (const p of parts) {
+        const inlineA = p?.inlineData || p?.inline_data
+        if (inlineA && inlineA.data) {
+          foundBase64 = inlineA.data
+          mime = inlineA.mimeType || inlineA.mime_type || mime
+          break
+        }
+      }
+      if (foundBase64) break
+    }
+    if (!foundBase64) {
+      return c.json({ error: 'No image returned from Gemini' }, 502)
+    }
+    return c.json({ mimeType: mime, dataBase64: foundBase64 })
+  } catch (e) {
+    console.error('AI generation error', e)
+    return c.json({ error: 'Generation failed' }, 500)
+  }
+})
+
+// =====================================
+// ADMIN: Google Drive OAuth + Upload
+// =====================================
+
+const DRIVE_TOKEN_KEY = 'drive:oauth:tokens'
+const DRIVE_FOLDER_KV_PREFIX = 'drive:folder'
+
+app.get('/api/admin/drive/status', async (c) => {
+  try {
+    const kv = getKVNamespace(c.env)
+    const raw = await kv.get(DRIVE_TOKEN_KEY)
+    if (!raw) return c.json({ connected: false })
+    const t = JSON.parse(raw)
+    return c.json({ connected: !!t?.access_token })
+  } catch (_) {
+    return c.json({ connected: false })
+  }
+})
+
+app.get('/api/admin/drive/oauth/start', async (c) => {
+  try {
+    const clientId = c.env.GOOGLE_CLIENT_ID
+    const origin = new URL(c.req.url).origin
+    const redirectUri = `${origin}/api/admin/drive/oauth/callback`
+    if (!clientId || !redirectUri) {
+      return c.json({ error: 'Drive OAuth not configured' }, 500)
+    }
+    const params = new URLSearchParams()
+    params.set('response_type', 'code')
+    params.set('client_id', clientId)
+    params.set('redirect_uri', redirectUri)
+    params.set('scope', 'https://www.googleapis.com/auth/drive.file')
+    params.set('access_type', 'offline')
+    params.set('prompt', 'consent')
+    params.set('include_granted_scopes', 'true')
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
+    return c.redirect(url, 302)
+  } catch (e) {
+    console.error('Drive oauth start error', e)
+    return c.json({ error: 'OAuth start failed' }, 500)
+  }
+})
+
+app.get('/api/admin/drive/oauth/callback', async (c) => {
+  try {
+    const code = c.req.query('code')
+    if (!code) return c.text('Missing code', 400)
+    const clientId = c.env.GOOGLE_CLIENT_ID
+    const clientSecret = c.env.GOOGLE_CLIENT_SECRET
+    const origin = new URL(c.req.url).origin
+    const redirectUri = `${origin}/api/admin/drive/oauth/callback`
+    if (!clientId || !clientSecret) {
+      return c.text('OAuth not configured', 500)
+    }
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code'
+      })
+    })
+    if (!tokenRes.ok) {
+      const t = await tokenRes.text()
+      console.error('Token exchange failed', t)
+      return c.text('Token exchange failed', 500)
+    }
+    const tokens = await tokenRes.json()
+    const now = Math.floor(Date.now() / 1000)
+    const record = {
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token || null,
+      scope: tokens.scope,
+      token_type: tokens.token_type,
+      expiry: now + (tokens.expires_in || 3600) - 30
+    }
+    await getKVNamespace(c.env).put(DRIVE_TOKEN_KEY, JSON.stringify(record))
+    return c.html(`<!doctype html><html><body><p>Google Drive connected. You can close this window.</p><script>setTimeout(()=>window.close(),500)</script></body></html>`)
+  } catch (e) {
+    console.error('Drive oauth callback error', e)
+    return c.text('OAuth callback failed', 500)
+  }
+})
+
+async function ensureDriveAccessToken(env) {
+  const kv = getKVNamespace(env)
+  const raw = await kv.get(DRIVE_TOKEN_KEY)
+  if (!raw) throw new Error('Drive not connected')
+  let tok = JSON.parse(raw)
+  const now = Math.floor(Date.now() / 1000)
+  if (tok.expiry && tok.expiry > now + 60) return tok
+  if (!tok.refresh_token) return tok
+  const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: env.GOOGLE_CLIENT_ID,
+      client_secret: env.GOOGLE_CLIENT_SECRET,
+      refresh_token: tok.refresh_token,
+      grant_type: 'refresh_token'
+    })
+  })
+  if (!tokenRes.ok) {
+    throw new Error('Failed to refresh token')
+  }
+  const t = await tokenRes.json()
+  tok.access_token = t.access_token
+  tok.expiry = Math.floor(Date.now() / 1000) + (t.expires_in || 3600) - 30
+  await kv.put(DRIVE_TOKEN_KEY, JSON.stringify(tok))
+  return tok
+}
+
+async function ensureDriveRootFolder(env, tok) {
+  const kv = getKVNamespace(env)
+  const desiredName = (env.DRIVE_ROOT_FOLDER && String(env.DRIVE_ROOT_FOLDER).trim()) || deriveDefaultFolderName(env)
+  const kvKey = `${DRIVE_FOLDER_KV_PREFIX}:${desiredName}:id`
+  const existing = await kv.get(kvKey)
+  if (existing) return { id: existing, name: desiredName }
+
+  // Look up folder by name at My Drive root
+  const query = `mimeType='application/vnd.google-apps.folder' and name='${desiredName.replace(/'/g, "\\'")}' and 'root' in parents and trashed=false`
+  const listUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name)`
+  const foundRes = await fetch(listUrl, {
+    headers: { Authorization: `Bearer ${tok.access_token}` }
+  })
+  if (foundRes.ok) {
+    const j = await foundRes.json()
+    if (Array.isArray(j.files) && j.files.length > 0) {
+      const id = j.files[0].id
+      await kv.put(kvKey, id)
+      return { id, name: desiredName }
+    }
+  }
+
+  // Create folder
+  const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${tok.access_token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name: desiredName,
+      mimeType: 'application/vnd.google-apps.folder'
+    })
+  })
+  if (!createRes.ok) {
+    const t = await createRes.text()
+    console.error('Failed to create Drive folder', t)
+    throw new Error('Failed to create Drive folder')
+  }
+  const created = await createRes.json()
+  const folderId = created.id
+  await kv.put(kvKey, folderId)
+  return { id: folderId, name: desiredName }
+}
+
+function deriveDefaultFolderName(env) {
+  try {
+    if (env.SITE_URL) {
+      const u = new URL(env.SITE_URL)
+      const sub = u.hostname.split('.')[0] || 'openshop'
+      return sub.replace(/[-_]+/g, ' ').trim()
+    }
+  } catch (_) {}
+  return 'OpenShop'
+}
+
+app.post('/api/admin/drive/upload', async (c) => {
+  try {
+    const { mimeType, dataBase64, filename } = await c.req.json()
+    if (!mimeType || !dataBase64) {
+      return c.json({ error: 'Missing mimeType or dataBase64' }, 400)
+    }
+    const tok = await ensureDriveAccessToken(c.env)
+    const folder = await ensureDriveRootFolder(c.env, tok)
+    const boundary = 'openshop-' + Math.random().toString(36).slice(2)
+    const metadata = { name: filename || 'openshop-image', parents: [folder.id] }
+    const body =
+      `--${boundary}\r\n` +
+      `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
+      `${JSON.stringify(metadata)}\r\n` +
+      `--${boundary}\r\n` +
+      `Content-Type: ${mimeType}\r\n` +
+      `Content-Transfer-Encoding: base64\r\n\r\n` +
+      `${dataBase64}\r\n` +
+      `--${boundary}--`
+
+    const uploadRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${tok.access_token}`,
+        'Content-Type': `multipart/related; boundary=${boundary}`
+      },
+      body
+    })
+    if (!uploadRes.ok) {
+      const t = await uploadRes.text()
+      console.error('Drive upload failed', t)
+      return c.json({ error: 'Drive upload failed', details: t }, 502)
+    }
+    const file = await uploadRes.json()
+    const fileId = file.id
+
+    // Make public readable
+    await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${tok.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ role: 'reader', type: 'anyone' })
+    }).catch(() => {})
+
+    const viewUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=view`
+    return c.json({ id: fileId, viewUrl, webViewLink: file.webViewLink, downloadUrl: viewUrl, folder: { id: folder.id, name: folder.name } })
+  } catch (e) {
+    console.error('Drive upload error', e)
+    return c.json({ error: 'Upload failed' }, 500)
   }
 })
 
@@ -394,11 +696,14 @@ app.post('/api/admin/products', async (c) => {
     const stripeImages = Array.isArray(productData.images) ? productData.images : 
                         (productData.imageUrl ? [productData.imageUrl] : [])
     
-    const stripeProduct = await stripe.products.create({
+    const productParams = {
       name: productData.name,
-      description: productData.description,
       images: stripeImages.slice(0, 8),
-    })
+    }
+    if (productData.description && String(productData.description).trim() !== '') {
+      productParams.description = String(productData.description)
+    }
+    const stripeProduct = await stripe.products.create(productParams)
 
     const stripePrice = await stripe.prices.create({
       unit_amount: Math.round(productData.price * 100),
@@ -564,17 +869,25 @@ app.put('/api/admin/products/:id', async (c) => {
     }
 
     // Update Stripe product if necessary
-    if (updates.name || updates.description || updates.images || updates.imageUrl) {
+    if (updates.name || updates.description !== undefined || updates.images || updates.imageUrl) {
       const stripeImages = Array.isArray(updates.images) ? updates.images : 
                           (updates.imageUrl ? [updates.imageUrl] : 
                           (Array.isArray(existingProduct.images) ? existingProduct.images : 
                           (existingProduct.imageUrl ? [existingProduct.imageUrl] : [])))
-      
-      await stripe.products.update(existingProduct.stripeProductId, {
+
+      const updateParams = {
         name: updates.name || existingProduct.name,
-        description: updates.description || existingProduct.description,
         images: stripeImages.slice(0, 8),
-      })
+      }
+      if (typeof updates.description === 'string') {
+        const trimmed = updates.description.trim()
+        if (trimmed) {
+          updateParams.description = trimmed
+        }
+        // If trimmed is empty, omit 'description' to avoid unsetting (Stripe error)
+      }
+
+      await stripe.products.update(existingProduct.stripeProductId, updateParams)
     }
 
     // If price changed, create new price in Stripe

@@ -3,6 +3,97 @@
   
   # OpenShop - Free Cloudflare Based E-commerce Platform
 
+## Admin AI Image Generation (Gemini + Google Drive)
+
+This project includes an admin-only AI image generator powered by Google's Gemini API, with optional one-click upload of generated images to Google Drive. It also includes a smart image proxy and URL normalization for reliable Drive-hosted images on the storefront and admin.
+
+Environment variables (set via `wrangler secret put` in production):
+
+- `GEMINI_API_KEY` — Google AI Studio API key for Gemini.
+- `GOOGLE_CLIENT_ID` — OAuth 2.0 Client ID from Google Cloud Console.
+- `GOOGLE_CLIENT_SECRET` — OAuth 2.0 Client Secret.
+- `DRIVE_ROOT_FOLDER` (optional) — Folder name at Drive root for uploads. Default: `OpenShop`.
+- `SITE_URL` — Your deployed Worker URL (informational; setup script also writes it).
+
+Google Cloud setup:
+
+- Create an OAuth 2.0 Client (type: Web application) in Google Cloud Console.
+- Add Authorized redirect URI: `https://<your-worker-domain>/api/admin/drive/oauth/callback`
+- Enable the Google Drive API in your project.
+
+Server endpoints:
+
+- `POST /api/admin/ai/generate-image` (admin) — Calls Gemini REST with body `{ prompt, inputs: [{ mimeType, dataBase64 }] }`. Returns `{ mimeType, dataBase64 }` of the generated image.
+- `GET /api/admin/drive/oauth/start` (no auth) — Starts Google Drive OAuth (scope `https://www.googleapis.com/auth/drive.file`, offline access).
+- `GET /api/admin/drive/oauth/callback` (no auth) — Handles OAuth callback, exchanges code for tokens, stores in KV, and closes the popup.
+- `GET /api/admin/drive/status` (admin) — Returns `{ connected: boolean }` to indicate Drive linkage.
+- `POST /api/admin/drive/upload` (admin) — Uploads `{ mimeType, dataBase64, filename }` to Drive, ensures a root folder (by `DRIVE_ROOT_FOLDER`), sets file permission to `anyone:reader`, returns:
+  ```json
+  {
+    "id": "<fileId>",
+    "viewUrl": "https://drive.usercontent.google.com/download?id=<fileId>&export=view",
+    "webViewLink": "https://drive.google.com/file/d/<fileId>/view",
+    "downloadUrl": "https://drive.usercontent.google.com/download?id=<fileId>&export=view",
+    "folder": { "id": "...", "name": "..." }
+  }
+  ```
+- `GET /api/image-proxy?src=<url>` (public) — Proxies Google Drive-hosted images to avoid 403/CORS, normalizing to the `drive.usercontent.google.com` CDN when possible.
+
+Implementation details:
+
+- Gemini model used: `gemini-2.5-flash-image-preview` via `https://generativelanguage.googleapis.com/v1beta/...:generateContent` with header `x-goog-api-key`.
+- Drive OAuth tokens are stored in KV under `drive:oauth:tokens` and silently refreshed using `refresh_token` when available.
+- The desired upload folder is created at Drive root if missing. Name is from `DRIVE_ROOT_FOLDER` or defaults to `OpenShop`.
+- Frontend normalizes and proxies Drive links for reliable previews via `normalizeImageUrl` and the `/api/image-proxy` endpoint.
+
+Admin UI usage:
+
+- In admin image fields (`ImageUrlField`), click "Generate" to open the Gemini modal.
+- Enter a prompt and optionally add up to 4 reference images.
+- Click Generate to create an image. Preview appears in the modal.
+- Choose "Use data URL" or connect Drive and then "Upload to Drive" to insert a shareable URL.
+
+Key frontend components/utilities:
+
+- `src/components/admin/AiImageModal.jsx` — Gemini generation, Drive connect/upload.
+- `src/components/admin/ImageUrlField.jsx` — Image URL input with Generate button and Drive URL normalization.
+- `src/lib/utils.js` → `normalizeImageUrl(url)` — Proxies known Drive URLs through `/api/image-proxy` and normalizes to direct-view links.
+
+Example requests:
+
+- Generate with Gemini
+  ```bash
+  curl -X POST "https://<your-worker>/api/admin/ai/generate-image" \
+    -H "Content-Type: application/json" \
+    -H "X-Admin-Token: <token>" \
+    -d '{
+      "prompt": "A minimal product photo on white background",
+      "inputs": []
+    }'
+  ```
+
+- Upload generated image to Drive
+  ```bash
+  curl -X POST "https://<your-worker>/api/admin/drive/upload" \
+    -H "Content-Type: application/json" \
+    -H "X-Admin-Token: <token>" \
+    -d '{
+      "mimeType": "image/png",
+      "dataBase64": "<base64>",
+      "filename": "openshop-image.png"
+    }'
+  ```
+
+Troubleshooting:
+
+- Invalid redirect URI during OAuth — Ensure the exact callback URL is in Google Cloud Console.
+- 403/CORS loading Drive images — Use the returned `viewUrl` or rely on `normalizeImageUrl` which routes through `/api/image-proxy`.
+
+References:
+
+- Gemini image editing: https://ai.google.dev/gemini-api/docs/image-generation#gemini-image-editing
+- Google Drive API: https://developers.google.com/drive/api
+
   > A lightweight, open-source e-commerce platform built entirely on the Cloudflare ecosystem. Leverages Cloudflare Workers for hosting, Cloudflare KV for data storage, and Stripe for payments - designed to stay within Cloudflare's generous free tier.
 </div>
 
@@ -268,6 +359,7 @@ npm run preview
 |----------|--------|-------------|----------------|
 | `/api/create-checkout-session` | `POST` | Single item checkout | None |
 | `/api/create-cart-checkout-session` | `POST` | Multi-item cart checkout | None |
+| `/api/image-proxy?src=<url>` | `GET` | Proxy for Google Drive images | None |
 
 ### Admin Endpoints (Authenticated)
 
@@ -278,6 +370,11 @@ npm run preview
 | `/api/admin/products/:id` | `PUT, DELETE` | Update/delete product | Admin Token |
 | `/api/admin/store-settings` | `PUT` | Update store settings | Admin Token |
 | `/api/analytics` | `GET` | Revenue and order analytics | Admin Token |
+| `/api/admin/ai/generate-image` | `POST` | Generate image via Gemini | Admin Token |
+| `/api/admin/drive/status` | `GET` | Google Drive connection status | Admin Token |
+| `/api/admin/drive/oauth/start` | `GET` | Begin Google Drive OAuth | None |
+| `/api/admin/drive/oauth/callback` | `GET` | Handle Drive OAuth callback | None |
+| `/api/admin/drive/upload` | `POST` | Upload image to Google Drive | Admin Token |
 
 ---
 

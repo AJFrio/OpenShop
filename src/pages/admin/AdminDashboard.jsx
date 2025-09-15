@@ -379,9 +379,9 @@ function ProductsManager() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     {(product.images && product.images.length > 0) ? (
-                      <img src={product.images[0]} alt={product.name} className="w-16 h-16 object-cover rounded-lg" />
+                      <img src={normalizeImageUrl(product.images[0])} alt={product.name} className="w-16 h-16 object-cover rounded-lg" />
                     ) : product.imageUrl ? (
-                      <img src={product.imageUrl} alt={product.name} className="w-16 h-16 object-cover rounded-lg" />
+                      <img src={normalizeImageUrl(product.imageUrl)} alt={product.name} className="w-16 h-16 object-cover rounded-lg" />
                     ) : (
                       <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
                         <Package className="w-8 h-8 text-gray-400" />
