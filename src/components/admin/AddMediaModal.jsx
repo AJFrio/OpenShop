@@ -137,7 +137,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
       })
       const saved = await res.json()
       if (!res.ok) throw new Error(saved.error || 'Failed to save link')
-      onCreated?.(saved)
+      onCreated?.([saved])
       onClose?.()
     } catch (e) {
       setError(e.message || 'Failed to save link')
@@ -207,7 +207,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
       })
       const saved = await mediaRes.json()
       if (!mediaRes.ok) throw new Error(saved.error || 'Failed to save media')
-      onCreated?.(saved)
+      onCreated?.([saved])
       onClose?.()
     } catch (e) {
       setError(e.message || 'Upload failed')

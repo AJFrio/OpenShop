@@ -681,7 +681,15 @@ function MediaLibrary() {
         </div>
       )}
 
-      <AddMediaModal open={addOpen} onClose={() => setAddOpen(false)} onCreated={(item) => { setMedia([item, ...media]); setAddOpen(false) }} />
+      <AddMediaModal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onCreated={(items) => {
+          const array = Array.isArray(items) ? items : [items]
+          setMedia([...array, ...media])
+          setAddOpen(false)
+        }}
+      />
     </div>
   )
 }

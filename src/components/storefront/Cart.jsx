@@ -1,6 +1,6 @@
 import { useCart } from '../../contexts/CartContext'
 import { Button } from '../ui/button'
-import { formatCurrency } from '../../lib/utils'
+import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { redirectToCheckout } from '../../lib/stripe'
 import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react'
 
@@ -200,9 +200,10 @@ function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart
 }
 
 function CartItem({ item, updateQuantity, removeItem }) {
-  const primaryImage = Array.isArray(item.images) && item.images.length > 0 
+  const primaryImageRaw = Array.isArray(item.images) && item.images.length > 0 
     ? item.images[0] 
     : item.imageUrl
+  const primaryImage = primaryImageRaw ? normalizeImageUrl(primaryImageRaw) : ''
 
   const handleQuantityChange = (newQuantity) => {
     if (newQuantity < 1) {
