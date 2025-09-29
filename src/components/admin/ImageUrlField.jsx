@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { normalizeImageUrl } from '../../lib/utils'
-import MediaPickerModal from './MediaPickerModal'
+import ExistingMediaModal from './ExistingMediaModal'
 
 export function ImageUrlField({
   value,
@@ -58,7 +58,7 @@ export function ImageUrlField({
         )}
         <Button type="button" onClick={() => setPickerOpen(true)} className="flex items-center gap-1">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-          Upload image
+          Select media
         </Button>
         {value && (
           <button
@@ -77,7 +77,7 @@ export function ImageUrlField({
       {notice && (
         <p className="text-xs text-purple-700 mt-2">{notice}</p>
       )}
-      <MediaPickerModal
+      <ExistingMediaModal
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}
         onPick={(url) => { onChange(url); setPickerOpen(false) }}

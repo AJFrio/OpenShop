@@ -544,6 +544,17 @@ async function ensureDriveAccessToken(env) {
     })
   })
   if (!tokenRes.ok) {
+    // Try to capture error body for diagnostics
+    let errText = ''
+    try { errText = await tokenRes.text() } catch (_) {}
+    console.error('Drive token refresh failed', tokenRes.status, errText)
+    // If the refresh token is invalid, clear it so UI can re-connect
+    if (errText && /invalid_grant/i.test(errText)) {
+      try {
+        const cleared = { ...tok, access_token: '', refresh_token: null, expiry: 0 }
+        await kv.put(DRIVE_TOKEN_KEY, JSON.stringify(cleared))
+      } catch (_) {}
+    }
     throw new Error('Failed to refresh token')
   }
   const t = await tokenRes.json()
@@ -615,7 +626,22 @@ app.post('/api/admin/drive/upload', async (c) => {
     if (!mimeType || !dataBase64) {
       return c.json({ error: 'Missing mimeType or dataBase64' }, 400)
     }
-    const tok = await ensureDriveAccessToken(c.env)
+    // Ensure we have a valid access token; surface clear errors if not
+    let tok
+    try {
+      tok = await ensureDriveAccessToken(c.env)
+    } catch (e) {
+      const msg = String(e && e.message ? e.message : e)
+      // If token refresh failed or Drive not connected, instruct client to reconnect
+      if (/Drive not connected/i.test(msg)) {
+        return c.json({ error: 'Drive not connected. Please connect Google Drive in Admin.' }, 401)
+      }
+      if (/Failed to refresh token/i.test(msg)) {
+        return c.json({ error: 'Drive session expired. Please reconnect Google Drive.' }, 401)
+      }
+      console.error('Drive token ensure error', e)
+      return c.json({ error: 'Drive authentication failed' }, 502)
+    }
     const folder = await ensureDriveRootFolder(c.env, tok)
     const boundary = 'openshop-' + Math.random().toString(36).slice(2)
     const metadata = { name: filename || 'openshop-image', parents: [folder.id] }
@@ -1274,6 +1300,69 @@ app.get('/api/admin/orders', async (c) => {
   } catch (error) {
     console.error('Error fetching orders:', error)
     return c.json({ error: 'Failed to fetch orders' }, 500)
+  }
+})
+
+// =====================================
+// ADMIN: Media Library Endpoints
+// =====================================
+
+function generateServerId() {
+  const rnd = Math.random().toString(36).slice(2, 8)
+  const ts = Date.now().toString(36)
+  return `${ts}-${rnd}`
+}
+
+// List media items (most recent first)
+app.get('/api/admin/media', async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace(c.env))
+    const items = await kv.getAllMediaItems()
+    const sorted = [...items].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+    return c.json(sorted)
+  } catch (error) {
+    console.error('Error listing media:', error)
+    return c.json({ error: 'Failed to list media' }, 500)
+  }
+})
+
+// Create media item (record a URL as available media)
+app.post('/api/admin/media', async (c) => {
+  try {
+    const body = await c.req.json()
+    const url = body?.url
+    if (!url || typeof url !== 'string' || url.trim() === '') {
+      return c.json({ error: 'url is required' }, 400)
+    }
+    const kv = new KVManager(getKVNamespace(c.env))
+    const item = {
+      id: body.id || generateServerId(),
+      url: String(url),
+      source: body.source || 'link',
+      filename: body.filename || '',
+      mimeType: body.mimeType || '',
+      driveFileId: body.driveFileId || '',
+      createdAt: typeof body.createdAt === 'number' ? body.createdAt : Date.now(),
+    }
+    const saved = await kv.createMediaItem(item)
+    return c.json(saved, 201)
+  } catch (error) {
+    console.error('Error creating media:', error)
+    return c.json({ error: 'Failed to create media' }, 500)
+  }
+})
+
+// Delete media item (removes from library; does not delete from Google Drive)
+app.delete('/api/admin/media/:id', async (c) => {
+  try {
+    const id = c.req.param('id')
+    if (!id) return c.json({ error: 'Missing id' }, 400)
+    const kv = new KVManager(getKVNamespace(c.env))
+    await kv.deleteMediaItem(id)
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting media:', error)
+    return c.json({ error: 'Failed to delete media' }, 500)
   }
 })
 

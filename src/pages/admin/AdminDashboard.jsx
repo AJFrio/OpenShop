@@ -13,6 +13,7 @@ import { MetricCard, RecentOrdersCard } from '../../components/admin/AnalyticsCa
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
 import { Package, FolderOpen, Plus, Edit, Trash2, Home, Settings, DollarSign, ShoppingBag, BarChart3, Image as ImageIcon, X } from 'lucide-react'
+import AddMediaModal from '../../components/admin/AddMediaModal'
 import { Switch } from '../../components/ui/switch'
 
 function AdminSidebar({ onLogout }) {
@@ -587,105 +588,100 @@ function CollectionsManager() {
 }
 
 function MediaLibrary() {
-  const [images, setImages] = useState([])
-  const [modalImage, setModalImage] = useState(null)
+  const [media, setMedia] = useState([])
+  const [selected, setSelected] = useState(null)
+  const [addOpen, setAddOpen] = useState(false)
 
   useEffect(() => {
-    collectImages()
+    load()
   }, [])
 
-  const collectImages = async () => {
+  async function load() {
     try {
-      const [productsRes, collectionsRes, settingsRes] = await Promise.all([
-        fetch('/api/products'),
-        fetch('/api/collections'),
-        fetch('/api/store-settings')
-      ])
-
-      const products = productsRes.ok ? await productsRes.json() : []
-      const collections = collectionsRes.ok ? await collectionsRes.json() : []
-      const settings = settingsRes.ok ? await settingsRes.json() : {}
-
-      const gathered = new Set()
-      const add = (url, label, link) => {
-        if (url && typeof url === 'string') {
-          const normalized = normalizeImageUrl(url)
-          gathered.add(JSON.stringify({ url: normalized, label, link }))
-        }
-      }
-
-      products.forEach(p => {
-        ;(Array.isArray(p.images) ? p.images : (p.imageUrl ? [p.imageUrl] : [])).forEach(u => add(u, `Product: ${p.name}`, `/admin/products`))
-        if (Array.isArray(p.variants)) {
-          p.variants.forEach(v => {
-            add(v.selectorImageUrl, `Variant (${p.variantStyle || 'Variant'}) ${v.name} selector`, `/admin/products`)
-            add(v.displayImageUrl, `Variant (${p.variantStyle || 'Variant'}) ${v.name} display`, `/admin/products`)
-            if (v.imageUrl) add(v.imageUrl, `Variant (${p.variantStyle || 'Variant'}) ${v.name}`, `/admin/products`)
-          })
-        }
-      })
-
-      collections.forEach(c => add(c.heroImage, `Collection: ${c.name} hero`, `/admin/collections`))
-      add(settings.logoImageUrl, 'Store Logo', '/admin/store-settings')
-      add(settings.heroImageUrl, 'Home Hero', '/admin/store-settings')
-
-      const list = Array.from(gathered).map(s => JSON.parse(s))
-      setImages(list)
+      const res = await adminApiRequest('/api/admin/media', { method: 'GET' })
+      if (!res.ok) throw new Error('Failed to fetch media')
+      const data = await res.json()
+      const sorted = Array.isArray(data) ? data : []
+      setMedia(sorted)
     } catch (e) {
-      console.error('Error collecting images', e)
+      console.error('Error fetching media:', e)
+    }
+  }
+
+  async function handleDelete(id) {
+    if (!confirm('Remove this media from the library?')) return
+    try {
+      const res = await adminApiRequest(`/api/admin/media/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setMedia(media.filter(m => m.id !== id))
+      }
+    } catch (e) {
+      console.error('Delete media failed', e)
     }
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Media Library</h1>
-        <Button variant="outline" onClick={collectImages}>Refresh</Button>
+        <h1 className="text-3xl font-bold text-gray-900">Media</h1>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={load}>Refresh</Button>
+          <Button onClick={() => setAddOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add media
+          </Button>
+        </div>
       </div>
 
-      {images.length === 0 ? (
+      {media.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No images found</h3>
-            <p className="text-gray-600">Images from products, variants, collections, and hero settings will appear here.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No media yet</h3>
+            <p className="text-gray-600">Use Add media to upload, link, or generate images.</p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {images.map((img, idx) => (
-            <button
-              key={idx}
-              onClick={() => setModalImage(img)}
-              className="group relative rounded-lg overflow-hidden border hover:shadow-md transition"
-              title={img.label}
-            >
-              <img src={img.url} alt={img.label} className="w-full h-28 object-cover" />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition" />
-            </button>
+          {media.map((m) => (
+            <div key={m.id} className="group relative rounded-lg overflow-hidden border hover:shadow-md transition">
+              <button
+                onClick={() => setSelected(m)}
+                className="block w-full h-full"
+                title={m.filename || m.url}
+              >
+                <img src={normalizeImageUrl(m.url)} alt={m.filename || 'media'} className="w-full h-28 object-cover" />
+              </button>
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                <Button size="sm" variant="destructive" onClick={() => handleDelete(m.id)}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       )}
 
-      {modalImage && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
+      {selected && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setSelected(null)}>
           <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative flex flex-col max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <button className="absolute top-3 right-3 p-2 rounded-full border bg-white/90 hover:bg-white" onClick={() => setModalImage(null)} aria-label="Close">
+            <button className="absolute top-3 right-3 p-2 rounded-full border bg-white/90 hover:bg-white" onClick={() => setSelected(null)} aria-label="Close">
               <X className="w-5 h-5" />
             </button>
-            <img src={modalImage.url} alt={modalImage.label} className="w-full h-auto max-h-[75vh] object-contain rounded-t-lg" />
+            <div className="flex-1 overflow-auto p-4">
+              <img src={normalizeImageUrl(selected.url)} alt={selected.filename || 'media'} className="block max-w-full max-h-full object-contain mx-auto" />
+            </div>
             <div className="p-4 border-t space-y-2 flex-shrink-0">
-              <p className="text-sm text-gray-700 break-all">{modalImage.label}</p>
+              <p className="text-sm text-gray-700 break-all">{selected.filename || selected.url}</p>
               <div className="flex gap-4 items-center text-sm">
-                <a href={modalImage.url} target="_blank" rel="noreferrer" className="text-purple-600 hover:text-purple-700">Open original</a>
-                {modalImage.link && (
-                  <a href={modalImage.link} className="text-purple-600 hover:text-purple-700">Open related editor</a>
-                )}
+                <a href={selected.url} target="_blank" rel="noreferrer" className="text-purple-600 hover:text-purple-700">Open original</a>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      <AddMediaModal open={addOpen} onClose={() => setAddOpen(false)} onCreated={(item) => { setMedia([item, ...media]); setAddOpen(false) }} />
     </div>
   )
 }
