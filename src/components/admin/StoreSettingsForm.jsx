@@ -178,6 +178,7 @@ export function StoreSettingsForm() {
                   onChange={(val) => setSettings(prev => ({ ...prev, logoImageUrl: val }))}
                   placeholder="https://example.com/logo.png"
                   onPreview={(src) => setModalImage(src)}
+                  hideInput
                 />
                 {driveNotice && (
                   <p className="text-xs text-purple-700 mt-2">{driveNotice}</p>
@@ -224,6 +225,7 @@ export function StoreSettingsForm() {
                 onChange={(val) => setSettings(prev => ({ ...prev, heroImageUrl: val }))}
                 placeholder="https://example.com/hero.jpg"
                 onPreview={(src) => setModalImage(src)}
+                hideInput
               />
               {driveNotice && (
                 <p className="text-xs text-purple-700 mt-2">{driveNotice}</p>

@@ -148,6 +148,7 @@ export function CollectionForm({ collection, onSave, onCancel }) {
               onChange={(val) => setFormData(prev => ({ ...prev, heroImage: val }))}
               placeholder="https://example.com/hero-banner.jpg"
               onPreview={(src) => setModalImage(src)}
+              hideInput
             />
             <p className="text-sm text-gray-500 mt-1">
               This image will be displayed as a banner on the collection page
@@ -167,8 +168,16 @@ export function CollectionForm({ collection, onSave, onCancel }) {
     </Card>
     {modalImage && (
       <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
-        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
-          <img src={modalImage} alt="preview" className="w-full h-auto object-contain rounded" />
+        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className="absolute top-2 right-2 px-2 py-1 rounded border bg-white/90 hover:bg-white"
+            onClick={() => setModalImage(null)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <img src={modalImage} alt="preview" className="w-full h-auto max-h-[80vh] object-contain rounded" />
           <div className="p-3 border-t text-center">
             <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-purple-600 hover:text-purple-700">Open original</a>
           </div>

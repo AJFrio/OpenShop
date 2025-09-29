@@ -326,6 +326,7 @@ export function ProductForm({ product, onSave, onCancel }) {
                   placeholder={`Image URL ${index + 1}`}
                   onPreview={(src) => setModalImage(src)}
                   onRemove={formData.images.length > 1 ? () => removeImageField(index) : undefined}
+                  hideInput
                 />
               ))}
             </div>
@@ -372,8 +373,13 @@ export function ProductForm({ product, onSave, onCancel }) {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium">Variant Options</label>
+                  <label className="block text-sm font-medium">Variant Picker</label>
                   <Button type="button" variant="outline" size="sm" onClick={addVariant}>Add Variant</Button>
+                </div>
+                <div className="grid grid-cols-12 gap-2 text-xs text-gray-600 px-1">
+                  <div className="col-span-3">Variant name</div>
+                  <div className="col-span-4">Selector image</div>
+                  <div className="col-span-4">Display image</div>
                 </div>
                 {(formData.variants || []).length === 0 ? (
                   <p className="text-sm text-gray-500">No variants added. Add at least one to enable variant selection on the PDP.</p>
@@ -395,6 +401,7 @@ export function ProductForm({ product, onSave, onCancel }) {
                               onChange={(val) => updateVariant(index, 'selectorImageUrl', val)}
                               placeholder="Selector image URL"
                               onPreview={(src) => setModalImage(src)}
+                              hideInput
                             />
                           </div>
                         </div>
@@ -405,6 +412,7 @@ export function ProductForm({ product, onSave, onCancel }) {
                               onChange={(val) => updateVariant(index, 'displayImageUrl', val)}
                               placeholder="Display image URL"
                               onPreview={(src) => setModalImage(src)}
+                              hideInput
                             />
                           </div>
                         </div>
@@ -458,8 +466,13 @@ export function ProductForm({ product, onSave, onCancel }) {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium">Variant Options</label>
+                  <label className="block text-sm font-medium">Variant Picker</label>
                   <Button type="button" variant="outline" size="sm" onClick={addVariant2}>Add Variant</Button>
+                </div>
+                <div className="grid grid-cols-12 gap-2 text-xs text-gray-600 px-1">
+                  <div className="col-span-3">Option name</div>
+                  <div className="col-span-4">Selector image</div>
+                  <div className="col-span-4">Display image</div>
                 </div>
                 {(formData.variants2 || []).length === 0 ? (
                   <p className="text-sm text-gray-500">No options added.</p>
@@ -481,6 +494,7 @@ export function ProductForm({ product, onSave, onCancel }) {
                               onChange={(val) => updateVariant2(index, 'selectorImageUrl', val)}
                               placeholder="Selector image URL"
                               onPreview={(src) => setModalImage(src)}
+                              hideInput
                             />
                           </div>
                         </div>
@@ -491,6 +505,7 @@ export function ProductForm({ product, onSave, onCancel }) {
                               onChange={(val) => updateVariant2(index, 'displayImageUrl', val)}
                               placeholder="Display image URL"
                               onPreview={(src) => setModalImage(src)}
+                              hideInput
                             />
                           </div>
                         </div>
@@ -538,8 +553,16 @@ export function ProductForm({ product, onSave, onCancel }) {
     </Card>
     {modalImage && (
       <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
-        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
-          <img src={modalImage} alt="preview" className="w-full h-auto object-contain rounded" />
+        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className="absolute top-2 right-2 px-2 py-1 rounded border bg-white/90 hover:bg-white"
+            onClick={() => setModalImage(null)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <img src={modalImage} alt="preview" className="w-full h-auto max-h-[80vh] object-contain rounded" />
           <div className="p-3 border-t text-center">
             <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-purple-600 hover:text-purple-700">Open original</a>
           </div>

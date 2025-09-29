@@ -213,7 +213,7 @@ export function ProductPage() {
                       title={v.name}
                     >
                       {v.selectorImageUrl || v.imageUrl ? (
-                        <img src={v.selectorImageUrl || v.imageUrl} alt={v.name} className="w-full h-16 object-cover" />
+                        <img src={normalizeImageUrl(v.selectorImageUrl || v.imageUrl)} alt={v.name} className="w-full h-16 object-cover" />
                       ) : (
                         <div className="w-full h-16 flex items-center justify-center text-sm text-gray-600 bg-gray-50">
                           {v.name || 'Option'}
@@ -243,7 +243,7 @@ export function ProductPage() {
                       title={v.name}
                     >
                       {v.selectorImageUrl || v.imageUrl ? (
-                        <img src={v.selectorImageUrl || v.imageUrl} alt={v.name} className="w-full h-16 object-cover" />
+                        <img src={normalizeImageUrl(v.selectorImageUrl || v.imageUrl)} alt={v.name} className="w-full h-16 object-cover" />
                       ) : (
                         <div className="w-full h-16 flex items-center justify-center text-sm text-gray-600 bg-gray-50">
                           {v.name || 'Option'}

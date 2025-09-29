@@ -129,4 +129,56 @@ export class KVManager {
     const allProducts = await this.getAllProducts()
     return allProducts.filter(product => product.collectionId === collectionId)
   }
+
+  // Media operations
+  async createMediaItem(item) {
+    const id = item.id
+    if (!id) throw new Error('Media item missing id')
+    const key = `media:${id}`
+    const record = {
+      id,
+      url: String(item.url || ''),
+      source: item.source || 'unknown',
+      filename: item.filename || '',
+      mimeType: item.mimeType || '',
+      driveFileId: item.driveFileId || '',
+      createdAt: typeof item.createdAt === 'number' ? item.createdAt : Date.now(),
+      updatedAt: Date.now(),
+    }
+    await this.namespace.put(key, JSON.stringify(record))
+
+    const listKey = 'media:all'
+    const existing = await this.namespace.get(listKey)
+    const ids = existing ? JSON.parse(existing) : []
+    if (!ids.includes(id)) ids.push(id)
+    await this.namespace.put(listKey, JSON.stringify(ids))
+    return record
+  }
+
+  async getMediaItem(id) {
+    const key = `media:${id}`
+    const raw = await this.namespace.get(key)
+    return raw ? JSON.parse(raw) : null
+  }
+
+  async deleteMediaItem(id) {
+    const key = `media:${id}`
+    await this.namespace.delete(key)
+    const listKey = 'media:all'
+    const existing = await this.namespace.get(listKey)
+    if (existing) {
+      const ids = JSON.parse(existing)
+      const next = ids.filter(mid => mid !== id)
+      await this.namespace.put(listKey, JSON.stringify(next))
+    }
+  }
+
+  async getAllMediaItems() {
+    const listKey = 'media:all'
+    const existing = await this.namespace.get(listKey)
+    if (!existing) return []
+    const ids = JSON.parse(existing)
+    const items = await Promise.all(ids.map(id => this.getMediaItem(id)))
+    return items.filter(Boolean)
+  }
 }
