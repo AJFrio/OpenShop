@@ -1,46 +1,132 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Navbar } from '../../components/storefront/Navbar'
 import { Hero } from '../../components/storefront/Hero'
 import { Carousel } from '../../components/storefront/Carousel'
 import { ProductCard } from '../../components/storefront/ProductCard'
 import { Footer } from '../../components/storefront/Footer'
+import { HydrationOverlay } from '../../components/storefront/HydrationOverlay'
 import { Button } from '../../components/ui/button'
+import { getStorefrontCache, setStorefrontCache } from '../../lib/storefrontCache'
 
 export function Storefront() {
   const [products, setProducts] = useState([])
   const [collections, setCollections] = useState([])
   const [selectedCollection, setSelectedCollection] = useState(null)
+  const [storeSettings, setStoreSettings] = useState({
+    logoType: 'text',
+    logoText: 'OpenShop',
+    logoImageUrl: '',
+    heroImageUrl: '',
+    heroTitle: 'Welcome to OpenShop',
+    heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.'
+  })
+  const [contactEmail, setContactEmail] = useState('contact@example.com')
   const [loading, setLoading] = useState(true)
+  const isMountedRef = useRef(false)
 
-  useEffect(() => {
-    fetchData()
+  const applyStorefrontData = useCallback((data) => {
+    if (!data) return
+
+    if (Array.isArray(data.products)) {
+      setProducts(data.products)
+    }
+
+    if (Array.isArray(data.collections)) {
+      setCollections(data.collections)
+    }
+
+    if (data.storeSettings) {
+      setStoreSettings(prev => ({
+        ...prev,
+        ...data.storeSettings
+      }))
+    }
+
+    if (data.contactEmail) {
+      setContactEmail(data.contactEmail)
+    }
   }, [])
 
-  const fetchData = async () => {
-    try {
+  const fetchData = useCallback(async ({ suppressLoading = false, fallback = null } = {}) => {
+    if (!suppressLoading) {
       setLoading(true)
-      
-      // Fetch products and collections
-      const [productsResponse, collectionsResponse] = await Promise.all([
-        fetch('/api/products'),
-        fetch('/api/collections')
+    }
+
+    try {
+      const [
+        productsResponse,
+        collectionsResponse,
+        settingsResponse,
+        contactResponse
+      ] = await Promise.all([
+        fetch('/api/products').catch(() => null),
+        fetch('/api/collections').catch(() => null),
+        fetch('/api/store-settings').catch(() => null),
+        fetch('/api/contact-email').catch(() => null)
       ])
 
-      if (productsResponse.ok) {
-        const productsData = await productsResponse.json()
-        setProducts(productsData)
+      let productsData = null
+      let collectionsData = null
+      let settingsData = null
+      let contactEmailData = null
+
+      if (productsResponse?.ok) {
+        productsData = await productsResponse.json()
       }
 
-      if (collectionsResponse.ok) {
-        const collectionsData = await collectionsResponse.json()
-        setCollections(collectionsData)
+      if (collectionsResponse?.ok) {
+        collectionsData = await collectionsResponse.json()
       }
+
+      if (settingsResponse?.ok) {
+        settingsData = await settingsResponse.json()
+      }
+
+      if (contactResponse?.ok) {
+        const contactData = await contactResponse.json()
+        contactEmailData = contactData.email || 'contact@example.com'
+      }
+
+      const nextData = {
+        products: productsData ?? fallback?.products ?? [],
+        collections: collectionsData ?? fallback?.collections ?? [],
+        storeSettings: {
+          ...(fallback?.storeSettings ?? {}),
+          ...(settingsData ?? {})
+        },
+        contactEmail: contactEmailData ?? fallback?.contactEmail ?? 'contact@example.com'
+      }
+
+      if (isMountedRef.current) {
+        applyStorefrontData(nextData)
+      }
+
+      setStorefrontCache(nextData)
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
-      setLoading(false)
+      if (!suppressLoading && isMountedRef.current) {
+        setLoading(false)
+      }
     }
-  }
+  }, [applyStorefrontData])
+
+  useEffect(() => {
+    isMountedRef.current = true
+
+    const cached = getStorefrontCache()
+    if (cached) {
+      applyStorefrontData(cached)
+      setLoading(false)
+      fetchData({ suppressLoading: true, fallback: cached })
+    } else {
+      fetchData()
+    }
+
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [applyStorefrontData, fetchData])
 
   const filteredProducts = selectedCollection
     ? products.filter(product => product.collectionId === selectedCollection)
@@ -49,25 +135,19 @@ export function Storefront() {
   const featuredProducts = products.slice(0, 3) // Show first 3 products in carousel
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading products...</p>
-          </div>
-        </div>
-      </div>
-    )
+    return <HydrationOverlay />
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
+      <Navbar
+        initialCollections={collections}
+        initialProducts={products}
+        initialStoreSettings={storeSettings}
+      />
+
       {/* Hero Section */}
-      <Hero />
+      <Hero initialSettings={storeSettings} />
 
       {/* Featured Products Carousel */}
       {featuredProducts.length > 0 && (
@@ -132,7 +212,7 @@ export function Storefront() {
       </section>
 
       {/* Footer */}
-      <Footer />
+      <Footer contactEmail={contactEmail} />
     </div>
   )
 }

@@ -2,11 +2,16 @@ import { useEffect, useState } from 'react'
 import { normalizeImageUrl } from '../../lib/utils'
 import { Button } from '../ui/button'
 
-export function Hero() {
+const defaultHeroSettings = {
+  heroImageUrl: '',
+  heroTitle: 'Welcome to OpenShop',
+  heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.'
+}
+
+export function Hero({ initialSettings = null }) {
   const [settings, setSettings] = useState({
-    heroImageUrl: '',
-    heroTitle: 'Welcome to OpenShop',
-    heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.'
+    ...defaultHeroSettings,
+    ...(initialSettings || {})
   })
 
   useEffect(() => {
@@ -27,9 +32,20 @@ export function Hero() {
         console.error('Failed to load store settings', e)
       }
     }
-    fetchSettings()
+    if (!initialSettings) {
+      fetchSettings()
+    }
     return () => { isMounted = false }
-  }, [])
+  }, [initialSettings])
+
+  useEffect(() => {
+    if (initialSettings) {
+      setSettings(prev => ({
+        ...prev,
+        ...initialSettings
+      }))
+    }
+  }, [initialSettings])
 
   return (
     <div className="relative text-white">
