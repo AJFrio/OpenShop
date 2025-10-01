@@ -5,7 +5,19 @@ const ADMIN_TOKEN_KEY = 'openshop_admin_token'
 
 // Generate a simple session token (in production, use proper JWT or session management)
 export function generateAdminToken() {
-  return btoa(Date.now() + Math.random().toString(36)).replace(/[^a-zA-Z0-9]/g, '')
+  const cryptoObj = typeof globalThis !== 'undefined' ? globalThis.crypto : null
+
+  if (cryptoObj && typeof cryptoObj.randomUUID === 'function') {
+    return cryptoObj.randomUUID().replace(/-/g, '')
+  }
+
+  if (cryptoObj && typeof cryptoObj.getRandomValues === 'function') {
+    const bytes = new Uint8Array(32)
+    cryptoObj.getRandomValues(bytes)
+    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
+  }
+
+  throw new Error('Secure random number generator is not available')
 }
 
 // Store admin token in localStorage

@@ -2,7 +2,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { KVManager } from './lib/kv.js'
-import { verifyAdminAuth } from './middleware/auth.js'
+import { verifyAdminAuth, hashToken } from './middleware/auth.js'
 import Stripe from 'stripe'
 
 // Helper function to get KV namespace dynamically
@@ -57,6 +57,32 @@ function getKVNamespace(env) {
 }
 
 const app = new Hono()
+
+function getCrypto() {
+  const cryptoObj = typeof globalThis !== 'undefined' ? globalThis.crypto : null
+  if (!cryptoObj) {
+    throw new Error('Web Crypto API is not available in this environment')
+  }
+  return cryptoObj
+}
+
+function randomHex(bytes = 16) {
+  const cryptoObj = getCrypto()
+  if (typeof cryptoObj.getRandomValues !== 'function') {
+    throw new Error('crypto.getRandomValues is not available')
+  }
+  const buffer = new Uint8Array(bytes)
+  cryptoObj.getRandomValues(buffer)
+  return Array.from(buffer, (b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+function generateSessionToken() {
+  const cryptoObj = getCrypto()
+  if (typeof cryptoObj.randomUUID === 'function') {
+    return cryptoObj.randomUUID().replace(/-/g, '')
+  }
+  return randomHex(32)
+}
 
 // CORS middleware
 app.use('*', cors({
@@ -643,7 +669,7 @@ app.post('/api/admin/drive/upload', async (c) => {
       return c.json({ error: 'Drive authentication failed' }, 502)
     }
     const folder = await ensureDriveRootFolder(c.env, tok)
-    const boundary = 'openshop-' + Math.random().toString(36).slice(2)
+    const boundary = `openshop-${generateSessionToken()}`
     const metadata = { name: filename || 'openshop-image', parents: [folder.id] }
     const body =
       `--${boundary}\r\n` +
@@ -699,9 +725,10 @@ app.post('/api/admin/login', async (c) => {
       return c.json({ error: 'Invalid password' }, 401)
     }
 
-    const token = btoa(Date.now() + Math.random().toString(36)).replace(/[^a-zA-Z0-9]/g, '')
-    
-    await getKVNamespace(c.env).put(`admin_token:${token}`, Date.now().toString(), {
+    const token = generateSessionToken()
+    const hashedToken = await hashToken(token)
+
+    await getKVNamespace(c.env).put(`admin_token:${hashedToken}`, Date.now().toString(), {
       expirationTtl: 86400 // 24 hours
     })
 
@@ -1308,7 +1335,7 @@ app.get('/api/admin/orders', async (c) => {
 // =====================================
 
 function generateServerId() {
-  const rnd = Math.random().toString(36).slice(2, 8)
+  const rnd = randomHex(4)
   const ts = Date.now().toString(36)
   return `${ts}-${rnd}`
 }
