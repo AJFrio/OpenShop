@@ -717,26 +717,208 @@ app.post('/api/admin/drive/upload', async (c) => {
 
 // Admin login
 app.post('/api/admin/login', async (c) => {
-  try {
-    const { password } = await c.req.json()
-    const adminPassword = c.env.ADMIN_PASSWORD || 'admin123'
-    
-    if (password !== adminPassword) {
-      return c.json({ error: 'Invalid password' }, 401)
+  const parseConfigInt = (value, defaultValue, { allowZero = false } = {}) => {
+    const parsed = Number.parseInt(value, 10)
+    if (!Number.isFinite(parsed)) {
+      return defaultValue
     }
+    if (allowZero) {
+      return parsed >= 0 ? parsed : defaultValue
+    }
+    return parsed > 0 ? parsed : defaultValue
+  }
 
-    const token = generateSessionToken()
-    const hashedToken = await hashToken(token)
+  const now = Date.now()
+  const adminPassword = c.env.ADMIN_PASSWORD || 'admin123'
+  const maxAttempts = parseConfigInt(c.env.ADMIN_LOGIN_MAX_ATTEMPTS, 5)
+  const windowSeconds = parseConfigInt(c.env.ADMIN_LOGIN_WINDOW_SECONDS, 900)
+  const lockoutSeconds = parseConfigInt(c.env.ADMIN_LOGIN_LOCKOUT_SECONDS, 900)
+  const slowdownMs = parseConfigInt(c.env.ADMIN_LOGIN_SLOWDOWN_MS, 500, { allowZero: true })
+  const slowdownThreshold = parseConfigInt(c.env.ADMIN_LOGIN_SLOWDOWN_THRESHOLD, 3)
+  const monitorTtlSeconds = parseConfigInt(c.env.ADMIN_LOGIN_MONITOR_TTL_SECONDS, 86400)
 
-    await getKVNamespace(c.env).put(`admin_token:${hashedToken}`, Date.now().toString(), {
-      expirationTtl: 86400 // 24 hours
-    })
+  const kvNamespace = getKVNamespace(c.env)
 
-    return c.json({ token })
-  } catch (error) {
-    console.error('Admin login error:', error)
+  if (!kvNamespace) {
+    console.error('Admin login error: KV namespace unavailable')
     return c.json({ error: 'Login failed' }, 500)
   }
+
+  const ipHeader = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for')
+  const ip = (ipHeader || '').split(',')[0].trim() || 'unknown'
+  const userAgent = (c.req.header('user-agent') || 'unknown').slice(0, 256)
+  const identifier = `${ip}|${userAgent}`
+
+  let attemptKeyHash
+  try {
+    attemptKeyHash = await hashToken(identifier)
+  } catch (hashError) {
+    console.error('Admin login error: Unable to hash attempt identifier', hashError)
+    return c.json({ error: 'Login failed' }, 500)
+  }
+
+  const attemptKey = `admin_login_attempts:${attemptKeyHash}`
+  const ttlSeconds = Math.max(windowSeconds, lockoutSeconds) + 60
+
+  let attemptRecordRaw
+  let attemptRecord
+  try {
+    attemptRecordRaw = await kvNamespace.get(attemptKey)
+    if (attemptRecordRaw) {
+      attemptRecord = JSON.parse(attemptRecordRaw)
+    }
+  } catch (readError) {
+    console.error('Admin login error: Unable to read attempt record', readError)
+  }
+
+  if (!attemptRecord || typeof attemptRecord !== 'object') {
+    attemptRecord = {
+      count: 0,
+      firstAttempt: now,
+      lastAttempt: 0,
+      lockedUntil: 0
+    }
+  }
+
+  // Reset the counter if the window has elapsed
+  if (now - (attemptRecord.firstAttempt || 0) > windowSeconds * 1000) {
+    attemptRecord.count = 0
+    attemptRecord.firstAttempt = now
+  }
+
+  if (attemptRecord.lockedUntil && now < attemptRecord.lockedUntil) {
+    console.warn('Admin login rejected due to active lockout', {
+      ip,
+      userAgent,
+      lockedUntil: attemptRecord.lockedUntil
+    })
+    return c.json({ error: 'Unable to process login request' }, 429)
+  }
+
+  if (attemptRecord.count >= slowdownThreshold && slowdownMs > 0) {
+    await new Promise(resolve => setTimeout(resolve, Math.min(slowdownMs, 5000)))
+  }
+
+  let passwordFromRequest
+  try {
+    const body = await c.req.json()
+    passwordFromRequest = body?.password
+  } catch (parseError) {
+    console.warn('Admin login warning: Invalid JSON payload', {
+      ip,
+      userAgent,
+      error: parseError?.message || 'unknown'
+    })
+  }
+
+  const registerFailure = async () => {
+    attemptRecord.count += 1
+    attemptRecord.lastAttempt = now
+
+    if (attemptRecord.count >= maxAttempts) {
+      attemptRecord.lockedUntil = now + lockoutSeconds * 1000
+    }
+
+    try {
+      await kvNamespace.put(attemptKey, JSON.stringify(attemptRecord), {
+        expirationTtl: Math.max(ttlSeconds, lockoutSeconds + 60)
+      })
+    } catch (writeError) {
+      console.error('Admin login error: Unable to persist attempt record', writeError)
+    }
+
+    try {
+      const monitorKey = 'admin_login_monitor'
+      const monitorRaw = await kvNamespace.get(monitorKey)
+      let monitorData = {}
+      if (monitorRaw) {
+        try {
+          monitorData = JSON.parse(monitorRaw) || {}
+        } catch (monitorParseError) {
+          console.error('Admin login monitor parse error:', monitorParseError)
+        }
+      }
+
+      const sources = monitorData.sources || {}
+      sources[attemptKeyHash] = {
+        ip,
+        userAgent,
+        lastAttempt: now,
+        count: attemptRecord.count
+      }
+
+      const maxSources = parseInt(c.env.ADMIN_LOGIN_MONITOR_MAX_SOURCES || '20', 10)
+      const trimmedSources = Object.entries(sources)
+        .sort(([, a], [, b]) => (b.lastAttempt || 0) - (a.lastAttempt || 0))
+        .slice(0, Math.max(maxSources, 1))
+        .reduce((acc, [key, value]) => {
+          acc[key] = value
+          return acc
+        }, {})
+
+      monitorData = {
+        totalFailures: (monitorData.totalFailures || 0) + 1,
+        lastFailureAt: now,
+        sources: trimmedSources
+      }
+
+      await kvNamespace.put(monitorKey, JSON.stringify(monitorData), {
+        expirationTtl: Math.max(monitorTtlSeconds, 60)
+      })
+    } catch (monitorError) {
+      console.error('Admin login monitor update failed:', monitorError)
+    }
+
+    if (attemptRecord.count >= maxAttempts) {
+      console.warn('Admin login attempts exceeded threshold', {
+        ip,
+        userAgent,
+        count: attemptRecord.count,
+        lockedUntil: attemptRecord.lockedUntil
+      })
+    } else {
+      console.info('Admin login attempt failed', {
+        ip,
+        userAgent,
+        count: attemptRecord.count
+      })
+    }
+
+    const status = attemptRecord.lockedUntil && now < attemptRecord.lockedUntil ? 429 : 401
+    return c.json({ error: 'Unable to process login request' }, status)
+  }
+
+  if (!passwordFromRequest || passwordFromRequest !== adminPassword) {
+    return await registerFailure()
+  }
+
+  try {
+    await kvNamespace.delete(attemptKey)
+  } catch (deleteError) {
+    console.error('Admin login warning: Unable to clear attempt record', deleteError)
+  }
+
+  const token = generateSessionToken()
+  let hashedToken
+  try {
+    hashedToken = await hashToken(token)
+  } catch (tokenHashError) {
+    console.error('Admin login error: Unable to hash session token', tokenHashError)
+    return c.json({ error: 'Login failed' }, 500)
+  }
+
+  try {
+    await kvNamespace.put(`admin_token:${hashedToken}`, Date.now().toString(), {
+      expirationTtl: 86400 // 24 hours
+    })
+  } catch (tokenStoreError) {
+    console.error('Admin login error: Unable to persist session token', tokenStoreError)
+    return c.json({ error: 'Login failed' }, 500)
+  }
+
+  console.info('Admin login successful', { ip, userAgent })
+
+  return c.json({ token })
 })
 
 // Admin create product
