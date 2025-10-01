@@ -262,8 +262,9 @@ app.get('/api/store-settings', async (c) => {
       heroImageUrl: '',
       heroTitle: 'Welcome to OpenShop',
       heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.',
+      contactEmail: 'contact@example.com',
     }
-    
+
     if (settings) {
       return c.json(JSON.parse(settings))
     } else {
@@ -272,6 +273,24 @@ app.get('/api/store-settings', async (c) => {
   } catch (error) {
     console.error('Error fetching store settings:', error)
     return c.json({ error: 'Failed to fetch store settings' }, 500)
+  }
+})
+
+// Get contact email (public endpoint)
+app.get('/api/contact-email', async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace(c.env))
+    const settings = await kv.namespace.get('store:settings')
+
+    if (settings) {
+      const parsedSettings = JSON.parse(settings)
+      return c.json({ email: parsedSettings.contactEmail || 'contact@example.com' })
+    } else {
+      return c.json({ email: 'contact@example.com' })
+    }
+  } catch (error) {
+    console.error('Error fetching contact email:', error)
+    return c.json({ email: 'contact@example.com' })
   }
 })
 
@@ -1130,6 +1149,7 @@ app.put('/api/admin/store-settings', async (c) => {
       heroImageUrl: '',
       heroTitle: 'Welcome to OpenShop',
       heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.',
+      contactEmail: 'contact@example.com',
     }
 
     const updatedSettings = { ...defaultSettings, ...settings }
