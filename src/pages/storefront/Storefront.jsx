@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Navbar } from '../../components/storefront/Navbar'
 import { Hero } from '../../components/storefront/Hero'
 import { Carousel } from '../../components/storefront/Carousel'
@@ -6,6 +6,7 @@ import { ProductCard } from '../../components/storefront/ProductCard'
 import { Footer } from '../../components/storefront/Footer'
 import { HydrationOverlay } from '../../components/storefront/HydrationOverlay'
 import { Button } from '../../components/ui/button'
+import { getStorefrontCache, setStorefrontCache } from '../../lib/storefrontCache'
 
 export function Storefront() {
   const [products, setProducts] = useState([])
@@ -21,16 +22,37 @@ export function Storefront() {
   })
   const [contactEmail, setContactEmail] = useState('contact@example.com')
   const [loading, setLoading] = useState(true)
+  const isMountedRef = useRef(false)
 
-  useEffect(() => {
-    fetchData()
+  const applyStorefrontData = useCallback((data) => {
+    if (!data) return
+
+    if (Array.isArray(data.products)) {
+      setProducts(data.products)
+    }
+
+    if (Array.isArray(data.collections)) {
+      setCollections(data.collections)
+    }
+
+    if (data.storeSettings) {
+      setStoreSettings(prev => ({
+        ...prev,
+        ...data.storeSettings
+      }))
+    }
+
+    if (data.contactEmail) {
+      setContactEmail(data.contactEmail)
+    }
   }, [])
 
-  const fetchData = async () => {
-    try {
+  const fetchData = useCallback(async ({ suppressLoading = false, fallback = null } = {}) => {
+    if (!suppressLoading) {
       setLoading(true)
-      
-      // Fetch products and collections
+    }
+
+    try {
       const [
         productsResponse,
         collectionsResponse,
@@ -43,34 +65,68 @@ export function Storefront() {
         fetch('/api/contact-email').catch(() => null)
       ])
 
+      let productsData = null
+      let collectionsData = null
+      let settingsData = null
+      let contactEmailData = null
+
       if (productsResponse?.ok) {
-        const productsData = await productsResponse.json()
-        setProducts(productsData)
+        productsData = await productsResponse.json()
       }
 
       if (collectionsResponse?.ok) {
-        const collectionsData = await collectionsResponse.json()
-        setCollections(collectionsData)
+        collectionsData = await collectionsResponse.json()
       }
 
       if (settingsResponse?.ok) {
-        const settingsData = await settingsResponse.json()
-        setStoreSettings(prev => ({
-          ...prev,
-          ...settingsData
-        }))
+        settingsData = await settingsResponse.json()
       }
 
       if (contactResponse?.ok) {
         const contactData = await contactResponse.json()
-        setContactEmail(contactData.email || 'contact@example.com')
+        contactEmailData = contactData.email || 'contact@example.com'
       }
+
+      const nextData = {
+        products: productsData ?? fallback?.products ?? [],
+        collections: collectionsData ?? fallback?.collections ?? [],
+        storeSettings: {
+          ...(fallback?.storeSettings ?? {}),
+          ...(settingsData ?? {})
+        },
+        contactEmail: contactEmailData ?? fallback?.contactEmail ?? 'contact@example.com'
+      }
+
+      if (isMountedRef.current) {
+        applyStorefrontData(nextData)
+      }
+
+      setStorefrontCache(nextData)
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
-      setLoading(false)
+      if (!suppressLoading && isMountedRef.current) {
+        setLoading(false)
+      }
     }
-  }
+  }, [applyStorefrontData])
+
+  useEffect(() => {
+    isMountedRef.current = true
+
+    const cached = getStorefrontCache()
+    if (cached) {
+      applyStorefrontData(cached)
+      setLoading(false)
+      fetchData({ suppressLoading: true, fallback: cached })
+    } else {
+      fetchData()
+    }
+
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [applyStorefrontData, fetchData])
 
   const filteredProducts = selectedCollection
     ? products.filter(product => product.collectionId === selectedCollection)

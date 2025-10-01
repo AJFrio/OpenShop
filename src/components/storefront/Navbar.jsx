@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { normalizeImageUrl } from '../../lib/utils'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../ui/button'
 import { useCart } from '../../contexts/CartContext'
 import { ShoppingCart } from 'lucide-react'
@@ -25,9 +25,31 @@ export function Navbar({
   })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { itemCount, toggleCart } = useCart()
+  const navigate = useNavigate()
   const hasInitialCollections = initialCollections.length > 0
   const hasInitialProducts = initialProducts.length > 0
   const hasInitialSettings = Boolean(initialStoreSettings)
+
+  const handleLogoClick = useCallback((event) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.shiftKey
+    ) {
+      return
+    }
+
+    event.preventDefault()
+    setMobileMenuOpen(false)
+    navigate('/')
+
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'auto' })
+    }
+  }, [navigate])
 
   useEffect(() => {
     setCollections(initialCollections)
@@ -105,7 +127,7 @@ export function Navbar({
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-3 items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
+          <Link to="/" className="flex-shrink-0" onClick={handleLogoClick}>
             {storeSettings.logoType === 'image' && storeSettings.logoImageUrl ? (
               <img
                 src={storeSettings.logoImageUrl}
@@ -132,6 +154,7 @@ export function Navbar({
             <div className="flex items-baseline space-x-6 justify-center">
               <Link
                 to="/"
+                onClick={handleLogoClick}
                 className="text-gray-900 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
               >
                 Home
@@ -243,7 +266,7 @@ export function Navbar({
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <button 
+            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="text-gray-900 hover:text-gray-600 transition-colors duration-200"
             >
@@ -268,7 +291,7 @@ export function Navbar({
             <Link
               to="/"
               className="block px-3 py-2 text-base font-medium text-gray-900 hover:text-purple-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={handleLogoClick}
             >
               Home
             </Link>
