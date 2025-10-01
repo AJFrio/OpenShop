@@ -25,7 +25,8 @@ export function StoreSettingsForm() {
     storeDescription: 'Your amazing online store',
     heroImageUrl: '',
     heroTitle: 'Welcome to OpenShop',
-    heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.'
+    heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.',
+    contactEmail: 'contact@example.com'
   })
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -266,6 +267,25 @@ export function StoreSettingsForm() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Contact & Support */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900">Contact & Support</h3>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Contact Email</label>
+              <Input
+                type="email"
+                name="contactEmail"
+                value={settings.contactEmail}
+                onChange={handleChange}
+                placeholder="contact@yourstore.com"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                This email will be used for the "Contact Us" button in the footer.
+              </p>
             </div>
           </div>
 

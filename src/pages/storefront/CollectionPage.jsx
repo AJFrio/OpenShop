@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { normalizeImageUrl } from '../../lib/utils'
 import { useParams } from 'react-router-dom'
 import { Navbar } from '../../components/storefront/Navbar'
+import { Footer } from '../../components/storefront/Footer'
 import { ProductCard } from '../../components/storefront/ProductCard'
 
 export function CollectionPage() {
@@ -60,7 +61,7 @@ export function CollectionPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Collection Not Found</h1>
             <p className="text-gray-600 mb-6">The collection you're looking for doesn't exist.</p>
@@ -119,7 +120,7 @@ export function CollectionPage() {
       </section>
 
       {/* Products Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section className="max-w-8xl mx-auto px-3 sm:px-4 lg:px-6 pb-16">
         {products.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-gray-400 mb-4">
@@ -142,7 +143,7 @@ export function CollectionPage() {
                 Products ({products.length})
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -150,6 +151,9 @@ export function CollectionPage() {
           </>
         )}
       </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

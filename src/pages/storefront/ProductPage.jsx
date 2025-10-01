@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Navbar } from '../../components/storefront/Navbar'
+import { Footer } from '../../components/storefront/Footer'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
@@ -147,7 +148,7 @@ export function ProductPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Product Not Found</h1>
             <p className="text-gray-600 mb-6">The product you're looking for doesn't exist.</p>
@@ -161,7 +162,7 @@ export function ProductPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <section className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           <div>
             <Card className="overflow-hidden">
@@ -295,6 +296,9 @@ export function ProductPage() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

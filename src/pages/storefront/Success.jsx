@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { Card, CardContent } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
+import { Footer } from '../../components/storefront/Footer'
 import { CheckCircle, Package, ArrowLeft } from 'lucide-react'
 
 export function Success() {
@@ -96,6 +97,9 @@ export function Success() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

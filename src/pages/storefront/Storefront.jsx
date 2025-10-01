@@ -3,6 +3,7 @@ import { Navbar } from '../../components/storefront/Navbar'
 import { Hero } from '../../components/storefront/Hero'
 import { Carousel } from '../../components/storefront/Carousel'
 import { ProductCard } from '../../components/storefront/ProductCard'
+import { Footer } from '../../components/storefront/Footer'
 import { Button } from '../../components/ui/button'
 
 export function Storefront() {
@@ -70,7 +71,7 @@ export function Storefront() {
 
       {/* Featured Products Carousel */}
       {featuredProducts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <section className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
             Featured Products
           </h2>
@@ -79,7 +80,7 @@ export function Storefront() {
       )}
 
       {/* Collection Filter */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <section className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-wrap gap-4 justify-center">
           <Button
             variant={selectedCollection === null ? 'default' : 'outline'}
@@ -100,7 +101,7 @@ export function Storefront() {
       </section>
 
       {/* Products Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <section className="max-w-8xl mx-auto px-3 sm:px-4 lg:px-6 pb-16">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-gray-400 mb-4">
@@ -122,13 +123,16 @@ export function Storefront() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}
       </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }
