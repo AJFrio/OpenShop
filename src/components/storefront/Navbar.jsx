@@ -5,22 +5,66 @@ import { Button } from '../ui/button'
 import { useCart } from '../../contexts/CartContext'
 import { ShoppingCart } from 'lucide-react'
 
-export function Navbar() {
-  const [collections, setCollections] = useState([])
+const defaultStoreSettings = {
+  logoType: 'text',
+  logoText: 'OpenShop',
+  logoImageUrl: ''
+}
+
+export function Navbar({
+  initialCollections = [],
+  initialProducts = [],
+  initialStoreSettings = null
+}) {
+  const [collections, setCollections] = useState(initialCollections)
+  const [products, setProducts] = useState(initialProducts)
   const [collectionsWithProducts, setCollectionsWithProducts] = useState([])
   const [storeSettings, setStoreSettings] = useState({
-    logoType: 'text',
-    logoText: 'OpenShop',
-    logoImageUrl: ''
+    ...defaultStoreSettings,
+    ...(initialStoreSettings || {})
   })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { itemCount, toggleCart } = useCart()
+  const hasInitialCollections = initialCollections.length > 0
+  const hasInitialProducts = initialProducts.length > 0
+  const hasInitialSettings = Boolean(initialStoreSettings)
 
   useEffect(() => {
-    // Fetch collections, products, and store settings for navigation
-    fetchCollectionsAndProducts()
-    fetchStoreSettings()
-  }, [])
+    setCollections(initialCollections)
+  }, [initialCollections])
+
+  useEffect(() => {
+    setProducts(initialProducts)
+  }, [initialProducts])
+
+  useEffect(() => {
+    if (initialStoreSettings) {
+      setStoreSettings(prev => ({
+        ...prev,
+        ...initialStoreSettings
+      }))
+    }
+  }, [initialStoreSettings])
+
+  useEffect(() => {
+    if (!hasInitialCollections || !hasInitialProducts) {
+      fetchCollectionsAndProducts()
+    }
+  }, [hasInitialCollections, hasInitialProducts])
+
+  useEffect(() => {
+    if (!hasInitialSettings) {
+      fetchStoreSettings()
+    }
+  }, [hasInitialSettings])
+
+  useEffect(() => {
+    const grouped = collections.map(collection => ({
+      ...collection,
+      products: products.filter(product => product.collectionId === collection.id)
+    }))
+    setCollectionsWithProducts(grouped)
+  }, [collections, products])
 
   const fetchCollectionsAndProducts = async () => {
     try {
@@ -34,14 +78,7 @@ export function Navbar() {
         const productsData = await productsResponse.json()
         
         setCollections(collectionsData)
-
-        // Group products by collection
-        const collectionsWithProducts = collectionsData.map(collection => ({
-          ...collection,
-          products: productsData.filter(product => product.collectionId === collection.id)
-        }))
-        
-        setCollectionsWithProducts(collectionsWithProducts)
+        setProducts(productsData)
       }
     } catch (error) {
       console.error('Error fetching collections and products:', error)
@@ -53,7 +90,10 @@ export function Navbar() {
       const response = await fetch('/api/store-settings')
       if (response.ok) {
         const data = await response.json()
-        setStoreSettings(data)
+        setStoreSettings(prev => ({
+          ...prev,
+          ...data
+        }))
       }
     } catch (error) {
       console.error('Error fetching store settings:', error)

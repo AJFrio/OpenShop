@@ -4,12 +4,22 @@ import { Hero } from '../../components/storefront/Hero'
 import { Carousel } from '../../components/storefront/Carousel'
 import { ProductCard } from '../../components/storefront/ProductCard'
 import { Footer } from '../../components/storefront/Footer'
+import { HydrationOverlay } from '../../components/storefront/HydrationOverlay'
 import { Button } from '../../components/ui/button'
 
 export function Storefront() {
   const [products, setProducts] = useState([])
   const [collections, setCollections] = useState([])
   const [selectedCollection, setSelectedCollection] = useState(null)
+  const [storeSettings, setStoreSettings] = useState({
+    logoType: 'text',
+    logoText: 'OpenShop',
+    logoImageUrl: '',
+    heroImageUrl: '',
+    heroTitle: 'Welcome to OpenShop',
+    heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.'
+  })
+  const [contactEmail, setContactEmail] = useState('contact@example.com')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -21,19 +31,39 @@ export function Storefront() {
       setLoading(true)
       
       // Fetch products and collections
-      const [productsResponse, collectionsResponse] = await Promise.all([
-        fetch('/api/products'),
-        fetch('/api/collections')
+      const [
+        productsResponse,
+        collectionsResponse,
+        settingsResponse,
+        contactResponse
+      ] = await Promise.all([
+        fetch('/api/products').catch(() => null),
+        fetch('/api/collections').catch(() => null),
+        fetch('/api/store-settings').catch(() => null),
+        fetch('/api/contact-email').catch(() => null)
       ])
 
-      if (productsResponse.ok) {
+      if (productsResponse?.ok) {
         const productsData = await productsResponse.json()
         setProducts(productsData)
       }
 
-      if (collectionsResponse.ok) {
+      if (collectionsResponse?.ok) {
         const collectionsData = await collectionsResponse.json()
         setCollections(collectionsData)
+      }
+
+      if (settingsResponse?.ok) {
+        const settingsData = await settingsResponse.json()
+        setStoreSettings(prev => ({
+          ...prev,
+          ...settingsData
+        }))
+      }
+
+      if (contactResponse?.ok) {
+        const contactData = await contactResponse.json()
+        setContactEmail(contactData.email || 'contact@example.com')
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -49,25 +79,19 @@ export function Storefront() {
   const featuredProducts = products.slice(0, 3) // Show first 3 products in carousel
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading products...</p>
-          </div>
-        </div>
-      </div>
-    )
+    return <HydrationOverlay />
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
+      <Navbar
+        initialCollections={collections}
+        initialProducts={products}
+        initialStoreSettings={storeSettings}
+      />
+
       {/* Hero Section */}
-      <Hero />
+      <Hero initialSettings={storeSettings} />
 
       {/* Featured Products Carousel */}
       {featuredProducts.length > 0 && (
@@ -132,7 +156,7 @@ export function Storefront() {
       </section>
 
       {/* Footer */}
-      <Footer />
+      <Footer contactEmail={contactEmail} />
     </div>
   )
 }
