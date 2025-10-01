@@ -51,6 +51,24 @@ function getKVNamespace(env) {
   return kvNamespace
 }
 
+export async function hashToken(token) {
+  if (typeof token !== 'string' || token.length === 0) {
+    throw new Error('Token must be a non-empty string for hashing')
+  }
+
+  const cryptoObj = typeof globalThis !== 'undefined' ? globalThis.crypto : null
+
+  if (!cryptoObj || !cryptoObj.subtle || typeof cryptoObj.subtle.digest !== 'function') {
+    throw new Error('Web Crypto API is not available for hashing tokens')
+  }
+
+  const encoder = new TextEncoder()
+  const data = encoder.encode(token)
+  const digest = await cryptoObj.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(digest))
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
 export async function verifyAdminAuth(request, env) {
   // Support both Hono's HonoRequest (c.req) and the native Request
   let adminToken
@@ -90,7 +108,9 @@ export async function verifyAdminAuth(request, env) {
       }
     }
     
-    const tokenData = await kvNamespace.get(`admin_token:${adminToken}`)
+    const hashedToken = await hashToken(adminToken)
+    const storageKey = `admin_token:${hashedToken}`
+    const tokenData = await kvNamespace.get(storageKey)
     
     if (!tokenData) {
       return { 
@@ -107,7 +127,7 @@ export async function verifyAdminAuth(request, env) {
     
     if (now - tokenTime > twentyFourHours) {
       // Clean up expired token
-      await kvNamespace.delete(`admin_token:${adminToken}`)
+      await kvNamespace.delete(storageKey)
       return { 
         isValid: false, 
         error: 'Admin session expired',
