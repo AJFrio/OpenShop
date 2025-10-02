@@ -45,12 +45,12 @@ export function CollectionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50">
         <Navbar />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading collection...</p>
+            <p className="text-slate-600">Loading collection...</p>
           </div>
         </div>
       </div>
@@ -59,12 +59,12 @@ export function CollectionPage() {
 
   if (!collection) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50">
         <Navbar />
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Collection Not Found</h1>
-            <p className="text-gray-600 mb-6">The collection you're looking for doesn't exist.</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">Collection Not Found</h1>
+            <p className="text-slate-600 mb-6">The collection you're looking for doesn't exist.</p>
             <a href="/" className="text-purple-600 hover:text-purple-500">
               Return to Home
             </a>
@@ -75,13 +75,13 @@ export function CollectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
       
       {/* Collection Header */}
       <section className="relative">
         {collection.heroImage ? (
-          <div className="relative h-96 bg-gray-900">
+          <div className="relative h-96 bg-slate-900">
             <img
               src={collection.heroImage}
               alt={collection.name}
@@ -123,13 +123,13 @@ export function CollectionPage() {
       <section className="max-w-8xl mx-auto px-3 sm:px-4 lg:px-6 pb-16">
         {products.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-gray-400 mb-4">
+            <div className="text-slate-400 mb-4">
               <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No products in this collection</h3>
-            <p className="text-gray-600 mb-6">
+            <h3 className="text-xl font-semibold text-slate-900 mb-2">No products in this collection</h3>
+            <p className="text-slate-600 mb-6">
               This collection doesn't have any products yet.
             </p>
             <a href="/" className="text-purple-600 hover:text-purple-500">
@@ -139,7 +139,7 @@ export function CollectionPage() {
         ) : (
           <>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-slate-900">
                 Products ({products.length})
               </h2>
             </div>

@@ -30,8 +30,8 @@ export function Carousel({ products = [] }) {
 
   if (products.length === 0) {
     return (
-      <div className="relative w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
-        <p className="text-gray-500">No featured products available</p>
+      <div className="relative w-full h-96 bg-slate-200 rounded-lg flex items-center justify-center">
+        <p className="text-slate-500">No featured products available</p>
       </div>
     )
   }
@@ -39,7 +39,7 @@ export function Carousel({ products = [] }) {
   const currentProduct = products[currentIndex]
 
   return (
-    <div className="relative w-full h-96 bg-gray-900 rounded-lg overflow-hidden">
+    <div className="relative w-full h-96 bg-slate-900 rounded-lg overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0" onClick={goToNext}>
         {currentProduct.images && currentProduct.images.length > 0 ? (
@@ -63,9 +63,9 @@ export function Carousel({ products = [] }) {
       <div className="relative z-10 flex items-center justify-center h-full text-white text-center px-8">
         <div>
           <h2 className="text-4xl font-bold mb-4">{currentProduct.name}</h2>
-          <p className="text-lg mb-6 max-w-2xl">{currentProduct.description}</p>
+          <p className="text-lg mb-6 max-w-2xl">{currentProduct.tagline || currentProduct.description}</p>
           <Link to={`/products/${currentProduct.id}`} onClick={(e) => e.stopPropagation()}>
-            <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 cursor-pointer">
+            <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100 cursor-pointer">
               Shop Now - ${currentProduct.price}
             </Button>
           </Link>

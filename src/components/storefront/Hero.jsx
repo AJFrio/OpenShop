@@ -44,10 +44,10 @@ export function Hero() {
           <h1 className="text-4xl md:text-6xl font-bold mb-6">{settings.heroTitle}</h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">{settings.heroSubtitle}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-black hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white transition-all duration-300">
+            <Button size="lg" className="bg-white text-slate-900 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white transition-all duration-300">
               Shop Now
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-black bg-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent transition-all duration-300">
+            <Button size="lg" variant="outline" className="border-white text-slate-900 bg-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent transition-all duration-300">
               Learn More
             </Button>
           </div>

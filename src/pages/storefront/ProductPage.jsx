@@ -132,12 +132,12 @@ export function ProductPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50">
         <Navbar />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading product...</p>
+            <p className="text-slate-600">Loading product...</p>
           </div>
         </div>
       </div>
@@ -146,12 +146,12 @@ export function ProductPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50">
         <Navbar />
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Product Not Found</h1>
-            <p className="text-gray-600 mb-6">The product you're looking for doesn't exist.</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">Product Not Found</h1>
+            <p className="text-slate-600 mb-6">The product you're looking for doesn't exist.</p>
             <Link to="/" className="text-purple-600 hover:text-purple-500">Return to Home</Link>
           </div>
         </div>
@@ -160,7 +160,7 @@ export function ProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
       <section className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -173,7 +173,7 @@ export function ProductPage() {
                   className="w-full h-96 object-cover"
                 />
               ) : (
-                <div className="w-full h-96 bg-gray-200" />
+                <div className="w-full h-96 bg-slate-200" />
               )}
               {images.length > 1 && (
                 <CardContent className="p-4 grid grid-cols-5 gap-3">
@@ -193,30 +193,30 @@ export function ProductPage() {
 
           <div>
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">{product.name}</h1>
               {product.tagline && (
-                <p className="text-gray-600">{product.tagline}</p>
+                <p className="text-slate-600">{product.tagline}</p>
               )}
             </div>
 
             {/* Variant Selector */}
             {Array.isArray(product.variants) && product.variants.length > 0 && (
               <div className="mb-6">
-                <p className="text-sm text-gray-700 mb-2 font-medium">
+                <p className="text-sm text-slate-700 mb-2 font-medium">
                   {product.variantStyle || 'Variant'}
                 </p>
-                <div className="grid grid-cols-5 gap-3">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                   {product.variants.map((v, idx) => (
                     <button
                       key={v.id || idx}
                       onClick={() => { setSelectedVariantIndex(idx); setCurrentImage(0) }}
-                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-500 ${idx === selectedVariantIndex ? 'border-purple-600 ring-2 ring-purple-200' : 'border-gray-200'}`}
+                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-500 ${idx === selectedVariantIndex ? 'border-purple-600 ring-2 ring-purple-200' : 'border-slate-200'}`}
                       title={v.name}
                     >
                       {v.selectorImageUrl || v.imageUrl ? (
                         <img src={normalizeImageUrl(v.selectorImageUrl || v.imageUrl)} alt={v.name} className="w-full h-16 object-cover" />
                       ) : (
-                        <div className="w-full h-16 flex items-center justify-center text-sm text-gray-600 bg-gray-50">
+                        <div className="w-full h-16 flex items-center justify-center text-sm text-slate-600 bg-slate-50">
                           {v.name || 'Option'}
                         </div>
                       )}
@@ -224,7 +224,7 @@ export function ProductPage() {
                   ))}
                 </div>
                 {selectedVariantIndex != null && product.variants[selectedVariantIndex]?.name && (
-                  <p className="text-sm text-gray-600 mt-2">Selected: {product.variants[selectedVariantIndex].name}</p>
+                  <p className="text-sm text-slate-600 mt-2">Selected: {product.variants[selectedVariantIndex].name}</p>
                 )}
               </div>
             )}
@@ -232,21 +232,21 @@ export function ProductPage() {
             {/* Second Variant Selector */}
             {Array.isArray(product.variants2) && product.variants2.length > 0 && (
               <div className="mb-6">
-                <p className="text-sm text-gray-700 mb-2 font-medium">
+                <p className="text-sm text-slate-700 mb-2 font-medium">
                   {product.variantStyle2 || 'Variant'}
                 </p>
-                <div className="grid grid-cols-5 gap-3">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                   {product.variants2.map((v, idx) => (
                     <button
                       key={v.id || idx}
                       onClick={() => { setSelectedVariant2Index(idx); setCurrentImage(0) }}
-                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-500 ${idx === selectedVariant2Index ? 'border-purple-600 ring-2 ring-purple-200' : 'border-gray-200'}`}
+                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-500 ${idx === selectedVariant2Index ? 'border-purple-600 ring-2 ring-purple-200' : 'border-slate-200'}`}
                       title={v.name}
                     >
                       {v.selectorImageUrl || v.imageUrl ? (
                         <img src={normalizeImageUrl(v.selectorImageUrl || v.imageUrl)} alt={v.name} className="w-full h-16 object-cover" />
                       ) : (
-                        <div className="w-full h-16 flex items-center justify-center text-sm text-gray-600 bg-gray-50">
+                        <div className="w-full h-16 flex items-center justify-center text-sm text-slate-600 bg-slate-50">
                           {v.name || 'Option'}
                         </div>
                       )}
@@ -254,12 +254,12 @@ export function ProductPage() {
                   ))}
                 </div>
                 {selectedVariant2Index != null && product.variants2[selectedVariant2Index]?.name && (
-                  <p className="text-sm text-gray-600 mt-2">Selected: {product.variants2[selectedVariant2Index].name}</p>
+                  <p className="text-sm text-slate-600 mt-2">Selected: {product.variants2[selectedVariant2Index].name}</p>
                 )}
               </div>
             )}
             <div className="mb-8">
-              <span className="text-4xl font-bold text-gray-900">
+              <span className="text-4xl font-bold text-slate-900">
                 {formatCurrency(effectivePriceCents / 100, product.currency)}
               </span>
             </div>
@@ -283,13 +283,13 @@ export function ProductPage() {
 
             {product.description && (
               <div className="mt-10">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Description</h2>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">{product.description}</p>
+                <h2 className="text-xl font-semibold text-slate-900 mb-2">Description</h2>
+                <p className="text-slate-700 leading-relaxed whitespace-pre-line">{product.description}</p>
               </div>
             )}
 
             {product.collectionName && (
-              <div className="mt-6 text-sm text-gray-500">
+              <div className="mt-6 text-sm text-slate-500">
                 Part of collection: <Link className="text-purple-600 hover:text-purple-500" to={`/collections/${product.collectionId}`}>{product.collectionName}</Link>
               </div>
             )}

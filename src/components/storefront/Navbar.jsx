@@ -14,6 +14,7 @@ export function Navbar() {
     logoImageUrl: ''
   })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [expandedCollections, setExpandedCollections] = useState(new Set())
   const { itemCount, toggleCart } = useCart()
 
   useEffect(() => {
@@ -60,10 +61,20 @@ export function Navbar() {
     }
   }
 
+  const toggleCollection = (collectionId) => {
+    const newExpanded = new Set(expandedCollections)
+    if (newExpanded.has(collectionId)) {
+      newExpanded.delete(collectionId)
+    } else {
+      newExpanded.add(collectionId)
+    }
+    setExpandedCollections(newExpanded)
+  }
+
   return (
     <nav className="bg-white shadow-sm border-b">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-3 items-center h-16">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
             {storeSettings.logoType === 'image' && storeSettings.logoImageUrl ? (
@@ -79,7 +90,7 @@ export function Navbar() {
               />
             ) : null}
             <h1 
-              className={`text-2xl font-bold text-gray-900 ${
+              className={`text-2xl font-bold text-slate-900 ${
                 storeSettings.logoType === 'image' && storeSettings.logoImageUrl ? 'hidden' : 'block'
               }`}
             >
@@ -88,11 +99,11 @@ export function Navbar() {
           </Link>
 
           {/* Navigation Links centered */}
-          <div className="hidden md:flex justify-center">
-            <div className="flex items-baseline space-x-6 justify-center">
+          <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2">
+            <div className="flex items-baseline space-x-6">
               <Link
                 to="/"
-                className="text-gray-900 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                className="text-slate-900 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
               >
                 Home
               </Link>
@@ -102,7 +113,7 @@ export function Navbar() {
                 <div key={collection.id} className="relative group">
                   <Link
                     to={`/collections/${collection.id}`}
-                    className="text-gray-900 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
+                    className="text-slate-900 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
                   >
                     {collection.name}
                     {collection.products.length > 0 && (
@@ -116,7 +127,7 @@ export function Navbar() {
                   {collection.products.length > 0 && (
                     <div className="absolute left-0 mt-2 w-72 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                       <div className="py-2">
-                        <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">
+                        <div className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide border-b">
                           {collection.name} Products
                         </div>
                         <div className="max-h-80 overflow-y-auto">
@@ -124,7 +135,7 @@ export function Navbar() {
                             <Link
                               key={product.id}
                               to={`/products/${product.id}`}
-                              className="block px-4 py-3 hover:bg-gray-50 transition-colors duration-150"
+                              className="block px-4 py-3 hover:bg-slate-50 transition-colors duration-150"
                             >
                               <div className="flex items-center space-x-3">
                                 <div className="flex-shrink-0">
@@ -150,16 +161,16 @@ export function Navbar() {
                                     />
                                   ) : null}
                                   <div 
-                                    className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center"
+                                    className="w-10 h-10 bg-slate-200 rounded-md flex items-center justify-center"
                                     style={{ display: (product.images && product.images.length > 0) || product.imageUrl ? 'none' : 'flex' }}
                                   >
-                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                     </svg>
                                   </div>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                  <p className="text-sm font-medium text-slate-900 truncate">
                                     {product.name}
                                   </p>
                                   <p className="text-sm text-purple-600 font-semibold">
@@ -186,11 +197,12 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Cart Button */}
-          <div className="flex items-center justify-end">
+          {/* Cart and Mobile Menu Buttons */}
+          <div className="flex items-center justify-end space-x-2">
+            {/* Cart Button - Visible on all screen sizes */}
             <button
               onClick={toggleCart}
-              className="relative p-2 text-gray-900 hover:text-gray-600 transition-all duration-200 hover:scale-110"
+              className="relative p-2 text-slate-900 hover:text-slate-600 transition-all duration-200 hover:scale-110"
             >
               <ShoppingCart className="w-6 h-6 transition-transform duration-200" />
               {itemCount > 0 && (
@@ -199,13 +211,11 @@ export function Navbar() {
                 </span>
               )}
             </button>
-          </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button 
+            {/* Mobile menu button - Only visible on mobile */}
+            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-900 hover:text-gray-600 transition-colors duration-200"
+              className="md:hidden text-slate-900 hover:text-slate-600 transition-colors duration-200 p-2"
             >
               {mobileMenuOpen ? (
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -227,7 +237,7 @@ export function Navbar() {
           <div className="px-2 pt-2 pb-3 space-y-1">
             <Link
               to="/"
-              className="block px-3 py-2 text-base font-medium text-gray-900 hover:text-purple-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
+              className="block px-3 py-2 text-base font-medium text-slate-900 hover:text-purple-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
@@ -235,22 +245,29 @@ export function Navbar() {
             
             {collectionsWithProducts.map((collection) => (
               <div key={collection.id} className="space-y-1">
-                <Link
-                  to={`/collections/${collection.id}`}
-                  className="block px-3 py-2 text-base font-medium text-gray-900 hover:text-purple-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
-                  onClick={() => setMobileMenuOpen(false)}
+                <button
+                  onClick={() => toggleCollection(collection.id)}
+                  className="flex items-center justify-between w-full px-3 py-2 text-base font-medium text-slate-900 hover:text-purple-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
                 >
-                  {collection.name}
-                </Link>
-                
-                {/* Mobile Product List */}
-                {collection.products.length > 0 && (
+                  <span>{collection.name}</span>
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-200 ${expandedCollections.has(collection.id) ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Mobile Product List - Accordion Style */}
+                {collection.products.length > 0 && expandedCollections.has(collection.id) && (
                   <div className="pl-6 space-y-1">
                     {collection.products.slice(0, 5).map((product) => (
                       <Link
                         key={product.id}
                         to={`/products/${product.id}`}
-                        className="block px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                        className="block px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <div className="flex items-center space-x-3">
@@ -268,15 +285,15 @@ export function Navbar() {
                                 className="w-8 h-8 object-cover rounded"
                               />
                             ) : (
-                              <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <div className="w-8 h-8 bg-slate-200 rounded flex items-center justify-center">
+                                <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                 </svg>
                               </div>
                             )}
                           </div>
                           <div className="flex-1">
-                            <p className="font-medium text-gray-900 truncate">{product.name}</p>
+                            <p className="font-medium text-slate-900 truncate">{product.name}</p>
                             <p className="text-purple-600 font-semibold">${product.price}</p>
                           </div>
                         </div>

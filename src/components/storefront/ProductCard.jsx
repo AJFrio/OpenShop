@@ -39,7 +39,7 @@ export function ProductCard({ product }) {
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <Link to={`/products/${product.id}`} className="block">
-      <div className="relative aspect-w-16 aspect-h-12 bg-gray-200">
+      <div className="relative aspect-w-16 aspect-h-12 bg-slate-200">
         {images.length > 0 ? (
           <>
             <img
@@ -76,8 +76,8 @@ export function ProductCard({ product }) {
             )}
           </>
         ) : (
-          <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-full h-48 bg-slate-200 flex items-center justify-center">
+            <svg className="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
@@ -87,15 +87,15 @@ export function ProductCard({ product }) {
       
       <CardContent className="p-4">
         <Link to={`/products/${product.id}`} className="hover:text-purple-600">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-2 line-clamp-2">
             {product.name}
           </h3>
         </Link>
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+        <p className="text-slate-600 text-sm mb-3 line-clamp-2">
           {product.tagline || product.description}
         </p>
         <div className="flex items-center justify-between">
-          <span className="text-2xl font-bold text-gray-900">
+          <span className="text-2xl font-bold text-slate-900">
             {formatCurrency(product.price, product.currency)}
           </span>
         </div>

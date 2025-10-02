@@ -117,7 +117,7 @@ function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart
         <h2 className="text-lg font-semibold">Shopping Cart</h2>
         <button
           onClick={toggleCart}
-          className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200 hover:scale-110 hover:rotate-90"
+          className="p-2 hover:bg-slate-100 rounded-full transition-all duration-200 hover:scale-110 hover:rotate-90"
         >
           <X className="w-5 h-5" />
         </button>
@@ -127,9 +127,9 @@ function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart
       <div className="flex-1 overflow-y-auto p-4">
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <ShoppingBag className="w-16 h-16 text-gray-300 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
-            <p className="text-gray-500 mb-6">Add some products to get started!</p>
+            <ShoppingBag className="w-16 h-16 text-slate-300 mb-4" />
+            <h3 className="text-lg font-medium text-slate-900 mb-2">Your cart is empty</h3>
+            <p className="text-slate-500 mb-6">Add some products to get started!</p>
             <Button 
               onClick={toggleCart}
               className="bg-slate-900 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 transition-all duration-300"
@@ -224,40 +224,40 @@ function CartItem({ item, updateQuantity, removeItem }) {
             className="w-16 h-16 object-cover rounded-md"
           />
         ) : (
-          <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
-            <ShoppingBag className="w-6 h-6 text-gray-400" />
+          <div className="w-16 h-16 bg-slate-200 rounded-md flex items-center justify-center">
+            <ShoppingBag className="w-6 h-6 text-slate-400" />
           </div>
         )}
       </div>
 
       {/* Product Details */}
       <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-gray-900 truncate">{item.name}</h4>
+        <h4 className="font-medium text-slate-900 truncate">{item.name}</h4>
         {(item.selectedVariant?.name || item.selectedVariant2?.name) && (
-          <p className="text-xs text-gray-600 mt-0.5">
+          <p className="text-xs text-slate-600 mt-0.5">
             {item.selectedVariant?.name ? `Variant: ${item.selectedVariant.name}` : ''}
             {item.selectedVariant?.name && item.selectedVariant2?.name ? ' · ' : ''}
             {item.selectedVariant2?.name ? `Variant 2: ${item.selectedVariant2.name}` : ''}
           </p>
         )}
-        <p className="text-sm text-gray-500 mt-1">{formatCurrency(item.price)}</p>
+        <p className="text-sm text-slate-500 mt-1">{formatCurrency(item.price)}</p>
 
         {/* Quantity Controls */}
         <div className="flex items-center gap-2 mt-2">
           <button
             onClick={() => handleQuantityChange(item.quantity - 1)}
-            className="p-1 hover:bg-gray-100 rounded transition-all duration-200 hover:scale-110"
+            className="p-1 hover:bg-slate-100 rounded transition-all duration-200 hover:scale-110"
           >
             <Minus className="w-4 h-4" />
           </button>
           
-          <span className="px-3 py-1 bg-gray-100 rounded text-sm font-medium min-w-[2rem] text-center transition-all duration-200">
+          <span className="px-3 py-1 bg-slate-100 rounded text-sm font-medium min-w-[2rem] text-center transition-all duration-200">
             {item.quantity}
           </span>
           
           <button
             onClick={() => handleQuantityChange(item.quantity + 1)}
-            className="p-1 hover:bg-gray-100 rounded transition-all duration-200 hover:scale-110"
+            className="p-1 hover:bg-slate-100 rounded transition-all duration-200 hover:scale-110"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -274,7 +274,7 @@ function CartItem({ item, updateQuantity, removeItem }) {
 
       {/* Item Total */}
       <div className="flex-shrink-0 text-right">
-        <p className="font-medium text-gray-900">
+        <p className="font-medium text-slate-900">
           {formatCurrency(item.price * item.quantity)}
         </p>
       </div>

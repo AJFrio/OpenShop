@@ -35,10 +35,10 @@ export function Success() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Processing your order...</p>
+          <p className="text-slate-600">Processing your order...</p>
         </div>
       </div>
     )
@@ -46,12 +46,12 @@ export function Success() {
 
   if (!sessionId) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center">
-            <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Session</h1>
-            <p className="text-gray-600 mb-6">
+            <Package className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-slate-900 mb-2">Invalid Session</h1>
+            <p className="text-slate-600 mb-6">
               We couldn't find your order information.
             </p>
             <Link to="/">
@@ -67,18 +67,18 @@ export function Success() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       <Card className="w-full max-w-md">
         <CardContent className="p-8 text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Successful!</h1>
-          <p className="text-gray-600 mb-6">
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Order Successful!</h1>
+          <p className="text-slate-600 mb-6">
             Thank you for your purchase. You should receive a confirmation email shortly.
           </p>
           
           {sessionData && (
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <p className="text-sm text-gray-600">Order ID</p>
+            <div className="bg-slate-50 rounded-lg p-4 mb-6">
+              <p className="text-sm text-slate-600">Order ID</p>
               <p className="font-mono text-sm">{sessionData.id}</p>
             </div>
           )}
