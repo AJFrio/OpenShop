@@ -72,7 +72,7 @@ export function Navbar() {
   }
 
   return (
-    <nav className="bg-white shadow-sm border-b">
+    <nav className="bg-white shadow-sm border-b relative z-50">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -125,7 +125,7 @@ export function Navbar() {
                   
                   {/* Product Dropdown */}
                   {collection.products.length > 0 && (
-                    <div className="absolute left-0 mt-2 w-72 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="absolute left-0 top-full w-72 bg-white rounded-md rounded-t-none shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[100] pointer-events-none group-hover:pointer-events-auto">
                       <div className="py-2">
                         <div className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide border-b">
                           {collection.name} Products
@@ -299,10 +299,17 @@ export function Navbar() {
                         </div>
                       </Link>
                     ))}
+                    <Link
+                      to={`/collections/${collection.id}`}
+                      className="block px-3 py-2 text-sm text-purple-600 hover:text-purple-700 font-medium border-t border-slate-200 pt-2 mt-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      View Collection →
+                    </Link>
                     {collection.products.length > 5 && (
                       <Link
                         to={`/collections/${collection.id}`}
-                        className="block px-3 py-2 text-sm text-purple-600 hover:text-purple-700 font-medium"
+                        className="block px-3 py-2 text-sm text-slate-600 hover:text-purple-700 font-medium"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         View all {collection.products.length} products →
