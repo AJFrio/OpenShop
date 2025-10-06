@@ -66,6 +66,19 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     }
   }
 
+  async function handleDriveDisconnect() {
+    try {
+      const res = await adminApiRequest('/api/admin/drive/disconnect', { method: 'POST' })
+      if (res.ok) {
+        setDriveConnected(false)
+      } else {
+        throw new Error('Failed to disconnect')
+      }
+    } catch (e) {
+      setError(e.message || 'Failed to disconnect Google Drive')
+    }
+  }
+
   async function uploadFileToDriveAndRecord() {
     if (!files.length) return
     if (!driveConnected) {
@@ -356,6 +369,11 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
                 {!driveConnected && (
                   <Button type="button" variant="outline" onClick={() => window.open('/api/admin/drive/oauth/start', '_blank', 'width=480,height=720')}>
                     Connect Google Drive
+                  </Button>
+                )}
+                {driveConnected && (
+                  <Button type="button" variant="outline" onClick={handleDriveDisconnect}>
+                    Disconnect
                   </Button>
                 )}
                 <Button type="button" onClick={uploadFileToDriveAndRecord} disabled={!files.length || uploading || !driveConnected}>{uploading ? `Uploading…` : `Upload ${files.length > 1 ? files.length + ' images' : 'image'}`}</Button>

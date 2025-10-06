@@ -309,7 +309,9 @@ app.post('/api/create-checkout-session', async (c) => {
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'payment',
-      shipping_address_collection: { allowed_countries: ['US', 'CA', 'GB', 'AU'] },
+      shipping_address_collection: {
+        allowed_countries: ['US', 'CA', 'GB', 'AU', 'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT', 'CH', 'SE', 'NO', 'DK', 'FI', 'IE', 'PT', 'PL', 'CZ', 'HU', 'GR', 'RO', 'BG', 'HR', 'SI', 'SK', 'EE', 'LV', 'LT', 'LU', 'MT', 'CY'],
+      },
       billing_address_collection: 'required',
       success_url: `${c.env.SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${c.env.SITE_URL}/`,
@@ -332,24 +334,63 @@ app.post('/api/create-cart-checkout-session', async (c) => {
     }
 
     const stripe = new Stripe(c.env.STRIPE_SECRET_KEY)
-    const lineItems = items.map(item => ({
-      price: item.stripePriceId,
-      quantity: item.quantity,
-    }))
+
+    // Build line items with variant information
+    const lineItems = items.map(item => {
+      const lineItem = {
+        price: item.stripePriceId,
+        quantity: item.quantity,
+      }
+
+      // Add description with variant information if available
+      const descriptionParts = []
+      if (item.name) {
+        descriptionParts.push(item.name)
+      }
+      if (item.selectedVariant?.name) {
+        descriptionParts.push(item.selectedVariant.name)
+      }
+      if (item.selectedVariant2?.name) {
+        descriptionParts.push(item.selectedVariant2.name)
+      }
+
+      if (descriptionParts.length > 0) {
+        lineItem.description = descriptionParts.join(' - ')
+      }
+
+      return lineItem
+    })
+
+    // Build metadata with variant information
+    const metadata = {
+      order_type: 'cart_checkout',
+      item_count: items.length.toString(),
+      total_quantity: items.reduce((sum, item) => sum + item.quantity, 0).toString(),
+    }
+
+    // Add variant information to metadata for each item
+    items.forEach((item, index) => {
+      const itemName = item.name || `Item ${index + 1}`
+      metadata[`item_${index}_name`] = itemName
+      if (item.selectedVariant?.name) {
+        metadata[`item_${index}_variant1`] = item.selectedVariant.name
+      }
+      if (item.selectedVariant2?.name) {
+        metadata[`item_${index}_variant2`] = item.selectedVariant2.name
+      }
+    })
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      shipping_address_collection: { allowed_countries: ['US', 'CA', 'GB', 'AU'] },
+      shipping_address_collection: {
+        allowed_countries: ['US', 'CA', 'GB', 'AU', 'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT', 'CH', 'SE', 'NO', 'DK', 'FI', 'IE', 'PT', 'PL', 'CZ', 'HU', 'GR', 'RO', 'BG', 'HR', 'SI', 'SK', 'EE', 'LV', 'LT', 'LU', 'MT', 'CY'],
+      },
       billing_address_collection: 'required',
       success_url: `${c.env.SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${c.env.SITE_URL}/`,
-      metadata: {
-        order_type: 'cart_checkout',
-        item_count: items.length.toString(),
-        total_quantity: items.reduce((sum, item) => sum + item.quantity, 0).toString(),
-      },
+      metadata,
     })
 
     return c.json({ sessionId: session.id })
@@ -499,6 +540,29 @@ app.get('/api/admin/drive/status', async (c) => {
     return c.json({ connected: !!t?.access_token })
   } catch (_) {
     return c.json({ connected: false })
+  }
+})
+
+app.post('/api/admin/drive/disconnect', async (c) => {
+  try {
+    const kv = getKVNamespace(c.env)
+    if (!kv) {
+      return c.json({ error: 'KV namespace not available' }, 500)
+    }
+
+    // Clear the drive tokens
+    await kv.delete(DRIVE_TOKEN_KEY)
+
+    // Clear any cached folder IDs
+    const keys = await kv.list({ prefix: DRIVE_FOLDER_KV_PREFIX })
+    for (const key of keys.keys) {
+      await kv.delete(key.name)
+    }
+
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Error disconnecting Google Drive:', error)
+    return c.json({ error: 'Failed to disconnect Google Drive' }, 500)
   }
 })
 
@@ -679,10 +743,10 @@ app.post('/api/admin/drive/upload', async (c) => {
       const msg = String(e && e.message ? e.message : e)
       // If token refresh failed or Drive not connected, instruct client to reconnect
       if (/Drive not connected/i.test(msg)) {
-        return c.json({ error: 'Drive not connected. Please connect Google Drive in Admin.' }, 401)
+        return c.json({ error: 'Drive not connected. Please connect Google Drive in Admin.' }, 502)
       }
       if (/Failed to refresh token/i.test(msg)) {
-        return c.json({ error: 'Drive session expired. Please reconnect Google Drive.' }, 401)
+        return c.json({ error: 'Drive session expired. Please reconnect Google Drive.' }, 502)
       }
       console.error('Drive token ensure error', e)
       return c.json({ error: 'Drive authentication failed' }, 502)
@@ -771,77 +835,137 @@ app.post('/api/admin/products', async (c) => {
     const productParams = {
       name: productData.name,
       images: stripeImages.slice(0, 8),
+      type: 'good',
+      tax_code: 'txcd_99999999', // Physical goods tax code
     }
     if (productData.description && String(productData.description).trim() !== '') {
       productParams.description = String(productData.description)
     }
     const stripeProduct = await stripe.products.create(productParams)
 
-    const stripePrice = await stripe.prices.create({
-      unit_amount: Math.round(productData.price * 100),
-      currency: productData.currency,
-      product: stripeProduct.id,
-      nickname: `${productData.name} - Base`,
-      metadata: {
-        price_type: 'base'
-      }
-    })
-
-    // Handle variant custom prices
+    // Generate all possible variant combinations and create prices for each
     const variants = Array.isArray(productData.variants) ? productData.variants : []
-    const enrichedVariants = []
-    for (const v of variants) {
-      const hasCustomPrice = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
-      if (hasCustomPrice) {
-        const variantPrice = await stripe.prices.create({
-          unit_amount: Math.round(v.price * 100),
-          currency: productData.currency,
-          product: stripeProduct.id,
-          nickname: `${productData.name}${productData.variantStyle ? ` - ${productData.variantStyle}: ${v.name}` : ` - ${v.name}`}`,
-          metadata: {
-            price_type: 'variant_primary',
-            variant_id: v.id || '',
-            variant_name: v.name || '',
-            variant1_name: v.name || ''
-          }
-        })
-        enrichedVariants.push({ ...v, stripePriceId: variantPrice.id })
-      } else {
-        // Fallback to base price
-        enrichedVariants.push({ ...v, stripePriceId: stripePrice.id, hasCustomPrice: false })
-      }
-    }
-
-    // Secondary variants (optional)
     const variants2 = Array.isArray(productData.variants2) ? productData.variants2 : []
-    const enrichedVariants2 = []
-    for (const v of variants2) {
-      const hasCustomPrice = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
-      if (hasCustomPrice) {
-        const variantPrice = await stripe.prices.create({
-          unit_amount: Math.round(v.price * 100),
+
+    // Create base price for products without variants
+    let basePrice = null
+    const variantPrices = {}
+
+    if (variants.length === 0 && variants2.length === 0) {
+      // No variants - create base price
+      basePrice = await stripe.prices.create({
+        unit_amount: Math.round(productData.price * 100),
+        currency: productData.currency,
+        product: stripeProduct.id,
+        nickname: `${productData.name} - Base`,
+        metadata: {
+          price_type: 'base',
+          product_name: productData.name
+        }
+      })
+    } else {
+      // Generate all variant combinations
+      const combinations = []
+
+      if (variants.length > 0 && variants2.length > 0) {
+        // Both variant types - create all combinations
+        for (const v1 of variants) {
+          for (const v2 of variants2) {
+            const comboName = `${productData.name} - ${v1.name} - ${v2.name}`
+            const comboPrice = (v1.hasCustomPrice && v1.price) ? v1.price :
+                              (v2.hasCustomPrice && v2.price) ? v2.price :
+                              productData.price
+
+            combinations.push({
+              name: comboName,
+              price: comboPrice,
+              variant1: v1,
+              variant2: v2,
+              description: comboName,
+              variantCombo: `${v1.id || v1.name}-${v2.id || v2.name}`
+            })
+          }
+        }
+      } else if (variants.length > 0) {
+        // Only first variant type
+        for (const v of variants) {
+          const comboName = `${productData.name} - ${v.name}`
+          const comboPrice = (v.hasCustomPrice && v.price) ? v.price : productData.price
+
+          combinations.push({
+            name: comboName,
+            price: comboPrice,
+            variant1: v,
+            description: comboName,
+            variantCombo: `${v.id || v.name}`
+          })
+        }
+      } else if (variants2.length > 0) {
+        // Only second variant type
+        for (const v of variants2) {
+          const comboName = `${productData.name} - ${v.name}`
+          const comboPrice = (v.hasCustomPrice && v.price) ? v.price : productData.price
+
+          combinations.push({
+            name: comboName,
+            price: comboPrice,
+            variant2: v,
+            description: comboName,
+            variantCombo: `${v.id || v.name}`
+          })
+        }
+      }
+
+      // Create Stripe prices for each combination
+      for (const combo of combinations) {
+        const stripePrice = await stripe.prices.create({
+          unit_amount: Math.round(combo.price * 100),
           currency: productData.currency,
           product: stripeProduct.id,
-          nickname: `${productData.name}${productData.variantStyle2 ? ` - ${productData.variantStyle2}: ${v.name}` : ` - ${v.name}`}`,
+          nickname: combo.name,
           metadata: {
-            price_type: 'variant_secondary',
-            variant_id: v.id || '',
-            variant_name: v.name || '',
-            variant2_name: v.name || ''
+            price_type: 'variant_combo',
+            product_name: productData.name,
+            variant1_name: combo.variant1?.name || '',
+            variant2_name: combo.variant2?.name || '',
+            variant1_id: combo.variant1?.id || '',
+            variant2_id: combo.variant2?.id || '',
+            variant1_style: productData.variantStyle || 'Variant',
+            variant2_style: productData.variantStyle2 || 'Variant',
+            variant_combo: combo.variantCombo
           }
         })
-        enrichedVariants2.push({ ...v, stripePriceId: variantPrice.id })
-      } else {
-        enrichedVariants2.push({ ...v, stripePriceId: stripePrice.id, hasCustomPrice: false })
+
+        // Store price ID by variant combination for frontend lookup
+        if (combo.variant1 && combo.variant2) {
+          variantPrices[`${combo.variant1.id}-${combo.variant2.id}`] = stripePrice.id
+        } else if (combo.variant1) {
+          variantPrices[combo.variant1.id] = stripePrice.id
+        } else if (combo.variant2) {
+          variantPrices[combo.variant2.id] = stripePrice.id
+        }
       }
+
+      // Also create base price for fallback
+      basePrice = await stripe.prices.create({
+        unit_amount: Math.round(productData.price * 100),
+        currency: productData.currency,
+        product: stripeProduct.id,
+        nickname: `${productData.name} - Base`,
+        metadata: {
+          price_type: 'base',
+          product_name: productData.name
+        }
+      })
     }
 
     const product = {
       ...productData,
-      stripePriceId: stripePrice.id,
+      stripePriceId: basePrice?.id || Object.values(variantPrices)[0] || '',
       stripeProductId: stripeProduct.id,
-      variants: enrichedVariants,
-      variants2: enrichedVariants2
+      variantPrices: variantPrices,
+      variants: variants,
+      variants2: variants2
     }
 
     const savedProduct = await kv.createProduct(product)
@@ -1257,14 +1381,46 @@ app.get('/api/admin/analytics', async (c) => {
   }
 })
 
+// Admin mark order as fulfilled
+app.post('/api/admin/orders/:orderId/fulfill', async (c) => {
+  try {
+    const orderId = c.req.param('orderId')
+    if (!orderId) {
+      return c.json({ error: 'Order ID is required' }, 400)
+    }
+
+    const kvNamespace = getKVNamespace(c.env)
+    if (!kvNamespace) {
+      return c.json({ error: 'KV namespace not available' }, 500)
+    }
+
+    const fulfillmentKey = `order_fulfillment:${orderId}`
+    const fulfillmentData = {
+      fulfilled: true,
+      fulfilledAt: new Date().toISOString(),
+      fulfilledBy: 'admin' // Could be enhanced to track which admin user
+    }
+
+    await kvNamespace.put(fulfillmentKey, JSON.stringify(fulfillmentData))
+
+    return c.json({ success: true, fulfillment: fulfillmentData })
+  } catch (error) {
+    console.error('Error marking order as fulfilled:', error)
+    return c.json({ error: 'Failed to mark order as fulfilled' }, 500)
+  }
+})
+
 // Admin orders (fulfillment) endpoint with cursor-based pagination
-// Query params: limit (default 20), direction ('next'|'prev'), cursor (session id)
+// Query params: limit (default 25), direction ('next'|'prev'), cursor (session id), showFulfilled (true/false)
 app.get('/api/admin/orders', async (c) => {
   try {
     const stripe = new Stripe(c.env.STRIPE_SECRET_KEY)
-    const limit = Math.min(parseInt(c.req.query('limit') || '20', 10), 50)
+    const limit = Math.min(parseInt(c.req.query('limit') || '25', 10), 50)
     const direction = c.req.query('direction') || 'next'
     const cursor = c.req.query('cursor') || undefined
+    const showFulfilledParam = c.req.query('showFulfilled')
+    const showFulfilled = showFulfilledParam === 'true'
+    console.log('Show fulfilled orders:', showFulfilled, 'Raw param:', showFulfilledParam)
 
     const listParams = { limit }
     if (cursor) {
@@ -1280,16 +1436,55 @@ app.get('/api/admin/orders', async (c) => {
       ...listParams
     })
 
+    // Get KV namespace for fulfillment status checks
+    const kvNamespace = getKVNamespace(c.env)
+
+    // Filter sessions by payment status and fulfillment status
+    let filteredSessions = []
+    for (const s of sessions.data) {
+      // Only include paid/completed sessions
+      if (s.payment_status === 'paid' || s.status === 'complete' || s.status === 'completed') {
+        let includeSession = true
+
+        // Apply fulfillment filtering if KV is available
+        if (kvNamespace) {
+          const fulfillmentKey = `order_fulfillment:${s.id}`
+          const fulfillmentData = await kvNamespace.get(fulfillmentKey)
+          const fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false }
+
+          // Filter based on showFulfilled toggle
+          if (showFulfilled) {
+            // Show only fulfilled orders
+            if (!fulfillmentStatus.fulfilled) {
+              includeSession = false
+            }
+          } else {
+            // Show only unfulfilled orders
+            if (fulfillmentStatus.fulfilled) {
+              includeSession = false
+            }
+          }
+        }
+
+        if (includeSession) {
+          filteredSessions.push(s)
+        }
+      }
+    }
+
     // Oldest at top within the current page
-    const ordered = [...sessions.data]
-      .filter(s => s.payment_status === 'paid' || s.status === 'complete' || s.status === 'completed')
-      .reverse()
+    const ordered = filteredSessions.reverse()
 
     // Fetch line items for each session
     const orders = []
     for (const s of ordered) {
       try {
         const lineItems = await stripe.checkout.sessions.listLineItems(s.id, { limit: 100, expand: ['data.price'] })
+        // Check fulfillment status from KV
+        const fulfillmentKey = `order_fulfillment:${s.id}`
+        const fulfillmentData = await kvNamespace.get(fulfillmentKey)
+        const fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false, fulfilledAt: null, fulfilledBy: null }
+
         orders.push({
           id: s.id,
           created: s.created,
@@ -1303,19 +1498,83 @@ app.get('/api/admin/orders', async (c) => {
             email: s.customer_details?.email || null,
             address: s.customer_details?.address || null
           },
-          items: lineItems.data.map(li => ({
-            id: li.id,
-            description: li.description,
-            quantity: li.quantity,
-            amount_total: li.amount_total,
-            currency: li.currency,
-            price_nickname: li.price?.nickname || li.price?.metadata?.variant_name || null,
-            variant1_name: li.price?.metadata?.variant1_name || li.price?.metadata?.variant_name || null,
-            variant2_name: li.price?.metadata?.variant2_name || null
-          }))
+          fulfillment: fulfillmentStatus,
+          items: lineItems.data.map(li => {
+            // Extract product name and variant info from price nickname (format: "Product Name - Variant1 - Variant2")
+            const nickname = li.price?.nickname || ''
+            let productName = 'Unknown Product'
+            let variant1Info = ''
+            let variant2Info = ''
+
+            if (nickname.includes(' - ')) {
+              const parts = nickname.split(' - ')
+              productName = parts[0]
+
+              if (parts.length >= 2) {
+                variant1Info = parts[1]
+              }
+              if (parts.length >= 3) {
+                variant2Info = parts[2]
+              }
+            } else {
+              productName = nickname
+            }
+
+            return {
+              id: li.id,
+              description: productName,
+              quantity: li.quantity,
+              amount_total: li.amount_total,
+              currency: li.currency,
+              price_nickname: nickname,
+              variant1_name: variant1Info || li.price?.metadata?.variant1_name || null,
+              variant1_style: li.price?.metadata?.variant1_style || 'Variant',
+              variant2_name: variant2Info || li.price?.metadata?.variant2_name || null,
+              variant2_style: li.price?.metadata?.variant2_style || 'Variant'
+            }
+          })
         })
       } catch (e) {
         console.error('Error fetching line items for session', s.id, e)
+        // Check fulfillment status from KV
+        let fulfillmentStatus = { fulfilled: false, fulfilledAt: null, fulfilledBy: null }
+        if (kvNamespace) {
+          const fulfillmentKey = `order_fulfillment:${s.id}`
+          const fulfillmentData = await kvNamespace.get(fulfillmentKey)
+          fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false, fulfilledAt: null, fulfilledBy: null }
+        }
+
+        // For error cases, try to extract variant info from session metadata
+        let errorVariantInfo = null
+        if (s.metadata) {
+          const itemNames = []
+          const variants1 = []
+          const variants2 = []
+
+          // Extract variant info from session metadata
+          Object.keys(s.metadata).forEach(key => {
+            if (key.startsWith('item_') && key.endsWith('_name')) {
+              itemNames.push(s.metadata[key])
+            }
+            if (key.startsWith('item_') && key.endsWith('_variant1')) {
+              variants1.push(s.metadata[key])
+            }
+            if (key.startsWith('item_') && key.endsWith('_variant2')) {
+              variants2.push(s.metadata[key])
+            }
+          })
+
+          if (itemNames.length > 0) {
+            errorVariantInfo = itemNames.map((name, index) => ({
+              description: name,
+              variant1_name: variants1[index] || null,
+              variant1_style: 'Variant', // Default fallback
+              variant2_name: variants2[index] || null,
+              variant2_style: 'Variant' // Default fallback
+            }))
+          }
+        }
+
         orders.push({
           id: s.id,
           created: s.created,
@@ -1329,14 +1588,15 @@ app.get('/api/admin/orders', async (c) => {
             email: s.customer_details?.email || null,
             address: s.customer_details?.address || null
           },
-          items: []
+          fulfillment: fulfillmentStatus,
+          items: errorVariantInfo || []
         })
       }
     }
 
-    // Cursors for next/prev paging
-    const nextCursor = sessions.data.length > 0 ? sessions.data[0].id : null // since we reversed
-    const prevCursor = sessions.data.length > 0 ? sessions.data[sessions.data.length - 1].id : null
+    // Cursors for next/prev paging based on filtered results
+    const nextCursor = ordered.length > 0 ? ordered[0].id : null // since we reversed
+    const prevCursor = ordered.length > 0 ? ordered[ordered.length - 1].id : null
 
     return c.json({
       limit,

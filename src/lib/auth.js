@@ -72,6 +72,12 @@ export async function adminApiRequest(url, options = {}) {
     throw new Error('Admin session expired. Please log in again.')
   }
 
+  if (response.status === 502) {
+    // Google Drive related errors - don't clear admin token
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.error || 'Service temporarily unavailable')
+  }
+
   return response
 }
 

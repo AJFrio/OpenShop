@@ -147,6 +147,19 @@ export default function MediaPickerModal({ open, onClose, onPick }) {
     }
   }
 
+  async function handleDriveDisconnect() {
+    try {
+      const res = await adminApiRequest('/api/admin/drive/disconnect', { method: 'POST' })
+      if (res.ok) {
+        setDriveConnected(false)
+      } else {
+        throw new Error('Failed to disconnect')
+      }
+    } catch (e) {
+      console.error('Failed to disconnect Google Drive:', e)
+    }
+  }
+
   function updateSlotFile(slotIndex, fileOrNull) {
     setFiles(prev => {
       const next = [...prev]
@@ -280,7 +293,10 @@ export default function MediaPickerModal({ open, onClose, onPick }) {
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={() => handlePick(dataUrlFromState())}>Use data URL</Button>
                 {driveConnected ? (
-                  <Button type="button" onClick={uploadToDrive} disabled={isUploading}>{isUploading ? 'Uploading…' : 'Upload to Drive'}</Button>
+                  <div className="flex items-center gap-2">
+                    <Button type="button" onClick={uploadToDrive} disabled={isUploading}>{isUploading ? 'Uploading…' : 'Upload to Drive'}</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={handleDriveDisconnect}>Disconnect</Button>
+                  </div>
                 ) : (
                   <Button type="button" onClick={() => window.open('/api/admin/drive/oauth/start', '_blank', 'width=480,height=720')}>Connect Google Drive</Button>
                 )}

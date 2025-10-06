@@ -67,39 +67,43 @@ export function Success() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardContent className="p-8 text-center">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Order Successful!</h1>
-          <p className="text-slate-600 mb-6">
-            Thank you for your purchase. You should receive a confirmation email shortly.
-          </p>
-          
-          {sessionData && (
-            <div className="bg-slate-50 rounded-lg p-4 mb-6">
-              <p className="text-sm text-slate-600">Order ID</p>
-              <p className="font-mono text-sm">{sessionData.id}</p>
+    <div className="min-h-screen bg-slate-50">
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md mx-4">
+          <CardContent className="p-8 text-center">
+            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-slate-900 mb-2">Order Successful!</h1>
+            <p className="text-slate-600 mb-6">
+              Thank you for your purchase. You should receive a confirmation email shortly.
+            </p>
+
+            {sessionData && (
+              <div className="bg-slate-50 rounded-lg p-4 mb-6">
+                <p className="text-sm text-slate-600">Order ID</p>
+                <p className="font-mono text-sm">{sessionData.id}</p>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <Link to="/" className="block">
+                <Button className="w-full">
+                  Continue Shopping
+                </Button>
+              </Link>
+              <Link to="/orders" className="block">
+                <Button variant="outline" className="w-full">
+                  View Order History
+                </Button>
+              </Link>
             </div>
-          )}
-          
-          <div className="space-y-3">
-            <Link to="/" className="block">
-              <Button className="w-full">
-                Continue Shopping
-              </Button>
-            </Link>
-            <Link to="/orders" className="block">
-              <Button variant="outline" className="w-full">
-                View Order History
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Footer */}
-      <Footer />
+      <div className="mt-auto">
+        <Footer />
+      </div>
     </div>
   )
 }
