@@ -23,7 +23,7 @@ function AdminSidebar({ onLogout }) {
     { path: '/admin', label: 'Dashboard', icon: Home },
     { path: '/admin/products', label: 'Products', icon: Package },
     { path: '/admin/collections', label: 'Collections', icon: FolderOpen },
-    { path: '/admin/fulfillment', label: 'Fulfillment', icon: ShoppingBag },
+    { path: '/admin/Fulfillment', label: 'Fulfillment', icon: ShoppingBag },
     { path: '/admin/media', label: 'Media', icon: ImageIcon },
     { path: '/admin/store-settings', label: 'Store Settings', icon: Settings },
   ]
@@ -330,7 +330,7 @@ function ProductsManager() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Products</h1>
         <Button onClick={() => setShowForm(true)}>
@@ -715,7 +715,10 @@ function FulfillmentManager() {
   const [cursorNext, setCursorNext] = useState(null)
   const [cursorPrev, setCursorPrev] = useState(null)
   const [direction, setDirection] = useState('next')
-  const limit = 20
+  const [showFulfilled, setShowFulfilled] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const limit = 25
 
   useEffect(() => {
     fetchOrders()
@@ -725,7 +728,10 @@ function FulfillmentManager() {
     try {
       setLoading(true)
       setError('')
-      const params = new URLSearchParams({ limit: String(limit) })
+      const params = new URLSearchParams({
+        limit: String(limit),
+        showFulfilled: String(showFulfilled)
+      })
       if (cursor) params.set('cursor', cursor)
       if (dir) params.set('direction', dir)
       const res = await adminApiRequest(`/api/admin/orders?${params.toString()}`)
@@ -742,10 +748,43 @@ function FulfillmentManager() {
     }
   }
 
+  const fulfillOrder = async (orderId) => {
+    try {
+      const res = await adminApiRequest(`/api/admin/orders/${orderId}/fulfill`, {
+        method: 'POST'
+      })
+      if (!res.ok) throw new Error('Failed to fulfill order')
+      // Refresh orders
+      await fetchOrders(direction, cursorNext || cursorPrev)
+      setIsModalOpen(false)
+      setSelectedOrder(null)
+    } catch (e) {
+      setError(e.message)
+    }
+  }
+
+  const openOrderModal = (order) => {
+    setSelectedOrder(order)
+    setIsModalOpen(true)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Fulfillment</h1>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Unfulfilled</span>
+            <Switch
+              checked={showFulfilled}
+              onCheckedChange={(checked) => {
+                setShowFulfilled(checked)
+                fetchOrders()
+              }}
+            />
+            <span className="text-sm text-gray-600">Fulfilled</span>
+          </div>
+        </div>
       </div>
 
       {loading ? (
@@ -773,52 +812,24 @@ function FulfillmentManager() {
             <CardContent className="p-0">
               <div className="divide-y">
                 {orders.map((order) => (
-                  <details key={order.id} className="group">
-                    <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50">
+                  <div key={order.id} className={`p-4 ${order.fulfillment?.fulfilled ? 'bg-green-50 border-l-4 border-green-400' : ''}`}>
+                    <div className="flex items-center justify-between">
                       <div className="flex flex-col">
                         <span className="text-sm text-gray-600">{new Date(order.created * 1000).toLocaleString()}</span>
                         <span className="text-gray-900 font-medium">{order.customer_name || 'Unknown Customer'}</span>
                         <span className="text-gray-600 text-sm">{order.customer_email || ''}</span>
+                        {order.fulfillment?.fulfilled && (
+                          <span className="text-xs text-green-600 font-medium">✓ Fulfilled {order.fulfillment.fulfilledAt ? new Date(order.fulfillment.fulfilledAt).toLocaleDateString() : ''}</span>
+                        )}
                       </div>
-                      <div className="text-right font-semibold">{formatCurrency((order.amount_total || 0) / 100, order.currency?.toUpperCase() || 'USD')}</div>
-                    </summary>
-                    <div className="px-4 pb-4">
-                      {order.shipping && (
-                        <div className="mb-4">
-                          <h4 className="font-semibold mb-1">Shipping</h4>
-                          <p className="text-sm text-gray-700">
-                            {order.shipping.name || ''}<br/>
-                            {order.shipping.address?.line1 || ''}{order.shipping.address?.line2 ? `, ${order.shipping.address.line2}` : ''}<br/>
-                            {order.shipping.address?.city || ''}, {order.shipping.address?.state || ''} {order.shipping.address?.postal_code || ''}<br/>
-                            {order.shipping.address?.country || ''}
-                          </p>
-                        </div>
-                      )}
-                      <div>
-                        <h4 className="font-semibold mb-2">Items</h4>
-                        <div className="space-y-2">
-                          {order.items.map(item => (
-                            <div key={item.id} className="flex flex-col gap-0.5 text-sm">
-                              <div className="flex justify-between">
-                                <span>
-                                  {item.description}
-                                  {item.price_nickname ? ` (${item.price_nickname})` : ''}
-                                  × {item.quantity}
-                                </span>
-                                <span>{formatCurrency((item.amount_total || 0) / 100, item.currency?.toUpperCase() || 'USD')}</span>
-                              </div>
-                              {(item.variant1_name || item.variant2_name) && (
-                                <div className="text-xs text-gray-600">
-                                  {item.variant1_name && <div>Variant 1 - {item.variant1_name}</div>}
-                                  {item.variant2_name && <div>Variant 2 - {item.variant2_name}</div>}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right font-semibold">{formatCurrency((order.amount_total || 0) / 100, order.currency?.toUpperCase() || 'USD')}</div>
+                        <Button variant="outline" size="sm" onClick={() => openOrderModal(order)}>
+                          View Details
+                        </Button>
                       </div>
                     </div>
-                  </details>
+                  </div>
                 ))}
               </div>
             </CardContent>
@@ -828,6 +839,125 @@ function FulfillmentManager() {
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => fetchOrders('prev', cursorPrev)} disabled={!cursorPrev || loading}>Prev</Button>
             <Button variant="outline" onClick={() => fetchOrders('next', cursorNext)} disabled={!cursorNext || loading}>Next</Button>
+          </div>
+        </div>
+      )}
+
+      {/* Order Details Modal */}
+      {isModalOpen && selectedOrder && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setIsModalOpen(false)}>
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 border-b">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Order Details</h2>
+                  <p className="text-sm text-gray-600">Order #{selectedOrder.id.slice(-8)}</p>
+                </div>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Customer Info */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
+                  <div className="space-y-2 text-sm">
+                    <p><span className="font-medium">Name:</span> {selectedOrder.customer_name || 'Unknown'}</p>
+                    <p><span className="font-medium">Email:</span> {selectedOrder.customer_email || 'Not provided'}</p>
+                    <p><span className="font-medium">Order Date:</span> {new Date(selectedOrder.created * 1000).toLocaleString()}</p>
+                    <p><span className="font-medium">Total:</span> {formatCurrency((selectedOrder.amount_total || 0) / 100, selectedOrder.currency?.toUpperCase() || 'USD')}</p>
+                    {selectedOrder.fulfillment?.fulfilled && (
+                      <p className="text-green-600 font-medium">
+                        ✓ Fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Shipping Info */}
+                {selectedOrder.shipping && selectedOrder.shipping.address && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3">Shipping Address</h3>
+                    <div className="text-sm space-y-1">
+                      {selectedOrder.shipping.name && (
+                        <p className="font-medium">{selectedOrder.shipping.name}</p>
+                      )}
+                      <p>
+                        {selectedOrder.shipping.address.line1 || ''}
+                        {selectedOrder.shipping.address.line2 && (
+                          <span className="block">{selectedOrder.shipping.address.line2}</span>
+                        )}
+                      </p>
+                      <p>
+                        {selectedOrder.shipping.address.city && `${selectedOrder.shipping.address.city}, `}
+                        {selectedOrder.shipping.address.state && `${selectedOrder.shipping.address.state} `}
+                        {selectedOrder.shipping.address.postal_code || ''}
+                      </p>
+                      {selectedOrder.shipping.address.country && (
+                        <p className="font-medium">{selectedOrder.shipping.address.country}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Items */}
+              <div className="mt-6">
+                <h3 className="font-semibold text-gray-900 mb-3">Items</h3>
+                <div className="space-y-3">
+                  {selectedOrder.items.map(item => (
+                    <div key={item.id} className="flex justify-between items-start p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{item.description}</p>
+                        {item.price_nickname && (
+                          <p className="text-sm text-gray-600">{item.price_nickname}</p>
+                        )}
+                        {(item.variant1_name || item.variant2_name) && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {item.variant1_name && <div>{item.variant1_style || 'Variant'}: {item.variant1_name}</div>}
+                            {item.variant2_name && <div>{item.variant2_style || 'Variant'}: {item.variant2_name}</div>}
+                          </div>
+                        )}
+                        <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium">{formatCurrency((item.amount_total || 0) / 100, item.currency?.toUpperCase() || 'USD')}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t flex justify-between items-center">
+              {!selectedOrder.fulfillment?.fulfilled ? (
+                <div className="text-sm text-gray-600">
+                  This order is ready for fulfillment
+                </div>
+              ) : (
+                <div className="text-sm text-green-600 font-medium">
+                  ✓ Order fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                  Close
+                </Button>
+                {!selectedOrder.fulfillment?.fulfilled && (
+                  <Button onClick={() => fulfillOrder(selectedOrder.id)}>
+                    Fulfill Order
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -879,12 +1009,12 @@ export function AdminDashboard() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar onLogout={handleLogout} />
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 overflow-auto">
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/products" element={<ProductsManager />} />
           <Route path="/collections" element={<CollectionsManager />} />
-          <Route path="/fulfillment" element={<FulfillmentManager />} />
+          <Route path="/Fulfillment" element={<FulfillmentManager />} />
           <Route path="/media" element={<MediaLibrary />} />
           <Route path="/store-settings" element={<StoreSettingsManager />} />
         </Routes>

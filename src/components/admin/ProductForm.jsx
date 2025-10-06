@@ -234,8 +234,8 @@ export function ProductForm({ product, onSave, onCancel }) {
           {product ? 'Edit Product' : 'Create New Product'}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="p-6">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="block text-sm font-medium mb-2">Product Name *</label>
             <Input

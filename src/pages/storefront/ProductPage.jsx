@@ -77,12 +77,42 @@ export function ProductPage() {
   }, [product, effectiveVariant, effectiveVariant2])
 
   const effectiveStripePriceId = useMemo(() => {
+    if (!product) return null
+
+    // Use variantPrices lookup if available (new system)
+    if (product.variantPrices && typeof product.variantPrices === 'object') {
+      if (effectiveVariant && effectiveVariant2) {
+        // Both variants selected
+        const comboKey = `${effectiveVariant.id}-${effectiveVariant2.id}`
+        return product.variantPrices[comboKey] || product.stripePriceId
+      } else if (effectiveVariant) {
+        // Only first variant selected
+        return product.variantPrices[effectiveVariant.id] || product.stripePriceId
+      } else if (effectiveVariant2) {
+        // Only second variant selected
+        return product.variantPrices[effectiveVariant2.id] || product.stripePriceId
+      }
+    }
+
+    // Fallback to old system
     return effectiveVariant?.stripePriceId || effectiveVariant2?.stripePriceId || product?.stripePriceId
   }, [effectiveVariant, effectiveVariant2, product])
 
   const handleBuyNow = async () => {
     // Use the cart checkout API to preserve line item context (variant names)
     if (!product) return
+
+    // Validate variant selection
+    if (Array.isArray(product.variants) && product.variants.length > 0 && selectedVariantIndex == null) {
+      alert(`Please select a ${product.variantStyle || 'variant'} option.`)
+      return
+    }
+
+    if (Array.isArray(product.variants2) && product.variants2.length > 0 && selectedVariant2Index == null) {
+      alert(`Please select a ${product.variantStyle2 || 'variant'} option.`)
+      return
+    }
+
     try {
       const tempItem = {
         id: effectiveVariant?.id || effectiveVariant2?.id || product.id,
@@ -108,6 +138,18 @@ export function ProductPage() {
 
   const handleAddToCart = () => {
     if (!product) return
+
+    // Validate variant selection
+    if (Array.isArray(product.variants) && product.variants.length > 0 && selectedVariantIndex == null) {
+      alert(`Please select a ${product.variantStyle || 'variant'} option.`)
+      return
+    }
+
+    if (Array.isArray(product.variants2) && product.variants2.length > 0 && selectedVariant2Index == null) {
+      alert(`Please select a ${product.variantStyle2 || 'variant'} option.`)
+      return
+    }
+
     const variant = effectiveVariant
     const variant2 = effectiveVariant2
     const priceToUse = (variant?.hasCustomPrice && typeof variant.price === 'number')
@@ -115,7 +157,24 @@ export function ProductPage() {
       : (variant2?.hasCustomPrice && typeof variant2.price === 'number')
         ? variant2.price
         : product.price
-    const stripePriceIdToUse = variant?.stripePriceId || variant2?.stripePriceId || product.stripePriceId
+    // Use variantPrices lookup if available (new system)
+    let stripePriceIdToUse = product?.stripePriceId
+    if (product?.variantPrices && typeof product.variantPrices === 'object') {
+      if (variant && variant2) {
+        // Both variants selected
+        const comboKey = `${variant.id}-${variant2.id}`
+        stripePriceIdToUse = product.variantPrices[comboKey] || product.stripePriceId
+      } else if (variant) {
+        // Only first variant selected
+        stripePriceIdToUse = product.variantPrices[variant.id] || product.stripePriceId
+      } else if (variant2) {
+        // Only second variant selected
+        stripePriceIdToUse = product.variantPrices[variant2.id] || product.stripePriceId
+      }
+    } else {
+      // Fallback to old system
+      stripePriceIdToUse = variant?.stripePriceId || variant2?.stripePriceId || product.stripePriceId
+    }
     const idSegments = [product.id]
     if (variant) idSegments.push(variant.id)
     if (variant2) idSegments.push(variant2.id)

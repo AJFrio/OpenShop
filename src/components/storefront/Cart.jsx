@@ -235,9 +235,9 @@ function CartItem({ item, updateQuantity, removeItem }) {
         <h4 className="font-medium text-slate-900 truncate">{item.name}</h4>
         {(item.selectedVariant?.name || item.selectedVariant2?.name) && (
           <p className="text-xs text-slate-600 mt-0.5">
-            {item.selectedVariant?.name ? `Variant: ${item.selectedVariant.name}` : ''}
+            {item.selectedVariant?.name ? `${item.variantStyle || 'Variant'}: ${item.selectedVariant.name}` : ''}
             {item.selectedVariant?.name && item.selectedVariant2?.name ? ' · ' : ''}
-            {item.selectedVariant2?.name ? `Variant 2: ${item.selectedVariant2.name}` : ''}
+            {item.selectedVariant2?.name ? `${item.variantStyle2 || 'Variant'}: ${item.selectedVariant2.name}` : ''}
           </p>
         )}
         <p className="text-sm text-slate-500 mt-1">{formatCurrency(item.price)}</p>
