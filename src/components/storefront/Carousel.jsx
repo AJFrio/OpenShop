@@ -55,7 +55,7 @@ export function Carousel({ products = [] }) {
             className="w-full h-full object-cover opacity-50"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-purple-600 to-blue-600 opacity-50"></div>
+          <div className="w-full h-full bg-gradient-to-r from-slate-600 to-slate-700 opacity-50"></div>
         )}
       </div>
 
@@ -65,7 +65,7 @@ export function Carousel({ products = [] }) {
           <h2 className="text-4xl font-bold mb-4">{currentProduct.name}</h2>
           <p className="text-lg mb-6 max-w-2xl">{currentProduct.tagline || currentProduct.description}</p>
           <Link to={`/products/${currentProduct.id}`} onClick={(e) => e.stopPropagation()}>
-            <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100 cursor-pointer">
+            <Button size="lg" className="bg-white text-slate-900 hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 hover:text-white cursor-pointer">
               Shop Now - ${currentProduct.price}
             </Button>
           </Link>

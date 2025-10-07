@@ -132,7 +132,7 @@ function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart
             <p className="text-slate-500 mb-6">Add some products to get started!</p>
             <Button 
               onClick={toggleCart}
-              className="bg-slate-900 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 transition-all duration-300"
+              className="bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 transition-all duration-300"
             >
               Continue Shopping
             </Button>
@@ -171,13 +171,13 @@ function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart
           {/* Total */}
           <div className="flex justify-between items-center text-lg font-semibold animate-fade-in">
             <span>Total:</span>
-            <span className="text-purple-600">{formatCurrency(totalPrice)}</span>
+            <span className="text-slate-600">{formatCurrency(totalPrice)}</span>
           </div>
 
           {/* Checkout Button */}
           <Button 
             onClick={handleCheckout} 
-            className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 transition-all duration-300 hover:scale-105 hover:shadow-lg"
             size="lg"
           >
             Checkout
@@ -188,7 +188,7 @@ function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart
             <Button 
               onClick={toggleCart} 
               variant="outline" 
-              className="w-full hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent transition-all duration-300 hover:scale-105"
+              className="w-full hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 hover:text-white hover:border-transparent transition-all duration-300 hover:scale-105"
             >
               Continue Shopping
             </Button>
@@ -214,7 +214,7 @@ function CartItem({ item, updateQuantity, removeItem }) {
   }
 
   return (
-    <div className="flex gap-3 p-3 border rounded-lg hover:shadow-md transition-all duration-200 hover:border-purple-200">
+    <div className="flex gap-3 p-3 border rounded-lg hover:shadow-md transition-all duration-200 hover:border-slate-200">
       {/* Product Image */}
       <div className="flex-shrink-0">
         {primaryImage ? (

@@ -455,11 +455,11 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
                             <button
                               key={i}
                               type="button"
-                              className={`relative aspect-square rounded border overflow-hidden ${selected ? 'ring-2 ring-purple-500' : 'hover:ring-2 hover:ring-purple-300'}`}
+                              className={`relative aspect-square rounded border overflow-hidden ${selected ? 'ring-2 ring-gray-500' : 'hover:ring-2 hover:ring-gray-300'}`}
                               onClick={() => togglePick(u)}
                             >
                               <img src={normalizeImageUrl(u)} alt="library" className="w-full h-full object-cover" />
-                              {selected && <span className="absolute top-1 left-1 bg-purple-600 text-white text-[10px] px-1 rounded">Selected</span>}
+                              {selected && <span className="absolute top-1 left-1 bg-gray-600 text-white text-[10px] px-1 rounded">Selected</span>}
                             </button>
                           )
                         })}

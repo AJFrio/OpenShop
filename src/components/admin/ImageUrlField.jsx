@@ -75,7 +75,7 @@ export function ImageUrlField({
         )}
       </div>
       {notice && (
-        <p className="text-xs text-purple-700 mt-2">{notice}</p>
+        <p className="text-xs text-gray-700 mt-2">{notice}</p>
       )}
       <ExistingMediaModal
         open={pickerOpen}

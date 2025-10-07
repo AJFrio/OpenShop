@@ -103,7 +103,7 @@ export function Navbar() {
             <div className="flex items-baseline space-x-6">
               <Link
                 to="/"
-                className="text-slate-900 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                className="text-slate-900 hover:text-slate-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
               >
                 Home
               </Link>
@@ -113,7 +113,7 @@ export function Navbar() {
                 <div key={collection.id} className="relative group">
                   <Link
                     to={`/collections/${collection.id}`}
-                    className="text-slate-900 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
+                    className="text-slate-900 hover:text-slate-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
                   >
                     {collection.name}
                     {collection.products.length > 0 && (
@@ -173,7 +173,7 @@ export function Navbar() {
                                   <p className="text-sm font-medium text-slate-900 truncate">
                                     {product.name}
                                   </p>
-                                  <p className="text-sm text-purple-600 font-semibold">
+                                  <p className="text-sm text-slate-600 font-semibold">
                                     ${product.price}
                                   </p>
                                 </div>
@@ -184,7 +184,7 @@ export function Navbar() {
                         <div className="border-t px-4 py-2">
                           <Link
                             to={`/collections/${collection.id}`}
-                            className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                            className="text-sm text-slate-600 hover:text-slate-700 font-medium"
                           >
                             View all {collection.name} →
                           </Link>
@@ -206,7 +206,7 @@ export function Navbar() {
             >
               <ShoppingCart className="w-6 h-6 transition-transform duration-200" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-bounce-in">
+                <span className="absolute -top-1 -right-1 bg-slate-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-bounce-in">
                   {itemCount > 99 ? '99+' : itemCount}
                 </span>
               )}
@@ -237,7 +237,7 @@ export function Navbar() {
           <div className="px-2 pt-2 pb-3 space-y-1">
             <Link
               to="/"
-              className="block px-3 py-2 text-base font-medium text-slate-900 hover:text-purple-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
+              className="block px-3 py-2 text-base font-medium text-slate-900 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
@@ -247,7 +247,7 @@ export function Navbar() {
               <div key={collection.id} className="space-y-1">
                 <button
                   onClick={() => toggleCollection(collection.id)}
-                  className="flex items-center justify-between w-full px-3 py-2 text-base font-medium text-slate-900 hover:text-purple-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
+                  className="flex items-center justify-between w-full px-3 py-2 text-base font-medium text-slate-900 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
                 >
                   <span>{collection.name}</span>
                   <svg
@@ -294,14 +294,14 @@ export function Navbar() {
                           </div>
                           <div className="flex-1">
                             <p className="font-medium text-slate-900 truncate">{product.name}</p>
-                            <p className="text-purple-600 font-semibold">${product.price}</p>
+                            <p className="text-slate-600 font-semibold">${product.price}</p>
                           </div>
                         </div>
                       </Link>
                     ))}
                     <Link
                       to={`/collections/${collection.id}`}
-                      className="block px-3 py-2 text-sm text-purple-600 hover:text-purple-700 font-medium border-t border-slate-200 pt-2 mt-2"
+                      className="block px-3 py-2 text-sm text-slate-600 hover:text-slate-700 font-medium border-t border-slate-200 pt-2 mt-2"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       View Collection →
@@ -309,7 +309,7 @@ export function Navbar() {
                     {collection.products.length > 5 && (
                       <Link
                         to={`/collections/${collection.id}`}
-                        className="block px-3 py-2 text-sm text-slate-600 hover:text-purple-700 font-medium"
+                        className="block px-3 py-2 text-sm text-slate-600 hover:text-slate-700 font-medium"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         View all {collection.products.length} products →

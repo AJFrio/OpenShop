@@ -74,7 +74,7 @@ export function AlertDialogAction({ children, onClick }) {
   return (
     <button
       type="button"
-      className="px-4 py-2 rounded bg-slate-900 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600"
+      className="px-4 py-2 rounded bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700"
       onClick={(e) => { onClick?.(e); setOpen(false) }}
     >
       {children}
