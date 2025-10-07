@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execSync } from 'child_process'
-import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { createInterface } from 'readline'
 
 const rl = createInterface({
@@ -80,6 +80,47 @@ async function setup() {
     console.log('⚠️  Authentication check failed, but continuing with API token...')
   }
 
+  // Check if wrangler.toml exists, if not create a basic template
+  if (!existsSync('wrangler.toml')) {
+    console.log('\n⚠️  wrangler.toml not found, creating from template...')
+    const basicWranglerConfig = `name = "openshop"
+main = "src/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# KV namespace will be added after initial deployment
+
+# Environment variables
+[vars]
+SITE_URL = ""
+
+# Static assets (automatically creates ASSETS binding)
+[assets]
+directory = "dist"
+binding = "ASSETS"
+
+# Observability
+[observability]
+enabled = true
+head_sampling_rate = 1
+`
+    writeFileSync('wrangler.toml', basicWranglerConfig)
+    console.log('✅ Created wrangler.toml from template')
+  }
+
+  // Update wrangler.toml with project name
+  console.log('\n📝 Configuring wrangler.toml with project name...')
+  let wranglerConfig = readFileSync('wrangler.toml', 'utf8')
+  wranglerConfig = wranglerConfig.replace(/name = ".*?"/, `name = "${sanitizedProjectName}"`)
+  writeFileSync('wrangler.toml', wranglerConfig)
+  console.log('✅ Updated wrangler.toml with project name')
+
+  // Build and deploy Worker (initial deployment without KV)
+  console.log('\n🔧 Building and deploying Cloudflare Worker...')
+  execCommand('npm run build', 'Building project')
+  execCommand(`wrangler deploy`, `Deploying Worker "${sanitizedProjectName}"`)
+  console.log('✅ Worker deployed successfully')
+
   // Create KV namespace with project name
   console.log('\n🗃️ Creating KV namespace...')
   const kvNamespaceName = `${sanitizedProjectName.toUpperCase()}_KV`
@@ -100,11 +141,10 @@ async function setup() {
   const kvId = kvIdMatch[1]
   console.log(`✅ KV namespace "${kvNamespaceName}" created with ID: ${kvId}`)
 
-  // Update wrangler.toml with project name and add KV namespace
-  let wranglerConfig = readFileSync('wrangler.toml', 'utf8')
-  wranglerConfig = wranglerConfig.replace('name = "openshop"', `name = "${sanitizedProjectName}"`)
+  // Add KV namespace binding to wrangler.toml
+  console.log('\n📝 Adding KV namespace binding to wrangler.toml...')
+  wranglerConfig = readFileSync('wrangler.toml', 'utf8')
   
-  // Add KV namespace configuration
   const kvConfig = `
 # KV namespace binding
 [[kv_namespaces]]
@@ -112,19 +152,26 @@ binding = "${kvNamespaceName}"
 id = "${kvId}"
 `
   
-  // Insert KV config before the last comment line
-  wranglerConfig = wranglerConfig.replace(
-    '# KV namespace and secrets will be added during setup',
-    `${kvConfig}`
-  )
+  // Insert KV config after compatibility_flags or before vars section
+  if (wranglerConfig.includes('# KV namespace will be added after initial deployment')) {
+    wranglerConfig = wranglerConfig.replace(
+      '# KV namespace will be added after initial deployment',
+      kvConfig.trim()
+    )
+  } else {
+    // Fallback: insert before # Environment variables
+    wranglerConfig = wranglerConfig.replace(
+      '# Environment variables',
+      `${kvConfig}\n# Environment variables`
+    )
+  }
   
   writeFileSync('wrangler.toml', wranglerConfig)
-  console.log('✅ Updated wrangler.toml with project name and KV namespace')
+  console.log('✅ Updated wrangler.toml with KV namespace binding')
 
-  // Build and deploy Worker
-  console.log('\n🔧 Building and deploying Cloudflare Worker...')
-  execCommand('npm run build', 'Building project')
-  execCommand(`wrangler deploy`, `Deploying Worker "${sanitizedProjectName}"`)
+  // Redeploy Worker with KV binding
+  console.log('\n🔧 Redeploying Worker with KV namespace...')
+  execCommand(`wrangler deploy`, `Redeploying Worker "${sanitizedProjectName}" with KV binding`)
 
   // Get the Worker URL with custom name
   const workerUrl = `https://${sanitizedProjectName}.workers.dev`
