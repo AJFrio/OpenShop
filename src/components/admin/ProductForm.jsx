@@ -6,6 +6,7 @@ import { Button } from '../ui/button'
 import { Select } from '../ui/select'
 import { generateId, normalizeImageUrl } from '../../lib/utils'
 import ImageUrlField from './ImageUrlField'
+import VariantImageSelector from './VariantImageSelector'
 import { 
   AlertDialog,
   AlertDialogContent,
@@ -228,7 +229,7 @@ export function ProductForm({ product, onSave, onCancel }) {
 
   return (
     <>
-    <Card className="w-full max-w-2xl">
+    <Card className="w-full max-w-4xl">
       <CardHeader>
         <CardTitle>
           {product ? 'Edit Product' : 'Create New Product'}
@@ -331,7 +332,7 @@ export function ProductForm({ product, onSave, onCancel }) {
               ))}
             </div>
             {driveNotice && (
-              <p className="text-xs text-purple-700 mt-2">{driveNotice}</p>
+              <p className="text-xs text-gray-700 mt-2">{driveNotice}</p>
             )}
             <p className="text-sm text-gray-500 mt-1">
               Add multiple images for your product. The first image will be the primary image.
@@ -378,8 +379,9 @@ export function ProductForm({ product, onSave, onCancel }) {
                 </div>
                 <div className="grid grid-cols-12 gap-2 text-xs text-gray-600 px-1">
                   <div className="col-span-3">Variant name</div>
-                  <div className="col-span-4">Selector image</div>
-                  <div className="col-span-4">Display image</div>
+                  <div className="col-span-3">Selector image</div>
+                  <div className="col-span-3">Display image</div>
+                  <div className="col-span-3">Actions</div>
                 </div>
                 {(formData.variants || []).length === 0 ? (
                   <p className="text-sm text-gray-500">No variants added. Add at least one to enable variant selection on the PDP.</p>
@@ -394,37 +396,26 @@ export function ProductForm({ product, onSave, onCancel }) {
                             placeholder="Variant name (e.g., Green)"
                           />
                         </div>
-                        <div className="col-span-4">
-                          <div className="flex items-center gap-2">
-                            <ImageUrlField
-                              value={variant.selectorImageUrl || ''}
-                              onChange={(val) => updateVariant(index, 'selectorImageUrl', val)}
-                              placeholder="Selector image URL"
-                              onPreview={(src) => setModalImage(src)}
-                              hideInput
-                            />
-                          </div>
+                        <div className="col-span-3 flex justify-center">
+                          <VariantImageSelector
+                            value={variant.selectorImageUrl || ''}
+                            onChange={(val) => updateVariant(index, 'selectorImageUrl', val)}
+                            onPreview={(src) => setModalImage(src)}
+                          />
                         </div>
-                        <div className="col-span-4">
-                          <div className="flex items-center gap-2">
-                            <ImageUrlField
-                              value={variant.displayImageUrl || ''}
-                              onChange={(val) => updateVariant(index, 'displayImageUrl', val)}
-                              placeholder="Display image URL"
-                              onPreview={(src) => setModalImage(src)}
-                              hideInput
-                            />
-                          </div>
+                        <div className="col-span-3 flex justify-center">
+                          <VariantImageSelector
+                            value={variant.displayImageUrl || ''}
+                            onChange={(val) => updateVariant(index, 'displayImageUrl', val)}
+                            onPreview={(src) => setModalImage(src)}
+                          />
                         </div>
-                        <div className="col-span-12 grid grid-cols-12 gap-2 items-center">
-                          <label className="col-span-3 flex items-center gap-2 text-sm text-gray-700">
+                        <div className="col-span-3 flex items-center gap-2">
+                          <div className="flex items-center gap-2">
                             <Switch
                               checked={!!variant.hasCustomPrice}
                               onCheckedChange={(v) => updateVariant(index, 'hasCustomPrice', v)}
                             />
-                            Custom price for this variant
-                          </label>
-                          <div className="col-span-3">
                             <Input
                               type="number"
                               step="0.01"
@@ -432,12 +423,19 @@ export function ProductForm({ product, onSave, onCancel }) {
                               disabled={!variant.hasCustomPrice}
                               value={variant.price ?? ''}
                               onChange={(e) => updateVariant(index, 'price', e.target.value)}
-                              placeholder="Variant price"
+                              placeholder="Price"
+                              className="w-20"
                             />
                           </div>
-                        </div>
-                        <div className="col-span-1 text-right">
-                          <Button type="button" variant="outline" size="sm" className="px-3" onClick={() => removeVariant(index)}>×</Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="px-2 text-red-600 border-red-300 hover:bg-red-50"
+                            onClick={() => removeVariant(index)}
+                          >
+                            ×
+                          </Button>
                         </div>
                       </div>
                     ))}
@@ -471,8 +469,9 @@ export function ProductForm({ product, onSave, onCancel }) {
                 </div>
                 <div className="grid grid-cols-12 gap-2 text-xs text-gray-600 px-1">
                   <div className="col-span-3">Option name</div>
-                  <div className="col-span-4">Selector image</div>
-                  <div className="col-span-4">Display image</div>
+                  <div className="col-span-3">Selector image</div>
+                  <div className="col-span-3">Display image</div>
+                  <div className="col-span-3">Actions</div>
                 </div>
                 {(formData.variants2 || []).length === 0 ? (
                   <p className="text-sm text-gray-500">No options added.</p>
@@ -487,37 +486,26 @@ export function ProductForm({ product, onSave, onCancel }) {
                             placeholder="Variant name (e.g., Large)"
                           />
                         </div>
-                        <div className="col-span-4">
-                          <div className="flex items-center gap-2">
-                            <ImageUrlField
-                              value={variant.selectorImageUrl || ''}
-                              onChange={(val) => updateVariant2(index, 'selectorImageUrl', val)}
-                              placeholder="Selector image URL"
-                              onPreview={(src) => setModalImage(src)}
-                              hideInput
-                            />
-                          </div>
+                        <div className="col-span-3 flex justify-center">
+                          <VariantImageSelector
+                            value={variant.selectorImageUrl || ''}
+                            onChange={(val) => updateVariant2(index, 'selectorImageUrl', val)}
+                            onPreview={(src) => setModalImage(src)}
+                          />
                         </div>
-                        <div className="col-span-4">
-                          <div className="flex items-center gap-2">
-                            <ImageUrlField
-                              value={variant.displayImageUrl || ''}
-                              onChange={(val) => updateVariant2(index, 'displayImageUrl', val)}
-                              placeholder="Display image URL"
-                              onPreview={(src) => setModalImage(src)}
-                              hideInput
-                            />
-                          </div>
+                        <div className="col-span-3 flex justify-center">
+                          <VariantImageSelector
+                            value={variant.displayImageUrl || ''}
+                            onChange={(val) => updateVariant2(index, 'displayImageUrl', val)}
+                            onPreview={(src) => setModalImage(src)}
+                          />
                         </div>
-                        <div className="col-span-12 grid grid-cols-12 gap-2 items-center">
-                          <label className="col-span-3 flex items-center gap-2 text-sm text-gray-700">
+                        <div className="col-span-3 flex items-center gap-2">
+                          <div className="flex items-center gap-2">
                             <Switch
                               checked={!!variant.hasCustomPrice}
                               onCheckedChange={(v) => updateVariant2(index, 'hasCustomPrice', v)}
                             />
-                            Custom price for this option
-                          </label>
-                          <div className="col-span-3">
                             <Input
                               type="number"
                               step="0.01"
@@ -525,12 +513,19 @@ export function ProductForm({ product, onSave, onCancel }) {
                               disabled={!variant.hasCustomPrice}
                               value={variant.price ?? ''}
                               onChange={(e) => updateVariant2(index, 'price', e.target.value)}
-                              placeholder="Option price"
+                              placeholder="Price"
+                              className="w-20"
                             />
                           </div>
-                        </div>
-                        <div className="col-span-1 text-right">
-                          <Button type="button" variant="outline" size="sm" className="px-3" onClick={() => removeVariant2(index)}>×</Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="px-2 text-red-600 border-red-300 hover:bg-red-50"
+                            onClick={() => removeVariant2(index)}
+                          >
+                            ×
+                          </Button>
                         </div>
                       </div>
                     ))}
@@ -564,7 +559,7 @@ export function ProductForm({ product, onSave, onCancel }) {
           </button>
           <img src={modalImage} alt="preview" className="w-full h-auto max-h-[80vh] object-contain rounded" />
           <div className="p-3 border-t text-center">
-            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-purple-600 hover:text-purple-700">Open original</a>
+            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-gray-600 hover:text-gray-700">Open original</a>
           </div>
         </div>
       </div>

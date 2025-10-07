@@ -86,7 +86,7 @@ export function ProductCard({ product }) {
       </Link>
       
       <CardContent className="p-4">
-        <Link to={`/products/${product.id}`} className="hover:text-purple-600">
+        <Link to={`/products/${product.id}`} className="hover:text-slate-600">
           <h3 className="text-lg font-semibold text-slate-900 mb-2 line-clamp-2">
             {product.name}
           </h3>
@@ -106,14 +106,14 @@ export function ProductCard({ product }) {
           <Button 
             onClick={handleAddToCart}
             variant="outline"
-            className="w-full hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent transition-all duration-300"
+            className="w-full hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 hover:text-white hover:border-transparent transition-all duration-300"
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
             Add to Cart
           </Button>
           <Button 
             onClick={handleBuyNow}
-            className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 transition-all duration-300"
+            className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 transition-all duration-300"
             disabled={!product.stripePriceId}
           >
             Buy Now

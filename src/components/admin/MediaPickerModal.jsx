@@ -114,7 +114,7 @@ export default function MediaPickerModal({ open, onClose, onPick }) {
           <button
             key={i}
             type="button"
-            className="aspect-square rounded border overflow-hidden bg-white hover:ring-2 hover:ring-purple-500"
+            className="aspect-square rounded border overflow-hidden bg-white hover:ring-2 hover:ring-gray-500"
             title={url}
             onClick={() => handlePick(url)}
           >

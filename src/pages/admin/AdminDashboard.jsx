@@ -47,7 +47,7 @@ function AdminSidebar({ onLogout }) {
                   to={item.path}
                   className={`flex items-center space-x-3 px-4 py-2 rounded-md transition-colors ${
                     isActive
-                      ? 'bg-purple-100 text-purple-700'
+                      ? 'bg-gray-100 text-gray-700'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
@@ -155,7 +155,7 @@ function Dashboard() {
 
       {analyticsLoading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
           <span className="ml-2">Loading analytics...</span>
         </div>
       ) : analytics ? (
@@ -674,7 +674,7 @@ function MediaLibrary() {
             <div className="p-4 border-t space-y-2 flex-shrink-0">
               <p className="text-sm text-gray-700 break-all">{selected.filename || selected.url}</p>
               <div className="flex gap-4 items-center text-sm">
-                <a href={selected.url} target="_blank" rel="noreferrer" className="text-purple-600 hover:text-purple-700">Open original</a>
+                <a href={selected.url} target="_blank" rel="noreferrer" className="text-gray-600 hover:text-gray-700">Open original</a>
               </div>
             </div>
           </div>
@@ -724,6 +724,13 @@ function FulfillmentManager() {
     fetchOrders()
   }, [])
 
+  // Reset cursors when filter changes to ensure fresh results
+  useEffect(() => {
+    setCursorNext(null)
+    setCursorPrev(null)
+    fetchOrders()
+  }, [showFulfilled])
+
   const fetchOrders = async (dir = 'next', cursor) => {
     try {
       setLoading(true)
@@ -768,6 +775,190 @@ function FulfillmentManager() {
     setIsModalOpen(true)
   }
 
+  const printShippingLabel = async (order) => {
+    if (!order.shipping || !order.shipping.address) {
+      alert('No shipping address available for this order')
+      return
+    }
+
+    try {
+      // Fetch store settings for business address
+      const response = await fetch('/api/store-settings')
+      const storeSettings = await response.json()
+
+      const shipping = order.shipping
+      const labelWindow = window.open('', '_blank')
+
+      // Build business address lines
+      const businessLines = []
+      if (storeSettings.businessName) businessLines.push(storeSettings.businessName)
+      if (storeSettings.businessAddressLine1) businessLines.push(storeSettings.businessAddressLine1)
+      if (storeSettings.businessAddressLine2) businessLines.push(storeSettings.businessAddressLine2)
+      const cityLine = [storeSettings.businessCity, storeSettings.businessState, storeSettings.businessPostalCode].filter(Boolean).join(', ')
+      if (cityLine) businessLines.push(cityLine)
+      if (storeSettings.businessCountry) businessLines.push(storeSettings.businessCountry)
+
+      const businessAddress = businessLines.length > 0 ? businessLines.join('<br>') : 'Business Address Not Set<br>Please configure in Store Settings'
+
+      labelWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Shipping Label - Order ${order.id.slice(-8)}</title>
+            <style>
+              body {
+                font-family: 'Courier New', monospace;
+                margin: 0;
+                padding: 10px;
+                background: white;
+                color: #000;
+              }
+              .label-container {
+                width: 4in;
+                min-height: 6in;
+                border: 2px solid #000;
+                padding: 15px;
+                margin: 0 auto;
+                background: white;
+                box-sizing: border-box;
+                position: relative;
+              }
+              .header {
+                text-align: center;
+                border-bottom: 2px solid #000;
+                padding-bottom: 8px;
+                margin-bottom: 15px;
+                font-weight: bold;
+                font-size: 16px;
+                letter-spacing: 1px;
+              }
+              .section {
+                margin-bottom: 12px;
+                display: flex;
+                flex-direction: column;
+              }
+              .section:last-child {
+                margin-bottom: 0;
+              }
+              .address-label {
+                font-weight: bold;
+                font-size: 11px;
+                margin-bottom: 3px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border-bottom: 1px solid #ccc;
+                padding-bottom: 2px;
+              }
+              .address-lines {
+                font-size: 12px;
+                line-height: 1.3;
+                margin-top: 2px;
+              }
+              .from-section {
+                margin-bottom: 15px;
+                padding-bottom: 8px;
+                border-bottom: 1px dashed #666;
+              }
+              .shipping-section {
+                flex-grow: 1;
+                justify-content: center;
+              }
+              .order-info {
+                border-top: 1px solid #666;
+                padding-top: 8px;
+                margin-top: auto;
+                font-size: 10px;
+                background: #f9f9f9;
+                padding: 6px;
+                border-radius: 2px;
+              }
+              .order-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 2px;
+              }
+              .barcode-area {
+                text-align: center;
+                margin: 8px 0;
+                font-family: 'Courier New', monospace;
+                font-size: 24px;
+                letter-spacing: 2px;
+              }
+              @media print {
+                body { margin: 0; padding: 0; }
+                .label-container {
+                  width: 100%;
+                  height: auto;
+                  border: none;
+                  padding: 0;
+                  margin: 0;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="label-container">
+              <div class="header">SHIPPING LABEL</div>
+
+              <div class="from-section">
+                <div class="address-label">FROM:</div>
+                <div class="address-lines">
+                  ${businessAddress}
+                </div>
+              </div>
+
+              <div class="shipping-section">
+                <div class="address-label">SHIP TO:</div>
+                <div class="address-lines">
+                  ${shipping.name || ''}<br>
+                  ${shipping.address.line1 || ''}<br>
+                  ${shipping.address.line2 ? shipping.address.line2 + '<br>' : ''}
+                  ${shipping.address.city || ''}, ${shipping.address.state || ''} ${shipping.address.postal_code || ''}<br>
+                  ${shipping.address.country || ''}
+                </div>
+              </div>
+
+              <div class="barcode-area">
+                ||||||||||||||||||||||||||||||||<br>
+                ${order.id.slice(-12)}<br>
+                ||||||||||||||||||||||||||||||||
+              </div>
+
+              <div class="order-info">
+                <div class="order-row">
+                  <strong>Order:</strong> <span>${order.id.slice(-8)}</span>
+                </div>
+                <div class="order-row">
+                  <strong>Date:</strong> <span>${new Date(order.created * 1000).toLocaleDateString()}</span>
+                </div>
+                <div class="order-row">
+                  <strong>Items:</strong> <span>${order.items?.length || 0}</span>
+                </div>
+                <div class="order-row">
+                  <strong>Weight:</strong> <span>--.-- lbs</span>
+                </div>
+              </div>
+            </div>
+
+            <script>
+              window.onload = function() {
+                window.print();
+                setTimeout(function() {
+                  window.close();
+                }, 1000);
+              };
+            </script>
+          </body>
+        </html>
+      `)
+
+      labelWindow.document.close()
+    } catch (error) {
+      console.error('Error generating shipping label:', error)
+      alert('Error generating shipping label. Please check store settings.')
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -789,7 +980,7 @@ function FulfillmentManager() {
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
           <span className="ml-2">Loading orders...</span>
         </div>
       ) : error ? (
@@ -883,28 +1074,40 @@ function FulfillmentManager() {
                 </div>
 
                 {/* Shipping Info */}
-                {selectedOrder.shipping && selectedOrder.shipping.address && (
+                {selectedOrder.shipping ? (
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-3">Shipping Address</h3>
                     <div className="text-sm space-y-1">
                       {selectedOrder.shipping.name && (
                         <p className="font-medium">{selectedOrder.shipping.name}</p>
                       )}
-                      <p>
-                        {selectedOrder.shipping.address.line1 || ''}
-                        {selectedOrder.shipping.address.line2 && (
-                          <span className="block">{selectedOrder.shipping.address.line2}</span>
-                        )}
-                      </p>
-                      <p>
-                        {selectedOrder.shipping.address.city && `${selectedOrder.shipping.address.city}, `}
-                        {selectedOrder.shipping.address.state && `${selectedOrder.shipping.address.state} `}
-                        {selectedOrder.shipping.address.postal_code || ''}
-                      </p>
-                      {selectedOrder.shipping.address.country && (
-                        <p className="font-medium">{selectedOrder.shipping.address.country}</p>
+                      {selectedOrder.shipping.address && (
+                        <>
+                          <p>
+                            {selectedOrder.shipping.address.line1 || ''}
+                            {selectedOrder.shipping.address.line2 && (
+                              <span className="block">{selectedOrder.shipping.address.line2}</span>
+                            )}
+                          </p>
+                          <p>
+                            {selectedOrder.shipping.address.city && `${selectedOrder.shipping.address.city}, `}
+                            {selectedOrder.shipping.address.state && `${selectedOrder.shipping.address.state} `}
+                            {selectedOrder.shipping.address.postal_code || ''}
+                          </p>
+                          {selectedOrder.shipping.address.country && (
+                            <p className="font-medium">{selectedOrder.shipping.address.country}</p>
+                          )}
+                        </>
+                      )}
+                      {!selectedOrder.shipping.address && (
+                        <p className="text-gray-500 italic">No shipping address provided</p>
                       )}
                     </div>
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3">Shipping Address</h3>
+                    <p className="text-gray-500 italic text-sm">No shipping information available</p>
                   </div>
                 )}
               </div>
@@ -951,6 +1154,11 @@ function FulfillmentManager() {
                 <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                   Close
                 </Button>
+                {selectedOrder.shipping && (
+                  <Button variant="outline" onClick={() => printShippingLabel(selectedOrder)}>
+                    Print Label
+                  </Button>
+                )}
                 {!selectedOrder.fulfillment?.fulfilled && (
                   <Button onClick={() => fulfillOrder(selectedOrder.id)}>
                     Fulfill Order

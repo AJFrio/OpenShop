@@ -26,6 +26,10 @@ export function StoreSettingsForm() {
     heroImageUrl: '',
     heroTitle: 'Welcome to OpenShop',
     heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.',
+    aboutHeroImageUrl: '',
+    aboutHeroTitle: 'About Us',
+    aboutHeroSubtitle: 'Learn more about our story and mission',
+    aboutContent: 'Welcome to our store! We are passionate about providing high-quality products and exceptional customer service. Our journey began with a simple idea: to make great products accessible to everyone.\n\nWe believe in quality, sustainability, and building lasting relationships with our customers. Every product in our catalog is carefully selected to meet our high standards.\n\nThank you for choosing us for your shopping needs!',
     contactEmail: 'contact@example.com'
   })
   const [loading, setLoading] = useState(false)
@@ -47,7 +51,15 @@ export function StoreSettingsForm() {
       const response = await fetch('/api/store-settings')
       if (response.ok) {
         const data = await response.json()
-        setSettings(data)
+        setSettings(prev => ({
+          ...prev,
+          ...data,
+          // Ensure about page fields have defaults if missing
+          aboutHeroImageUrl: data.aboutHeroImageUrl || '',
+          aboutHeroTitle: data.aboutHeroTitle || prev.aboutHeroTitle,
+          aboutHeroSubtitle: data.aboutHeroSubtitle || prev.aboutHeroSubtitle,
+          aboutContent: data.aboutContent || prev.aboutContent || ''
+        }))
       }
     } catch (error) {
       console.error('Error fetching store settings:', error)
@@ -128,7 +140,7 @@ export function StoreSettingsForm() {
       <Card className="w-full max-w-2xl">
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
             <span className="ml-2">Loading settings...</span>
           </div>
         </CardContent>
@@ -138,7 +150,7 @@ export function StoreSettingsForm() {
 
   return (
     <>
-    <Card className="w-full max-w-2xl">
+    <Card className="w-full max-w-4xl">
       <CardHeader>
         <CardTitle>Store Settings</CardTitle>
       </CardHeader>
@@ -182,7 +194,7 @@ export function StoreSettingsForm() {
                   hideInput
                 />
                 {driveNotice && (
-                  <p className="text-xs text-purple-700 mt-2">{driveNotice}</p>
+                  <p className="text-xs text-gray-700 mt-2">{driveNotice}</p>
                 )}
                 <p className="text-sm text-gray-500 mt-1">
                   Recommended size: 200x50px or similar aspect ratio
@@ -258,13 +270,94 @@ export function StoreSettingsForm() {
                 {settings.heroImageUrl ? (
                   <img src={normalizeImageUrl(settings.heroImageUrl)} alt="Hero" className="w-full h-48 object-cover opacity-80" />
                 ) : (
-                  <div className="w-full h-48 bg-gradient-to-r from-purple-600 to-blue-600" />
+                  <div className="w-full h-48 bg-gradient-to-r from-gray-600 to-gray-700" />
                 )}
                 <div className="absolute inset-0 flex items-center justify-center text-center px-4">
                   <div className="text-white">
                     <h1 className="text-2xl font-bold mb-2">{settings.heroTitle || 'Welcome to OpenShop'}</h1>
                     <p className="opacity-90">{settings.heroSubtitle || 'Discover amazing products at unbeatable prices.'}</p>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* About Page Settings */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900">About Page</h3>
+            <div>
+              <label className="block text-sm font-medium mb-2">About Hero Image URL</label>
+              <ImageUrlField
+                value={settings.aboutHeroImageUrl}
+                onChange={(val) => setSettings(prev => ({ ...prev, aboutHeroImageUrl: val }))}
+                placeholder="https://example.com/about-hero.jpg"
+                onPreview={(src) => setModalImage(src)}
+                hideInput
+              />
+              {driveNotice && (
+                <p className="text-xs text-purple-700 mt-2">{driveNotice}</p>
+              )}
+              <p className="text-sm text-gray-500 mt-1">Large, wide image recommended for the About page hero section.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">About Hero Title</label>
+              <Input
+                name="aboutHeroTitle"
+                value={settings.aboutHeroTitle}
+                onChange={handleChange}
+                placeholder="About Us"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">About Hero Subtitle</label>
+              <Input
+                name="aboutHeroSubtitle"
+                value={settings.aboutHeroSubtitle}
+                onChange={handleChange}
+                placeholder="Learn more about our story and mission"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">About Content</label>
+              <textarea
+                name="aboutContent"
+                value={settings.aboutContent}
+                onChange={handleChange}
+                placeholder="Tell your story, mission, and values..."
+                rows={8}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                Use double line breaks for new paragraphs. This content will be displayed on your About page.
+              </p>
+            </div>
+
+            {/* About Preview */}
+            <div className="border rounded-lg overflow-hidden">
+              <div className="relative">
+                {settings.aboutHeroImageUrl ? (
+                  <img src={normalizeImageUrl(settings.aboutHeroImageUrl)} alt="About Hero" className="w-full h-48 object-cover opacity-80" />
+                ) : (
+                  <div className="w-full h-48 bg-gradient-to-r from-gray-600 to-gray-700" />
+                )}
+                <div className="absolute inset-0 flex items-center justify-center text-center px-4">
+                  <div className="text-white">
+                    <h1 className="text-2xl font-bold mb-2">{settings.aboutHeroTitle || 'About Us'}</h1>
+                    <p className="opacity-90">{settings.aboutHeroSubtitle || 'Learn more about our story and mission'}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-white">
+                <h4 className="font-medium text-gray-900 mb-2">Content Preview:</h4>
+                <div className="text-sm text-gray-600 max-h-20 overflow-hidden">
+                  {(settings.aboutContent || '').split('\n\n').slice(0, 2).map((paragraph, index) => (
+                    <p key={index} className="mb-2">
+                      {paragraph.length > 100 ? `${paragraph.substring(0, 100)}...` : paragraph}
+                    </p>
+                  ))}
+                  {(settings.aboutContent || '').split('\n\n').length > 2 && (
+                    <p className="text-gray-400">...and more content</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -286,6 +379,86 @@ export function StoreSettingsForm() {
               <p className="text-sm text-gray-500 mt-1">
                 This email will be used for the "Contact Us" button in the footer.
               </p>
+            </div>
+          </div>
+
+          {/* Business Address */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900">Business Address</h3>
+            <p className="text-sm text-gray-600">
+              This address will be used for shipping labels and business documentation.
+            </p>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Business Name</label>
+              <Input
+                name="businessName"
+                value={settings.businessName || ''}
+                onChange={handleChange}
+                placeholder="Your Business Name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Address Line 1</label>
+              <Input
+                name="businessAddressLine1"
+                value={settings.businessAddressLine1 || ''}
+                onChange={handleChange}
+                placeholder="123 Business St"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Address Line 2</label>
+              <Input
+                name="businessAddressLine2"
+                value={settings.businessAddressLine2 || ''}
+                onChange={handleChange}
+                placeholder="Suite 100 (optional)"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">City</label>
+                <Input
+                  name="businessCity"
+                  value={settings.businessCity || ''}
+                  onChange={handleChange}
+                  placeholder="City"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">State/Province</label>
+                <Input
+                  name="businessState"
+                  value={settings.businessState || ''}
+                  onChange={handleChange}
+                  placeholder="State"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Postal Code</label>
+                <Input
+                  name="businessPostalCode"
+                  value={settings.businessPostalCode || ''}
+                  onChange={handleChange}
+                  placeholder="12345"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Country</label>
+                <Input
+                  name="businessCountry"
+                  value={settings.businessCountry || ''}
+                  onChange={handleChange}
+                  placeholder="Country"
+                />
+              </div>
             </div>
           </div>
 
@@ -327,7 +500,7 @@ export function StoreSettingsForm() {
             <Button 
               type="submit" 
               disabled={saving}
-              className="bg-slate-900 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 transition-all duration-300"
+              className="bg-slate-900 text-white hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 transition-all duration-300"
             >
               {saving ? 'Saving...' : 'Save Settings'}
             </Button>
@@ -340,7 +513,7 @@ export function StoreSettingsForm() {
         <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
           <img src={modalImage} alt="preview" className="w-full h-auto object-contain rounded" />
           <div className="p-3 border-t text-center">
-            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-purple-600 hover:text-purple-700">Open original</a>
+            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-gray-600 hover:text-gray-700">Open original</a>
           </div>
         </div>
       </div>

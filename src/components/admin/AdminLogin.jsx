@@ -54,7 +54,7 @@ export function AdminLogin({ onLoginSuccess }) {
 
             <Button 
               type="submit" 
-              className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 transition-all duration-300"
+              className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 transition-all duration-300"
               disabled={loading}
             >
               {loading ? 'Logging in...' : 'Login'}

@@ -252,7 +252,7 @@ app.get('/api/store-settings', async (c) => {
   try {
     const kv = new KVManager(getKVNamespace(c.env))
     const settings = await kv.namespace.get('store:settings')
-    
+
     const defaultSettings = {
       logoType: 'text',
       logoText: 'OpenShop',
@@ -263,6 +263,14 @@ app.get('/api/store-settings', async (c) => {
       heroTitle: 'Welcome to OpenShop',
       heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.',
       contactEmail: 'contact@example.com',
+      // Business Address fields
+      businessName: '',
+      businessAddressLine1: '',
+      businessAddressLine2: '',
+      businessCity: '',
+      businessState: '',
+      businessPostalCode: '',
+      businessCountry: '',
     }
 
     if (settings) {
@@ -1274,6 +1282,14 @@ app.put('/api/admin/store-settings', async (c) => {
       heroTitle: 'Welcome to OpenShop',
       heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.',
       contactEmail: 'contact@example.com',
+      // Business Address fields
+      businessName: '',
+      businessAddressLine1: '',
+      businessAddressLine2: '',
+      businessCity: '',
+      businessState: '',
+      businessPostalCode: '',
+      businessCountry: '',
     }
 
     const updatedSettings = { ...defaultSettings, ...settings }
@@ -1480,6 +1496,31 @@ app.get('/api/admin/orders', async (c) => {
     for (const s of ordered) {
       try {
         const lineItems = await stripe.checkout.sessions.listLineItems(s.id, { limit: 100, expand: ['data.price'] })
+
+        // Get shipping info directly from Stripe sources
+        let shippingDetails = null
+
+        // Try to get shipping from checkout session first
+        if (s.shipping_details) {
+          shippingDetails = s.shipping_details
+        }
+        // Fallback to payment intent if available
+        else if (s.payment_intent) {
+          try {
+            const paymentIntent = await stripe.paymentIntents.retrieve(s.payment_intent, {
+              expand: ['shipping']
+            })
+            if (paymentIntent.shipping) {
+              shippingDetails = {
+                address: paymentIntent.shipping.address,
+                name: paymentIntent.shipping.name
+              }
+            }
+          } catch (piError) {
+            console.log('Error fetching payment intent shipping:', piError.message)
+          }
+        }
+
         // Check fulfillment status from KV
         const fulfillmentKey = `order_fulfillment:${s.id}`
         const fulfillmentData = await kvNamespace.get(fulfillmentKey)
@@ -1492,7 +1533,8 @@ app.get('/api/admin/orders', async (c) => {
           currency: s.currency,
           customer_email: s.customer_details?.email || s.customer_email || null,
           customer_name: s.customer_details?.name || null,
-          shipping: s.shipping_details || null,
+          shipping: shippingDetails,
+          payment_intent: s.payment_intent || null, // For debugging
           billing: {
             name: s.customer_details?.name || null,
             email: s.customer_details?.email || null,

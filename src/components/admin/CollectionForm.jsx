@@ -99,7 +99,7 @@ export function CollectionForm({ collection, onSave, onCancel }) {
 
   return (
     <>
-    <Card className="w-full max-w-2xl">
+    <Card className="w-full max-w-4xl">
       <CardHeader>
         <CardTitle>
           {collection ? 'Edit Collection' : 'Create New Collection'}
@@ -118,7 +118,7 @@ export function CollectionForm({ collection, onSave, onCancel }) {
             />
           </div>
           {driveNotice && (
-            <p className="text-xs text-purple-700 mt-2">{driveNotice}</p>
+            <p className="text-xs text-gray-700 mt-2">{driveNotice}</p>
           )}
 
           <div className="flex items-center gap-3">
@@ -179,7 +179,7 @@ export function CollectionForm({ collection, onSave, onCancel }) {
           </button>
           <img src={modalImage} alt="preview" className="w-full h-auto max-h-[80vh] object-contain rounded" />
           <div className="p-3 border-t text-center">
-            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-purple-600 hover:text-purple-700">Open original</a>
+            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-gray-600 hover:text-gray-700">Open original</a>
           </div>
         </div>
       </div>

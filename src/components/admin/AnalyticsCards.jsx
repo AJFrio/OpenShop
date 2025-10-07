@@ -38,12 +38,12 @@ export function MetricCard({ title, value, change, changeType, icon: Icon, prefi
           <div className={`p-3 rounded-full ${
             Icon === DollarSign ? 'bg-green-100' :
             Icon === ShoppingBag ? 'bg-blue-100' :
-            'bg-purple-100'
+            'bg-gray-100'
           }`}>
             <Icon className={`w-6 h-6 ${
               Icon === DollarSign ? 'text-green-600' :
               Icon === ShoppingBag ? 'text-blue-600' :
-              'text-purple-600'
+              'text-gray-600'
             }`} />
           </div>
         </div>

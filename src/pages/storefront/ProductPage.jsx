@@ -195,7 +195,7 @@ export function ProductPage() {
         <Navbar />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600 mx-auto mb-4"></div>
             <p className="text-slate-600">Loading product...</p>
           </div>
         </div>
@@ -211,7 +211,7 @@ export function ProductPage() {
           <div className="text-center">
             <h1 className="text-3xl font-bold text-slate-900 mb-4">Product Not Found</h1>
             <p className="text-slate-600 mb-6">The product you're looking for doesn't exist.</p>
-            <Link to="/" className="text-purple-600 hover:text-purple-500">Return to Home</Link>
+            <Link to="/" className="text-slate-600 hover:text-slate-500">Return to Home</Link>
           </div>
         </div>
       </div>
@@ -229,10 +229,10 @@ export function ProductPage() {
                 <img
                   src={images[currentImage]}
                   alt={product.name}
-                  className="w-full h-96 object-cover"
+                  className="w-full aspect-square object-cover"
                 />
               ) : (
-                <div className="w-full h-96 bg-slate-200" />
+                <div className="w-full aspect-square bg-slate-200" />
               )}
               {images.length > 1 && (
                 <CardContent className="p-4 grid grid-cols-5 gap-3">
@@ -240,7 +240,7 @@ export function ProductPage() {
                     <button
                       key={idx}
                       onClick={() => setCurrentImage(idx)}
-                      className={`border rounded overflow-hidden h-16 ${idx === currentImage ? 'border-purple-600' : 'border-transparent'}`}
+                      className={`border rounded overflow-hidden h-16 ${idx === currentImage ? 'border-slate-600' : 'border-transparent'}`}
                     >
                       <img src={src} alt="thumb" className="w-full h-full object-cover" />
                     </button>
@@ -269,7 +269,7 @@ export function ProductPage() {
                     <button
                       key={v.id || idx}
                       onClick={() => { setSelectedVariantIndex(idx); setCurrentImage(0) }}
-                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-500 ${idx === selectedVariantIndex ? 'border-purple-600 ring-2 ring-purple-200' : 'border-slate-200'}`}
+                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-slate-500 ${idx === selectedVariantIndex ? 'border-slate-600 ring-2 ring-slate-200' : 'border-slate-200'}`}
                       title={v.name}
                     >
                       {v.selectorImageUrl || v.imageUrl ? (
@@ -299,7 +299,7 @@ export function ProductPage() {
                     <button
                       key={v.id || idx}
                       onClick={() => { setSelectedVariant2Index(idx); setCurrentImage(0) }}
-                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-500 ${idx === selectedVariant2Index ? 'border-purple-600 ring-2 ring-purple-200' : 'border-slate-200'}`}
+                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-slate-500 ${idx === selectedVariant2Index ? 'border-slate-600 ring-2 ring-slate-200' : 'border-slate-200'}`}
                       title={v.name}
                     >
                       {v.selectorImageUrl || v.imageUrl ? (
@@ -327,13 +327,13 @@ export function ProductPage() {
               <Button 
                 onClick={handleAddToCart}
                 variant="outline"
-                className="w-full hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent"
+                className="w-full hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 hover:text-white hover:border-transparent"
               >
                 Add to Cart
               </Button>
               <Button 
                 onClick={handleBuyNow}
-                className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600"
+                className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700"
                 disabled={!effectiveStripePriceId}
               >
                 Buy Now
@@ -349,7 +349,7 @@ export function ProductPage() {
 
             {product.collectionName && (
               <div className="mt-6 text-sm text-slate-500">
-                Part of collection: <Link className="text-purple-600 hover:text-purple-500" to={`/collections/${product.collectionId}`}>{product.collectionName}</Link>
+                Part of collection: <Link className="text-slate-600 hover:text-slate-500" to={`/collections/${product.collectionId}`}>{product.collectionName}</Link>
               </div>
             )}
           </div>

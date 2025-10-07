@@ -49,7 +49,7 @@ export function CollectionPage() {
         <Navbar />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600 mx-auto mb-4"></div>
             <p className="text-slate-600">Loading collection...</p>
           </div>
         </div>
@@ -65,7 +65,7 @@ export function CollectionPage() {
           <div className="text-center">
             <h1 className="text-3xl font-bold text-slate-900 mb-4">Collection Not Found</h1>
             <p className="text-slate-600 mb-6">The collection you're looking for doesn't exist.</p>
-            <a href="/" className="text-purple-600 hover:text-purple-500">
+            <a href="/" className="text-slate-600 hover:text-slate-500">
               Return to Home
             </a>
           </div>
@@ -102,7 +102,7 @@ export function CollectionPage() {
             </div>
           </div>
         ) : (
-          <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+          <div className="bg-gradient-to-r from-slate-600 to-slate-700 text-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
               <div className="text-center">
                 <h1 className="text-4xl font-bold mb-4">
@@ -132,7 +132,7 @@ export function CollectionPage() {
             <p className="text-slate-600 mb-6">
               This collection doesn't have any products yet.
             </p>
-            <a href="/" className="text-purple-600 hover:text-purple-500">
+            <a href="/" className="text-slate-600 hover:text-slate-500">
               Browse all products
             </a>
           </div>
