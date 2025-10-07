@@ -173,6 +173,32 @@ id = "${kvId}"
   console.log('\n🔧 Redeploying Worker with KV namespace...')
   execCommand(`wrangler deploy`, `Redeploying Worker "${sanitizedProjectName}" with KV binding`)
 
+  // Update wrangler.toml with admin password as plaintext variable
+  console.log('\n📝 Adding admin password to wrangler.toml...')
+  wranglerConfig = readFileSync('wrangler.toml', 'utf8')
+
+  // Add admin password to the [vars] section
+  if (wranglerConfig.includes('[vars]')) {
+    // Insert before the closing bracket of [vars] section
+    wranglerConfig = wranglerConfig.replace(
+      /(\[vars\][\s\S]*?)(\n\[|$)/,
+      `$1ADMIN_PASSWORD = "${adminPassword}"\n$2`
+    )
+  } else {
+    // Create [vars] section if it doesn't exist
+    wranglerConfig = wranglerConfig.replace(
+      '# Environment variables',
+      `[vars]\nADMIN_PASSWORD = "${adminPassword}"\n\n# Environment variables`
+    )
+  }
+
+  writeFileSync('wrangler.toml', wranglerConfig)
+  console.log('✅ Added admin password to wrangler.toml')
+
+  // Redeploy Worker with admin password
+  console.log('\n🔧 Redeploying Worker with admin password...')
+  execCommand(`wrangler deploy`, `Redeploying Worker "${sanitizedProjectName}" with admin password`)
+
   // Get the Worker URL with custom name
   const workerUrl = `https://${sanitizedProjectName}.workers.dev`
   
@@ -182,14 +208,14 @@ id = "${kvId}"
   writeFileSync('wrangler.toml', wranglerConfig)
   console.log('✅ Updated wrangler.toml with worker URL')
 
-  // Set secrets
+  // Set secrets (excluding admin password which is now a plaintext variable)
   console.log('\n🔒 Setting up secrets...')
   process.env.STRIPE_SECRET_KEY = stripeSecretKey
   process.env.VITE_STRIPE_PUBLISHABLE_KEY = stripePublishableKey
-  
+
   execCommand(`echo "${stripeSecretKey}" | wrangler secret put STRIPE_SECRET_KEY`, 'Setting Stripe secret key')
   execCommand(`echo "${stripePublishableKey}" | wrangler secret put VITE_STRIPE_PUBLISHABLE_KEY`, 'Setting Stripe publishable key')
-  execCommand(`echo "${adminPassword}" | wrangler secret put ADMIN_PASSWORD`, 'Setting admin password')
+  console.log('✅ Admin password set as plaintext variable (not a secret)')
 
   // Create .env file for local development
   const envContent = `# Local development environment
