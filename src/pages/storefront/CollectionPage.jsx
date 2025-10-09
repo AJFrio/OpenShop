@@ -79,44 +79,29 @@ export function CollectionPage() {
       <Navbar />
       
       {/* Collection Header */}
-      <section className="relative">
+      <section className="relative w-screen overflow-hidden text-white">
         {collection.heroImage ? (
-          <div className="relative h-96 bg-slate-900">
-            <img
-              src={collection.heroImage}
-              alt={collection.name}
-              className="w-full h-full object-cover opacity-60"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center text-white px-4">
-                <h1 className="text-5xl font-bold mb-4">
-                  {collection.name}
-                </h1>
-                {collection.description && (
-                  <p className="text-xl max-w-3xl mx-auto">
-                    {collection.description}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
+          <img
+            src={collection.heroImage}
+            alt={collection.name}
+            className="w-screen h-auto max-h-[90vh] object-contain block mx-auto opacity-70"
+          />
         ) : (
-          <div className="bg-gradient-to-r from-slate-600 to-slate-700 text-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-              <div className="text-center">
-                <h1 className="text-4xl font-bold mb-4">
-                  {collection.name}
-                </h1>
-                {collection.description && (
-                  <p className="text-xl max-w-3xl mx-auto">
-                    {collection.description}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
+          <div className="w-screen min-h-[320px] sm:min-h-[420px] lg:min-h-[560px] bg-gradient-to-r from-slate-600 to-slate-700" />
         )}
+
+        <div className="absolute inset-0 bg-black/40" aria-hidden />
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 text-center">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <h1 className="text-4xl md:text-6xl font-bold">{collection.name}</h1>
+            {collection.description && (
+              <p className="text-xl max-w-3xl mx-auto">
+                {collection.description}
+              </p>
+            )}
+          </div>
+        </div>
       </section>
 
       {/* Products Grid */}

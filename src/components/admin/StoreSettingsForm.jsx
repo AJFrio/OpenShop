@@ -268,7 +268,7 @@ export function StoreSettingsForm() {
             <div className="border rounded-lg overflow-hidden">
               <div className="relative">
                 {settings.heroImageUrl ? (
-                  <img src={normalizeImageUrl(settings.heroImageUrl)} alt="Hero" className="w-full h-48 object-cover opacity-80" />
+                  <img src={normalizeImageUrl(settings.heroImageUrl)} alt="Hero" className="w-full h-48 object-contain opacity-80" />
                 ) : (
                   <div className="w-full h-48 bg-gradient-to-r from-gray-600 to-gray-700" />
                 )}

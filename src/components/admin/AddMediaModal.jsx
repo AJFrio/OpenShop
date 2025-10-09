@@ -14,6 +14,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
   const [uploading, setUploading] = useState(false)
   const [previews, setPreviews] = useState([]) // { url, name, size }[]
   const inputIdRef = useRef('file-' + Math.random().toString(36).slice(2))
+  const fileInputRef = useRef(null)
 
   // link
   const [url, setUrl] = useState('')
@@ -25,6 +26,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [driveConnected, setDriveConnected] = useState(false)
   const [filename, setFilename] = useState('openshop-image.png')
+  const [isDriveCopying, setIsDriveCopying] = useState(false)
   // generate: reference images from media library (up to 3)
   const [refUrls, setRefUrls] = useState([]) // string[]
   const [isPickingRefs, setIsPickingRefs] = useState(false)
@@ -132,6 +134,23 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     const dropped = Array.from(e.dataTransfer && e.dataTransfer.files ? e.dataTransfer.files : [])
     const images = dropped.filter(f => String(f.type || '').startsWith('image/'))
     if (images.length > 0) setFiles(images)
+  }
+
+  function handlePaste(e) {
+    try {
+      const items = (e.clipboardData && e.clipboardData.items) ? Array.from(e.clipboardData.items) : []
+      const images = []
+      for (const it of items) {
+        if (it && String(it.type || '').startsWith('image/')) {
+          const f = it.getAsFile && it.getAsFile()
+          if (f) images.push(f)
+        }
+      }
+      if (images.length > 0) {
+        e.preventDefault()
+        setFiles(prev => prev.concat(images))
+      }
+    } catch (_) {}
   }
 
   function preventDragDefaults(e) {
@@ -308,6 +327,117 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     return { mimeType: match[1], base64: match[2] }
   }
 
+  // --- Google Picker integration (Drive tab) ---
+  function loadGoogleApis() {
+    return new Promise((resolve, reject) => {
+      if (window.google && window.google.picker) {
+        resolve()
+        return
+      }
+      function onPickerReady() {
+        try {
+          if (window.google && window.google.picker) resolve()
+          else reject(new Error('Picker failed to load'))
+        } catch (e) { reject(e) }
+      }
+      function ensurePickerLoaded() {
+        try {
+          // Load the picker module after gapi is ready
+          window.gapi.load('picker', { callback: onPickerReady })
+        } catch (e) {
+          reject(e)
+        }
+      }
+      if (!window.gapi) {
+        const s = document.createElement('script')
+        s.src = 'https://apis.google.com/js/api.js'
+        s.async = true
+        s.defer = true
+        s.onload = () => {
+          try { ensurePickerLoaded() } catch (e) { reject(e) }
+        }
+        s.onerror = () => reject(new Error('Failed to load Google API script'))
+        document.head.appendChild(s)
+      } else {
+        ensurePickerLoaded()
+      }
+    })
+  }
+
+  async function openDrivePicker() {
+    try {
+      setError('')
+      // Ensure picker library is available
+      await loadGoogleApis()
+      // Fetch picker configuration and access token
+      const cfgRes = await adminApiRequest('/api/admin/drive/picker-config', { method: 'GET' })
+      if (!cfgRes.ok) {
+        const err = await cfgRes.json().catch(() => ({}))
+        throw new Error(err.error || 'Failed to load Drive picker config')
+      }
+      const cfg = await cfgRes.json()
+      const googleObj = window.google
+      const view = new googleObj.picker.DocsView(googleObj.picker.ViewId.DOCS_IMAGES)
+      view.setIncludeFolders(false)
+
+      const builder = new googleObj.picker.PickerBuilder()
+        .addView(view)
+        .enableFeature(googleObj.picker.Feature.MULTISELECT_ENABLED)
+        .setOAuthToken(cfg.accessToken)
+        .setDeveloperKey(cfg.apiKey)
+        .setSize(window.innerWidth > 720 ? 720 : Math.min(600, window.innerWidth - 40), 520)
+        .setCallback(async (data) => {
+          if (data && data.action === googleObj.picker.Action.PICKED) {
+            try {
+              setIsDriveCopying(true)
+              const docs = Array.isArray(data.docs) ? data.docs : []
+              const createdItems = []
+              for (const d of docs) {
+                const id = d && d.id ? d.id : null
+                if (!id) continue
+                // Copy to OpenShop folder on server
+                // Provide resourceKey if returned by picker (for certain shared files)
+                const resourceKey = d.resourceKey || d.resource_key || (d["resourceKey"]) || ''
+                const copyRes = await adminApiRequest('/api/admin/drive/copy', {
+                  method: 'POST',
+                  body: JSON.stringify({ fileId: id, resourceKey })
+                })
+                const copied = await copyRes.json().catch(() => ({}))
+                if (!copyRes.ok) throw new Error(copied.error || 'Copy failed')
+                // Record in media library
+                const mediaRes = await adminApiRequest('/api/admin/media', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    url: copied.viewUrl || copied.downloadUrl,
+                    source: 'drive',
+                    filename: d.name || 'image',
+                    mimeType: d.mimeType || 'image/*',
+                    driveFileId: copied.id,
+                  })
+                })
+                const saved = await mediaRes.json().catch(() => ({}))
+                if (!mediaRes.ok) throw new Error(saved.error || 'Failed to save media')
+                createdItems.push(saved)
+              }
+              if (createdItems.length > 0) {
+                onCreated?.(createdItems)
+                onClose?.()
+              }
+            } catch (e) {
+              setError(e.message || 'Import failed')
+            } finally {
+              setIsDriveCopying(false)
+            }
+          }
+        })
+
+      const picker = builder.build()
+      picker.setVisible(true)
+    } catch (e) {
+      setError(e.message || 'Failed to open Google Drive picker')
+    }
+  }
+
   if (!open) return null
 
   return (
@@ -316,13 +446,13 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
         <div className="p-4 border-b flex items-center justify-between flex-shrink-0">
           <h3 className="text-lg font-semibold">Add media</h3>
           <div className="flex items-center gap-2">
-            {['upload', 'link', 'generate'].map(tab => (
+            {['upload', 'link', 'generate', 'drive'].map(tab => (
               <button
                 key={tab}
                 type="button"
                 className={`px-3 py-1.5 text-sm rounded border ${activeTab === tab ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
                 onClick={() => setActiveTab(tab)}
-              >{tab[0].toUpperCase() + tab.slice(1)}</button>
+              >{tab === 'drive' ? 'Google Drive' : (tab[0].toUpperCase() + tab.slice(1))}</button>
             ))}
           </div>
         </div>
@@ -335,13 +465,16 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
                 onDragEnter={preventDragDefaults}
                 onDragOver={preventDragDefaults}
                 onDrop={onDropFile}
+                onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                onPaste={handlePaste}
               >
-                <input id={inputIdRef.current} type="file" accept="image/*" multiple className="hidden" onChange={onPickFile} />
+                <input id={inputIdRef.current} ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onPickFile} />
                 <label htmlFor={inputIdRef.current} className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
                   <span>{files.length ? 'Change images' : 'Click to choose images'}</span>
                 </label>
                 <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF up to ~10MB each. Or drag & drop here.</p>
+                <p className="text-xs text-gray-500">You can also paste images from your clipboard here.</p>
               </div>
               {files.length > 0 && (
                 <div className="space-y-2">
@@ -379,6 +512,28 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
                 <Button type="button" onClick={uploadFileToDriveAndRecord} disabled={!files.length || uploading || !driveConnected}>{uploading ? `Uploading…` : `Upload ${files.length > 1 ? files.length + ' images' : 'image'}`}</Button>
               </div>
             </div>
+            </div>
+          )}
+          {activeTab === 'drive' && (
+            <div className="space-y-3">
+              {!driveConnected ? (
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">Google Drive not connected</div>
+                  <div className="flex gap-2 ml-auto">
+                    <Button type="button" variant="outline" onClick={() => window.open('/api/admin/drive/oauth/start', '_blank', 'width=480,height=720')}>
+                      Connect Google Drive
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-600">Choose images from your Google Drive</div>
+                  <div className="flex gap-2 ml-auto">
+                    <Button type="button" variant="outline" onClick={handleDriveDisconnect}>Disconnect</Button>
+                    <Button type="button" onClick={openDrivePicker} disabled={isDriveCopying}>{isDriveCopying ? 'Importing…' : 'Choose from Drive'}</Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           {activeTab === 'link' && (
