@@ -586,7 +586,8 @@ app.get('/api/admin/drive/oauth/start', async (c) => {
     params.set('response_type', 'code')
     params.set('client_id', clientId)
     params.set('redirect_uri', redirectUri)
-    params.set('scope', 'https://www.googleapis.com/auth/drive.file')
+    // Request both read access to user files and app-managed write access
+    params.set('scope', 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file')
     params.set('access_type', 'offline')
     params.set('prompt', 'consent')
     params.set('include_granted_scopes', 'true')
@@ -803,6 +804,117 @@ app.post('/api/admin/drive/upload', async (c) => {
   } catch (e) {
     console.error('Drive upload error', e)
     return c.json({ error: 'Upload failed' }, 500)
+  }
+})
+
+// Return Google Picker configuration and a fresh access token for the current admin session
+app.get('/api/admin/drive/picker-config', async (c) => {
+  try {
+    const apiKey = c.env.GOOGLE_API_KEY
+    const clientId = c.env.GOOGLE_CLIENT_ID
+    if (!apiKey || !clientId) {
+      return c.json({ error: 'Picker not configured' }, 500)
+    }
+    const tok = await ensureDriveAccessToken(c.env)
+    const now = Math.floor(Date.now() / 1000)
+    const expiresIn = Math.max(0, (tok.expiry || now) - now)
+    return c.json({ apiKey, clientId, accessToken: tok.access_token, expiresIn })
+  } catch (e) {
+    const msg = String(e && e.message ? e.message : e)
+    if (/Drive not connected/i.test(msg) || /Failed to refresh token/i.test(msg)) {
+      return c.json({ error: 'Drive not connected' }, 502)
+    }
+    console.error('Picker config error', e)
+    return c.json({ error: 'Failed to load picker config' }, 500)
+  }
+})
+
+// Copy one or more existing Drive files into the OpenShop folder and make them public-readable
+app.post('/api/admin/drive/copy', async (c) => {
+  try {
+    const body = await c.req.json().catch(() => ({}))
+    const fileIds = Array.isArray(body.fileIds) && body.fileIds.length > 0
+      ? body.fileIds
+      : (body.fileId ? [body.fileId] : [])
+    const resourceKeyById = (body && body.resourceKeys && typeof body.resourceKeys === 'object') ? body.resourceKeys : {}
+    const singleResourceKey = body && typeof body.resourceKey === 'string' ? body.resourceKey : ''
+    if (fileIds.length === 0) {
+      return c.json({ error: 'Missing fileId(s)' }, 400)
+    }
+
+    let tok
+    try {
+      tok = await ensureDriveAccessToken(c.env)
+    } catch (e) {
+      const msg = String(e && e.message ? e.message : e)
+      if (/Drive not connected/i.test(msg)) {
+        return c.json({ error: 'Drive not connected. Please connect Google Drive in Admin.' }, 502)
+      }
+      if (/Failed to refresh token/i.test(msg)) {
+        return c.json({ error: 'Drive session expired. Please reconnect Google Drive.' }, 502)
+      }
+      console.error('Drive token ensure error (copy)', e)
+      return c.json({ error: 'Drive authentication failed' }, 502)
+    }
+
+    const folder = await ensureDriveRootFolder(c.env, tok)
+    const results = []
+
+    for (const srcId of fileIds) {
+      // Resolve file and handle shortcuts; include resourceKey if provided
+      const rk = resourceKeyById[srcId] || singleResourceKey || ''
+      const metaUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(srcId)}?fields=id,mimeType,shortcutDetails,targetId,resourceKey,webViewLink,driveId&supportsAllDrives=true${rk ? `&resourceKey=${encodeURIComponent(rk)}` : ''}`
+      const metaRes = await fetch(metaUrl, { headers: { 'Authorization': `Bearer ${tok.access_token}` } })
+      if (!metaRes.ok) {
+        const t = await metaRes.text().catch(() => '')
+        console.error('Drive get file failed', srcId, t)
+        return c.json({ error: 'Drive file lookup failed', details: t }, 502)
+      }
+      const meta = await metaRes.json()
+      let effectiveId = meta && meta.mimeType === 'application/vnd.google-apps.shortcut' && meta.shortcutDetails && meta.shortcutDetails.targetId
+        ? meta.shortcutDetails.targetId
+        : (meta && meta.id ? meta.id : srcId)
+      const effectiveResourceKey = meta && meta.resourceKey ? meta.resourceKey : rk
+
+      // Copy the source file into our folder
+      const copyEndpoint = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(effectiveId)}/copy?supportsAllDrives=true${effectiveResourceKey ? `&resourceKey=${encodeURIComponent(effectiveResourceKey)}` : ''}`
+      const copyRes = await fetch(copyEndpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${tok.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ parents: [folder.id] })
+      })
+      if (!copyRes.ok) {
+        const t = await copyRes.text().catch(() => '')
+        console.error('Drive copy failed', effectiveId, t)
+        return c.json({ error: 'Drive copy failed', details: t }, 502)
+      }
+      const copied = await copyRes.json()
+      const fileId = copied.id
+
+      // Make public readable (best effort)
+      await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions?supportsAllDrives=true`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${tok.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ role: 'reader', type: 'anyone' })
+      }).catch(() => {})
+
+      const viewUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=view`
+      results.push({ id: fileId, viewUrl, webViewLink: copied.webViewLink, downloadUrl: viewUrl, folder: { id: folder.id, name: folder.name } })
+    }
+
+    if (Array.isArray(body.fileIds)) {
+      return c.json({ items: results })
+    }
+    return c.json(results[0])
+  } catch (e) {
+    console.error('Drive copy error', e)
+    return c.json({ error: 'Copy failed' }, 500)
   }
 })
 
