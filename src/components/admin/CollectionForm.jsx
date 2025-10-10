@@ -32,6 +32,8 @@ export function CollectionForm({ collection, onSave, onCancel }) {
   const [driveNotice, setDriveNotice] = useState('')
   const [driveNoticeTimer, setDriveNoticeTimer] = useState(null)
 
+  const headerDisabled = loading
+
   useEffect(() => {
     if (collection) {
       setFormData(collection)
@@ -99,25 +101,24 @@ export function CollectionForm({ collection, onSave, onCancel }) {
 
   return (
     <>
-    <Card className="w-full max-w-4xl">
-      <CardContent className="p-0">
-        <form onSubmit={handleSubmit} className="space-y-0">
-          <div className="sticky top-20 z-20 -mx-6 -mt-6 mb-6 px-6 py-4 bg-white/95 backdrop-blur border-b border-gray-200 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">{collection ? 'Edit Collection' : 'Create New Collection'}</h2>
-              <p className="text-sm text-gray-500">Organize products into collections with names, descriptions, and hero imagery.</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Saving...' : (collection ? 'Update Collection' : 'Create Collection')}
-              </Button>
-            </div>
-          </div>
-          <div className="px-6 pb-8 space-y-6">
-
+    <div className="w-full max-w-4xl mx-auto space-y-6">
+      <div className="sticky top-20 z-20 px-6 py-4 bg-white/95 backdrop-blur border border-gray-200 rounded-lg flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">{collection ? 'Edit Collection' : 'Create New Collection'}</h2>
+          <p className="text-sm text-gray-500">Organize products into collections with names, descriptions, and hero imagery.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit" form="collection-form" disabled={headerDisabled}>
+            {loading ? 'Saving...' : (collection ? 'Update Collection' : 'Create Collection')}
+          </Button>
+        </div>
+      </div>
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <form id="collection-form" onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium mb-2">Collection Name *</label>
             <Input
@@ -164,10 +165,11 @@ export function CollectionForm({ collection, onSave, onCancel }) {
             <p className="text-sm text-gray-500 mt-1">
               This image will be displayed as a banner on the collection page
             </p>
-          </div>          </div>
+          </div>
         </form>
       </CardContent>
     </Card>
+    </div>
     {modalImage && (
       <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
         <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>

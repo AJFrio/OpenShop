@@ -133,6 +133,7 @@ export function StoreSettingsForm() {
 
   const computedRadiusPx = Math.round(previewTheme.corners.radiusPx || 0)
   const themeResetDisabled = themeSaving || themeLoading || (!themeHasOverrides && !themeDirty)
+  const headerDisabled = saving || themeSaving || themeLoading
 
   useEffect(() => {
     fetchSettings()
@@ -216,7 +217,7 @@ export function StoreSettingsForm() {
       ? `https://drive.usercontent.google.com/download?id=${id}&export=view`
       : val
     if (normalized !== val) {
-      setDriveNotice('Google Drive link detected — converted for reliable preview and delivery.')
+      setDriveNotice('Google Drive link detected Ã¢â‚¬â€ converted for reliable preview and delivery.')
       if (driveNoticeTimer) clearTimeout(driveNoticeTimer)
       const t = setTimeout(() => setDriveNotice(''), 3000)
       setDriveNoticeTimer(t)
@@ -389,21 +390,21 @@ export function StoreSettingsForm() {
 
   return (
     <>
-    <Card className="w-full max-w-4xl">
-      <CardContent className="p-0">
-        <form onSubmit={handleSubmit} className="space-y-0">
-          <div className="sticky top-20 z-20 -mx-6 -mt-6 mb-6 px-6 py-4 bg-white/95 backdrop-blur border-b border-gray-200 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">Store Settings</h2>
-              <p className="text-sm text-gray-500">Manage storefront appearance, branding, and business details.</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button type="submit" disabled={saving || themeSaving || themeLoading}>
-                {saving ? 'Saving...' : 'Save changes'}
-              </Button>
-            </div>
-          </div>
-          <div className="px-6 pb-8 space-y-12">
+    <div className="w-full max-w-4xl mx-auto space-y-6">
+      <div className="sticky top-20 z-20 px-6 py-4 bg-white/95 backdrop-blur border border-gray-200 rounded-lg flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">Store Settings</h2>
+          <p className="text-sm text-gray-500">Manage storefront appearance, branding, and business details.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button type="submit" form="store-settings-form" disabled={headerDisabled}>
+            {saving ? 'Saving...' : 'Save changes'}
+          </Button>
+        </div>
+      </div>
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <form id="store-settings-form" onSubmit={handleSubmit} className="space-y-12">
           <section className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-1">
@@ -438,82 +439,82 @@ export function StoreSettingsForm() {
               <p className="text-sm text-green-600">{themeMessage}</p>
             )}
 
-            <div className="space-y-6">
-              {COLOR_GROUPS.map((group) => (
-                <div key={group.title} className="space-y-3">
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-medium text-gray-900">{group.title}</h4>
-                    <p className="text-xs text-gray-500">{group.description}</p>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {group.fields.map((field) => (
-                      <div key={field.key} className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">{field.label}</label>
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="color"
-                            value={themeState.colors[field.key]}
-                            onChange={(event) => handleThemeColorChange(field.key, event.target.value)}
-                            className="h-10 w-14 rounded border border-gray-200"
-                          />
-                          <Input
-                            value={themeState.colors[field.key]}
-                            onChange={(event) => handleThemeColorChange(field.key, event.target.value)}
-                            maxLength={7}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Font Family</label>
-                  <Select
-                    value={themeState.typography.fontId}
-                    onChange={(event) => handleThemeFontChange(event.target.value)}
-                  >
-                    {FONT_OPTIONS.map((font) => (
-                      <option key={font.id} value={font.id}>
-                        {font.label}
-                      </option>
-                    ))}
-                  </Select>
-                  <p className="text-sm text-gray-500" style={{ fontFamily: selectedFontOption?.stack }}>
-                    Sample text using {selectedFontOption?.label}
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Rounded Corners</label>
-                      <p className="text-xs text-gray-500">Disable for sharp edges across storefront components.</p>
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+              <div className="space-y-6">
+                {COLOR_GROUPS.map((group) => (
+                  <div key={group.title} className="space-y-3">
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-medium text-gray-900">{group.title}</h4>
+                      <p className="text-xs text-gray-500">{group.description}</p>
                     </div>
-                    <Switch
-                      id="roundedCorners"
-                      checked={themeState.corners.enabled}
-                      onCheckedChange={handleThemeCornerToggle}
-                    />
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {group.fields.map((field) => (
+                        <div key={field.key} className="space-y-2">
+                          <label className="block text-sm font-medium text-gray-700">{field.label}</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="color"
+                              value={themeState.colors[field.key]}
+                              onChange={(event) => handleThemeColorChange(field.key, event.target.value)}
+                              className="h-10 w-14 rounded border border-gray-200"
+                            />
+                            <Input
+                              value={themeState.colors[field.key]}
+                              onChange={(event) => handleThemeColorChange(field.key, event.target.value)}
+                              maxLength={7}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className={themeState.corners.enabled ? '' : 'opacity-50'}>
-                    <label className="block text-sm font-medium text-gray-700">Radius Multiplier</label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="4"
-                      step="0.1"
-                      value={themeState.corners.radiusMultiplier}
-                      onChange={(event) => handleThemeCornerMultiplierChange(event.target.value)}
-                      disabled={!themeState.corners.enabled}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Base radius {BASE_RADIUS_PX}px × multiplier ≈ {computedRadiusPx}px corners.
+                ))}
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Font Family</label>
+                    <Select
+                      value={themeState.typography.fontId}
+                      onChange={(event) => handleThemeFontChange(event.target.value)}
+                    >
+                      {FONT_OPTIONS.map((font) => (
+                        <option key={font.id} value={font.id}>
+                          {font.label}
+                        </option>
+                      ))}
+                    </Select>
+                    <p className="text-sm text-gray-500" style={{ fontFamily: selectedFontOption?.stack }}>
+                      Sample text using {selectedFontOption?.label}
                     </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Rounded Corners</label>
+                        <p className="text-xs text-gray-500">Disable for sharp edges across storefront components.</p>
+                      </div>
+                      <Switch
+                        id="roundedCorners"
+                        checked={themeState.corners.enabled}
+                        onCheckedChange={handleThemeCornerToggle}
+                      />
+                    </div>
+                    <div className={themeState.corners.enabled ? '' : 'opacity-50'}>
+                      <label className="block text-sm font-medium text-gray-700">Radius Multiplier</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="4"
+                        step="0.1"
+                        value={themeState.corners.radiusMultiplier}
+                        onChange={(event) => handleThemeCornerMultiplierChange(event.target.value)}
+                        disabled={!themeState.corners.enabled}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Base radius {BASE_RADIUS_PX}px × multiplier ≈ {computedRadiusPx}px corners.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -542,10 +543,7 @@ export function StoreSettingsForm() {
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="storefront-card storefront-radius p-5 space-y-4">
-                      <div
-                        className="h-28 w-full storefront-radius-sm"
-                        style={{ backgroundColor: 'var(--storefront-color-accent-soft)' }}
-                      />
+                      <div className="h-28 w-full storefront-radius-sm" style={{ backgroundColor: 'var(--storefront-color-accent-soft)' }} />
                       <h5 className="text-lg font-semibold storefront-heading">Product Card</h5>
                       <p className="text-sm storefront-subtle">See how cards adapt to your chosen palette.</p>
                       <div className="flex items-center justify-between">
@@ -941,11 +939,10 @@ export function StoreSettingsForm() {
               </div>
             </div>
           </section>
-
-          </div>
         </form>
       </CardContent>
     </Card>
+    </div>
     {modalImage && (
       <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
         <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
