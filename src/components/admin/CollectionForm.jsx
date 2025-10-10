@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
+import { Card, CardContent } from '../ui/card'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
@@ -100,13 +100,24 @@ export function CollectionForm({ collection, onSave, onCancel }) {
   return (
     <>
     <Card className="w-full max-w-4xl">
-      <CardHeader>
-        <CardTitle>
-          {collection ? 'Edit Collection' : 'Create New Collection'}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="p-0">
+        <form onSubmit={handleSubmit} className="space-y-0">
+          <div className="sticky top-20 z-20 -mx-6 -mt-6 mb-6 px-6 py-4 bg-white/95 backdrop-blur border-b border-gray-200 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">{collection ? 'Edit Collection' : 'Create New Collection'}</h2>
+              <p className="text-sm text-gray-500">Organize products into collections with names, descriptions, and hero imagery.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Saving...' : (collection ? 'Update Collection' : 'Create Collection')}
+              </Button>
+            </div>
+          </div>
+          <div className="px-6 pb-8 space-y-6">
+
           <div>
             <label className="block text-sm font-medium mb-2">Collection Name *</label>
             <Input
@@ -153,16 +164,7 @@ export function CollectionForm({ collection, onSave, onCancel }) {
             <p className="text-sm text-gray-500 mt-1">
               This image will be displayed as a banner on the collection page
             </p>
-          </div>
-
-          <div className="flex gap-4 pt-4">
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : (collection ? 'Update Collection' : 'Create Collection')}
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
+          </div>          </div>
         </form>
       </CardContent>
     </Card>

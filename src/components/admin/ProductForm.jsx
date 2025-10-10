@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
+import { Card, CardContent } from '../ui/card'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
@@ -230,13 +230,24 @@ export function ProductForm({ product, onSave, onCancel }) {
   return (
     <>
     <Card className="w-full max-w-4xl">
-      <CardHeader>
-        <CardTitle>
-          {product ? 'Edit Product' : 'Create New Product'}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-3">
+      <CardContent className="p-0">
+        <form onSubmit={handleSubmit} className="space-y-0">
+          <div className="sticky top-20 z-20 -mx-6 -mt-6 mb-6 px-6 py-4 bg-white/95 backdrop-blur border-b border-gray-200 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">{product ? 'Edit Product' : 'Create New Product'}</h2>
+              <p className="text-sm text-gray-500">Manage product details, pricing, media, and variants.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Saving...' : (product ? 'Update Product' : 'Create Product')}
+              </Button>
+            </div>
+          </div>
+          <div className="px-6 pb-8 space-y-6">
+
           <div>
             <label className="block text-sm font-medium mb-2">Product Name *</label>
             <Input
@@ -533,16 +544,7 @@ export function ProductForm({ product, onSave, onCancel }) {
                 )}
               </>
             )}
-          </div>
-
-          <div className="flex gap-4 pt-4">
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : (product ? 'Update Product' : 'Create Product')}
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
+          </div>          </div>
         </form>
       </CardContent>
     </Card>

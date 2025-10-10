@@ -44,7 +44,7 @@
 }
 
 [data-storefront-theme='true'] .storefront-card {
-  background-color: var(--storefront-color-surface);
+  background-color: var(--storefront-color-card);
   border-radius: var(--storefront-radius-lg);
   border: 1px solid rgba(15, 23, 42, 0.08);
   box-shadow: 0 24px 45px rgba(15, 23, 42, 0.08);

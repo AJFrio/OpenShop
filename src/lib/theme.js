@@ -44,6 +44,7 @@ const DEFAULT_STORE_THEME = {
     accent: '#3b82f6',
     text: '#0f172a',
     background: '#f8fafc',
+    card: '#ffffff',
   },
   typography: {
     fontId: 'inter',
@@ -146,6 +147,7 @@ function sanitizeThemeInput(partialTheme = {}) {
     accent: ensureHex(colors.accent, DEFAULT_STORE_THEME.colors.accent),
     text: ensureHex(colors.text, DEFAULT_STORE_THEME.colors.text),
     background: ensureHex(colors.background, DEFAULT_STORE_THEME.colors.background),
+    card: ensureHex(colors.card, DEFAULT_STORE_THEME.colors.card),
   }
 
   const sanitizedTypography = {
@@ -212,6 +214,7 @@ function buildCssVariables(theme) {
     '--storefront-color-text-muted': derived.colors.mutedText,
     '--storefront-color-background': derived.colors.background,
     '--storefront-color-surface': derived.colors.surface,
+    '--storefront-color-card': base.colors.card,
     '--storefront-font-family': derived.typography.fontFamily,
     '--storefront-radius-base': `${derived.corners.radiusPx}px`,
     '--storefront-radius-sm': `${derived.corners.radiusSm}px`,
