@@ -30,8 +30,8 @@ export function Carousel({ products = [] }) {
 
   if (products.length === 0) {
     return (
-      <div className="relative w-full h-96 bg-slate-200 rounded-lg flex items-center justify-center">
-        <p className="text-slate-500">No featured products available</p>
+      <div className="relative w-full h-96 rounded-lg flex items-center justify-center storefront-surface-inverse">
+        <p className="storefront-subtle">No featured products available</p>
       </div>
     )
   }
@@ -39,7 +39,7 @@ export function Carousel({ products = [] }) {
   const currentProduct = products[currentIndex]
 
   return (
-    <div className="relative w-full h-96 bg-slate-900 rounded-lg overflow-hidden">
+    <div className="relative w-full h-96 overflow-hidden storefront-hero storefront-radius-lg">
       {/* Background Image */}
       <div className="absolute inset-0" onClick={goToNext}>
         {currentProduct.images && currentProduct.images.length > 0 ? (
@@ -55,17 +55,17 @@ export function Carousel({ products = [] }) {
             className="w-full h-full object-cover opacity-50"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-slate-600 to-slate-700 opacity-50"></div>
+          <div className="w-full h-full opacity-50" style={{ background: "linear-gradient(135deg, var(--storefront-color-secondary), var(--storefront-color-primary))" }}></div>
         )}
       </div>
 
       {/* Content Overlay */}
-      <div className="relative z-10 flex items-center justify-center h-full text-white text-center px-8">
+      <div className="relative z-10 flex items-center justify-center h-full text-center px-8">
         <div>
-          <h2 className="text-4xl font-bold mb-4">{currentProduct.name}</h2>
-          <p className="text-lg mb-6 max-w-2xl">{currentProduct.tagline || currentProduct.description}</p>
+          <h2 className="text-4xl font-bold mb-4 storefront-heading">{currentProduct.name}</h2>
+          <p className="text-lg mb-6 max-w-2xl storefront-subtle">{currentProduct.tagline || currentProduct.description}</p>
           <Link to={`/products/${currentProduct.id}`} onClick={(e) => e.stopPropagation()}>
-            <Button size="lg" className="bg-white text-slate-900 hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 hover:text-white cursor-pointer">
+            <Button size="lg" className="cursor-pointer">
               Shop Now - ${currentProduct.price}
             </Button>
           </Link>

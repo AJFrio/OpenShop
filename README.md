@@ -556,7 +556,7 @@ If you encounter issues:
 - [ ] Login with admin credentials
 - [ ] Create/edit products and collections
 - [ ] Upload multiple product images
-- [ ] Customize store settings
+- [ ] Customize store settings and storefront theme
 - [ ] View analytics dashboard
 
 ### API Testing

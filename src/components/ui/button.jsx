@@ -7,13 +7,13 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-slate-900 text-slate-50 hover:bg-slate-900/90",
+        default: "bg-slate-900 text-slate-50 hover:bg-slate-900/90 storefront-button-primary",
         destructive:
           "bg-red-500 text-slate-50 hover:bg-red-500/90",
         outline:
-          "border border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900",
+          "border border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900 storefront-button-outline",
         secondary:
-          "bg-slate-100 text-slate-900 hover:bg-slate-100/80",
+          "bg-slate-100 text-slate-900 hover:bg-slate-100/80 storefront-button-secondary",
         ghost: "hover:bg-slate-100 hover:text-slate-900",
         link: "text-slate-900 underline-offset-4 hover:underline",
       },

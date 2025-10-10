@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Select } from '../ui/select'
+import { Switch } from '../ui/switch'
 import { adminApiRequest } from '../../lib/auth'
 import { normalizeImageUrl } from '../../lib/utils'
 import ImageUrlField from './ImageUrlField'
+import { DEFAULT_STORE_THEME, FONT_OPTIONS, resolveStorefrontTheme, BASE_RADIUS_PX } from '../../lib/theme'
 import { 
   AlertDialog,
   AlertDialogContent,
@@ -15,6 +17,61 @@ import {
   AlertDialogFooter,
   AlertDialogAction
 } from '../ui/alert-dialog'
+
+
+const COLOR_FIELDS = [
+  { key: 'primary', label: 'Primary Color' },
+  { key: 'secondary', label: 'Secondary Color' },
+  { key: 'accent', label: 'Accent Color' },
+  { key: 'text', label: 'Text Color' },
+]
+
+function createThemeState(theme = DEFAULT_STORE_THEME) {
+  return {
+    colors: {
+      primary: theme.colors.primary,
+      secondary: theme.colors.secondary,
+      accent: theme.colors.accent,
+      text: theme.colors.text,
+    },
+    typography: {
+      fontId: theme.typography.fontId,
+    },
+    corners: {
+      enabled: theme.corners.enabled,
+      radiusMultiplier: theme.corners.radiusMultiplier,
+    },
+  }
+}
+
+function extractThemeState(resolvedTheme) {
+  return createThemeState({
+    colors: resolvedTheme.colors || DEFAULT_STORE_THEME.colors,
+    typography: {
+      fontId: resolvedTheme.typography?.fontId || DEFAULT_STORE_THEME.typography.fontId,
+    },
+    corners: {
+      enabled: resolvedTheme.corners?.enabled ?? DEFAULT_STORE_THEME.corners.enabled,
+      radiusMultiplier: resolvedTheme.corners?.radiusMultiplier ?? DEFAULT_STORE_THEME.corners.radiusMultiplier,
+    },
+  })
+}
+
+function sanitizeHexInput(value) {
+  if (!value) return '#'
+  let next = String(value).trim().replace(/[^0-9a-fA-F#]/g, '')
+  if (!next.startsWith('#')) {
+    next = `#${next}`
+  }
+  if (next.length === 4) {
+    const [, r, g, b] = next
+    next = `#${r}${r}${g}${g}${b}${b}`
+  }
+  if (next.length > 7) {
+    next = next.slice(0, 7)
+  }
+  return next.toUpperCase()
+}
 
 export function StoreSettingsForm() {
   const [settings, setSettings] = useState({
@@ -41,9 +98,52 @@ export function StoreSettingsForm() {
   const [driveNotice, setDriveNotice] = useState('')
   const [driveNoticeTimer, setDriveNoticeTimer] = useState(null)
 
+  const [themeState, setThemeState] = useState(createThemeState())
+  const [themeLoading, setThemeLoading] = useState(true)
+  const [themeSaving, setThemeSaving] = useState(false)
+  const [themeDirty, setThemeDirty] = useState(false)
+  const [themeHasOverrides, setThemeHasOverrides] = useState(false)
+  const [themeMessage, setThemeMessage] = useState('')
+  const [themeError, setThemeError] = useState('')
+
+  const previewTheme = useMemo(() => resolveStorefrontTheme(themeState), [themeState])
+  const previewStyles = useMemo(() => ({ ...previewTheme.cssVariables }), [previewTheme])
+  const selectedFontOption = useMemo(
+    () => FONT_OPTIONS.find((font) => font.id === themeState.typography.fontId) || FONT_OPTIONS[0],
+    [themeState.typography.fontId]
+  )
+
+  const computedRadiusPx = Math.round(previewTheme.corners.radiusPx || 0)
+  const themeSaveDisabled = themeSaving || themeLoading || !themeDirty
+  const themeResetDisabled = themeSaving || themeLoading || (!themeHasOverrides && !themeDirty)
+
   useEffect(() => {
     fetchSettings()
+    fetchTheme()
   }, [])
+
+  const fetchTheme = async () => {
+    try {
+      setThemeLoading(true)
+      const response = await adminApiRequest('/api/admin/storefront/theme')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to load storefront theme')
+      }
+      const data = await response.json()
+      const resolved = resolveStorefrontTheme(data)
+      const nextState = extractThemeState(resolved)
+      setThemeState(nextState)
+      setThemeHasOverrides(Boolean(resolved.meta?.updatedAt))
+      setThemeDirty(false)
+      setThemeError('')
+    } catch (error) {
+      console.error('Error fetching storefront theme:', error)
+      setThemeError(error.message || 'Failed to load storefront theme')
+    } finally {
+      setThemeLoading(false)
+    }
+  }
 
   const fetchSettings = async () => {
     try {
@@ -106,6 +206,113 @@ export function StoreSettingsForm() {
     return normalized
   }
 
+  const markThemeDirty = () => {
+    setThemeDirty(true)
+    setThemeMessage('')
+    setThemeError('')
+  }
+
+  const handleThemeColorChange = (key, value) => {
+    const sanitized = sanitizeHexInput(value)
+    setThemeState((prev) => ({
+      ...prev,
+      colors: {
+        ...prev.colors,
+        [key]: sanitized,
+      },
+    }))
+    markThemeDirty()
+  }
+
+  const handleThemeFontChange = (fontId) => {
+    setThemeState((prev) => ({
+      ...prev,
+      typography: {
+        ...prev.typography,
+        fontId,
+      },
+    }))
+    markThemeDirty()
+  }
+
+  const handleThemeCornerToggle = (enabled) => {
+    setThemeState((prev) => ({
+      ...prev,
+      corners: {
+        ...prev.corners,
+        enabled,
+      },
+    }))
+    markThemeDirty()
+  }
+
+  const handleThemeCornerMultiplierChange = (value) => {
+    const numeric = Number(value)
+    if (Number.isNaN(numeric)) return
+    const clamped = Math.min(Math.max(numeric, 0), 4)
+    setThemeState((prev) => ({
+      ...prev,
+      corners: {
+        ...prev.corners,
+        radiusMultiplier: clamped,
+      },
+    }))
+    markThemeDirty()
+  }
+
+  const handleThemeSave = async () => {
+    if (themeSaving) return
+    try {
+      setThemeSaving(true)
+      setThemeError('')
+      setThemeMessage('')
+      const response = await adminApiRequest('/api/admin/storefront/theme', {
+        method: 'PUT',
+        body: JSON.stringify(themeState),
+      })
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to update storefront theme')
+      }
+      const data = await response.json()
+      const resolved = resolveStorefrontTheme(data)
+      setThemeState(extractThemeState(resolved))
+      setThemeHasOverrides(true)
+      setThemeDirty(false)
+      setThemeMessage('Theme saved successfully.')
+    } catch (error) {
+      console.error('Error updating storefront theme:', error)
+      setThemeError(error.message || 'Failed to save theme')
+    } finally {
+      setThemeSaving(false)
+    }
+  }
+
+  const handleThemeReset = async () => {
+    if (themeSaving) return
+    try {
+      setThemeSaving(true)
+      setThemeError('')
+      setThemeMessage('')
+      const response = await adminApiRequest('/api/admin/storefront/theme', { method: 'DELETE' })
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to reset storefront theme')
+      }
+      const data = await response.json()
+      const resolved = resolveStorefrontTheme(data)
+      setThemeState(extractThemeState(resolved))
+      setThemeHasOverrides(false)
+      setThemeDirty(false)
+      setThemeMessage('Theme reset to defaults.')
+    } catch (error) {
+      console.error('Error resetting storefront theme:', error)
+      setThemeError(error.message || 'Failed to reset theme')
+    } finally {
+      setThemeSaving(false)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSaving(true)
@@ -156,6 +363,185 @@ export function StoreSettingsForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Storefront Theme */}
+          <div className="space-y-6 border border-gray-200 rounded-lg p-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <h3 className="text-lg font-medium text-gray-900">Storefront Theme</h3>
+                <p className="text-sm text-gray-600">
+                  Adjust customer-facing colors, typography, and corner radius without redeploying the storefront.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleThemeReset}
+                  disabled={themeResetDisabled}
+                >
+                  {themeSaving ? 'Working…' : 'Reset to Default'}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleThemeSave}
+                  disabled={themeSaveDisabled}
+                >
+                  {themeSaving ? 'Saving…' : themeDirty ? 'Save Theme' : 'Theme Saved'}
+                </Button>
+              </div>
+            </div>
+
+            {themeLoading && (
+              <p className="text-sm text-gray-500">Loading current theme…</p>
+            )}
+            {themeError && (
+              <p className="text-sm text-red-600">{themeError}</p>
+            )}
+            {themeMessage && (
+              <p className="text-sm text-green-600">{themeMessage}</p>
+            )}
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {COLOR_FIELDS.map((field) => (
+                <div key={field.key} className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">{field.label}</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={themeState.colors[field.key]}
+                      onChange={(event) => handleThemeColorChange(field.key, event.target.value)}
+                      className="h-10 w-14 rounded border border-gray-200"
+                    />
+                    <Input
+                      value={themeState.colors[field.key]}
+                      onChange={(event) => handleThemeColorChange(field.key, event.target.value)}
+                      maxLength={7}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Font Family</label>
+                <Select
+                  value={themeState.typography.fontId}
+                  onChange={(event) => handleThemeFontChange(event.target.value)}
+                >
+                  {FONT_OPTIONS.map((font) => (
+                    <option key={font.id} value={font.id}>
+                      {font.label}
+                    </option>
+                  ))}
+                </Select>
+                <p className="text-sm text-gray-500" style={{ fontFamily: selectedFontOption?.stack }}>
+                  Sample text using {selectedFontOption?.label}
+                </p>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Rounded Corners</label>
+                    <p className="text-xs text-gray-500">Disable for sharp edges across storefront components.</p>
+                  </div>
+                  <Switch
+                    id="roundedCorners"
+                    checked={themeState.corners.enabled}
+                    onCheckedChange={handleThemeCornerToggle}
+                  />
+                </div>
+                <div className={themeState.corners.enabled ? '' : 'opacity-50'}>
+                  <label className="block text-sm font-medium text-gray-700">Radius Multiplier</label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="4"
+                    step="0.1"
+                    value={themeState.corners.radiusMultiplier}
+                    onChange={(event) => handleThemeCornerMultiplierChange(event.target.value)}
+                    disabled={!themeState.corners.enabled}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Base radius {BASE_RADIUS_PX}px × multiplier ≈ {computedRadiusPx}px corners.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              data-storefront-theme="true"
+              style={previewStyles}
+              className="border border-gray-200 rounded-xl overflow-hidden bg-white"
+            >
+              <div className="p-6 space-y-6 storefront-surface">
+                <div className="storefront-hero storefront-radius-lg p-8 text-left space-y-4">
+                  <span className="storefront-pill inline-flex text-xs uppercase tracking-wide">Hero Banner</span>
+                  <h4 className="text-2xl font-semibold storefront-heading">Engaging Headline</h4>
+                  <p className="storefront-subtle max-w-xl text-sm md:text-base">
+                    Preview updates instantly as you fine-tune your storefront experience.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <button type="button" className="px-4 py-2 storefront-button-primary storefront-radius-sm">
+                      Primary CTA
+                    </button>
+                    <button type="button" className="px-4 py-2 storefront-button-outline storefront-radius-sm">
+                      Secondary
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="storefront-card storefront-radius p-5 space-y-4">
+                    <div
+                      className="h-28 w-full storefront-radius-sm"
+                      style={{ backgroundColor: 'var(--storefront-color-accent-soft)' }}
+                    />
+                    <h5 className="text-lg font-semibold storefront-heading">Product Card</h5>
+                    <p className="text-sm storefront-subtle">See how cards adapt to your chosen palette.</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xl font-bold storefront-heading">$64.00</span>
+                      <span className="storefront-pill text-xs uppercase">New</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button type="button" className="px-4 py-2 storefront-button-outline storefront-radius-sm">
+                        Details
+                      </button>
+                      <button type="button" className="px-4 py-2 storefront-button-secondary storefront-radius-sm">
+                        Wishlist
+                      </button>
+                      <button type="button" className="px-4 py-2 storefront-button-primary storefront-radius-sm">
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
+                  <div className="storefront-surface-inverse storefront-radius p-5 space-y-4 border border-dashed border-gray-300">
+                    <h6 className="text-sm font-semibold uppercase tracking-wide storefront-heading">
+                      Typography & Corners
+                    </h6>
+                    <p className="text-base storefront-heading" style={{ fontFamily: selectedFontOption?.stack }}>
+                      {selectedFontOption?.label} sample text
+                    </p>
+                    <p className="text-sm storefront-subtle">
+                      Corner radius ≈ {computedRadiusPx}px (base {BASE_RADIUS_PX}px × {themeState.corners.radiusMultiplier}).
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <button type="button" className="px-3 py-2 storefront-button-primary storefront-radius-sm">
+                        Primary
+                      </button>
+                      <button type="button" className="px-3 py-2 storefront-button-outline storefront-radius-sm">
+                        Outline
+                      </button>
+                      <button type="button" className="px-3 py-2 storefront-button-secondary storefront-radius-sm">
+                        Accent
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Logo Configuration */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900">Logo Configuration</h3>

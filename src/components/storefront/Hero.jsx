@@ -33,7 +33,7 @@ export function Hero() {
   }, [])
 
   return (
-    <section className="relative w-screen overflow-hidden text-white">
+    <section className="relative w-screen overflow-hidden storefront-hero">
       {settings.heroImageUrl ? (
         <img
           src={normalizeImageUrl(settings.heroImageUrl)}
@@ -41,17 +41,17 @@ export function Hero() {
           className="w-screen h-auto max-h-[90vh] object-contain block mx-auto"
         />
       ) : (
-        <div className="w-screen min-h-[320px] sm:min-h-[420px] lg:min-h-[560px] bg-gradient-to-r from-slate-600 to-slate-700" />
+        <div className="w-screen min-h-[320px] sm:min-h-[420px] lg:min-h-[560px]" />
       )}
 
-      <div className="absolute inset-0 bg-black/40" aria-hidden />
+      <div className="absolute inset-0 bg-black/35" aria-hidden />
 
       <div className="absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 text-center">
         <div className="max-w-4xl mx-auto space-y-6">
           <h1 className="text-4xl md:text-6xl font-bold">{settings.heroTitle}</h1>
           <p className="text-xl md:text-2xl max-w-3xl mx-auto">{settings.heroSubtitle}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-slate-900 hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 hover:text-white transition-all duration-300">
+            <Button size="lg">
               Shop Now
             </Button>
             <Button

@@ -72,7 +72,7 @@ export function Navbar() {
   }
 
   return (
-    <nav className="bg-white shadow-sm border-b relative z-50">
+    <nav className="bg-white shadow-sm border-b relative z-50 storefront-nav">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -90,7 +90,7 @@ export function Navbar() {
               />
             ) : null}
             <h1 
-              className={`text-2xl font-bold text-slate-900 ${
+              className={`text-2xl font-bold storefront-heading ${
                 storeSettings.logoType === 'image' && storeSettings.logoImageUrl ? 'hidden' : 'block'
               }`}
             >
@@ -103,7 +103,7 @@ export function Navbar() {
             <div className="flex items-baseline space-x-6">
               <Link
                 to="/"
-                className="text-slate-900 hover:text-slate-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                className="storefront-heading hover:text-slate-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
               >
                 Home
               </Link>
@@ -113,7 +113,7 @@ export function Navbar() {
                 <div key={collection.id} className="relative group">
                   <Link
                     to={`/collections/${collection.id}`}
-                    className="text-slate-900 hover:text-slate-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
+                    className="storefront-heading hover:text-slate-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
                   >
                     {collection.name}
                     {collection.products.length > 0 && (
@@ -125,9 +125,9 @@ export function Navbar() {
                   
                   {/* Product Dropdown */}
                   {collection.products.length > 0 && (
-                    <div className="absolute left-0 top-full w-72 bg-white rounded-md rounded-t-none shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[100] pointer-events-none group-hover:pointer-events-auto">
+                  <div className="absolute left-0 top-full w-72 bg-white rounded-md rounded-t-none shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[100] pointer-events-none group-hover:pointer-events-auto storefront-surface-inverse storefront-radius">
                       <div className="py-2">
-                        <div className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide border-b">
+                        <div className="px-4 py-2 text-xs font-semibold storefront-subtle uppercase tracking-wide border-b">
                           {collection.name} Products
                         </div>
                         <div className="max-h-80 overflow-y-auto">
@@ -170,10 +170,10 @@ export function Navbar() {
                                   </div>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-slate-900 truncate">
+                                  <p className="text-sm font-medium storefront-heading truncate">
                                     {product.name}
                                   </p>
-                                  <p className="text-sm text-slate-600 font-semibold">
+                                  <p className="text-sm storefront-subtle font-semibold">
                                     ${product.price}
                                   </p>
                                 </div>
@@ -182,9 +182,9 @@ export function Navbar() {
                           ))}
                         </div>
                         <div className="border-t px-4 py-2">
-                          <Link
-                            to={`/collections/${collection.id}`}
-                            className="text-sm text-slate-600 hover:text-slate-700 font-medium"
+                        <Link
+                          to={`/collections/${collection.id}`}
+                          className="text-sm storefront-subtle hover:text-slate-700 font-medium"
                           >
                             View all {collection.name} →
                           </Link>
@@ -202,7 +202,7 @@ export function Navbar() {
             {/* Cart Button - Visible on all screen sizes */}
             <button
               onClick={toggleCart}
-              className="relative p-2 text-slate-900 hover:text-slate-600 transition-all duration-200 hover:scale-110"
+              className="relative p-2 storefront-heading hover:text-slate-600 transition-all duration-200 hover:scale-110"
             >
               <ShoppingCart className="w-6 h-6 transition-transform duration-200" />
               {itemCount > 0 && (
@@ -215,7 +215,7 @@ export function Navbar() {
             {/* Mobile menu button - Only visible on mobile */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-slate-900 hover:text-slate-600 transition-colors duration-200 p-2"
+            className="md:hidden storefront-heading hover:text-slate-600 transition-colors duration-200 p-2"
             >
               {mobileMenuOpen ? (
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -233,11 +233,11 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t bg-white">
+        <div className="md:hidden border-t bg-white storefront-surface-inverse">
           <div className="px-2 pt-2 pb-3 space-y-1">
             <Link
               to="/"
-              className="block px-3 py-2 text-base font-medium text-slate-900 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
+              className="block px-3 py-2 text-base font-medium storefront-heading hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
@@ -247,7 +247,7 @@ export function Navbar() {
               <div key={collection.id} className="space-y-1">
                 <button
                   onClick={() => toggleCollection(collection.id)}
-                  className="flex items-center justify-between w-full px-3 py-2 text-base font-medium text-slate-900 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
+                  className="flex items-center justify-between w-full px-3 py-2 text-base font-medium storefront-heading hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
                 >
                   <span>{collection.name}</span>
                   <svg
@@ -262,14 +262,14 @@ export function Navbar() {
 
                 {/* Mobile Product List - Accordion Style */}
                 {collection.products.length > 0 && expandedCollections.has(collection.id) && (
-                  <div className="pl-6 space-y-1">
-                    {collection.products.slice(0, 5).map((product) => (
-                      <Link
-                        key={product.id}
-                        to={`/products/${product.id}`}
-                        className="block px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
+                    <div className="pl-6 space-y-1">
+                      {collection.products.slice(0, 5).map((product) => (
+                        <Link
+                          key={product.id}
+                          to={`/products/${product.id}`}
+                          className="block px-3 py-2 text-sm storefront-subtle hover:bg-slate-50 rounded-md transition-colors duration-200"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
                         <div className="flex items-center space-x-3">
                           <div className="flex-shrink-0">
                             {(product.images && product.images.length > 0) ? (
@@ -293,15 +293,15 @@ export function Navbar() {
                             )}
                           </div>
                           <div className="flex-1">
-                            <p className="font-medium text-slate-900 truncate">{product.name}</p>
-                            <p className="text-slate-600 font-semibold">${product.price}</p>
+                            <p className="font-medium storefront-heading truncate">{product.name}</p>
+                            <p className="storefront-subtle font-semibold">${product.price}</p>
                           </div>
                         </div>
                       </Link>
                     ))}
                     <Link
                       to={`/collections/${collection.id}`}
-                      className="block px-3 py-2 text-sm text-slate-600 hover:text-slate-700 font-medium border-t border-slate-200 pt-2 mt-2"
+                      className="block px-3 py-2 text-sm storefront-subtle hover:text-slate-700 font-medium border-t border-slate-200 pt-2 mt-2"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       View Collection →
@@ -309,7 +309,7 @@ export function Navbar() {
                     {collection.products.length > 5 && (
                       <Link
                         to={`/collections/${collection.id}`}
-                        className="block px-3 py-2 text-sm text-slate-600 hover:text-slate-700 font-medium"
+                        className="block px-3 py-2 text-sm storefront-subtle hover:text-slate-700 font-medium"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         View all {collection.products.length} products →
