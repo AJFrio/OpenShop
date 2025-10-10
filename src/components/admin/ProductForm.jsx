@@ -232,7 +232,7 @@ export function ProductForm({ product, onSave, onCancel }) {
   return (
     <>
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <div className="sticky top-20 z-20 px-6 py-4 bg-white/95 backdrop-blur border border-gray-200 rounded-lg flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky top-0 z-20 px-6 py-4 bg-white/95 backdrop-blur border border-gray-200 rounded-lg flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">{product ? 'Edit Product' : 'Create New Product'}</h2>
           <p className="text-sm text-gray-500">Manage product details, pricing, media, and variants.</p>
@@ -446,7 +446,7 @@ export function ProductForm({ product, onSave, onCancel }) {
                             className="px-2 text-red-600 border-red-300 hover:bg-red-50"
                             onClick={() => removeVariant(index)}
                           >
-                            Ã—
+                            ×
                           </Button>
                         </div>
                       </div>
@@ -536,7 +536,7 @@ export function ProductForm({ product, onSave, onCancel }) {
                             className="px-2 text-red-600 border-red-300 hover:bg-red-50"
                             onClick={() => removeVariant2(index)}
                           >
-                            Ã—
+                            X
                           </Button>
                         </div>
                       </div>
@@ -559,7 +559,7 @@ export function ProductForm({ product, onSave, onCancel }) {
             onClick={() => setModalImage(null)}
             aria-label="Close"
           >
-            Ã—
+            ×
           </button>
           <img src={modalImage} alt="preview" className="w-full h-auto max-h-[80vh] object-contain rounded" />
           <div className="p-3 border-t text-center">
