@@ -15,7 +15,8 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogAction
+  AlertDialogAction,
+  AlertDialogCancel
 } from '../ui/alert-dialog'
 
 
@@ -24,6 +25,7 @@ const COLOR_FIELDS = [
   { key: 'secondary', label: 'Secondary Color' },
   { key: 'accent', label: 'Accent Color' },
   { key: 'text', label: 'Text Color' },
+  { key: 'background', label: 'Background Color' },
 ]
 
 function createThemeState(theme = DEFAULT_STORE_THEME) {
@@ -33,6 +35,7 @@ function createThemeState(theme = DEFAULT_STORE_THEME) {
       secondary: theme.colors.secondary,
       accent: theme.colors.accent,
       text: theme.colors.text,
+      background: (theme.colors && theme.colors.background) || DEFAULT_STORE_THEME.colors.background,
     },
     typography: {
       fontId: theme.typography.fontId,
@@ -105,6 +108,7 @@ export function StoreSettingsForm() {
   const [themeHasOverrides, setThemeHasOverrides] = useState(false)
   const [themeMessage, setThemeMessage] = useState('')
   const [themeError, setThemeError] = useState('')
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
 
   const previewTheme = useMemo(() => resolveStorefrontTheme(themeState), [themeState])
   const previewStyles = useMemo(() => ({ ...previewTheme.cssVariables }), [previewTheme])
@@ -289,7 +293,7 @@ export function StoreSettingsForm() {
   }
 
   const handleThemeReset = async () => {
-    if (themeSaving) return
+    if (themeSaving) return false
     try {
       setThemeSaving(true)
       setThemeError('')
@@ -305,11 +309,20 @@ export function StoreSettingsForm() {
       setThemeHasOverrides(false)
       setThemeDirty(false)
       setThemeMessage('Theme reset to defaults.')
+      return true
     } catch (error) {
       console.error('Error resetting storefront theme:', error)
       setThemeError(error.message || 'Failed to reset theme')
+      return false
     } finally {
       setThemeSaving(false)
+    }
+  }
+
+  const confirmThemeReset = async () => {
+    const result = await handleThemeReset()
+    if (result) {
+      setResetConfirmOpen(false)
     }
   }
 
@@ -376,7 +389,7 @@ export function StoreSettingsForm() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={handleThemeReset}
+                  onClick={() => setResetConfirmOpen(true)}
                   disabled={themeResetDisabled}
                 >
                   {themeSaving ? 'Working…' : 'Reset to Default'}
@@ -472,9 +485,9 @@ export function StoreSettingsForm() {
             <div
               data-storefront-theme="true"
               style={previewStyles}
-              className="border border-gray-200 rounded-xl overflow-hidden bg-white"
+              className="border border-gray-200 rounded-xl overflow-hidden storefront-surface"
             >
-              <div className="p-6 space-y-6 storefront-surface">
+              <div className="p-6 space-y-6">
                 <div className="storefront-hero storefront-radius-lg p-8 text-left space-y-4">
                   <span className="storefront-pill inline-flex text-xs uppercase tracking-wide">Hero Banner</span>
                   <h4 className="text-2xl font-semibold storefront-heading">Engaging Headline</h4>
@@ -904,6 +917,22 @@ export function StoreSettingsForm() {
         </div>
       </div>
     )}
+    <AlertDialog open={resetConfirmOpen} onOpenChange={setResetConfirmOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Reset storefront theme?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Resetting restores the bundled colors, fonts, and corner radius. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={themeSaving}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={confirmThemeReset} disabled={themeSaving}>
+            {themeSaving ? 'Resetting…' : 'Reset Theme'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     <AlertDialog open={savedOpen} onOpenChange={setSavedOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>

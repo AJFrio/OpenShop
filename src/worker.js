@@ -58,7 +58,7 @@ function getKVNamespace(env) {
 }
 
 const app = new Hono()
-const THEME_COLOR_KEYS = ['primary', 'secondary', 'accent', 'text']
+const THEME_COLOR_KEYS = ['primary', 'secondary', 'accent', 'text', 'background']
 const ALLOWED_FONT_IDS = new Set(FONT_OPTIONS.map((font) => font.id))
 
 function getCrypto() {

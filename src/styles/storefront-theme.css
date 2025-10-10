@@ -17,6 +17,10 @@
   --storefront-radius-lg: 18px;
 }
 
+[data-storefront-theme='true'] {
+  font-family: var(--storefront-font-family);
+}
+
 [data-storefront-theme='true'] body {
   background-color: var(--storefront-color-background);
   color: var(--storefront-color-text);

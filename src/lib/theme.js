@@ -43,6 +43,7 @@ const DEFAULT_STORE_THEME = {
     secondary: '#475569',
     accent: '#3b82f6',
     text: '#0f172a',
+    background: '#f8fafc',
   },
   typography: {
     fontId: 'inter',
@@ -144,6 +145,7 @@ function sanitizeThemeInput(partialTheme = {}) {
     secondary: ensureHex(colors.secondary, DEFAULT_STORE_THEME.colors.secondary),
     accent: ensureHex(colors.accent, DEFAULT_STORE_THEME.colors.accent),
     text: ensureHex(colors.text, DEFAULT_STORE_THEME.colors.text),
+    background: ensureHex(colors.background, DEFAULT_STORE_THEME.colors.background),
   }
 
   const sanitizedTypography = {
@@ -174,7 +176,7 @@ function deriveThemeDetails(theme) {
     primaryHover: darken(colors.primary, 0.12),
     secondaryHover: darken(colors.secondary, 0.12),
     accentSoft: lighten(colors.accent, 0.4),
-    background: lighten(colors.secondary, 0.85),
+    background: colors.background,
     surface: '#ffffff',
     mutedText: lighten(colors.text, 0.35),
   }

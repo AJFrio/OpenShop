@@ -66,11 +66,6 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-white opacity-10 rounded-full" />
-        <div className="absolute top-20 right-20 w-32 h-32 bg-white opacity-5 rounded-full" />
-        <div className="absolute bottom-10 left-1/4 w-16 h-16 bg-white opacity-10 rounded-full" />
-      </div>
     </section>
   )
 }
