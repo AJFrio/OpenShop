@@ -37,9 +37,12 @@ export function ProductCard({ product }) {
   }
 
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-shadow duration-300">
+    <Card className="group overflow-hidden hover:shadow-xl transition-shadow duration-300 storefront-card storefront-radius">
       <Link to={`/products/${product.id}`} className="block">
-      <div className="relative aspect-w-16 aspect-h-12 bg-slate-200">
+      <div
+        className="relative aspect-w-16 aspect-h-12 rounded-t-lg overflow-hidden"
+        style={{ backgroundColor: 'var(--storefront-color-accent-soft)' }}
+      >
         {images.length > 0 ? (
           <>
             <img
@@ -76,7 +79,10 @@ export function ProductCard({ product }) {
             )}
           </>
         ) : (
-          <div className="w-full h-48 bg-slate-200 flex items-center justify-center">
+          <div
+            className="w-full h-48 flex items-center justify-center"
+            style={{ backgroundColor: 'var(--storefront-color-accent-soft)' }}
+          >
             <svg className="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
@@ -87,15 +93,15 @@ export function ProductCard({ product }) {
       
       <CardContent className="p-4">
         <Link to={`/products/${product.id}`} className="hover:text-slate-600">
-          <h3 className="text-lg font-semibold text-slate-900 mb-2 line-clamp-2">
+          <h3 className="text-lg font-semibold storefront-heading mb-2 line-clamp-2">
             {product.name}
           </h3>
         </Link>
-        <p className="text-slate-600 text-sm mb-3 line-clamp-2">
+        <p className="storefront-subtle text-sm mb-3 line-clamp-2">
           {product.tagline || product.description}
         </p>
         <div className="flex items-center justify-between">
-          <span className="text-2xl font-bold text-slate-900">
+          <span className="text-2xl font-bold storefront-heading">
             {formatCurrency(product.price, product.currency)}
           </span>
         </div>
@@ -106,14 +112,14 @@ export function ProductCard({ product }) {
           <Button 
             onClick={handleAddToCart}
             variant="outline"
-            className="w-full hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 hover:text-white hover:border-transparent transition-all duration-300"
+            className="w-full"
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
             Add to Cart
           </Button>
           <Button 
             onClick={handleBuyNow}
-            className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 transition-all duration-300"
+            className="w-full"
             disabled={!product.stripePriceId}
           >
             Buy Now

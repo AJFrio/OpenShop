@@ -1,164 +1,276 @@
-// Theme configuration for OpenShop
-// Centralized color management for consistent theming
+// Storefront theme configuration and utilities.
+// The admin dashboard uses a separate adminTheme file to avoid scope creep.
 
-export const theme = {
-  colors: {
-    // Primary accent color for storefront
-    primary: {
-      50: '#f8fafc',
-      100: '#f1f5f9',
-      200: '#e2e8f0',
-      300: '#cbd5e1',
-      400: '#94a3b8',
-      500: '#64748b',
-      600: '#475569',
-      700: '#334155',
-      800: '#1e293b',
-      900: '#0f172a',
-    },
-
-    // Admin accent color (grey)
-    admin: {
-      50: '#f9fafb',
-      100: '#f3f4f6',
-      200: '#e5e7eb',
-      300: '#d1d5db',
-      400: '#9ca3af',
-      500: '#6b7280',
-      600: '#4b5563',
-      700: '#374151',
-      800: '#1f2937',
-      900: '#111827',
-    },
-
-    // Common colors
-    success: '#10b981',
-    warning: '#f59e0b',
-    error: '#ef4444',
-    info: '#3b82f6',
-
-    // Neutral colors
-    gray: {
-      50: '#f9fafb',
-      100: '#f3f4f6',
-      200: '#e5e7eb',
-      300: '#d1d5db',
-      400: '#9ca3af',
-      500: '#6b7280',
-      600: '#4b5563',
-      700: '#374151',
-      800: '#1f2937',
-      900: '#111827',
-    },
-
-    // Slate colors (used in storefront)
-    slate: {
-      50: '#f8fafc',
-      100: '#f1f5f9',
-      200: '#e2e8f0',
-      300: '#cbd5e1',
-      400: '#94a3b8',
-      500: '#64748b',
-      600: '#475569',
-      700: '#334155',
-      800: '#1e293b',
-      900: '#0f172a',
-    },
-
-    // Purple (legacy - should be replaced)
-    purple: {
-      50: '#faf5ff',
-      100: '#f3e8ff',
-      200: '#e9d5ff',
-      300: '#d8b4fe',
-      400: '#c084fc',
-      500: '#a855f7',
-      600: '#9333ea',
-      700: '#7c3aed',
-      800: '#6b21a8',
-      900: '#581c87',
-    },
+const BASE_RADIUS_PX = 12
+const THEME_KV_KEY = 'storefront:theme'
+const HEX_COLOR_REGEX = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/
+const FONT_OPTIONS = [
+  {
+    id: 'inter',
+    label: 'Inter',
+    stack: "'Inter', 'system-ui', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   },
+  {
+    id: 'roboto',
+    label: 'Roboto',
+    stack: "'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+  },
+  {
+    id: 'montserrat',
+    label: 'Montserrat',
+    stack: "'Montserrat', 'Segoe UI', sans-serif",
+  },
+  {
+    id: 'poppins',
+    label: 'Poppins',
+    stack: "'Poppins', 'Segoe UI', sans-serif",
+  },
+  {
+    id: 'lora',
+    label: 'Lora',
+    stack: "'Lora', 'Georgia', serif",
+  },
+]
 
-  // Tailwind color classes for easy use
-  classes: {
-    primary: {
-      50: 'bg-slate-50 text-slate-900 border-slate-200',
-      100: 'bg-slate-100 text-slate-800',
-      200: 'bg-slate-200 text-slate-700',
-      300: 'bg-slate-300 text-slate-600',
-      400: 'bg-slate-400 text-slate-500',
-      500: 'bg-slate-500 text-white',
-      600: 'bg-slate-600 text-white',
-      700: 'bg-slate-700 text-white',
-      800: 'bg-slate-800 text-white',
-      900: 'bg-slate-900 text-white',
-    },
+const FONT_LOOKUP = FONT_OPTIONS.reduce((acc, option) => {
+  acc[option.id] = option
+  return acc
+}, {})
 
-    admin: {
-      50: 'bg-gray-50 text-gray-900 border-gray-200',
-      100: 'bg-gray-100 text-gray-800',
-      200: 'bg-gray-200 text-gray-700',
-      300: 'bg-gray-300 text-gray-600',
-      400: 'bg-gray-400 text-gray-500',
-      500: 'bg-gray-500 text-white',
-      600: 'bg-gray-600 text-white',
-      700: 'bg-gray-700 text-white',
-      800: 'bg-gray-800 text-white',
-      900: 'bg-gray-900 text-white',
-    },
+const DEFAULT_STORE_THEME = {
+  colors: {
+    primary: '#1e293b',
+    secondary: '#475569',
+    accent: '#3b82f6',
+    text: '#0f172a',
+    background: '#f8fafc',
+    card: '#ffffff',
+  },
+  typography: {
+    fontId: 'inter',
+  },
+  corners: {
+    enabled: true,
+    radiusMultiplier: 1,
   },
 }
 
-// Helper functions for common color patterns
-export const getPrimaryColor = (shade = 600) => theme.colors.primary[shade]
-export const getAdminColor = (shade = 600) => theme.colors.admin[shade]
-export const getGrayColor = (shade = 600) => theme.colors.gray[shade]
-export const getSlateColor = (shade = 600) => theme.colors.slate[shade]
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max)
+}
 
-// Common color combinations
-export const colorCombinations = {
-  // Storefront accent colors
-  storefront: {
-    hover: 'hover:text-slate-600',
-    accent: 'text-slate-600',
-    accentHover: 'hover:text-slate-700',
-    background: 'bg-slate-50',
-    border: 'border-slate-200',
-  },
+function hexToRgb(hex) {
+  if (!hex) return null
+  const normalized = hex.length === 4
+    ? `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`
+    : hex
+  const value = normalized.replace('#', '')
+  const int = parseInt(value, 16)
+  if (Number.isNaN(int)) return null
+  return {
+    r: (int >> 16) & 255,
+    g: (int >> 8) & 255,
+    b: int & 255,
+  }
+}
 
-  // Admin accent colors (grey)
-  admin: {
-    hover: 'hover:text-gray-600',
-    accent: 'text-gray-600',
-    accentHover: 'hover:text-gray-700',
-    background: 'bg-gray-50',
-    border: 'border-gray-200',
-  },
+function rgbToHex({ r, g, b }) {
+  const toHex = (channel) => channel.toString(16).padStart(2, '0')
+  return `#${toHex(clamp(Math.round(channelSafe(r)), 0, 255))}${toHex(clamp(Math.round(channelSafe(g)), 0, 255))}${toHex(clamp(Math.round(channelSafe(b)), 0, 255))}`
+}
 
-  // Loading states
-  loading: {
-    primary: 'border-slate-600',
-    admin: 'border-gray-600',
-  },
+function channelSafe(value) {
+  return Number.isFinite(value) ? value : 0
+}
 
-  // Interactive elements
-  interactive: {
-    primary: 'text-slate-600 hover:text-slate-700',
-    admin: 'text-gray-600 hover:text-gray-700',
-  },
+function mixChannel(channel, target, factor) {
+  return channel + (target - channel) * factor
+}
 
-  // Gradients
-  gradients: {
-    storefront: {
-      button: 'hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 hover:text-white',
-      buttonOutline: 'hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 hover:text-white hover:border-transparent',
-      background: 'bg-gradient-to-r from-slate-600 to-slate-700',
+function lighten(hex, factor = 0.1) {
+  const rgb = hexToRgb(hex)
+  if (!rgb) return hex
+  return rgbToHex({
+    r: mixChannel(rgb.r, 255, factor),
+    g: mixChannel(rgb.g, 255, factor),
+    b: mixChannel(rgb.b, 255, factor),
+  })
+}
+
+function darken(hex, factor = 0.1) {
+  const rgb = hexToRgb(hex)
+  if (!rgb) return hex
+  return rgbToHex({
+    r: mixChannel(rgb.r, 0, factor),
+    g: mixChannel(rgb.g, 0, factor),
+    b: mixChannel(rgb.b, 0, factor),
+  })
+}
+
+function getContrastColor(hex) {
+  const rgb = hexToRgb(hex)
+  if (!rgb) return '#ffffff'
+  const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255
+  return luminance > 0.6 ? '#0f172a' : '#ffffff'
+}
+
+function ensureHex(color, fallback) {
+  if (typeof color !== 'string') return fallback
+  return HEX_COLOR_REGEX.test(color.trim()) ? color.trim() : fallback
+}
+
+function ensureFontId(fontId) {
+  return FONT_LOOKUP[fontId] ? fontId : DEFAULT_STORE_THEME.typography.fontId
+}
+
+function ensureRadiusMultiplier(value) {
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value)
+    if (!Number.isNaN(parsed)) {
+      value = parsed
+    }
+  }
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    value = DEFAULT_STORE_THEME.corners.radiusMultiplier
+  }
+  return clamp(Math.abs(value), 0, 4)
+}
+
+function sanitizeThemeInput(partialTheme = {}) {
+  const colors = partialTheme.colors || {}
+  const typography = partialTheme.typography || partialTheme.font
+  const corners = partialTheme.corners || partialTheme.radius
+
+  const sanitizedColors = {
+    primary: ensureHex(colors.primary, DEFAULT_STORE_THEME.colors.primary),
+    secondary: ensureHex(colors.secondary, DEFAULT_STORE_THEME.colors.secondary),
+    accent: ensureHex(colors.accent, DEFAULT_STORE_THEME.colors.accent),
+    text: ensureHex(colors.text, DEFAULT_STORE_THEME.colors.text),
+    background: ensureHex(colors.background, DEFAULT_STORE_THEME.colors.background),
+    card: ensureHex(colors.card, DEFAULT_STORE_THEME.colors.card),
+  }
+
+  const sanitizedTypography = {
+    fontId: ensureFontId(typography?.fontId ?? typography?.font ?? typography?.id),
+  }
+
+  const sanitizedCorners = {
+    enabled: corners?.enabled !== undefined ? Boolean(corners.enabled) : DEFAULT_STORE_THEME.corners.enabled,
+    radiusMultiplier: ensureRadiusMultiplier(corners?.radiusMultiplier ?? corners?.multiplier ?? corners?.value),
+  }
+
+  return {
+    colors: sanitizedColors,
+    typography: sanitizedTypography,
+    corners: sanitizedCorners,
+  }
+}
+
+function deriveThemeDetails(theme) {
+  const { colors, typography, corners } = theme
+  const { fontId } = typography
+  const fontOption = FONT_LOOKUP[fontId] || FONT_LOOKUP[DEFAULT_STORE_THEME.typography.fontId]
+  const radiusBase = corners.enabled ? corners.radiusMultiplier * BASE_RADIUS_PX : 0
+
+  const derivedColors = {
+    onPrimary: getContrastColor(colors.primary),
+    onSecondary: getContrastColor(colors.secondary),
+    primaryHover: darken(colors.primary, 0.12),
+    secondaryHover: darken(colors.secondary, 0.12),
+    accentSoft: lighten(colors.accent, 0.4),
+    background: colors.background,
+    surface: '#ffffff',
+    mutedText: lighten(colors.text, 0.35),
+  }
+
+  return {
+    colors: derivedColors,
+    typography: {
+      fontFamily: fontOption.stack,
+      fontLabel: fontOption.label,
     },
-    admin: {
-      button: 'hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 hover:text-white',
-      buttonOutline: 'hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 hover:text-white hover:border-transparent',
-      background: 'bg-gradient-to-r from-gray-600 to-gray-700',
+    corners: {
+      radiusPx: radiusBase,
+      radiusSm: corners.enabled ? Math.max(radiusBase * 0.5, 2) : 0,
+      radiusLg: corners.enabled ? radiusBase * 1.5 : 0,
     },
-  },
+  }
+}
+
+function buildCssVariables(theme) {
+  const base = sanitizeThemeInput(theme)
+  const derived = deriveThemeDetails(base)
+
+  return {
+    '--storefront-color-primary': base.colors.primary,
+    '--storefront-color-primary-hover': derived.colors.primaryHover,
+    '--storefront-color-primary-contrast': derived.colors.onPrimary,
+    '--storefront-color-secondary': base.colors.secondary,
+    '--storefront-color-secondary-hover': derived.colors.secondaryHover,
+    '--storefront-color-secondary-contrast': derived.colors.onSecondary,
+    '--storefront-color-accent': base.colors.accent,
+    '--storefront-color-accent-soft': derived.colors.accentSoft,
+    '--storefront-color-text': base.colors.text,
+    '--storefront-color-text-muted': derived.colors.mutedText,
+    '--storefront-color-background': derived.colors.background,
+    '--storefront-color-surface': derived.colors.surface,
+    '--storefront-color-card': base.colors.card,
+    '--storefront-font-family': derived.typography.fontFamily,
+    '--storefront-radius-base': `${derived.corners.radiusPx}px`,
+    '--storefront-radius-sm': `${derived.corners.radiusSm}px`,
+    '--storefront-radius-lg': `${derived.corners.radiusLg}px`,
+  }
+}
+
+function resolveStorefrontTheme(partialTheme = {}) {
+  const sanitized = sanitizeThemeInput(partialTheme.theme ?? partialTheme)
+  const merged = {
+    ...DEFAULT_STORE_THEME,
+    ...sanitized,
+    colors: {
+      ...DEFAULT_STORE_THEME.colors,
+      ...sanitized.colors,
+    },
+    typography: {
+      ...DEFAULT_STORE_THEME.typography,
+      ...sanitized.typography,
+    },
+    corners: {
+      ...DEFAULT_STORE_THEME.corners,
+      ...sanitized.corners,
+    },
+  }
+
+  const { typography, corners } = deriveThemeDetails(merged)
+
+  return {
+    ...merged,
+    typography: {
+      ...merged.typography,
+      fontFamily: typography.fontFamily,
+      fontLabel: typography.fontLabel,
+    },
+    corners: {
+      ...merged.corners,
+      radiusPx: corners.radiusPx,
+      radiusSm: corners.radiusSm,
+      radiusLg: corners.radiusLg,
+    },
+    meta: {
+      updatedAt: partialTheme.updatedAt ?? null,
+    },
+    cssVariables: buildCssVariables(merged),
+  }
+}
+
+export {
+  BASE_RADIUS_PX,
+  DEFAULT_STORE_THEME,
+  FONT_OPTIONS,
+  HEX_COLOR_REGEX,
+  THEME_KV_KEY,
+  buildCssVariables,
+  deriveThemeDetails,
+  resolveStorefrontTheme,
+  sanitizeThemeInput,
 }

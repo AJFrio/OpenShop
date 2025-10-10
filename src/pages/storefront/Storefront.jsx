@@ -50,12 +50,18 @@ export function Storefront() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen storefront-surface">
         <Navbar />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600 mx-auto mb-4"></div>
-            <p className="text-slate-600">Loading products...</p>
+            <div
+              className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+              style={{
+                borderColor: 'var(--storefront-color-primary)',
+                borderBottomColor: 'transparent',
+              }}
+            ></div>
+            <p className="storefront-subtle">Loading products...</p>
           </div>
         </div>
       </div>
@@ -63,7 +69,7 @@ export function Storefront() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen storefront-surface">
       <Navbar />
       
       {/* Hero Section */}
@@ -72,7 +78,7 @@ export function Storefront() {
       {/* Featured Products Carousel */}
       {featuredProducts.length > 0 && (
         <section className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">
+          <h2 className="text-3xl font-bold storefront-heading mb-8 text-center">
             Featured Products
           </h2>
           <Carousel products={featuredProducts} />
@@ -104,13 +110,13 @@ export function Storefront() {
       <section className="max-w-8xl mx-auto px-3 sm:px-4 lg:px-6 pb-16">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-slate-400 mb-4">
+            <div className="storefront-subtle mb-4">
               <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-slate-900 mb-2">No products found</h3>
-            <p className="text-slate-600 mb-6">
+            <h3 className="text-xl font-semibold storefront-heading mb-2">No products found</h3>
+            <p className="storefront-subtle mb-6">
               {selectedCollection 
                 ? 'No products in this collection yet.' 
                 : 'No products available at the moment.'

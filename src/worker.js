@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { KVManager } from './lib/kv.js'
 import { verifyAdminAuth, hashToken } from './middleware/auth.js'
+import { DEFAULT_STORE_THEME, FONT_OPTIONS, HEX_COLOR_REGEX, THEME_KV_KEY, resolveStorefrontTheme, sanitizeThemeInput } from './lib/theme.js'
 import Stripe from 'stripe'
 
 // Helper function to get KV namespace dynamically
@@ -57,6 +58,8 @@ function getKVNamespace(env) {
 }
 
 const app = new Hono()
+const THEME_COLOR_KEYS = ['primary', 'secondary', 'accent', 'text', 'background', 'card']
+const ALLOWED_FONT_IDS = new Set(FONT_OPTIONS.map((font) => font.id))
 
 function getCrypto() {
   const cryptoObj = typeof globalThis !== 'undefined' ? globalThis.crypto : null
@@ -82,6 +85,43 @@ function generateSessionToken() {
     return cryptoObj.randomUUID().replace(/-/g, '')
   }
   return randomHex(32)
+}
+
+function validateThemePayload(payload) {
+  if (!payload || typeof payload !== 'object') {
+    return { valid: false, message: 'Invalid theme payload' }
+  }
+
+  const colors = payload.colors
+  if (!colors || typeof colors !== 'object') {
+    return { valid: false, message: 'Missing colors object' }
+  }
+
+  for (const key of THEME_COLOR_KEYS) {
+    const value = typeof colors[key] === 'string' ? colors[key].trim() : ''
+    if (!HEX_COLOR_REGEX.test(value)) {
+      return { valid: false, message: `Invalid ${key} color` }
+    }
+  }
+
+  const fontCandidate = payload.typography?.fontId ?? payload.typography?.font ?? payload.fontId ?? payload.font
+  if (fontCandidate && !ALLOWED_FONT_IDS.has(fontCandidate)) {
+    return { valid: false, message: 'Invalid font selection' }
+  }
+
+  if (payload.corners) {
+    if (payload.corners.radiusMultiplier !== undefined) {
+      const parsed = Number(payload.corners.radiusMultiplier)
+      if (!Number.isFinite(parsed) || parsed < 0 || parsed > 4) {
+        return { valid: false, message: 'Radius multiplier must be between 0 and 4' }
+      }
+    }
+    if (payload.corners.enabled !== undefined && typeof payload.corners.enabled !== 'boolean') {
+      return { valid: false, message: 'Corners enabled must be a boolean' }
+    }
+  }
+
+  return { valid: true }
 }
 
 // CORS middleware
@@ -244,6 +284,29 @@ app.get('/api/collections/:id/products', async (c) => {
   } catch (error) {
     console.error('Error fetching collection products:', error)
     return c.json({ error: 'Failed to fetch collection products' }, 500)
+  }
+})
+
+// Get storefront theme (public endpoint)
+app.get('/api/storefront/theme', async (c) => {
+  try {
+    const namespace = getKVNamespace(c.env)
+    const kvTheme = namespace ? await namespace.get(THEME_KV_KEY) : null
+    let storedTheme = null
+
+    if (kvTheme) {
+      try {
+        storedTheme = JSON.parse(kvTheme)
+      } catch (parseError) {
+        console.error('Invalid theme JSON in KV, falling back to defaults:', parseError)
+      }
+    }
+
+    const resolvedTheme = resolveStorefrontTheme(storedTheme || DEFAULT_STORE_THEME)
+    return c.json(resolvedTheme)
+  } catch (error) {
+    console.error('Error fetching storefront theme:', error)
+    return c.json(resolveStorefrontTheme(DEFAULT_STORE_THEME), 200)
   }
 })
 
@@ -1370,6 +1433,77 @@ app.delete('/api/admin/products/:id', async (c) => {
   } catch (error) {
     console.error('Error deleting product:', error)
     return c.json({ error: 'Failed to delete product' }, 500)
+  }
+})
+
+// Admin get storefront theme
+app.get('/api/admin/storefront/theme', async (c) => {
+  try {
+    const namespace = getKVNamespace(c.env)
+    if (!namespace) {
+      return c.json({ error: 'KV namespace unavailable' }, 500)
+    }
+
+    const stored = await namespace.get(THEME_KV_KEY)
+    let parsed = null
+
+    if (stored) {
+      try {
+        parsed = JSON.parse(stored)
+      } catch (parseError) {
+        console.error('Invalid storefront theme JSON in KV:', parseError)
+        parsed = null
+      }
+    }
+
+    return c.json(resolveStorefrontTheme(parsed || DEFAULT_STORE_THEME))
+  } catch (error) {
+    console.error('Error fetching admin storefront theme:', error)
+    return c.json({ error: 'Failed to load storefront theme' }, 500)
+  }
+})
+
+// Admin update storefront theme
+app.put('/api/admin/storefront/theme', async (c) => {
+  try {
+    const payload = await c.req.json()
+    const validation = validateThemePayload(payload)
+    if (!validation.valid) {
+      return c.json({ error: validation.message }, 400)
+    }
+
+    const namespace = getKVNamespace(c.env)
+    if (!namespace) {
+      return c.json({ error: 'KV namespace unavailable' }, 500)
+    }
+
+    const sanitized = sanitizeThemeInput(payload)
+    const record = {
+      theme: sanitized,
+      updatedAt: Date.now(),
+    }
+
+    await namespace.put(THEME_KV_KEY, JSON.stringify(record))
+    return c.json(resolveStorefrontTheme(record))
+  } catch (error) {
+    console.error('Error updating storefront theme:', error)
+    return c.json({ error: 'Failed to update storefront theme' }, 500)
+  }
+})
+
+// Admin reset storefront theme
+app.delete('/api/admin/storefront/theme', async (c) => {
+  try {
+    const namespace = getKVNamespace(c.env)
+    if (!namespace) {
+      return c.json({ error: 'KV namespace unavailable' }, 500)
+    }
+
+    await namespace.delete(THEME_KV_KEY)
+    return c.json(resolveStorefrontTheme(DEFAULT_STORE_THEME))
+  } catch (error) {
+    console.error('Error resetting storefront theme:', error)
+    return c.json({ error: 'Failed to reset storefront theme' }, 500)
   }
 })
 
