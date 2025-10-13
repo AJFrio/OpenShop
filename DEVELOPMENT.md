@@ -6,6 +6,8 @@
 - Node.js 20.19+ (current version warnings can be ignored for now)
 - npm or yarn
 - Cloudflare account (for deployment)
+- Wrangler CLI 4.x (installed automatically when running the setup script)
+- Stripe CLI (optional but recommended for OAuth during setup)
 - Stripe account (for payments)
 
 ### Local Development Setup
@@ -121,11 +123,13 @@ functions/
 ### Environment Variables
 Create \`.env\` file with:
 \`\`\`env
-CLOUDFLARE_API_TOKEN=your_token
 CLOUDFLARE_ACCOUNT_ID=your_account_id
 STRIPE_SECRET_KEY=sk_test_...
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_MODE=test
 SITE_URL=http://localhost:5173
+ADMIN_PASSWORD=admin123
+DRIVE_ROOT_FOLDER=OpenShop
 \`\`\`
 
 ### Wrangler Configuration

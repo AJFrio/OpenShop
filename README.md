@@ -62,6 +62,8 @@ graph TB
 
 - **Node.js 18+** - [Download here](https://nodejs.org)
 - **Cloudflare Account** - [Sign up free](https://dash.cloudflare.com/sign-up)
+- **Wrangler CLI 4.x** - Installed automatically if missing (`npm install -g wrangler`)
+- **Stripe CLI** (optional but recommended) - [Install guide](https://stripe.com/docs/stripe-cli)
 - **Stripe Account** - [Create account](https://stripe.com)
 
 ### One-Command Setup
@@ -80,36 +82,16 @@ graph TB
    
    **Setup prompts:**
    - **Project Name** - Unique name for your store (e.g., "my-electronics-store")
-   - **Cloudflare API Token** - [Get token here](https://dash.cloudflare.com/?to=/:account/api-tokens)
-     <details>
-       <summary><strong>Required token permissions</strong></summary>
-
-       - **Account — API settings**
-         - Containers: Edit
-         - Secrets Store: Edit
-         - Workers Pipelines: Edit
-         - Workers AI: Edit
-         - Queues: Edit
-         - Vectorize: Edit
-         - Hyperdrive: Edit
-         - Cloudchamber: Edit
-         - D1: Edit
-         - Workers R2 Storage: Edit
-         - Workers KV Storage: Edit
-         - Workers Scripts: Edit
-         - Account Settings: Read
-       - **All zones**
-         - Workers Routes: Edit
-       - **All users**
-         - Memberships: Read
-         - User Details: Read
-     </details>
-   - **Cloudflare Account ID** - Found in your Cloudflare dashboard
-   - **Stripe Secret Key** - From your Stripe dashboard
-   - **Stripe Publishable Key** - From your Stripe dashboard
+   - **Cloudflare OAuth** - Wrangler opens a browser window for you to authorize access
+   - **Account Selection** - Choose the Cloudflare account to deploy into
+   - **Stripe Mode** - Select `test` (default) or `live`
+   - **Stripe OAuth (Stripe CLI)** - Launches Stripe CLI login; automatically captures keys when available
+   - **Stripe Publishable Key** - Detected automatically when provided by Stripe CLI, otherwise prompted
    - **Admin Password** - Custom password (default: admin123)
-   - *(Optional)* **Gemini API Key** - Required for AI image generation in admin
-   - *(Optional)* **Google OAuth Client ID/Secret** - Required to upload images to Google Drive from admin
+   - *(Optional)* **Gemini API Key** - Enables AI image generation in the admin
+   - *(Optional)* **Google OAuth Client ID/Secret** - Enables Google Drive uploads from the admin interface
+
+   > **Tip:** Install the [Stripe CLI](https://stripe.com/docs/stripe-cli) beforehand to complete the OAuth flow without copying keys manually. If the CLI is unavailable, the setup script falls back to prompting for your Stripe keys.
 
 3. **🎉 Your Store is Live!**
    
@@ -301,26 +283,26 @@ Create a `.env` file for local development:
 
 ```env
 # Cloudflare Configuration
-CLOUDFLARE_API_TOKEN=your_cloudflare_api_token
 CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
 
-# Stripe Configuration  
+# Stripe Configuration
 STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
+STRIPE_MODE=test
 
 # Admin Configuration
 ADMIN_PASSWORD=your_secure_admin_password
 
 # Site Configuration
 SITE_URL=https://your-project.workers.dev
+DRIVE_ROOT_FOLDER=OpenShop
 
 # Optional: AI (Gemini) & Google Drive
 # Used for admin-side AI image generation and Drive uploads
 GEMINI_API_KEY=your_gemini_api_key
 GOOGLE_CLIENT_ID=your_google_oauth_client_id
 GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
-# Optional: customize the root folder created/used in Drive
-DRIVE_ROOT_FOLDER=OpenShop
+GOOGLE_API_KEY=your_google_browser_api_key
 ```
 
 ### Cloudflare Setup
@@ -534,7 +516,7 @@ src/lib/
 ```bash
 # Error: You are logged in with an API Token
 ```
-**Solution**: Script now uses API Token directly without OAuth login
+**Solution**: Unset any existing `CLOUDFLARE_API_TOKEN` environment variable and run `wrangler logout` so the setup flow can complete the OAuth login.
 
 **Issue: Empty KV ID in wrangler.toml**
 ```bash
