@@ -1,0 +1,30 @@
+name = "your-store-name"
+main = "src/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# KV namespace binding
+[[kv_namespaces]]
+binding = "YOUR_STORE_KV"
+id = "your-kv-namespace-id"
+
+# Environment variables
+[vars]
+SITE_URL = "https://your-store-name.workers.dev"
+ADMIN_PASSWORD = "your-admin-password"
+DRIVE_ROOT_FOLDER = "OpenShop"
+STRIPE_SECRET_KEY = "your-stripe-secret-key"
+GOOGLE_CLIENT_ID = "your-google-client-id"
+GOOGLE_CLIENT_SECRET = "your-google-client-secret"
+GOOGLE_API_KEY = "your-google-api-key"
+GEMINI_API_KEY = "your-gemini-api-key"
+
+# Static assets (automatically creates ASSETS binding)
+[assets]
+directory = "dist"
+binding = "ASSETS"
+
+# Observability
+[observability]
+enabled = true
+head_sampling_rate = 1
