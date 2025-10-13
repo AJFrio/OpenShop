@@ -47,13 +47,33 @@ async function setup() {
   
   console.log(`✅ Using sanitized project name: ${sanitizedProjectName}\n`)
 
+  // Ensure toml directory exists
+  const tomlDir = 'toml'
+  if (!existsSync(tomlDir)) {
+    execSync(`mkdir ${tomlDir}`, { stdio: 'ignore' })
+    console.log('✅ Created toml/ directory\n')
+  }
+
   // Collect required credentials
   console.log('🔑 Required Credentials:\n')
   
   const cloudflareApiToken = await question('Cloudflare API Token: ')
   const cloudflareAccountId = await question('Cloudflare Account ID: ')
+  
+  console.log('\n🔑 Stripe Configuration:\n')
   const stripeSecretKey = await question('Stripe Secret Key: ')
   const stripePublishableKey = await question('Stripe Publishable Key: ')
+  
+  console.log('\n🔑 Google OAuth & Drive (optional - press Enter to skip):\n')
+  const googleClientId = await question('Google Client ID (optional): ') || ''
+  const googleClientSecret = await question('Google Client Secret (optional): ') || ''
+  const googleApiKey = await question('Google API Key (optional): ') || ''
+  const driveRootFolder = await question('Drive Root Folder (default: OpenShop): ') || 'OpenShop'
+  
+  console.log('\n🔑 AI Configuration (optional - press Enter to skip):\n')
+  const geminiApiKey = await question('Gemini API Key (optional): ') || ''
+  
+  console.log('\n🔑 Admin Access:\n')
   const adminPassword = await question('Admin Password (default: admin123): ') || 'admin123'
   
   rl.close()
@@ -80,10 +100,9 @@ async function setup() {
     console.log('⚠️  Authentication check failed, but continuing with API token...')
   }
 
-  // Check if wrangler.toml exists, if not create a basic template
-  if (!existsSync('wrangler.toml')) {
-    console.log('\n⚠️  wrangler.toml not found, creating from template...')
-    const basicWranglerConfig = `name = "openshop"
+  // Create a basic template for wrangler.toml in root
+  console.log('\n📝 Creating wrangler.toml for deployment...')
+  const basicWranglerConfig = `name = "${sanitizedProjectName}"
 main = "src/worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
@@ -104,16 +123,10 @@ binding = "ASSETS"
 enabled = true
 head_sampling_rate = 1
 `
-    writeFileSync('wrangler.toml', basicWranglerConfig)
-    console.log('✅ Created wrangler.toml from template')
-  }
-
-  // Update wrangler.toml with project name
-  console.log('\n📝 Configuring wrangler.toml with project name...')
-  let wranglerConfig = readFileSync('wrangler.toml', 'utf8')
-  wranglerConfig = wranglerConfig.replace(/name = ".*?"/, `name = "${sanitizedProjectName}"`)
-  writeFileSync('wrangler.toml', wranglerConfig)
-  console.log('✅ Updated wrangler.toml with project name')
+  writeFileSync('wrangler.toml', basicWranglerConfig)
+  console.log('✅ Created wrangler.toml with project name')
+  
+  let wranglerConfig = basicWranglerConfig
 
   // Build and deploy Worker (initial deployment without KV)
   console.log('\n🔧 Building and deploying Cloudflare Worker...')
@@ -173,75 +186,80 @@ id = "${kvId}"
   console.log('\n🔧 Redeploying Worker with KV namespace...')
   execCommand(`wrangler deploy`, `Redeploying Worker "${sanitizedProjectName}" with KV binding`)
 
-  // Update wrangler.toml with admin password as plaintext variable
-  console.log('\n📝 Adding admin password to wrangler.toml...')
-  wranglerConfig = readFileSync('wrangler.toml', 'utf8')
-
-  // Add admin password to the [vars] section
-  if (wranglerConfig.includes('[vars]')) {
-    // Insert before the closing bracket of [vars] section
-    wranglerConfig = wranglerConfig.replace(
-      /(\[vars\][\s\S]*?)(\n\[|$)/,
-      `$1ADMIN_PASSWORD = "${adminPassword}"\n$2`
-    )
-  } else {
-    // Create [vars] section if it doesn't exist
-    wranglerConfig = wranglerConfig.replace(
-      '# Environment variables',
-      `[vars]\nADMIN_PASSWORD = "${adminPassword}"\n\n# Environment variables`
-    )
-  }
-
-  writeFileSync('wrangler.toml', wranglerConfig)
-  console.log('✅ Added admin password to wrangler.toml')
-
-  // Redeploy Worker with admin password
-  console.log('\n🔧 Redeploying Worker with admin password...')
-  execCommand(`wrangler deploy`, `Redeploying Worker "${sanitizedProjectName}" with admin password`)
-
   // Get the Worker URL with custom name
   const workerUrl = `https://${sanitizedProjectName}.workers.dev`
   
-  // Update wrangler.toml with site URL
+  // Update wrangler.toml with all environment variables
+  console.log('\n📝 Adding environment variables to wrangler.toml...')
   wranglerConfig = readFileSync('wrangler.toml', 'utf8')
-  wranglerConfig = wranglerConfig.replace('SITE_URL = ""', `SITE_URL = "${workerUrl}"`)
+  
+  // Build the complete vars section
+  let varsSection = `SITE_URL = "${workerUrl}"\n`
+  varsSection += `ADMIN_PASSWORD = "${adminPassword}"\n`
+  varsSection += `DRIVE_ROOT_FOLDER = "${driveRootFolder}"\n`
+  varsSection += `STRIPE_SECRET_KEY = "${stripeSecretKey}"\n`
+  
+  if (googleClientId) varsSection += `GOOGLE_CLIENT_ID = "${googleClientId}"\n`
+  if (googleClientSecret) varsSection += `GOOGLE_CLIENT_SECRET = "${googleClientSecret}"\n`
+  if (googleApiKey) varsSection += `GOOGLE_API_KEY = "${googleApiKey}"\n`
+  if (geminiApiKey) varsSection += `GEMINI_API_KEY = "${geminiApiKey}"\n`
+  
+  // Replace the entire SITE_URL line and add all variables
+  wranglerConfig = wranglerConfig.replace(
+    /SITE_URL = ""/,
+    varsSection.trim()
+  )
+  
   writeFileSync('wrangler.toml', wranglerConfig)
-  console.log('✅ Updated wrangler.toml with worker URL')
+  console.log('✅ Added all environment variables to wrangler.toml')
 
-  // Set secrets (excluding admin password which is now a plaintext variable)
-  console.log('\n🔒 Setting up secrets...')
-  process.env.STRIPE_SECRET_KEY = stripeSecretKey
-  process.env.VITE_STRIPE_PUBLISHABLE_KEY = stripePublishableKey
-
-  execCommand(`echo "${stripeSecretKey}" | wrangler secret put STRIPE_SECRET_KEY`, 'Setting Stripe secret key')
-  execCommand(`echo "${stripePublishableKey}" | wrangler secret put VITE_STRIPE_PUBLISHABLE_KEY`, 'Setting Stripe publishable key')
-  console.log('✅ Admin password set as plaintext variable (not a secret)')
+  // Redeploy Worker with all configuration
+  console.log('\n🔧 Redeploying Worker with complete configuration...')
+  execCommand(`wrangler deploy`, `Redeploying Worker "${sanitizedProjectName}" with full configuration`)
+  
+  // Save the final configuration to toml directory
+  const tomlPath = `toml/${sanitizedProjectName}.toml`
+  writeFileSync(tomlPath, wranglerConfig)
+  console.log(`✅ Saved configuration to ${tomlPath}`)
 
   // Create .env file for local development
-  const envContent = `# Local development environment
+  console.log('\n📝 Creating .env files for local development...')
+  let envContent = `# Local development environment
 CLOUDFLARE_API_TOKEN=${cloudflareApiToken}
 CLOUDFLARE_ACCOUNT_ID=${cloudflareAccountId}
 STRIPE_SECRET_KEY=${stripeSecretKey}
 VITE_STRIPE_PUBLISHABLE_KEY=${stripePublishableKey}
 ADMIN_PASSWORD=${adminPassword}
 SITE_URL=${workerUrl}
+DRIVE_ROOT_FOLDER=${driveRootFolder}
 `
+  if (googleClientId) envContent += `GOOGLE_CLIENT_ID=${googleClientId}\n`
+  if (googleClientSecret) envContent += `GOOGLE_CLIENT_SECRET=${googleClientSecret}\n`
+  if (googleApiKey) envContent += `GOOGLE_API_KEY=${googleApiKey}\n`
+  if (geminiApiKey) envContent += `GEMINI_API_KEY=${geminiApiKey}\n`
+  
   writeFileSync('.env', envContent)
   console.log('✅ Created .env file for local development')
+
+  const perSiteEnvPath = `.env.${sanitizedProjectName}`
+  writeFileSync(perSiteEnvPath, envContent)
+  console.log(`✅ Saved site-specific environment to ${perSiteEnvPath}`)
 
   console.log('\n🎉 Setup completed successfully!')
   console.log(`\n📱 Your "${projectName}" store is now live at: ${workerUrl}`)
   console.log(`🔧 Admin dashboard: ${workerUrl}/admin`)
   console.log(`🗃️ KV Namespace: ${kvNamespaceName}`)
   console.log(`⚡ Worker: ${sanitizedProjectName}`)
+  console.log(`📋 Configuration saved: toml/${sanitizedProjectName}.toml`)
   console.log('\n📝 Next steps:')
   console.log('1. Visit your admin dashboard to add products and collections')
   console.log(`2. Login with password: ${adminPassword}`)
   console.log('3. Configure your Stripe account with webhooks (optional)')
   console.log('4. Customize your storefront design')
   console.log('\n💡 Use "npm run dev" for local development')
-  console.log('💡 Use "npm run deploy" to deploy updates')
-  console.log(`\n🏪 To create another store, run setup again with a different project name!`)
+  console.log(`💡 Use "npm run deploy ${sanitizedProjectName}" to deploy updates to this site`)
+  console.log(`💡 Use "npm run deploy" to see all sites and choose which to deploy`)
+  console.log(`\n🏪 To create another store, run "npm run setup" again with a different project name!`)
 }
 
 setup().catch(error => {

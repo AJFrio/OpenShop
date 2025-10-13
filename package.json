@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "setup": "node scripts/setup.js",
     "deploy": "node scripts/deploy.js",
+    "sites": "node scripts/list-sites.js",
     "worker:dev": "wrangler dev --local",
     "wrangler:login": "wrangler auth login"
   },

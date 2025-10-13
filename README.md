@@ -412,6 +412,29 @@ wrangler deploy
 3. **Update Configuration** - Environment variables and bindings applied
 4. **Global Distribution** - Deployed to Cloudflare's edge network
 
+### Multi-Site Deployment
+
+OpenShop supports managing multiple sites from one codebase:
+
+```bash
+# List all configured sites
+npm run sites
+
+# Deploy a specific site
+npm run deploy my-store-name
+
+# Interactive site selection
+npm run deploy
+```
+
+Each site maintains its own:
+- Worker deployment
+- KV namespace (separate data)
+- Configuration (`toml/<site-name>.toml`)
+- Admin credentials and settings
+
+**📖 See [MULTI-SITE.md](MULTI-SITE.md) for complete documentation**
+
 ---
 
 ## 🔒 Security Architecture
