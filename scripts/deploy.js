@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execSync } from 'child_process'
-import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'fs'
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs'
 import { join } from 'path'
 import { createInterface } from 'readline'
 
@@ -68,7 +68,7 @@ async function deploy() {
 
   // Get site name from command line argument or prompt
   let siteName = process.argv[2]
-  
+
   if (!siteName) {
     const sites = getAvailableSites()
     
@@ -92,10 +92,14 @@ async function deploy() {
     } else {
       siteName = answer.trim()
     }
+  } else {
+    rl.close()
   }
 
   // Select and load the toml file
   const tomlContent = selectTomlFile(siteName)
+
+  applySiteEnv(siteName)
   
   // Read project name from the selected toml
   let projectName = siteName
@@ -115,6 +119,33 @@ async function deploy() {
   console.log('\n🎉 Deployment completed successfully!')
   console.log(`\n💡 Your changes are now live at: https://${projectName}.workers.dev`)
   process.exit(0)
+}
+
+function applySiteEnv(siteName) {
+  const envCandidates = [`.env.${siteName}`, join('env', `${siteName}.env`)]
+  const matchedPath = envCandidates.find(path => existsSync(path))
+
+  if (!matchedPath) {
+    console.warn(`⚠️  No site-specific .env file found for ${siteName}.`)
+    console.warn('    Ensure VITE_* values are configured before deploying this site.')
+    return
+  }
+
+  const envContent = readFileSync(matchedPath, 'utf8')
+  writeFileSync('.env', envContent)
+
+  envContent
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line && !line.startsWith('#'))
+    .forEach(line => {
+      const [key, ...valueParts] = line.split('=')
+      if (!key || valueParts.length === 0) return
+      const value = valueParts.join('=').trim()
+      process.env[key.trim()] = value
+    })
+
+  console.log(`🌱 Applied environment variables from ${matchedPath}`)
 }
 
 deploy().catch(error => {

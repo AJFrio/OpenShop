@@ -223,7 +223,7 @@ id = "${kvId}"
   console.log(`✅ Saved configuration to ${tomlPath}`)
 
   // Create .env file for local development
-  console.log('\n📝 Creating .env file for local development...')
+  console.log('\n📝 Creating .env files for local development...')
   let envContent = `# Local development environment
 CLOUDFLARE_API_TOKEN=${cloudflareApiToken}
 CLOUDFLARE_ACCOUNT_ID=${cloudflareAccountId}
@@ -240,6 +240,10 @@ DRIVE_ROOT_FOLDER=${driveRootFolder}
   
   writeFileSync('.env', envContent)
   console.log('✅ Created .env file for local development')
+
+  const perSiteEnvPath = `.env.${sanitizedProjectName}`
+  writeFileSync(perSiteEnvPath, envContent)
+  console.log(`✅ Saved site-specific environment to ${perSiteEnvPath}`)
 
   console.log('\n🎉 Setup completed successfully!')
   console.log(`\n📱 Your "${projectName}" store is now live at: ${workerUrl}`)
