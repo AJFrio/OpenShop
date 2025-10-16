@@ -416,7 +416,6 @@ export function StoreSettingsForm() {
               <a className="block rounded px-2 py-1 hover:text-gray-900" href="#about">About Page</a>
               <a className="block rounded px-2 py-1 hover:text-gray-900" href="#contact">Contact &amp; Support</a>
               <a className="block rounded px-2 py-1 hover:text-gray-900" href="#business">Business Details</a>
-              <a className="block rounded px-2 py-1 hover:text-gray-900" href="#preview">Quick Preview</a>
             </nav>
           </div>
         </aside>
@@ -918,42 +917,6 @@ export function StoreSettingsForm() {
                     placeholder="Country"
                   />
                 </div>
-              </div>
-            </div>
-          </section>
-
-          <section id="preview" className="space-y-4">
-            <div className="space-y-1">
-              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Quick Preview</h3>
-              <p className="text-sm text-gray-600">See how your logo renders in navigation surfaces.</p>
-            </div>
-            <div className="border rounded-lg p-4 bg-gray-50">
-              <div className="flex items-center gap-4">
-                {settings.logoType === 'text' ? (
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {settings.logoText || 'OpenShop'}
-                  </h1>
-                ) : (
-                  settings.logoImageUrl ? (
-                    <img
-                      src={settings.logoImageUrl}
-                      alt="Store Logo"
-                      className="h-12 max-w-48 object-contain"
-                      onError={(e) => {
-                        e.target.style.display = 'none'
-                        e.target.nextSibling.style.display = 'block'
-                      }}
-                    />
-                  ) : null
-                )}
-                {settings.logoType === 'image' && (
-                  <div
-                    className="h-12 w-48 bg-gray-200 flex items-center justify-center text-gray-500 text-sm"
-                    style={{ display: settings.logoImageUrl ? 'none' : 'flex' }}
-                  >
-                    Logo Preview
-                  </div>
-                )}
               </div>
             </div>
           </section>
