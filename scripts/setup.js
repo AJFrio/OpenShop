@@ -4,12 +4,36 @@ import { execSync } from 'child_process'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { createInterface } from 'readline'
 
+// --- Argument Parsing ---
+function parseArgs() {
+  const args = process.argv.slice(2)
+  const parsedArgs = {}
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]
+    if (arg.startsWith('--')) {
+      const key = arg.substring(2)
+      const nextArg = args[i + 1]
+      if (nextArg && !nextArg.startsWith('--')) {
+        parsedArgs[key] = nextArg
+        i++ // Skip the value
+      } else {
+        parsedArgs[key] = true // Flag without value
+      }
+    }
+  }
+  return parsedArgs
+}
+
 const rl = createInterface({
   input: process.stdin,
   output: process.stdout
 })
 
-function question(prompt) {
+function question(prompt, argValue) {
+  if (argValue !== undefined) {
+    console.log(`${prompt}${argValue}`)
+    return Promise.resolve(argValue)
+  }
   return new Promise(resolve => {
     rl.question(prompt, resolve)
   })
@@ -27,13 +51,15 @@ function execCommand(command, description) {
 }
 
 async function setup() {
+  const args = parseArgs()
+
   console.log('🚀 OpenShop Setup Wizard')
   console.log('========================\n')
 
   // Collect project configuration
   console.log('📋 Project Configuration:\n')
   
-  const projectName = await question('Project Name (e.g., my-store): ')
+  const projectName = await question('Project Name (e.g., my-store): ', args.name)
   if (!projectName || !projectName.trim()) {
     console.error('❌ Project name is required!')
     process.exit(1)
@@ -57,24 +83,24 @@ async function setup() {
   // Collect required credentials
   console.log('🔑 Required Credentials:\n')
   
-  const cloudflareApiToken = await question('Cloudflare API Token: ')
-  const cloudflareAccountId = await question('Cloudflare Account ID: ')
+  const cloudflareApiToken = await question('Cloudflare API Token: ', args.cloudflare_key)
+  const cloudflareAccountId = await question('Cloudflare Account ID: ', args.cloudflare_id)
   
   console.log('\n🔑 Stripe Configuration:\n')
-  const stripeSecretKey = await question('Stripe Secret Key: ')
-  const stripePublishableKey = await question('Stripe Publishable Key: ')
+  const stripeSecretKey = await question('Stripe Secret Key: ', args.stripe_sk)
+  const stripePublishableKey = await question('Stripe Publishable Key: ', args.stripe_pk)
   
   console.log('\n🔑 Google OAuth & Drive (optional - press Enter to skip):\n')
-  const googleClientId = await question('Google Client ID (optional): ') || ''
-  const googleClientSecret = await question('Google Client Secret (optional): ') || ''
-  const googleApiKey = await question('Google API Key (optional): ') || ''
-  const driveRootFolder = await question('Drive Root Folder (default: OpenShop): ') || 'OpenShop'
+  const googleClientId = await question('Google Client ID (optional): ', args.google_client_id) || ''
+  const googleClientSecret = await question('Google Client Secret (optional): ', args.google_client_secret) || ''
+  const googleApiKey = await question('Google API Key (optional): ', args.google_api_key) || ''
+  const driveRootFolder = await question('Drive Root Folder (default: OpenShop): ', args.drive_root_folder) || 'OpenShop'
   
   console.log('\n🔑 AI Configuration (optional - press Enter to skip):\n')
-  const geminiApiKey = await question('Gemini API Key (optional): ') || ''
+  const geminiApiKey = await question('Gemini API Key (optional): ', args.gemini_api_key) || ''
   
   console.log('\n🔑 Admin Access:\n')
-  const adminPassword = await question('Admin Password (default: admin123): ') || 'admin123'
+  const adminPassword = await question('Admin Password (default: admin123): ', args.admin_password)
   
   rl.close()
 
