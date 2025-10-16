@@ -343,7 +343,9 @@ export function StoreSettingsForm() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    if (e) {
+      e.preventDefault()
+    }
     setSaving(true)
 
     try {
@@ -390,22 +392,38 @@ export function StoreSettingsForm() {
 
   return (
     <>
-    <div className="w-full max-w-4xl mx-auto space-y-6">
+    <div className="w-full max-w-6xl mx-auto space-y-6">
       <div className="sticky top-0 z-20 px-6 py-4 bg-white/95 backdrop-blur border border-gray-200 rounded-lg flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">Store Settings</h2>
           <p className="text-sm text-gray-500">Manage storefront appearance, branding, and business details.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button type="submit" form="store-settings-form" disabled={headerDisabled}>
+          <Button type="button" onClick={handleSubmit} disabled={headerDisabled}>
             {saving ? 'Saving...' : 'Save changes'}
           </Button>
         </div>
       </div>
-      <Card className="w-full">
-        <CardContent className="p-6">
-          <form id="store-settings-form" onSubmit={handleSubmit} className="space-y-12">
-          <section className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
+      <div className="flex flex-col gap-6 xl:flex-row">
+        <aside className="xl:w-64 xl:flex-shrink-0">
+          <div className="sticky top-24 space-y-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase text-gray-500">Quick sections</p>
+            <nav className="space-y-1 text-sm text-gray-600">
+              <a className="block rounded px-2 py-1 hover:text-gray-900" href="#theme">Theme</a>
+              <a className="block rounded px-2 py-1 hover:text-gray-900" href="#identity">Brand Identity</a>
+              <a className="block rounded px-2 py-1 hover:text-gray-900" href="#info">Store Information</a>
+              <a className="block rounded px-2 py-1 hover:text-gray-900" href="#hero">Homepage Hero</a>
+              <a className="block rounded px-2 py-1 hover:text-gray-900" href="#about">About Page</a>
+              <a className="block rounded px-2 py-1 hover:text-gray-900" href="#contact">Contact &amp; Support</a>
+              <a className="block rounded px-2 py-1 hover:text-gray-900" href="#business">Business Details</a>
+              <a className="block rounded px-2 py-1 hover:text-gray-900" href="#preview">Quick Preview</a>
+            </nav>
+          </div>
+        </aside>
+        <Card className="flex-1">
+          <CardContent className="p-6">
+            <div className="space-y-12">
+          <section id="theme" className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-1">
                 <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Storefront Theme</h3>
@@ -589,7 +607,7 @@ export function StoreSettingsForm() {
               </div>
             </div>
           </section>
-          <section className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
+          <section id="identity" className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Brand Identity</h3>
               <p className="text-sm text-gray-600">Manage your logo preferences and establish your store voice.</p>
@@ -637,7 +655,7 @@ export function StoreSettingsForm() {
             </div>
           </section>
 
-          <section className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
+          <section id="info" className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Store Information</h3>
               <p className="text-sm text-gray-600">Update the name and short description used across the storefront.</p>
@@ -665,7 +683,7 @@ export function StoreSettingsForm() {
             </div>
           </section>
 
-          <section className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
+          <section id="hero" className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Homepage Hero</h3>
               <p className="text-sm text-gray-600">Craft the hero imagery and primary messaging visitors see first.</p>
@@ -722,7 +740,7 @@ export function StoreSettingsForm() {
             </div>
           </section>
 
-          <section className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
+          <section id="about" className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">About Page</h3>
               <p className="text-sm text-gray-600">Tell your story with dedicated hero imagery and rich content.</p>
@@ -805,7 +823,7 @@ export function StoreSettingsForm() {
             </div>
           </section>
 
-          <section className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
+          <section id="contact" className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Contact & Support</h3>
               <p className="text-sm text-gray-600">Specify the email address customers can use to reach you.</p>
@@ -825,7 +843,7 @@ export function StoreSettingsForm() {
             </div>
           </section>
 
-          <section className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
+          <section id="business" className="space-y-6 border-b border-gray-200 pb-12 last:border-0 last:pb-0">
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Business Details</h3>
               <p className="text-sm text-gray-600">This address appears on invoices, shipping labels, and transactional emails.</p>
@@ -904,7 +922,7 @@ export function StoreSettingsForm() {
             </div>
           </section>
 
-          <section className="space-y-4">
+          <section id="preview" className="space-y-4">
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Quick Preview</h3>
               <p className="text-sm text-gray-600">See how your logo renders in navigation surfaces.</p>
@@ -939,7 +957,7 @@ export function StoreSettingsForm() {
               </div>
             </div>
           </section>
-        </form>
+        </div>
       </CardContent>
     </Card>
     </div>
@@ -993,6 +1011,7 @@ export function StoreSettingsForm() {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-    </>
+  </div>
+  </>
   )
 }
