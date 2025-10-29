@@ -27,6 +27,19 @@ function execCommand(command, description) {
   }
 }
 
+function execCommandWithOutput(command, description) {
+  console.log(`\n🔄 ${description}...`)
+  try {
+    const output = execSync(command, { encoding: 'utf-8' })
+    console.log(output)
+    console.log(`✅ ${description} completed`)
+    return output
+  } catch (error) {
+    console.error(`❌ ${description} failed:`, error.message)
+    process.exit(1)
+  }
+}
+
 function getAvailableSites() {
   const tomlDir = 'toml'
   if (!existsSync(tomlDir)) {
@@ -114,10 +127,13 @@ async function deploy() {
   execCommand('npm run build', 'Building project')
 
   // Deploy Cloudflare Worker
-  execCommand(`wrangler deploy`, `Deploying Cloudflare Worker (${projectName})`)
+  const deployOutput = execCommandWithOutput(`wrangler deploy`, `Deploying Cloudflare Worker (${projectName})`)
+
+  const urlMatch = deployOutput.match(/https?:\/\/[^\s]+/)
+  const liveUrl = urlMatch ? urlMatch[0] : `https://${projectName}.workers.dev`
 
   console.log('\n🎉 Deployment completed successfully!')
-  console.log(`\n💡 Your changes are now live at: https://${projectName}.workers.dev`)
+  console.log(`\n💡 Your changes are now live at: ${liveUrl}`)
   process.exit(0)
 }
 
