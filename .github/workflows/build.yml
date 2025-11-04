@@ -1,0 +1,87 @@
+name: Build for PaaS Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build frontend
+        run: npm run build
+      
+      - name: Build worker bundle
+        run: npm run build:worker
+      
+      - name: Create build metadata
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          cat > build-info.json <<EOF
+          {
+            "version": "$VERSION",
+            "buildDate": "$BUILD_DATE",
+            "commitHash": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "ref": "${{ github.ref }}",
+            "buildNumber": "${{ github.run_number }}"
+          }
+          EOF
+          cat build-info.json
+      
+      - name: Create compressed packages
+        run: |
+          # Create tarball of frontend (excluding worker.bundle.js if it exists)
+          cd dist
+          tar -czf ../frontend-dist.tar.gz --exclude='worker.bundle.js' .
+          cd ..
+      
+      - name: Upload Worker Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: worker-bundle
+          path: dist/worker.bundle.js
+          retention-days: 30
+      
+      - name: Upload Frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/
+          retention-days: 30
+      
+      - name: Upload Frontend Compressed
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist-tar
+          path: frontend-dist.tar.gz
+          retention-days: 30
+      
+      - name: Upload Build Info
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-info
+          path: build-info.json
+          retention-days: 30
+

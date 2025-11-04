@@ -412,6 +412,67 @@ wrangler deploy
 3. **Update Configuration** - Environment variables and bindings applied
 4. **Global Distribution** - Deployed to Cloudflare's edge network
 
+### GitHub Actions Build for PaaS Deployment
+
+OpenShop includes a GitHub Actions workflow that automatically builds the project for PaaS deployment:
+
+**Workflow File**: `.github/workflows/build.yml`
+
+**What it builds:**
+- **Frontend (`dist/` folder)**: Production-ready static files from Vite build
+- **Worker Bundle (`dist/worker.bundle.js`)**: Single bundled JavaScript file with all dependencies, minified and optimized for Cloudflare Workers runtime
+- **Build Metadata (`build-info.json`)**: JSON file with version, build date, commit hash, and build number
+
+**When it runs:**
+- On push to `main` or `master` branches
+- On pull requests to `main` or `master` branches
+- Manual trigger via `workflow_dispatch`
+
+**Artifacts created:**
+- `worker-bundle`: `dist/worker.bundle.js` - Single bundled worker file
+- `frontend-dist`: Complete `dist/` folder with all frontend assets
+- `frontend-dist-tar`: `frontend-dist.tar.gz` - Compressed frontend build
+- `build-info`: `build-info.json` - Build metadata
+
+**Worker Bundle Features:**
+- All dependencies bundled into a single file
+- Minified and optimized for production
+- Compatible with Cloudflare Workers runtime
+- No template variables injected - pure bundled code
+
+**Using artifacts for PaaS deployment:**
+
+1. **Download artifacts** from the GitHub Actions run:
+   - Go to the Actions tab in your repository
+   - Select the latest workflow run
+   - Download the artifacts you need
+
+2. **For worker deployment:**
+   ```bash
+   # Download worker.bundle.js from the worker-bundle artifact
+   # Deploy the worker.bundle.js file to your Cloudflare Workers runtime
+   # The bundle contains pure bundled code without any template variables
+   ```
+
+3. **For frontend deployment:**
+   ```bash
+   # Option 1: Use the compressed package
+   tar -xzf frontend-dist.tar.gz
+   # Upload the extracted files to your static hosting service
+   
+   # Option 2: Use the dist folder directly
+   # Upload the entire dist/ folder (excluding worker.bundle.js) to your CDN
+   ```
+
+**Build Scripts:**
+- `npm run build` - Builds the frontend only
+- `npm run build:worker` - Builds the worker bundle only
+- `npm run build:all` - Builds both frontend and worker bundle
+
+**Note**: The worker bundle requires Cloudflare Workers runtime. Ensure your PaaS platform supports:
+- Cloudflare Workers runtime (or compatible environment)
+- Required environment variables (see Configuration section)
+
 ### Multi-Site Deployment
 
 OpenShop supports managing multiple sites from one codebase:
