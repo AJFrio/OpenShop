@@ -110,32 +110,34 @@ jobs:
           
           // Replace node:stream imports - unenv provides Writable polyfill
           // The code only needs to instantiate Writable, so a minimal class works
+          const writablePolyfill = '// node:stream polyfill - Writable class for unenv console polyfill\n' +
+            'var Writable = class {\n' +
+            '  constructor() {}\n' +
+            '  write() { return true; }\n' +
+            '  end() { return this; }\n' +
+            '  on() { return this; }\n' +
+            '  once() { return this; }\n' +
+            '  emit() { return false; }\n' +
+            '  removeListener() { return this; }\n' +
+            '};';
           content = content.replace(
             /import\s+\{\s*Writable\s*\}\s+from\s+["']node:stream["'];?/g,
-            `// node:stream polyfill - Writable class for unenv console polyfill
-var Writable = class {
-  constructor() {}
-  write() { return true; }
-  end() { return this; }
-  on() { return this; }
-  once() { return this; }
-  emit() { return false; }
-  removeListener() { return this; }
-};`
+            writablePolyfill
           );
           
           // Replace node:events imports - unenv provides EventEmitter polyfill
+          const eventEmitterPolyfill = '// node:events polyfill - EventEmitter class for unenv\n' +
+            'var EventEmitter = class {\n' +
+            '  constructor() {}\n' +
+            '  on() { return this; }\n' +
+            '  once() { return this; }\n' +
+            '  emit() { return false; }\n' +
+            '  removeListener() { return this; }\n' +
+            '  addListener() { return this; }\n' +
+            '};';
           content = content.replace(
             /import\s+\{\s*EventEmitter\s*\}\s+from\s+["']node:events["'];?/g,
-            `// node:events polyfill - EventEmitter class for unenv
-var EventEmitter = class {
-  constructor() {}
-  on() { return this; }
-  once() { return this; }
-  emit() { return false; }
-  removeListener() { return this; }
-  addListener() { return this; }
-};`
+            eventEmitterPolyfill
           );
           
           // Replace any other node: imports with empty objects (they should be polyfilled by unenv)
