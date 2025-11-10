@@ -1,25 +1,13170 @@
-// Worker Bundle - Built 2025-11-04T05:40:12.143Z
+// Worker Bundle - Built 2025-11-10T22:45:33Z
 // Version: 0.0.0
-var Zi=Object.defineProperty;var st=(t,e)=>{for(var r in e)Zi(t,r,{get:e[r],enumerable:!0})};var or=(t,e,r)=>(o,s)=>{let i=-1;return a(0);async function a(l){if(l<=i)throw new Error("next() called multiple times");i=l;let c,d=!1,u;if(t[l]?(u=t[l][0][0],o.req.routeIndex=l):u=l===t.length&&s||void 0,u)try{c=await u(o,()=>a(l+1))}catch(h){if(h instanceof Error&&e)o.error=h,c=await e(h,o),d=!0;else throw h}else o.finalized===!1&&r&&(c=await r(o));return c&&(o.finalized===!1||d)&&(o.res=c),o}};var to=Symbol();var ro=async(t,e=Object.create(null))=>{let{all:r=!1,dot:o=!1}=e,i=(t instanceof nt?t.raw.headers:t.headers).get("Content-Type");return i?.startsWith("multipart/form-data")||i?.startsWith("application/x-www-form-urlencoded")?ea(t,{all:r,dot:o}):{}};async function ea(t,e){let r=await t.formData();return r?ta(r,e):{}}function ta(t,e){let r=Object.create(null);return t.forEach((o,s)=>{e.all||s.endsWith("[]")?ra(r,s,o):r[s]=o}),e.dot&&Object.entries(r).forEach(([o,s])=>{o.includes(".")&&(oa(r,o,s),delete r[o])}),r}var ra=(t,e,r)=>{t[e]!==void 0?Array.isArray(t[e])?t[e].push(r):t[e]=[t[e],r]:e.endsWith("[]")?t[e]=[r]:t[e]=r},oa=(t,e,r)=>{let o=t,s=e.split(".");s.forEach((i,a)=>{a===s.length-1?o[i]=r:((!o[i]||typeof o[i]!="object"||Array.isArray(o[i])||o[i]instanceof File)&&(o[i]=Object.create(null)),o=o[i])})};var nr=t=>{let e=t.split("/");return e[0]===""&&e.shift(),e},oo=t=>{let{groups:e,path:r}=sa(t),o=nr(r);return na(o,e)},sa=t=>{let e=[];return t=t.replace(/\{[^}]+\}/g,(r,o)=>{let s=`@${o}`;return e.push([s,r]),s}),{groups:e,path:t}},na=(t,e)=>{for(let r=e.length-1;r>=0;r--){let[o]=e[r];for(let s=t.length-1;s>=0;s--)if(t[s].includes(o)){t[s]=t[s].replace(o,e[r][1]);break}}return t},it={},so=(t,e)=>{if(t==="*")return"*";let r=t.match(/^\:([^\{\}]+)(?:\{(.+)\})?$/);if(r){let o=`${t}#${e}`;return it[o]||(r[2]?it[o]=e&&e[0]!==":"&&e[0]!=="*"?[o,r[1],new RegExp(`^${r[2]}(?=/${e})`)]:[t,r[1],new RegExp(`^${r[2]}$`)]:it[o]=[t,r[1],!0]),it[o]}return null},at=(t,e)=>{try{return e(t)}catch{return t.replace(/(?:%[0-9A-Fa-f]{2})+/g,r=>{try{return e(r)}catch{return r}})}},ia=t=>at(t,decodeURI),ir=t=>{let e=t.url,r=e.indexOf("/",e.indexOf(":")+4),o=r;for(;o<e.length;o++){let s=e.charCodeAt(o);if(s===37){let i=e.indexOf("?",o),a=e.slice(r,i===-1?void 0:i);return ia(a.includes("%25")?a.replace(/%25/g,"%2525"):a)}else if(s===63)break}return e.slice(r,o)};var no=t=>{let e=ir(t);return e.length>1&&e.at(-1)==="/"?e.slice(0,-1):e},Z=(t,e,...r)=>(r.length&&(e=Z(e,...r)),`${t?.[0]==="/"?"":"/"}${t}${e==="/"?"":`${t?.at(-1)==="/"?"":"/"}${e?.[0]==="/"?e.slice(1):e}`}`),ct=t=>{if(t.charCodeAt(t.length-1)!==63||!t.includes(":"))return null;let e=t.split("/"),r=[],o="";return e.forEach(s=>{if(s!==""&&!/\:/.test(s))o+="/"+s;else if(/\:/.test(s))if(/\?/.test(s)){r.length===0&&o===""?r.push("/"):r.push(o);let i=s.replace("?","");o+="/"+i,r.push(o)}else o+="/"+s}),r.filter((s,i,a)=>a.indexOf(s)===i)},sr=t=>/[%+]/.test(t)?(t.indexOf("+")!==-1&&(t=t.replace(/\+/g," ")),t.indexOf("%")!==-1?at(t,ar):t):t,io=(t,e,r)=>{let o;if(!r&&e&&!/[%+]/.test(e)){let a=t.indexOf(`?${e}`,8);for(a===-1&&(a=t.indexOf(`&${e}`,8));a!==-1;){let l=t.charCodeAt(a+e.length+1);if(l===61){let c=a+e.length+2,d=t.indexOf("&",c);return sr(t.slice(c,d===-1?void 0:d))}else if(l==38||isNaN(l))return"";a=t.indexOf(`&${e}`,a+1)}if(o=/[%+]/.test(t),!o)return}let s={};o??=/[%+]/.test(t);let i=t.indexOf("?",8);for(;i!==-1;){let a=t.indexOf("&",i+1),l=t.indexOf("=",i);l>a&&a!==-1&&(l=-1);let c=t.slice(i+1,l===-1?a===-1?void 0:a:l);if(o&&(c=sr(c)),i=a,c==="")continue;let d;l===-1?d="":(d=t.slice(l+1,a===-1?void 0:a),o&&(d=sr(d))),r?(s[c]&&Array.isArray(s[c])||(s[c]=[]),s[c].push(d)):s[c]??=d}return e?s[e]:s},ao=io,co=(t,e)=>io(t,e,!0),ar=decodeURIComponent;var lo=t=>at(t,ar),nt=class{raw;#t;#e;routeIndex=0;path;bodyCache={};constructor(t,e="/",r=[[]]){this.raw=t,this.path=e,this.#e=r,this.#t={}}param(t){return t?this.#r(t):this.#n()}#r(t){let e=this.#e[0][this.routeIndex][1][t],r=this.#s(e);return r?/\%/.test(r)?lo(r):r:void 0}#n(){let t={},e=Object.keys(this.#e[0][this.routeIndex][1]);for(let r of e){let o=this.#s(this.#e[0][this.routeIndex][1][r]);o&&typeof o=="string"&&(t[r]=/\%/.test(o)?lo(o):o)}return t}#s(t){return this.#e[1]?this.#e[1][t]:t}query(t){return ao(this.url,t)}queries(t){return co(this.url,t)}header(t){if(t)return this.raw.headers.get(t)??void 0;let e={};return this.raw.headers.forEach((r,o)=>{e[o]=r}),e}async parseBody(t){return this.bodyCache.parsedBody??=await ro(this,t)}#o=t=>{let{bodyCache:e,raw:r}=this,o=e[t];if(o)return o;let s=Object.keys(e)[0];return s?e[s].then(i=>(s==="json"&&(i=JSON.stringify(i)),new Response(i)[t]())):e[t]=r[t]()};json(){return this.#o("text").then(t=>JSON.parse(t))}text(){return this.#o("text")}arrayBuffer(){return this.#o("arrayBuffer")}blob(){return this.#o("blob")}formData(){return this.#o("formData")}addValidatedData(t,e){this.#t[t]=e}valid(t){return this.#t[t]}get url(){return this.raw.url}get method(){return this.raw.method}get[to](){return this.#e}get matchedRoutes(){return this.#e[0].map(([[,t]])=>t)}get routePath(){return this.#e[0].map(([[,t]])=>t)[this.routeIndex].path}};var uo={Stringify:1,BeforeStream:2,Stream:3},aa=(t,e)=>{let r=new String(t);return r.isEscaped=!0,r.callbacks=e,r};var cr=async(t,e,r,o,s)=>{typeof t=="object"&&!(t instanceof String)&&(t instanceof Promise||(t=t.toString()),t instanceof Promise&&(t=await t));let i=t.callbacks;if(!i?.length)return Promise.resolve(t);s?s[0]+=t:s=[t];let a=Promise.all(i.map(l=>l({phase:e,buffer:s,context:o}))).then(l=>Promise.all(l.filter(Boolean).map(c=>cr(c,e,!1,o,s))).then(()=>s[0]));return r?aa(await a,i):a};var ca="text/plain; charset=UTF-8",lr=(t,e)=>({"Content-Type":t,...e}),ho=class{#t;#e;env={};#r;finalized=!1;error;#n;#s;#o;#u;#c;#l;#a;#d;#h;constructor(t,e){this.#t=t,e&&(this.#s=e.executionCtx,this.env=e.env,this.#l=e.notFoundHandler,this.#h=e.path,this.#d=e.matchResult)}get req(){return this.#e??=new nt(this.#t,this.#h,this.#d),this.#e}get event(){if(this.#s&&"respondWith"in this.#s)return this.#s;throw Error("This context has no FetchEvent")}get executionCtx(){if(this.#s)return this.#s;throw Error("This context has no ExecutionContext")}get res(){return this.#o||=new Response(null,{headers:this.#a??=new Headers})}set res(t){if(this.#o&&t){t=new Response(t.body,t);for(let[e,r]of this.#o.headers.entries())if(e!=="content-type")if(e==="set-cookie"){let o=this.#o.headers.getSetCookie();t.headers.delete("set-cookie");for(let s of o)t.headers.append("set-cookie",s)}else t.headers.set(e,r)}this.#o=t,this.finalized=!0}render=(...t)=>(this.#c??=e=>this.html(e),this.#c(...t));setLayout=t=>this.#u=t;getLayout=()=>this.#u;setRenderer=t=>{this.#c=t};header=(t,e,r)=>{this.finalized&&(this.#o=new Response(this.#o.body,this.#o));let o=this.#o?this.#o.headers:this.#a??=new Headers;e===void 0?o.delete(t):r?.append?o.append(t,e):o.set(t,e)};status=t=>{this.#n=t};set=(t,e)=>{this.#r??=new Map,this.#r.set(t,e)};get=t=>this.#r?this.#r.get(t):void 0;get var(){return this.#r?Object.fromEntries(this.#r):{}}#i(t,e,r){let o=this.#o?new Headers(this.#o.headers):this.#a??new Headers;if(typeof e=="object"&&"headers"in e){let i=e.headers instanceof Headers?e.headers:new Headers(e.headers);for(let[a,l]of i)a.toLowerCase()==="set-cookie"?o.append(a,l):o.set(a,l)}if(r)for(let[i,a]of Object.entries(r))if(typeof a=="string")o.set(i,a);else{o.delete(i);for(let l of a)o.append(i,l)}let s=typeof e=="number"?e:e?.status??this.#n;return new Response(t,{status:s,headers:o})}newResponse=(...t)=>this.#i(...t);body=(t,e,r)=>this.#i(t,e,r);text=(t,e,r)=>!this.#a&&!this.#n&&!e&&!r&&!this.finalized?new Response(t):this.#i(t,e,lr(ca,r));json=(t,e,r)=>this.#i(JSON.stringify(t),e,lr("application/json",r));html=(t,e,r)=>{let o=s=>this.#i(s,e,lr("text/html; charset=UTF-8",r));return typeof t=="object"?cr(t,uo.Stringify,!1,{}).then(o):o(t)};redirect=(t,e)=>{let r=String(t);return this.header("Location",/[^\x00-\xFF]/.test(r)?encodeURI(r):r),this.newResponse(null,e??302)};notFound=()=>(this.#l??=()=>new Response,this.#l(this))};var A="ALL",po="all",mo=["get","post","put","delete","options","patch"],lt="Can not add a route since the matcher is already built.",ut=class extends Error{};var fo="__COMPOSED_HANDLER";var la=t=>t.text("404 Not Found",404),go=(t,e)=>{if("getResponse"in t){let r=t.getResponse();return e.newResponse(r.body,r)}return console.error(t),e.text("Internal Server Error",500)},ur=class{get;post;put;delete;options;patch;all;on;use;router;getPath;_basePath="/";#t="/";routes=[];constructor(t={}){[...mo,po].forEach(s=>{this[s]=(i,...a)=>(typeof i=="string"?this.#t=i:this.#n(s,this.#t,i),a.forEach(l=>{this.#n(s,this.#t,l)}),this)}),this.on=(s,i,...a)=>{for(let l of[i].flat()){this.#t=l;for(let c of[s].flat())a.map(d=>{this.#n(c.toUpperCase(),this.#t,d)})}return this},this.use=(s,...i)=>(typeof s=="string"?this.#t=s:(this.#t="*",i.unshift(s)),i.forEach(a=>{this.#n(A,this.#t,a)}),this);let{strict:r,...o}=t;Object.assign(this,o),this.getPath=r??!0?t.getPath??ir:no}#e(){let t=new ur({router:this.router,getPath:this.getPath});return t.errorHandler=this.errorHandler,t.#r=this.#r,t.routes=this.routes,t}#r=la;errorHandler=go;route(t,e){let r=this.basePath(t);return e.routes.map(o=>{let s;e.errorHandler===go?s=o.handler:(s=async(i,a)=>(await or([],e.errorHandler)(i,()=>o.handler(i,a))).res,s[fo]=o.handler),r.#n(o.method,o.path,s)}),this}basePath(t){let e=this.#e();return e._basePath=Z(this._basePath,t),e}onError=t=>(this.errorHandler=t,this);notFound=t=>(this.#r=t,this);mount(t,e,r){let o,s;r&&(typeof r=="function"?s=r:(s=r.optionHandler,r.replaceRequest===!1?o=l=>l:o=r.replaceRequest));let i=s?l=>{let c=s(l);return Array.isArray(c)?c:[c]}:l=>{let c;try{c=l.executionCtx}catch{}return[l.env,c]};o||=(()=>{let l=Z(this._basePath,t),c=l==="/"?0:l.length;return d=>{let u=new URL(d.url);return u.pathname=u.pathname.slice(c)||"/",new Request(u,d)}})();let a=async(l,c)=>{let d=await e(o(l.req.raw),...i(l));if(d)return d;await c()};return this.#n(A,Z(t,"*"),a),this}#n(t,e,r){t=t.toUpperCase(),e=Z(this._basePath,e);let o={basePath:this._basePath,path:e,method:t,handler:r};this.router.add(t,e,[r,o]),this.routes.push(o)}#s(t,e){if(t instanceof Error)return this.errorHandler(t,e);throw t}#o(t,e,r,o){if(o==="HEAD")return(async()=>new Response(null,await this.#o(t,e,r,"GET")))();let s=this.getPath(t,{env:r}),i=this.router.match(o,s),a=new ho(t,{path:s,matchResult:i,env:r,executionCtx:e,notFoundHandler:this.#r});if(i[0].length===1){let c;try{c=i[0][0][0][0](a,async()=>{a.res=await this.#r(a)})}catch(d){return this.#s(d,a)}return c instanceof Promise?c.then(d=>d||(a.finalized?a.res:this.#r(a))).catch(d=>this.#s(d,a)):c??this.#r(a)}let l=or(i[0],this.errorHandler,this.#r);return(async()=>{try{let c=await l(a);if(!c.finalized)throw new Error("Context is not finalized. Did you forget to return a Response object or `await next()`?");return c.res}catch(c){return this.#s(c,a)}})()}fetch=(t,...e)=>this.#o(t,e[1],e[0],t.method);request=(t,e,r,o)=>t instanceof Request?this.fetch(e?new Request(t,e):t,r,o):(t=t.toString(),this.fetch(new Request(/^https?:\/\//.test(t)?t:`http://localhost${Z("/",t)}`,e),r,o));fire=()=>{addEventListener("fetch",t=>{t.respondWith(this.#o(t.request,t,void 0,t.request.method))})}};var dt="[^/]+",Oe=".*",Re="(?:|/.*)",ee=Symbol(),ua=new Set(".\\+*[^]$()");function da(t,e){return t.length===1?e.length===1?t<e?-1:1:-1:e.length===1||t===Oe||t===Re?1:e===Oe||e===Re?-1:t===dt?1:e===dt?-1:t.length===e.length?t<e?-1:1:e.length-t.length}var ht=class{#t;#e;#r=Object.create(null);insert(t,e,r,o,s){if(t.length===0){if(this.#t!==void 0)throw ee;if(s)return;this.#t=e;return}let[i,...a]=t,l=i==="*"?a.length===0?["","",Oe]:["","",dt]:i==="/*"?["","",Re]:i.match(/^\:([^\{\}]+)(?:\{(.+)\})?$/),c;if(l){let d=l[1],u=l[2]||dt;if(d&&l[2]&&(u===".*"||(u=u.replace(/^\((?!\?:)(?=[^)]+\)$)/,"(?:"),/\((?!\?:)/.test(u))))throw ee;if(c=this.#r[u],!c){if(Object.keys(this.#r).some(h=>h!==Oe&&h!==Re))throw ee;if(s)return;c=this.#r[u]=new ht,d!==""&&(c.#e=o.varIndex++)}!s&&d!==""&&r.push([d,c.#e])}else if(c=this.#r[i],!c){if(Object.keys(this.#r).some(d=>d.length>1&&d!==Oe&&d!==Re))throw ee;if(s)return;c=this.#r[i]=new ht}c.insert(a,e,r,o,s)}buildRegExpStr(){let e=Object.keys(this.#r).sort(da).map(r=>{let o=this.#r[r];return(typeof o.#e=="number"?`(${r})@${o.#e}`:ua.has(r)?`\\${r}`:r)+o.buildRegExpStr()});return typeof this.#t=="number"&&e.unshift(`#${this.#t}`),e.length===0?"":e.length===1?e[0]:"(?:"+e.join("|")+")"}};var vo=class{#t={varIndex:0};#e=new ht;insert(t,e,r){let o=[],s=[];for(let a=0;;){let l=!1;if(t=t.replace(/\{[^}]+\}/g,c=>{let d=`@\\${a}`;return s[a]=[d,c],a++,l=!0,d}),!l)break}let i=t.match(/(?::[^\/]+)|(?:\/\*$)|./g)||[];for(let a=s.length-1;a>=0;a--){let[l]=s[a];for(let c=i.length-1;c>=0;c--)if(i[c].indexOf(l)!==-1){i[c]=i[c].replace(l,s[a][1]);break}}return this.#e.insert(i,e,o,this.#t,r),o}buildRegExp(){let t=this.#e.buildRegExpStr();if(t==="")return[/^$/,[],[]];let e=0,r=[],o=[];return t=t.replace(/#(\d+)|@(\d+)|\.\*\$/g,(s,i,a)=>i!==void 0?(r[++e]=Number(i),"$()"):(a!==void 0&&(o[Number(a)]=++e),"")),[new RegExp(`^${t}`),r,o]}};var yo=[],ha=[/^$/,[],Object.create(null)],Po=Object.create(null);function To(t){return Po[t]??=new RegExp(t==="*"?"":`^${t.replace(/\/\*$|([.\\+*[^\]$()])/g,(e,r)=>r?`\\${r}`:"(?:|/.*)")}$`)}function pa(){Po=Object.create(null)}function ma(t){let e=new vo,r=[];if(t.length===0)return ha;let o=t.map(d=>[!/\*|\/:/.test(d[0]),...d]).sort(([d,u],[h,f])=>d?1:h?-1:u.length-f.length),s=Object.create(null);for(let d=0,u=-1,h=o.length;d<h;d++){let[f,g,p]=o[d];f?s[g]=[p.map(([v])=>[v,Object.create(null)]),yo]:u++;let m;try{m=e.insert(g,u,f)}catch(v){throw v===ee?new ut(g):v}f||(r[u]=p.map(([v,y])=>{let T=Object.create(null);for(y-=1;y>=0;y--){let[P,S]=m[y];T[P]=S}return[v,T]}))}let[i,a,l]=e.buildRegExp();for(let d=0,u=r.length;d<u;d++)for(let h=0,f=r[d].length;h<f;h++){let g=r[d][h]?.[1];if(!g)continue;let p=Object.keys(g);for(let m=0,v=p.length;m<v;m++)g[p[m]]=l[g[p[m]]]}let c=[];for(let d in a)c[d]=r[a[d]];return[i,c,s]}function ie(t,e){if(t){for(let r of Object.keys(t).sort((o,s)=>s.length-o.length))if(To(r).test(e))return[...t[r]]}}var dr=class{name="RegExpRouter";#t;#e;constructor(){this.#t={[A]:Object.create(null)},this.#e={[A]:Object.create(null)}}add(t,e,r){let o=this.#t,s=this.#e;if(!o||!s)throw new Error(lt);o[t]||[o,s].forEach(l=>{l[t]=Object.create(null),Object.keys(l[A]).forEach(c=>{l[t][c]=[...l[A][c]]})}),e==="/*"&&(e="*");let i=(e.match(/\/:/g)||[]).length;if(/\*$/.test(e)){let l=To(e);t===A?Object.keys(o).forEach(c=>{o[c][e]||=ie(o[c],e)||ie(o[A],e)||[]}):o[t][e]||=ie(o[t],e)||ie(o[A],e)||[],Object.keys(o).forEach(c=>{(t===A||t===c)&&Object.keys(o[c]).forEach(d=>{l.test(d)&&o[c][d].push([r,i])})}),Object.keys(s).forEach(c=>{(t===A||t===c)&&Object.keys(s[c]).forEach(d=>l.test(d)&&s[c][d].push([r,i]))});return}let a=ct(e)||[e];for(let l=0,c=a.length;l<c;l++){let d=a[l];Object.keys(s).forEach(u=>{(t===A||t===u)&&(s[u][d]||=[...ie(o[u],d)||ie(o[A],d)||[]],s[u][d].push([r,i-c+l+1]))})}}match(t,e){pa();let r=this.#r();return this.match=(o,s)=>{let i=r[o]||r[A],a=i[2][s];if(a)return a;let l=s.match(i[0]);if(!l)return[[],yo];let c=l.indexOf("",1);return[i[1][c],l]},this.match(t,e)}#r(){let t=Object.create(null);return Object.keys(this.#e).concat(Object.keys(this.#t)).forEach(e=>{t[e]||=this.#n(e)}),this.#t=this.#e=void 0,t}#n(t){let e=[],r=t===A;return[this.#t,this.#e].forEach(o=>{let s=o[t]?Object.keys(o[t]).map(i=>[i,o[t][i]]):[];s.length!==0?(r||=!0,e.push(...s)):t!==A&&e.push(...Object.keys(o[A]).map(i=>[i,o[A][i]]))}),r?ma(e):null}};var hr=class{name="SmartRouter";#t=[];#e=[];constructor(t){this.#t=t.routers}add(t,e,r){if(!this.#e)throw new Error(lt);this.#e.push([t,e,r])}match(t,e){if(!this.#e)throw new Error("Fatal error");let r=this.#t,o=this.#e,s=r.length,i=0,a;for(;i<s;i++){let l=r[i];try{for(let c=0,d=o.length;c<d;c++)l.add(...o[c]);a=l.match(t,e)}catch(c){if(c instanceof ut)continue;throw c}this.match=l.match.bind(l),this.#t=[l],this.#e=void 0;break}if(i===s)throw new Error("Fatal error");return this.name=`SmartRouter + ${this.activeRouter.name}`,a}get activeRouter(){if(this.#e||this.#t.length!==1)throw new Error("No active router has been determined yet.");return this.#t[0]}};var Ae=Object.create(null),pr=class{#t;#e;#r;#n=0;#s=Ae;constructor(t,e,r){if(this.#e=r||Object.create(null),this.#t=[],t&&e){let o=Object.create(null);o[t]={handler:e,possibleKeys:[],score:0},this.#t=[o]}this.#r=[]}insert(t,e,r){this.#n=++this.#n;let o=this,s=oo(e),i=[];for(let a=0,l=s.length;a<l;a++){let c=s[a],d=s[a+1],u=so(c,d),h=Array.isArray(u)?u[0]:c;if(h in o.#e){o=o.#e[h],u&&i.push(u[1]);continue}o.#e[h]=new pr,u&&(o.#r.push(u),i.push(u[1])),o=o.#e[h]}return o.#t.push({[t]:{handler:r,possibleKeys:i.filter((a,l,c)=>c.indexOf(a)===l),score:this.#n}}),o}#o(t,e,r,o){let s=[];for(let i=0,a=t.#t.length;i<a;i++){let l=t.#t[i],c=l[e]||l[A],d={};if(c!==void 0&&(c.params=Object.create(null),s.push(c),r!==Ae||o&&o!==Ae))for(let u=0,h=c.possibleKeys.length;u<h;u++){let f=c.possibleKeys[u],g=d[c.score];c.params[f]=o?.[f]&&!g?o[f]:r[f]??o?.[f],d[c.score]=!0}}return s}search(t,e){let r=[];this.#s=Ae;let s=[this],i=nr(e),a=[];for(let l=0,c=i.length;l<c;l++){let d=i[l],u=l===c-1,h=[];for(let f=0,g=s.length;f<g;f++){let p=s[f],m=p.#e[d];m&&(m.#s=p.#s,u?(m.#e["*"]&&r.push(...this.#o(m.#e["*"],t,p.#s)),r.push(...this.#o(m,t,p.#s))):h.push(m));for(let v=0,y=p.#r.length;v<y;v++){let T=p.#r[v],P=p.#s===Ae?{}:{...p.#s};if(T==="*"){let D=p.#e["*"];D&&(r.push(...this.#o(D,t,p.#s)),D.#s=P,h.push(D));continue}let[S,E,O]=T;if(!d&&!(O instanceof RegExp))continue;let b=p.#e[S],q=i.slice(l).join("/");if(O instanceof RegExp){let D=O.exec(q);if(D){if(P[E]=D[0],r.push(...this.#o(b,t,p.#s,P)),Object.keys(b.#e).length){b.#s=P;let j=D[0].match(/\//)?.length??0;(a[j]||=[]).push(b)}continue}}(O===!0||O.test(d))&&(P[E]=d,u?(r.push(...this.#o(b,t,P,p.#s)),b.#e["*"]&&r.push(...this.#o(b.#e["*"],t,P,p.#s))):(b.#s=P,h.push(b)))}}s=h.concat(a.shift()??[])}return r.length>1&&r.sort((l,c)=>l.score-c.score),[r.map(({handler:l,params:c})=>[l,c])]}};var mr=class{name="TrieRouter";#t;constructor(){this.#t=new pr}add(t,e,r){let o=ct(e);if(o){for(let s=0,i=o.length;s<i;s++)this.#t.insert(t,o[s],r);return}this.#t.insert(t,e,r)}match(t,e){return this.#t.search(t,e)}};var fr=class extends ur{constructor(t={}){super(t),this.router=t.router??new hr({routers:[new dr,new mr]})}};var _o=t=>{let r={...{origin:"*",allowMethods:["GET","HEAD","PUT","POST","DELETE","PATCH"],allowHeaders:[],exposeHeaders:[]},...t},o=(i=>typeof i=="string"?i==="*"?()=>i:a=>i===a?a:null:typeof i=="function"?i:a=>i.includes(a)?a:null)(r.origin),s=(i=>typeof i=="function"?i:Array.isArray(i)?()=>i:()=>[])(r.allowMethods);return async function(a,l){function c(u,h){a.res.headers.set(u,h)}let d=await o(a.req.header("origin")||"",a);if(d&&c("Access-Control-Allow-Origin",d),r.origin!=="*"){let u=a.req.header("Vary");u?c("Vary",u):c("Vary","Origin")}if(r.credentials&&c("Access-Control-Allow-Credentials","true"),r.exposeHeaders?.length&&c("Access-Control-Expose-Headers",r.exposeHeaders.join(",")),a.req.method==="OPTIONS"){r.maxAge!=null&&c("Access-Control-Max-Age",r.maxAge.toString());let u=await s(a.req.header("origin")||"",a);u.length&&c("Access-Control-Allow-Methods",u.join(","));let h=r.allowHeaders;if(!h?.length){let f=a.req.header("Access-Control-Request-Headers");f&&(h=f.split(/\s*,\s*/))}return h?.length&&(c("Access-Control-Allow-Headers",h.join(",")),a.res.headers.append("Vary","Access-Control-Request-Headers")),a.res.headers.delete("Content-Length"),a.res.headers.delete("Content-Type"),new Response(null,{headers:a.res.headers,status:204,statusText:"No Content"})}await l()}};var C=class{constructor(e){this.namespace=e}async createProduct(e){let r=`product:${e.id}`,o={...e,images:Array.isArray(e.images)?e.images:e.imageUrl?[e.imageUrl]:[]};await this.namespace.put(r,JSON.stringify(o));let s=await this.namespace.get("products:all"),i=s?JSON.parse(s):[];return i.push(e.id),await this.namespace.put("products:all",JSON.stringify(i)),o}async getProduct(e){let r=`product:${e}`,o=await this.namespace.get(r);return o?JSON.parse(o):null}async updateProduct(e,r){let o=await this.getProduct(e);if(!o)throw new Error("Product not found");let s={...o,...r,images:Array.isArray(r.images)?r.images:r.imageUrl?[r.imageUrl]:o.images||[]},i=`product:${e}`;return await this.namespace.put(i,JSON.stringify(s)),s}async deleteProduct(e){let r=`product:${e}`;await this.namespace.delete(r);let o=await this.namespace.get("products:all");if(o){let i=JSON.parse(o).filter(a=>a!==e);await this.namespace.put("products:all",JSON.stringify(i))}}async getAllProducts(){let e=await this.namespace.get("products:all");if(!e)return[];let r=JSON.parse(e);return(await Promise.all(r.map(s=>this.getProduct(s)))).filter(Boolean)}async createCollection(e){let r=`collection:${e.id}`;await this.namespace.put(r,JSON.stringify(e));let o=await this.namespace.get("collections:all"),s=o?JSON.parse(o):[];return s.push(e.id),await this.namespace.put("collections:all",JSON.stringify(s)),e}async getCollection(e){let r=`collection:${e}`,o=await this.namespace.get(r);return o?JSON.parse(o):null}async updateCollection(e,r){let o=await this.getCollection(e);if(!o)throw new Error("Collection not found");let s={...o,...r},i=`collection:${e}`;return await this.namespace.put(i,JSON.stringify(s)),s}async deleteCollection(e){let r=`collection:${e}`;await this.namespace.delete(r);let o=await this.namespace.get("collections:all");if(o){let i=JSON.parse(o).filter(a=>a!==e);await this.namespace.put("collections:all",JSON.stringify(i))}}async getAllCollections(){let e=await this.namespace.get("collections:all");if(!e)return[];let r=JSON.parse(e);return(await Promise.all(r.map(s=>this.getCollection(s)))).filter(Boolean)}async getProductsByCollection(e){return(await this.getAllProducts()).filter(o=>o.collectionId===e)}async createMediaItem(e){let r=e.id;if(!r)throw new Error("Media item missing id");let o=`media:${r}`,s={id:r,url:String(e.url||""),source:e.source||"unknown",filename:e.filename||"",mimeType:e.mimeType||"",driveFileId:e.driveFileId||"",createdAt:typeof e.createdAt=="number"?e.createdAt:Date.now(),updatedAt:Date.now()};await this.namespace.put(o,JSON.stringify(s));let i="media:all",a=await this.namespace.get(i),l=a?JSON.parse(a):[];return l.includes(r)||l.push(r),await this.namespace.put(i,JSON.stringify(l)),s}async getMediaItem(e){let r=`media:${e}`,o=await this.namespace.get(r);return o?JSON.parse(o):null}async deleteMediaItem(e){let r=`media:${e}`;await this.namespace.delete(r);let o="media:all",s=await this.namespace.get(o);if(s){let a=JSON.parse(s).filter(l=>l!==e);await this.namespace.put(o,JSON.stringify(a))}}async getAllMediaItems(){let r=await this.namespace.get("media:all");if(!r)return[];let o=JSON.parse(r);return(await Promise.all(o.map(i=>this.getMediaItem(i)))).filter(Boolean)}};function fa(t){console.log("Auth middleware - Available env bindings:",Object.keys(t));let e=["OPENSHOP-TEST3_KV","OPENSHOP_TEST3_KV","OPENSHOP_KV"];for(let s of e)if(s in t&&t[s]){console.log(`Auth middleware - Found KV namespace via direct access: ${s}`);let i=t[s];return console.log("Auth middleware - KV namespace object:",!!i,typeof i),console.log("Auth middleware - KV namespace has get method:",typeof i?.get),i}let r=Object.keys(t).find(s=>s.endsWith("_KV")||s.endsWith("-KV")||s.includes("KV"));if(console.log("Auth middleware - Found KV binding name via search:",r),r){let s=t[r];if(console.log("Auth middleware - KV namespace object via search:",!!s,typeof s),s)return s}let o=Object.values(t).find(s=>s&&typeof s.get=="function"&&typeof s.put=="function");return console.log("Auth middleware - Fallback KV namespace found:",!!o),o||(console.error("Auth middleware - No KV namespace found! Available bindings:",Object.keys(t)),console.error("Auth middleware - Environment values:",Object.values(t).map(s=>typeof s))),o}async function gr(t){if(typeof t!="string"||t.length===0)throw new Error("Token must be a non-empty string for hashing");let e=typeof globalThis<"u"?globalThis.crypto:null;if(!e||!e.subtle||typeof e.subtle.digest!="function")throw new Error("Web Crypto API is not available for hashing tokens");let o=new TextEncoder().encode(t),s=await e.subtle.digest("SHA-256",o);return Array.from(new Uint8Array(s)).map(a=>a.toString(16).padStart(2,"0")).join("")}async function So(t,e){let r;try{t&&typeof t.header=="function"?r=t.header("X-Admin-Token")||t.header("x-admin-token"):t&&t.headers&&typeof t.headers.get=="function"?r=t.headers.get("X-Admin-Token")||t.headers.get("x-admin-token"):t&&t.raw&&t.raw.headers&&typeof t.raw.headers.get=="function"&&(r=t.raw.headers.get("X-Admin-Token")||t.raw.headers.get("x-admin-token"))}catch(o){console.error("Auth middleware - error reading admin token header:",o)}if(!r)return{isValid:!1,error:"Admin authentication required",status:401};try{let o=fa(e);if(!o)return console.error("Auth middleware - KV namespace is undefined"),{isValid:!1,error:"KV namespace not available",status:500};let i=`admin_token:${await gr(r)}`,a=await o.get(i);if(!a)return{isValid:!1,error:"Invalid or expired admin token",status:401};let l=parseInt(a);return Date.now()-l>864e5?(await o.delete(i),{isValid:!1,error:"Admin session expired",status:401}):{isValid:!0}}catch(o){return console.error("Admin auth verification error:",o),{isValid:!1,error:"Authentication verification failed",status:500}}}var Ce="storefront:theme",Pr=/^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/,Tr=[{id:"inter",label:"Inter",stack:"'Inter', 'system-ui', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"},{id:"roboto",label:"Roboto",stack:"'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"},{id:"montserrat",label:"Montserrat",stack:"'Montserrat', 'Segoe UI', sans-serif"},{id:"poppins",label:"Poppins",stack:"'Poppins', 'Segoe UI', sans-serif"},{id:"lora",label:"Lora",stack:"'Lora', 'Georgia', serif"}],yr=Tr.reduce((t,e)=>(t[e.id]=e,t),{}),M={colors:{primary:"#1e293b",secondary:"#475569",accent:"#3b82f6",text:"#0f172a",background:"#f8fafc",card:"#ffffff"},typography:{fontId:"inter"},corners:{enabled:!0,radiusMultiplier:1}};function pt(t,e,r){return Math.min(Math.max(t,e),r)}function _r(t){if(!t)return null;let r=(t.length===4?`#${t[1]}${t[1]}${t[2]}${t[2]}${t[3]}${t[3]}`:t).replace("#",""),o=parseInt(r,16);return Number.isNaN(o)?null:{r:o>>16&255,g:o>>8&255,b:o&255}}function bo({r:t,g:e,b:r}){let o=s=>s.toString(16).padStart(2,"0");return`#${o(pt(Math.round(vr(t)),0,255))}${o(pt(Math.round(vr(e)),0,255))}${o(pt(Math.round(vr(r)),0,255))}`}function vr(t){return Number.isFinite(t)?t:0}function ce(t,e,r){return t+(e-t)*r}function Eo(t,e=.1){let r=_r(t);return r?bo({r:ce(r.r,255,e),g:ce(r.g,255,e),b:ce(r.b,255,e)}):t}function xo(t,e=.1){let r=_r(t);return r?bo({r:ce(r.r,0,e),g:ce(r.g,0,e),b:ce(r.b,0,e)}):t}function wo(t){let e=_r(t);return e&&(.299*e.r+.587*e.g+.114*e.b)/255>.6?"#0f172a":"#ffffff"}function ae(t,e){return typeof t!="string"?e:Pr.test(t.trim())?t.trim():e}function ga(t){return yr[t]?t:M.typography.fontId}function va(t){if(typeof t=="string"&&t.trim()!==""){let e=Number(t);Number.isNaN(e)||(t=e)}return(typeof t!="number"||Number.isNaN(t))&&(t=M.corners.radiusMultiplier),pt(Math.abs(t),0,4)}function mt(t={}){let e=t.colors||{},r=t.typography||t.font,o=t.corners||t.radius,s={primary:ae(e.primary,M.colors.primary),secondary:ae(e.secondary,M.colors.secondary),accent:ae(e.accent,M.colors.accent),text:ae(e.text,M.colors.text),background:ae(e.background,M.colors.background),card:ae(e.card,M.colors.card)},i={fontId:ga(r?.fontId??r?.font??r?.id)},a={enabled:o?.enabled!==void 0?!!o.enabled:M.corners.enabled,radiusMultiplier:va(o?.radiusMultiplier??o?.multiplier??o?.value)};return{colors:s,typography:i,corners:a}}function Oo(t){let{colors:e,typography:r,corners:o}=t,{fontId:s}=r,i=yr[s]||yr[M.typography.fontId],a=o.enabled?o.radiusMultiplier*12:0;return{colors:{onPrimary:wo(e.primary),onSecondary:wo(e.secondary),primaryHover:xo(e.primary,.12),secondaryHover:xo(e.secondary,.12),accentSoft:Eo(e.accent,.4),background:e.background,surface:"#ffffff",mutedText:Eo(e.text,.35)},typography:{fontFamily:i.stack,fontLabel:i.label},corners:{radiusPx:a,radiusSm:o.enabled?Math.max(a*.5,2):0,radiusLg:o.enabled?a*1.5:0}}}function ya(t){let e=mt(t),r=Oo(e);return{"--storefront-color-primary":e.colors.primary,"--storefront-color-primary-hover":r.colors.primaryHover,"--storefront-color-primary-contrast":r.colors.onPrimary,"--storefront-color-secondary":e.colors.secondary,"--storefront-color-secondary-hover":r.colors.secondaryHover,"--storefront-color-secondary-contrast":r.colors.onSecondary,"--storefront-color-accent":e.colors.accent,"--storefront-color-accent-soft":r.colors.accentSoft,"--storefront-color-text":e.colors.text,"--storefront-color-text-muted":r.colors.mutedText,"--storefront-color-background":r.colors.background,"--storefront-color-surface":r.colors.surface,"--storefront-color-card":e.colors.card,"--storefront-font-family":r.typography.fontFamily,"--storefront-radius-base":`${r.corners.radiusPx}px`,"--storefront-radius-sm":`${r.corners.radiusSm}px`,"--storefront-radius-lg":`${r.corners.radiusLg}px`}}function le(t={}){let e=mt(t.theme??t),r={...M,...e,colors:{...M.colors,...e.colors},typography:{...M.typography,...e.typography},corners:{...M.corners,...e.corners}},{typography:o,corners:s}=Oo(r);return{...r,typography:{...r.typography,fontFamily:o.fontFamily,fontLabel:o.fontLabel},corners:{...r.corners,radiusPx:s.radiusPx,radiusSm:s.radiusSm,radiusLg:s.radiusLg},meta:{updatedAt:t.updatedAt??null},cssVariables:ya(r)}}var Kl=globalThis.crypto||{};var Ro=t=>({update:()=>{},digest:e=>""});var Ie=class{constructor(){}on(){return this}emit(){return!1}once(){return this}removeListener(){return this}};var z=class{computeHMACSignature(e,r){throw new Error("computeHMACSignature not implemented.")}computeHMACSignatureAsync(e,r){throw new Error("computeHMACSignatureAsync not implemented.")}computeSHA256Async(e){throw new Error("computeSHA256 not implemented.")}},ue=class extends Error{};var ft=class extends z{computeHMACSignature(e,r){return(void 0)("sha256",r).update(e,"utf8").digest("hex")}async computeHMACSignatureAsync(e,r){return await this.computeHMACSignature(e,r)}async computeSHA256Async(e){return new Uint8Array(await Ro("sha256").update(e).digest())}};var Er={};st(Er,{default:()=>Sr,get:()=>Ta,request:()=>Pa});var Sr={},Pa=()=>{},Ta=()=>{};var wr={};st(wr,{default:()=>xr,get:()=>Sa,request:()=>_a});var xr={},_a=()=>{},Sa=()=>{};var N=class t{getClientName(){throw new Error("getClientName not implemented.")}makeRequest(e,r,o,s,i,a,l,c){throw new Error("makeRequest not implemented.")}static makeTimeoutError(){let e=new TypeError(t.TIMEOUT_ERROR_CODE);return e.code=t.TIMEOUT_ERROR_CODE,e}};N.CONNECTION_CLOSED_ERROR_CODES=["ECONNRESET","EPIPE"];N.TIMEOUT_ERROR_CODE="ETIMEDOUT";var W=class{constructor(e,r){this._statusCode=e,this._headers=r}getStatusCode(){return this._statusCode}getHeaders(){return this._headers}getRawResponse(){throw new Error("getRawResponse not implemented.")}toStream(e){throw new Error("toStream not implemented.")}toJSON(){throw new Error("toJSON not implemented.")}};var Ao=Sr||Er,Co=xr||wr,Ea=new Ao.Agent({keepAlive:!0}),xa=new Co.Agent({keepAlive:!0}),ke=class extends N{constructor(e){super(),this._agent=e}getClientName(){return"node"}makeRequest(e,r,o,s,i,a,l,c){let d=l==="http",u=this._agent;return u||(u=d?Ea:xa),new Promise((f,g)=>{let p=(d?Ao:Co).request({host:e,port:r,path:o,method:s,agent:u,headers:i,ciphers:"DEFAULT:!aNULL:!eNULL:!LOW:!EXPORT:!SSLv2:!MD5"});p.setTimeout(c,()=>{p.destroy(N.makeTimeoutError())}),p.on("response",m=>{f(new br(m))}),p.on("error",m=>{g(m)}),p.once("socket",m=>{m.connecting?m.once(d?"connect":"secureConnect",()=>{p.write(a),p.end()}):(p.write(a),p.end())})})}},br=class extends W{constructor(e){super(e.statusCode,e.headers||{}),this._res=e}getRawResponse(){return this._res}toStream(e){return this._res.once("end",()=>e()),this._res}toJSON(){return new Promise((e,r)=>{let o="";this._res.setEncoding("utf8"),this._res.on("data",s=>{o+=s}),this._res.once("end",()=>{try{e(JSON.parse(o))}catch(s){r(s)}})})}};var Io=t=>new URLSearchParams(t).toString();var Or=["apiKey","idempotencyKey","stripeAccount","apiVersion","maxNetworkRetries","timeout","host","authenticator","stripeContext","additionalHeaders","streaming"];function ko(t){return t&&typeof t=="object"&&Or.some(e=>Object.prototype.hasOwnProperty.call(t,e))}function J(t,e){return Io(t,{serializeDate:r=>Math.floor(r.getTime()/1e3).toString(),arrayFormat:e=="v2"?"repeat":"indices"}).replace(/%5B/g,"[").replace(/%5D/g,"]")}var vt=(()=>{let t={"\n":"\\n",'"':'\\"',"\u2028":"\\u2028","\u2029":"\\u2029"};return e=>{let r=e.replace(/["\n\r\u2028\u2029]/g,o=>t[o]);return o=>r.replace(/\{([\s\S]+?)\}/g,(s,i)=>{let a=o[i];return ba(a)?encodeURIComponent(a):""})}})();function ba(t){return["number","string","boolean"].includes(typeof t)}function Mo(t){let e=t.match(/\{\w+\}/g);return e?e.map(r=>r.replace(/[{}]/g,"")):[]}function de(t){if(!Array.isArray(t)||!t[0]||typeof t[0]!="object")return{};if(!ko(t[0]))return t.shift();let e=Object.keys(t[0]),r=e.filter(o=>Or.includes(o));return r.length>0&&r.length!==e.length&&De(`Options found in arguments (${r.join(", ")}). Did you mean to pass an options object? See https://github.com/stripe/stripe-node/wiki/Passing-Options.`),{}}function yt(t){let e={host:null,headers:{},settings:{},streaming:!1};if(t.length>0){let r=t[t.length-1];if(typeof r=="string")e.authenticator=gt(t.pop());else if(ko(r)){let o=Object.assign({},t.pop()),s=Object.keys(o).filter(i=>!Or.includes(i));if(s.length&&De(`Invalid options found (${s.join(", ")}); ignoring.`),o.apiKey&&(e.authenticator=gt(o.apiKey)),o.idempotencyKey&&(e.headers["Idempotency-Key"]=o.idempotencyKey),o.stripeAccount&&(e.headers["Stripe-Account"]=o.stripeAccount),o.stripeContext){if(e.headers["Stripe-Account"])throw new Error("Can't specify both stripeAccount and stripeContext.");e.headers["Stripe-Context"]=o.stripeContext}if(o.apiVersion&&(e.headers["Stripe-Version"]=o.apiVersion),Number.isInteger(o.maxNetworkRetries)&&(e.settings.maxNetworkRetries=o.maxNetworkRetries),Number.isInteger(o.timeout)&&(e.settings.timeout=o.timeout),o.host&&(e.host=o.host),o.authenticator){if(o.apiKey)throw new Error("Can't specify both apiKey and authenticator.");if(typeof o.authenticator!="function")throw new Error("The authenticator must be a function receiving a request as the first parameter.");e.authenticator=o.authenticator}o.additionalHeaders&&(e.headers=o.additionalHeaders),o.streaming&&(e.streaming=!0)}}return e}function Do(t){let e=this,r=Object.prototype.hasOwnProperty.call(t,"constructor")?t.constructor:function(...o){e.apply(this,o)};return Object.assign(r,e),r.prototype=Object.create(e.prototype),Object.assign(r.prototype,t),r}function Pt(t){if(typeof t!="object")throw new Error("Argument must be an object");return Object.keys(t).reduce((e,r)=>(t[r]!=null&&(e[r]=t[r]),e),{})}function jo(t){return t&&typeof t=="object"?Object.keys(t).reduce((e,r)=>(e[Oa(r)]=t[r],e),{}):t}function Oa(t){return t.split("-").map(e=>e.charAt(0).toUpperCase()+e.substr(1).toLowerCase()).join("-")}function Me(t,e){return e?t.then(r=>{setTimeout(()=>{e(null,r)},0)},r=>{setTimeout(()=>{e(r,null)},0)}):t}function Go(t){return t==="OAuth"?"oauth":t[0].toLowerCase()+t.substring(1)}function De(t){return typeof process.emitWarning!="function"?console.warn(`Stripe: ${t}`):process.emitWarning(t,"Stripe")}function Ra(t){let e=typeof t;return(e==="function"||e==="object")&&!!t}function No(t){let e={},r=(o,s)=>{Object.entries(o).forEach(([i,a])=>{let l=s?`${s}[${i}]`:i;if(Ra(a)){if(!(a instanceof Uint8Array)&&!Object.prototype.hasOwnProperty.call(a,"data"))return r(a,l);e[l]=a}else e[l]=String(a)})};return r(t,null),e}function Tt(t,e,r){if(!Number.isInteger(e)){if(r!==void 0)return r;throw new Error(`${t} must be an integer`)}return e}function qo(){return typeof process>"u"?{}:{lang_version:process.version,platform:process.platform}}function gt(t){let e=r=>(r.headers.Authorization="Bearer "+t,Promise.resolve());return e._apiKey=t,e}function Ho(t){let e=t.reduce((s,i)=>s+i.length,0),r=new Uint8Array(e),o=0;return t.forEach(s=>{r.set(s,o),o+=s.length}),r}function Aa(t,e){return this[t]instanceof Date?Math.floor(this[t].getTime()/1e3).toString():e}function Lo(t){return JSON.stringify(t,Aa)}function he(t){return t&&t.startsWith("/v2")?"v2":"v1"}function _t(t){return Array.isArray(t)?t.join(", "):String(t)}function Uo(t){let e=Array.isArray(t)?t[0]:t;return Number(e)}function Fo(t){return Object.entries(t).map(([e,r])=>[e,_t(r)])}var St=class t extends N{constructor(e){if(super(),!e){if(!globalThis.fetch)throw new Error("fetch() function not provided and is not defined in the global scope. You must provide a fetch implementation.");e=globalThis.fetch}globalThis.AbortController?this._fetchFn=t.makeFetchWithAbortTimeout(e):this._fetchFn=t.makeFetchWithRaceTimeout(e)}static makeFetchWithRaceTimeout(e){return(r,o,s)=>{let i,a=new Promise((c,d)=>{i=setTimeout(()=>{i=null,d(N.makeTimeoutError())},s)}),l=e(r,o);return Promise.race([l,a]).finally(()=>{i&&clearTimeout(i)})}}static makeFetchWithAbortTimeout(e){return async(r,o,s)=>{let i=new AbortController,a=setTimeout(()=>{a=null,i.abort(N.makeTimeoutError())},s);try{return await e(r,Object.assign(Object.assign({},o),{signal:i.signal}))}catch(l){throw l.name==="AbortError"?N.makeTimeoutError():l}finally{a&&clearTimeout(a)}}}getClientName(){return"fetch"}async makeRequest(e,r,o,s,i,a,l,c){let d=l==="http",u=new URL(o,`${d?"http":"https"}://${e}`);u.port=r;let h=s=="POST"||s=="PUT"||s=="PATCH",f=a||(h?"":void 0),g=await this._fetchFn(u.toString(),{method:s,headers:Fo(i),body:typeof f=="object"?JSON.stringify(f):f},c);return new Rr(g)}},Rr=class t extends W{constructor(e){super(e.status,t._transformHeadersToObject(e.headers)),this._res=e}getRawResponse(){return this._res}toStream(e){return e(),this._res.body}toJSON(){return this._res.json()}static _transformHeadersToObject(e){let r={};for(let o of e){if(!Array.isArray(o)||o.length!=2)throw new Error("Response objects produced by the fetch function given to FetchHttpClient do not have an iterable headers map. Response#headers should be an iterable object.");r[o[0]]=o[1]}return r}};var Et=class extends z{constructor(e){super(),this.subtleCrypto=e||crypto.subtle}computeHMACSignature(e,r){throw new ue("SubtleCryptoProvider cannot be used in a synchronous context.")}async computeHMACSignatureAsync(e,r){let o=new TextEncoder,s=await this.subtleCrypto.importKey("raw",o.encode(r),{name:"HMAC",hash:{name:"SHA-256"}},!1,["sign"]),i=await this.subtleCrypto.sign("hmac",s,o.encode(e)),a=new Uint8Array(i),l=new Array(a.length);for(let c=0;c<a.length;c++)l[c]=Ar[a[c]];return l.join("")}async computeSHA256Async(e){return new Uint8Array(await this.subtleCrypto.digest("SHA-256",e))}},Ar=new Array(256);for(let t=0;t<Ar.length;t++)Ar[t]=t.toString(16).padStart(2,"0");var xt=class{constructor(){this._fetchFn=null,this._agent=null}getUname(){throw new Error("getUname not implemented.")}uuid4(){return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,e=>{let r=Math.random()*16|0;return(e==="x"?r:r&3|8).toString(16)})}secureCompare(e,r){if(e.length!==r.length)return!1;let o=e.length,s=0;for(let i=0;i<o;++i)s|=e.charCodeAt(i)^r.charCodeAt(i);return s===0}createEmitter(){throw new Error("createEmitter not implemented.")}tryBufferData(e){throw new Error("tryBufferData not implemented.")}createNodeHttpClient(e){throw new Error("createNodeHttpClient not implemented.")}createFetchHttpClient(e){return new St(e)}createDefaultHttpClient(){throw new Error("createDefaultHttpClient not implemented.")}createNodeCryptoProvider(){throw new Error("createNodeCryptoProvider not implemented.")}createSubtleCryptoProvider(e){return new Et(e)}createDefaultCryptoProvider(){throw new Error("createDefaultCryptoProvider not implemented.")}};var Ct={};st(Ct,{StripeAPIError:()=>pe,StripeAuthenticationError:()=>me,StripeCardError:()=>wt,StripeConnectionError:()=>Ne,StripeError:()=>I,StripeIdempotencyError:()=>bt,StripeInvalidGrantError:()=>Ot,StripeInvalidRequestError:()=>je,StripePermissionError:()=>Ge,StripeRateLimitError:()=>fe,StripeSignatureVerificationError:()=>L,StripeUnknownError:()=>Rt,TemporarySessionExpiredError:()=>At,generateV1Error:()=>qe,generateV2Error:()=>Cr});var qe=t=>{switch(t.type){case"card_error":return new wt(t);case"invalid_request_error":return new je(t);case"api_error":return new pe(t);case"authentication_error":return new me(t);case"rate_limit_error":return new fe(t);case"idempotency_error":return new bt(t);case"invalid_grant":return new Ot(t);default:return new Rt(t)}},Cr=t=>{switch(t.type){case"temporary_session_expired":return new At(t)}switch(t.code){case"invalid_fields":return new je(t)}return qe(t)},I=class extends Error{constructor(e={},r=null){var o;super(e.message),this.type=r||this.constructor.name,this.raw=e,this.rawType=e.type,this.code=e.code,this.doc_url=e.doc_url,this.param=e.param,this.detail=e.detail,this.headers=e.headers,this.requestId=e.requestId,this.statusCode=e.statusCode,this.message=(o=e.message)!==null&&o!==void 0?o:"",this.userMessage=e.user_message,this.charge=e.charge,this.decline_code=e.decline_code,this.payment_intent=e.payment_intent,this.payment_method=e.payment_method,this.payment_method_type=e.payment_method_type,this.setup_intent=e.setup_intent,this.source=e.source}};I.generate=qe;var wt=class extends I{constructor(e={}){super(e,"StripeCardError")}},je=class extends I{constructor(e={}){super(e,"StripeInvalidRequestError")}},pe=class extends I{constructor(e={}){super(e,"StripeAPIError")}},me=class extends I{constructor(e={}){super(e,"StripeAuthenticationError")}},Ge=class extends I{constructor(e={}){super(e,"StripePermissionError")}},fe=class extends I{constructor(e={}){super(e,"StripeRateLimitError")}},Ne=class extends I{constructor(e={}){super(e,"StripeConnectionError")}},L=class extends I{constructor(e,r,o={}){super(o,"StripeSignatureVerificationError"),this.header=e,this.payload=r}},bt=class extends I{constructor(e={}){super(e,"StripeIdempotencyError")}},Ot=class extends I{constructor(e={}){super(e,"StripeInvalidGrantError")}},Rt=class extends I{constructor(e={}){super(e,"StripeUnknownError")}},At=class extends I{constructor(e={}){super(e,"TemporarySessionExpiredError")}};var $o=()=>Promise.resolve({stdout:"",stderr:""});var Ir=class extends I{},It=class extends xt{constructor(){super(),this._exec=$o,this._UNAME_CACHE=null}uuid4(){return void 0?(void 0)():super.uuid4()}getUname(){return this._UNAME_CACHE||(this._UNAME_CACHE=new Promise((e,r)=>{try{this._exec("uname -a",(o,s)=>{if(o)return e(null);e(s)})}catch{e(null)}})),this._UNAME_CACHE}secureCompare(e,r){if(!e||!r)throw new Error("secureCompare must receive two arguments");if(e.length!==r.length)return!1;if(void 0){let o=new TextEncoder,s=o.encode(e),i=o.encode(r);return(void 0)(s,i)}return super.secureCompare(e,r)}createEmitter(){return new Ie}tryBufferData(e){if(!(e.file.data instanceof Ie))return Promise.resolve(e);let r=[];return new Promise((o,s)=>{e.file.data.on("data",i=>{r.push(i)}).once("end",()=>{let i=Object.assign({},e);i.file.data=Ho(r),o(i)}).on("error",i=>{s(new Ir({message:"An error occurred while attempting to process the file for upload.",detail:i}))})})}createNodeHttpClient(e){return new ke(e)}createDefaultHttpClient(){return new ke}createNodeCryptoProvider(){return new ft}createDefaultCryptoProvider(){return this.createNodeCryptoProvider()}};var Ca=60,kt=class t{constructor(e,r){this._stripe=e,this._maxBufferedRequestMetric=r}_addHeadersDirectlyToObject(e,r){e.requestId=r["request-id"],e.stripeAccount=e.stripeAccount||r["stripe-account"],e.apiVersion=e.apiVersion||r["stripe-version"],e.idempotencyKey=e.idempotencyKey||r["idempotency-key"]}_makeResponseEvent(e,r,o){let s=Date.now(),i=s-e.request_start_time;return Pt({api_version:o["stripe-version"],account:o["stripe-account"],idempotency_key:o["idempotency-key"],method:e.method,path:e.path,status:r,request_id:this._getRequestId(o),elapsed:i,request_start_time:e.request_start_time,request_end_time:s})}_getRequestId(e){return e["request-id"]}_streamingResponseHandler(e,r,o){return s=>{let i=s.getHeaders(),a=()=>{let c=this._makeResponseEvent(e,s.getStatusCode(),i);this._stripe._emitter.emit("response",c),this._recordRequestMetrics(this._getRequestId(i),c.elapsed,r)},l=s.toStream(a);return this._addHeadersDirectlyToObject(l,i),o(null,l)}}_jsonResponseHandler(e,r,o,s){return i=>{let a=i.getHeaders(),l=this._getRequestId(a),c=i.getStatusCode(),d=this._makeResponseEvent(e,c,a);this._stripe._emitter.emit("response",d),i.toJSON().then(u=>{if(u.error){let h;throw typeof u.error=="string"&&(u.error={type:u.error,message:u.error_description}),u.error.headers=a,u.error.statusCode=c,u.error.requestId=l,c===401?h=new me(u.error):c===403?h=new Ge(u.error):c===429?h=new fe(u.error):r==="v2"?h=Cr(u.error):h=qe(u.error),h}return u},u=>{throw new pe({message:"Invalid JSON received from the Stripe API",exception:u,requestId:a["request-id"]})}).then(u=>{this._recordRequestMetrics(l,d.elapsed,o);let h=i.getRawResponse();this._addHeadersDirectlyToObject(h,a),Object.defineProperty(u,"lastResponse",{enumerable:!1,writable:!1,value:h}),s(null,u)},u=>s(u,null))}}static _generateConnectionErrorMessage(e){return`An error occurred with our connection to Stripe.${e>0?` Request was retried ${e} times.`:""}`}static _shouldRetry(e,r,o,s){return s&&r===0&&N.CONNECTION_CLOSED_ERROR_CODES.includes(s.code)?!0:r>=o?!1:e?e.getHeaders()["stripe-should-retry"]==="false"?!1:e.getHeaders()["stripe-should-retry"]==="true"||e.getStatusCode()===409||e.getStatusCode()>=500:!0}_getSleepTimeInMS(e,r=null){let o=this._stripe.getInitialNetworkRetryDelay(),s=this._stripe.getMaxNetworkRetryDelay(),i=Math.min(o*Math.pow(2,e-1),s);return i*=.5*(1+Math.random()),i=Math.max(o,i),Number.isInteger(r)&&r<=Ca&&(i=Math.max(i,r)),i*1e3}_getMaxNetworkRetries(e={}){return e.maxNetworkRetries!==void 0&&Number.isInteger(e.maxNetworkRetries)?e.maxNetworkRetries:this._stripe.getMaxNetworkRetries()}_defaultIdempotencyKey(e,r,o){let s=this._getMaxNetworkRetries(r),i=()=>`stripe-node-retry-${this._stripe._platformFunctions.uuid4()}`;if(o==="v2"){if(e==="POST"||e==="DELETE")return i()}else if(o==="v1"&&e==="POST"&&s>0)return i();return null}_makeHeaders({contentType:e,contentLength:r,apiVersion:o,clientUserAgent:s,method:i,userSuppliedHeaders:a,userSuppliedSettings:l,stripeAccount:c,stripeContext:d,apiMode:u}){let h={Accept:"application/json","Content-Type":e,"User-Agent":this._getUserAgentString(u),"X-Stripe-Client-User-Agent":s,"X-Stripe-Client-Telemetry":this._getTelemetryHeader(),"Stripe-Version":o,"Stripe-Account":c,"Stripe-Context":d,"Idempotency-Key":this._defaultIdempotencyKey(i,l,u)},f=i=="POST"||i=="PUT"||i=="PATCH";return(f||r)&&(f||De(`${i} method had non-zero contentLength but no payload is expected for this verb`),h["Content-Length"]=r),Object.assign(Pt(h),jo(a))}_getUserAgentString(e){let r=this._stripe.getConstant("PACKAGE_VERSION"),o=this._stripe._appInfo?this._stripe.getAppInfoAsString():"";return`Stripe/${e} NodeBindings/${r} ${o}`.trim()}_getTelemetryHeader(){if(this._stripe.getTelemetryEnabled()&&this._stripe._prevRequestMetrics.length>0){let e=this._stripe._prevRequestMetrics.shift();return JSON.stringify({last_request_metrics:e})}}_recordRequestMetrics(e,r,o){if(this._stripe.getTelemetryEnabled()&&e)if(this._stripe._prevRequestMetrics.length>this._maxBufferedRequestMetric)De("Request metrics buffer is full, dropping telemetry message.");else{let s={request_id:e,request_duration_ms:r};o&&o.length>0&&(s.usage=o),this._stripe._prevRequestMetrics.push(s)}}_rawRequest(e,r,o,s){return new Promise((a,l)=>{let c;try{let g=e.toUpperCase();if(g!=="POST"&&o&&Object.keys(o).length!==0)throw new Error("rawRequest only supports params on POST requests. Please pass null and add your parameters to path.");let p=[].slice.call([o,s]),m=de(p),v=g==="POST"?Object.assign({},m):null,y=yt(p),T=y.headers,P=y.authenticator;c={requestMethod:g,requestPath:r,bodyData:v,queryData:{},authenticator:P,headers:T,host:y.host,streaming:!!y.streaming,settings:{},usage:["raw_request"]}}catch(g){l(g);return}function d(g,p){g?l(g):a(p)}let{headers:u,settings:h}=c,f=c.authenticator;this._request(c.requestMethod,c.host,r,c.bodyData,f,{headers:u,settings:h,streaming:c.streaming},c.usage,d)})}_request(e,r,o,s,i,a,l=[],c,d=null){var u;let h;i=(u=i??this._stripe._authenticator)!==null&&u!==void 0?u:null;let f=he(o),g=(v,y,T,P,S)=>setTimeout(v,this._getSleepTimeInMS(P,S),y,T,P+1),p=(v,y,T)=>{let P=a.settings&&a.settings.timeout&&Number.isInteger(a.settings.timeout)&&a.settings.timeout>=0?a.settings.timeout:this._stripe.getApiField("timeout"),S={host:r||this._stripe.getApiField("host"),port:this._stripe.getApiField("port"),path:o,method:e,headers:Object.assign({},y),body:h,protocol:this._stripe.getApiField("protocol")};i(S).then(()=>{let E=this._stripe.getApiField("httpClient").makeRequest(S.host,S.port,S.path,S.method,S.headers,S.body,S.protocol,P),O=Date.now(),b=Pt({api_version:v,account:_t(y["Stripe-Account"]),idempotency_key:_t(y["Idempotency-Key"]),method:e,path:o,request_start_time:O}),q=T||0,D=this._getMaxNetworkRetries(a.settings||{});this._stripe._emitter.emit("request",b),E.then(j=>t._shouldRetry(j,q,D)?g(p,v,y,q,Uo(j.getHeaders()["retry-after"])):a.streaming&&j.getStatusCode()<400?this._streamingResponseHandler(b,l,c)(j):this._jsonResponseHandler(b,f,l,c)(j)).catch(j=>{if(t._shouldRetry(null,q,D,j))return g(p,v,y,q,null);{let eo=j.code&&j.code===N.TIMEOUT_ERROR_CODE;return c(new Ne({message:eo?`Request aborted due to timeout being reached (${P}ms)`:t._generateConnectionErrorMessage(q),detail:j}))}})}).catch(E=>{throw new I({message:"Unable to authenticate the request",exception:E})})},m=(v,y)=>{if(v)return c(v);h=y,this._stripe.getClientUserAgent(T=>{let P=this._stripe.getApiField("version"),S=this._makeHeaders({contentType:f=="v2"?"application/json":"application/x-www-form-urlencoded",contentLength:h.length,apiVersion:P,clientUserAgent:T,method:e,userSuppliedHeaders:a.headers,userSuppliedSettings:a.settings,stripeAccount:f=="v2"?null:this._stripe.getApiField("stripeAccount"),stripeContext:f=="v2"?this._stripe.getApiField("stripeContext"):null,apiMode:f});p(P,S,0)})};if(d)d(e,s,a.headers,m);else{let v;f=="v2"?v=s?Lo(s):"":v=J(s||{},f),m(null,v)}}};var Mt=class{constructor(e,r,o,s){this.index=0,this.pagePromise=e,this.promiseCache={currentPromise:null},this.requestArgs=r,this.spec=o,this.stripeResource=s}async iterate(e){if(!(e&&e.data&&typeof e.data.length=="number"))throw Error("Unexpected: Stripe API response does not have a well-formed `data` array.");let r=Ko(this.requestArgs);if(this.index<e.data.length){let o=r?e.data.length-1-this.index:this.index,s=e.data[o];return this.index+=1,{value:s,done:!1}}else if(e.has_more){this.index=0,this.pagePromise=this.getNextPage(e);let o=await this.pagePromise;return this.iterate(o)}return{done:!0,value:void 0}}getNextPage(e){throw new Error("Unimplemented")}async _next(){return this.iterate(await this.pagePromise)}next(){if(this.promiseCache.currentPromise)return this.promiseCache.currentPromise;let e=(async()=>{let r=await this._next();return this.promiseCache.currentPromise=null,r})();return this.promiseCache.currentPromise=e,e}},Mr=class extends Mt{getNextPage(e){let r=Ko(this.requestArgs),o=Da(e,r);return this.stripeResource._makeRequest(this.requestArgs,this.spec,{[r?"ending_before":"starting_after"]:o})}},Dr=class extends Mt{getNextPage(e){if(!e.next_page)throw Error("Unexpected: Stripe API response does not have a well-formed `next_page` field, but `has_more` was true.");return this.stripeResource._makeRequest(this.requestArgs,this.spec,{page:e.next_page})}},jr=class{constructor(e,r,o,s){this.currentPageIterator=(async()=>(await e).data[Symbol.iterator]())(),this.nextPageUrl=(async()=>(await e).next_page_url||null)(),this.requestArgs=r,this.spec=o,this.stripeResource=s}async turnPage(){let e=await this.nextPageUrl;if(!e)return null;this.spec.fullPath=e;let r=await this.stripeResource._makeRequest([],this.spec,{});return this.nextPageUrl=Promise.resolve(r.next_page_url),this.currentPageIterator=Promise.resolve(r.data[Symbol.iterator]()),this.currentPageIterator}async next(){{let o=(await this.currentPageIterator).next();if(!o.done)return{done:!1,value:o.value}}let e=await this.turnPage();if(!e)return{done:!0,value:void 0};let r=e.next();return r.done?{done:!0,value:void 0}:{done:!1,value:r.value}}},Vo=(t,e,r,o)=>{let s=he(r.fullPath||r.path);return s!=="v2"&&r.methodType==="search"?kr(new Dr(o,e,r,t)):s!=="v2"&&r.methodType==="list"?kr(new Mr(o,e,r,t)):s==="v2"&&r.methodType==="list"?kr(new jr(o,e,r,t)):null},kr=t=>{let e=ja((...s)=>t.next(...s)),r=Ga(e),o={autoPagingEach:e,autoPagingToArray:r,next:()=>t.next(),return:()=>({}),[Ia()]:()=>o};return o};function Ia(){return typeof Symbol<"u"&&Symbol.asyncIterator?Symbol.asyncIterator:"@@asyncIterator"}function ka(t){if(t.length<2)return null;let e=t[1];if(typeof e!="function")throw Error(`The second argument to autoPagingEach, if present, must be a callback function; received ${typeof e}`);return e}function Ma(t){if(t.length===0)return;let e=t[0];if(typeof e!="function")throw Error(`The first argument to autoPagingEach, if present, must be a callback function; received ${typeof e}`);if(e.length===2)return e;if(e.length>2)throw Error(`The \`onItem\` callback function passed to autoPagingEach must accept at most two arguments; got ${e}`);return function(o,s){let i=e(o);s(i)}}function Da(t,e){let r=e?0:t.data.length-1,o=t.data[r],s=o&&o.id;if(!s)throw Error("Unexpected: No `id` found on the last item while auto-paging a list.");return s}function ja(t){return function(){let r=[].slice.call(arguments),o=Ma(r),s=ka(r);if(r.length>2)throw Error(`autoPagingEach takes up to two arguments; received ${r}`);let i=Na(t,o);return Me(i,s)}}function Ga(t){return function(r,o){let s=r&&r.limit;if(!s)throw Error("You must pass a `limit` option to autoPagingToArray, e.g., `autoPagingToArray({limit: 1000});`.");if(s>1e4)throw Error("You cannot specify a limit of more than 10,000 items to fetch in `autoPagingToArray`; use `autoPagingEach` to iterate through longer lists.");let i=new Promise((a,l)=>{let c=[];t(d=>{if(c.push(d),c.length>=s)return!1}).then(()=>{a(c)}).catch(l)});return Me(i,o)}}function Na(t,e){return new Promise((r,o)=>{function s(i){if(i.done){r();return}let a=i.value;return new Promise(l=>{e(a,l)}).then(l=>l===!1?s({done:!0,value:void 0}):t().then(s))}t().then(s).catch(o)})}function Ko(t){let e=[].slice.call(t);return!!de(e).ending_before}function Bo(t){if(t.path!==void 0&&t.fullPath!==void 0)throw new Error(`Method spec specified both a 'path' (${t.path}) and a 'fullPath' (${t.fullPath}).`);return function(...e){let r=typeof e[e.length-1]=="function"&&e.pop();t.urlParams=Mo(t.fullPath||this.createResourcePathWithSymbols(t.path||""));let o=Me(this._makeRequest(e,t,{}),r);return Object.assign(o,Vo(this,e,t,o)),o}}n.extend=Do;n.method=Bo;n.MAX_BUFFERED_REQUEST_METRICS=100;function n(t,e){if(this._stripe=t,e)throw new Error("Support for curried url params was dropped in stripe-node v7.0.0. Instead, pass two ids.");this.basePath=vt(this.basePath||t.getApiField("basePath")),this.resourcePath=this.path,this.path=vt(this.path),this.initialize(...arguments)}n.prototype={_stripe:null,path:"",resourcePath:"",basePath:null,initialize(){},requestDataProcessor:null,validateRequest:null,createFullPath(t,e){let r=[this.basePath(e),this.path(e)];if(typeof t=="function"){let o=t(e);o&&r.push(o)}else r.push(t);return this._joinUrlParts(r)},createResourcePathWithSymbols(t){return t?`/${this._joinUrlParts([this.resourcePath,t])}`:`/${this.resourcePath}`},_joinUrlParts(t){return t.join("/").replace(/\/{2,}/g,"/")},_getRequestOpts(t,e,r){var o;let s=(e.method||"GET").toUpperCase(),i=e.usage||[],a=e.urlParams||[],l=e.encode||(b=>b),c=!!e.fullPath,d=vt(c?e.fullPath:e.path||""),u=c?e.fullPath:this.createResourcePathWithSymbols(e.path),h=[].slice.call(t),f=a.reduce((b,q)=>{let D=h.shift();if(typeof D!="string")throw new Error(`Stripe: Argument "${q}" must be a string, but got: ${D} (on API request to \`${s} ${u}\`)`);return b[q]=D,b},{}),g=de(h),p=l(Object.assign({},g,r)),m=yt(h),v=m.host||e.host,y=!!e.streaming||!!m.streaming;if(h.filter(b=>b!=null).length)throw new Error(`Stripe: Unknown arguments (${h}). Did you mean to pass an options object? See https://github.com/stripe/stripe-node/wiki/Passing-Options. (on API request to ${s} \`${u}\`)`);let T=c?d(f):this.createFullPath(d,f),P=Object.assign(m.headers,e.headers);e.validator&&e.validator(p,{headers:P});let S=e.method==="GET"||e.method==="DELETE";return{requestMethod:s,requestPath:T,bodyData:S?null:p,queryData:S?p:{},authenticator:(o=m.authenticator)!==null&&o!==void 0?o:null,headers:P,host:v??null,streaming:y,settings:m.settings,usage:i}},_makeRequest(t,e,r){return new Promise((o,s)=>{var i;let a;try{a=this._getRequestOpts(t,e,r)}catch(f){s(f);return}function l(f,g){f?s(f):o(e.transformResponseData?e.transformResponseData(g):g)}let c=Object.keys(a.queryData).length===0,d=[a.requestPath,c?"":"?",J(a.queryData,he(a.requestPath))].join(""),{headers:u,settings:h}=a;this._stripe._requestSender._request(a.requestMethod,a.host,d,a.bodyData,a.authenticator,{headers:u,settings:h,streaming:a.streaming},a.usage,l,(i=this.requestDataProcessor)===null||i===void 0?void 0:i.bind(this))})}};function zo(t){let e={DEFAULT_TOLERANCE:300,signature:null,constructEvent(u,h,f,g,p,m){try{if(!this.signature)throw new Error("ERR: missing signature helper, unable to verify");this.signature.verifyHeader(u,h,f,g||e.DEFAULT_TOLERANCE,p,m)}catch(y){throw y instanceof ue&&(y.message+="\nUse `await constructEventAsync(...)` instead of `constructEvent(...)`"),y}return u instanceof Uint8Array?JSON.parse(new TextDecoder("utf8").decode(u)):JSON.parse(u)},async constructEventAsync(u,h,f,g,p,m){if(!this.signature)throw new Error("ERR: missing signature helper, unable to verify");return await this.signature.verifyHeaderAsync(u,h,f,g||e.DEFAULT_TOLERANCE,p,m),u instanceof Uint8Array?JSON.parse(new TextDecoder("utf8").decode(u)):JSON.parse(u)},generateTestHeaderString:function(u){let h=d(u),f=h.signature||h.cryptoProvider.computeHMACSignature(h.payloadString,h.secret);return h.generateHeaderString(f)},generateTestHeaderStringAsync:async function(u){let h=d(u),f=h.signature||await h.cryptoProvider.computeHMACSignatureAsync(h.payloadString,h.secret);return h.generateHeaderString(f)}},r={EXPECTED_SCHEME:"v1",verifyHeader(u,h,f,g,p,m){let{decodedHeader:v,decodedPayload:y,details:T,suspectPayloadType:P}=s(u,h,this.EXPECTED_SCHEME),S=/\s/.test(f);p=p||c();let E=p.computeHMACSignature(o(y,T),f);return i(y,v,T,E,g,P,S,m),!0},async verifyHeaderAsync(u,h,f,g,p,m){let{decodedHeader:v,decodedPayload:y,details:T,suspectPayloadType:P}=s(u,h,this.EXPECTED_SCHEME),S=/\s/.test(f);p=p||c();let E=await p.computeHMACSignatureAsync(o(y,T),f);return i(y,v,T,E,g,P,S,m)}};function o(u,h){return`${h.timestamp}.${u}`}function s(u,h,f){if(!u)throw new L(h,u,{message:"No webhook payload was provided."});let g=typeof u!="string"&&!(u instanceof Uint8Array),p=new TextDecoder("utf8"),m=u instanceof Uint8Array?p.decode(u):u;if(Array.isArray(h))throw new Error("Unexpected: An array was passed as a header, which should not be possible for the stripe-signature header.");if(h==null||h=="")throw new L(h,u,{message:"No stripe-signature header value was provided."});let v=h instanceof Uint8Array?p.decode(h):h,y=a(v,f);if(!y||y.timestamp===-1)throw new L(v,m,{message:"Unable to extract timestamp and signatures from header"});if(!y.signatures.length)throw new L(v,m,{message:"No signatures found with expected scheme"});return{decodedPayload:m,decodedHeader:v,details:y,suspectPayloadType:g}}function i(u,h,f,g,p,m,v,y){let T=!!f.signatures.filter(t.secureCompare.bind(t,g)).length,P=`
-Learn more about webhook signing and explore webhook integration examples for various frameworks at https://docs.stripe.com/webhooks/signature`,S=v?`
+// Built with wrangler (nodejs_compat enabled)
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
+var __commonJS = (cb, mod) => function __require() {
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+};
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 
-Note: The provided signing secret contains whitespace. This often indicates an extra newline or space is in the value`:"";if(!T)throw m?new L(h,u,{message:`Webhook payload must be provided as a string or a Buffer (https://nodejs.org/api/buffer.html) instance representing the _raw_ request body.Payload was provided as a parsed JavaScript object instead. 
-Signature verification is impossible without access to the original signed material. 
-`+P+`
-`+S}):new L(h,u,{message:`No signatures found matching the expected signature for payload. Are you passing the raw request body you received from Stripe? 
- If a webhook request is being forwarded by a third-party tool, ensure that the exact request body, including JSON formatting and new line style, is preserved.
-`+P+`
-`+S});let E=Math.floor((typeof y=="number"?y:Date.now())/1e3)-f.timestamp;if(p>0&&E>p)throw new L(h,u,{message:"Timestamp outside the tolerance zone"});return!0}function a(u,h){return typeof u!="string"?null:u.split(",").reduce((f,g)=>{let p=g.split("=");return p[0]==="t"&&(f.timestamp=parseInt(p[1],10)),p[0]===h&&f.signatures.push(p[1]),f},{timestamp:-1,signatures:[]})}let l=null;function c(){return l||(l=t.createDefaultCryptoProvider()),l}function d(u){if(!u)throw new I({message:"Options are required"});let h=Math.floor(u.timestamp)||Math.floor(Date.now()/1e3),f=u.scheme||r.EXPECTED_SCHEME,g=u.cryptoProvider||c(),p=`${h}.${u.payload}`,m=v=>`t=${h},${f}=${v}`;return Object.assign(Object.assign({},u),{timestamp:h,scheme:f,cryptoProvider:g,payloadString:p,generateHeaderString:m})}return e.signature=r,e}var Gr="2025-08-27.basil";var we={};st(we,{Account:()=>Jr,AccountLinks:()=>In,AccountSessions:()=>kn,Accounts:()=>Jr,ApplePayDomains:()=>Mn,ApplicationFees:()=>Dn,Apps:()=>ac,Balance:()=>jn,BalanceTransactions:()=>Nn,Billing:()=>cc,BillingPortal:()=>lc,Charges:()=>qn,Checkout:()=>uc,Climate:()=>dc,ConfirmationTokens:()=>Hn,CountrySpecs:()=>Un,Coupons:()=>Fn,CreditNotes:()=>$n,CustomerSessions:()=>Vn,Customers:()=>Kn,Disputes:()=>Bn,Entitlements:()=>hc,EphemeralKeys:()=>Wn,Events:()=>Yn,ExchangeRates:()=>Qn,FileLinks:()=>Zn,Files:()=>ti,FinancialConnections:()=>pc,Forwarding:()=>mc,Identity:()=>fc,InvoiceItems:()=>ri,InvoicePayments:()=>si,InvoiceRenderingTemplates:()=>ni,Invoices:()=>ii,Issuing:()=>gc,Mandates:()=>ai,OAuth:()=>li,PaymentIntents:()=>ui,PaymentLinks:()=>di,PaymentMethodConfigurations:()=>hi,PaymentMethodDomains:()=>pi,PaymentMethods:()=>mi,Payouts:()=>fi,Plans:()=>gi,Prices:()=>vi,Products:()=>yi,PromotionCodes:()=>Pi,Quotes:()=>Ti,Radar:()=>vc,Refunds:()=>_i,Reporting:()=>yc,Reviews:()=>Si,SetupAttempts:()=>Ei,SetupIntents:()=>xi,ShippingRates:()=>wi,Sigma:()=>Pc,Sources:()=>bi,SubscriptionItems:()=>Oi,SubscriptionSchedules:()=>Ri,Subscriptions:()=>Ai,Tax:()=>Tc,TaxCodes:()=>Ii,TaxIds:()=>ki,TaxRates:()=>Mi,Terminal:()=>_c,TestHelpers:()=>Sc,Tokens:()=>ji,Topups:()=>Gi,Transfers:()=>Ni,Treasury:()=>Ec,V2:()=>xc,WebhookEndpoints:()=>qi});function qa(t,e){for(let r in e){if(!Object.prototype.hasOwnProperty.call(e,r))continue;let o=r[0].toLowerCase()+r.substring(1),s=new e[r](t);this[o]=s}}function R(t,e){return function(r){return new qa(r,e)}}var te=n.method,Wo=n.extend({retrieve:te({method:"GET",fullPath:"/v1/financial_connections/accounts/{account}"}),list:te({method:"GET",fullPath:"/v1/financial_connections/accounts",methodType:"list"}),disconnect:te({method:"POST",fullPath:"/v1/financial_connections/accounts/{account}/disconnect"}),listOwners:te({method:"GET",fullPath:"/v1/financial_connections/accounts/{account}/owners",methodType:"list"}),refresh:te({method:"POST",fullPath:"/v1/financial_connections/accounts/{account}/refresh"}),subscribe:te({method:"POST",fullPath:"/v1/financial_connections/accounts/{account}/subscribe"}),unsubscribe:te({method:"POST",fullPath:"/v1/financial_connections/accounts/{account}/unsubscribe"})});var Jo=n.method,Yo=n.extend({retrieve:Jo({method:"GET",fullPath:"/v1/entitlements/active_entitlements/{id}"}),list:Jo({method:"GET",fullPath:"/v1/entitlements/active_entitlements",methodType:"list"})});var ge=n.method,Xo=n.extend({create:ge({method:"POST",fullPath:"/v1/billing/alerts"}),retrieve:ge({method:"GET",fullPath:"/v1/billing/alerts/{id}"}),list:ge({method:"GET",fullPath:"/v1/billing/alerts",methodType:"list"}),activate:ge({method:"POST",fullPath:"/v1/billing/alerts/{id}/activate"}),archive:ge({method:"POST",fullPath:"/v1/billing/alerts/{id}/archive"}),deactivate:ge({method:"POST",fullPath:"/v1/billing/alerts/{id}/deactivate"})});var He=n.method,Qo=n.extend({retrieve:He({method:"GET",fullPath:"/v1/issuing/authorizations/{authorization}"}),update:He({method:"POST",fullPath:"/v1/issuing/authorizations/{authorization}"}),list:He({method:"GET",fullPath:"/v1/issuing/authorizations",methodType:"list"}),approve:He({method:"POST",fullPath:"/v1/issuing/authorizations/{authorization}/approve"}),decline:He({method:"POST",fullPath:"/v1/issuing/authorizations/{authorization}/decline"})});var re=n.method,Zo=n.extend({create:re({method:"POST",fullPath:"/v1/test_helpers/issuing/authorizations"}),capture:re({method:"POST",fullPath:"/v1/test_helpers/issuing/authorizations/{authorization}/capture"}),expire:re({method:"POST",fullPath:"/v1/test_helpers/issuing/authorizations/{authorization}/expire"}),finalizeAmount:re({method:"POST",fullPath:"/v1/test_helpers/issuing/authorizations/{authorization}/finalize_amount"}),increment:re({method:"POST",fullPath:"/v1/test_helpers/issuing/authorizations/{authorization}/increment"}),respond:re({method:"POST",fullPath:"/v1/test_helpers/issuing/authorizations/{authorization}/fraud_challenges/respond"}),reverse:re({method:"POST",fullPath:"/v1/test_helpers/issuing/authorizations/{authorization}/reverse"})});var Nr=n.method,es=n.extend({create:Nr({method:"POST",fullPath:"/v1/tax/calculations"}),retrieve:Nr({method:"GET",fullPath:"/v1/tax/calculations/{calculation}"}),listLineItems:Nr({method:"GET",fullPath:"/v1/tax/calculations/{calculation}/line_items",methodType:"list"})});var Dt=n.method,ts=n.extend({create:Dt({method:"POST",fullPath:"/v1/issuing/cardholders"}),retrieve:Dt({method:"GET",fullPath:"/v1/issuing/cardholders/{cardholder}"}),update:Dt({method:"POST",fullPath:"/v1/issuing/cardholders/{cardholder}"}),list:Dt({method:"GET",fullPath:"/v1/issuing/cardholders",methodType:"list"})});var jt=n.method,rs=n.extend({create:jt({method:"POST",fullPath:"/v1/issuing/cards"}),retrieve:jt({method:"GET",fullPath:"/v1/issuing/cards/{card}"}),update:jt({method:"POST",fullPath:"/v1/issuing/cards/{card}"}),list:jt({method:"GET",fullPath:"/v1/issuing/cards",methodType:"list"})});var Le=n.method,os=n.extend({deliverCard:Le({method:"POST",fullPath:"/v1/test_helpers/issuing/cards/{card}/shipping/deliver"}),failCard:Le({method:"POST",fullPath:"/v1/test_helpers/issuing/cards/{card}/shipping/fail"}),returnCard:Le({method:"POST",fullPath:"/v1/test_helpers/issuing/cards/{card}/shipping/return"}),shipCard:Le({method:"POST",fullPath:"/v1/test_helpers/issuing/cards/{card}/shipping/ship"}),submitCard:Le({method:"POST",fullPath:"/v1/test_helpers/issuing/cards/{card}/shipping/submit"})});var Gt=n.method,ss=n.extend({create:Gt({method:"POST",fullPath:"/v1/billing_portal/configurations"}),retrieve:Gt({method:"GET",fullPath:"/v1/billing_portal/configurations/{configuration}"}),update:Gt({method:"POST",fullPath:"/v1/billing_portal/configurations/{configuration}"}),list:Gt({method:"GET",fullPath:"/v1/billing_portal/configurations",methodType:"list"})});var Ue=n.method,ns=n.extend({create:Ue({method:"POST",fullPath:"/v1/terminal/configurations"}),retrieve:Ue({method:"GET",fullPath:"/v1/terminal/configurations/{configuration}"}),update:Ue({method:"POST",fullPath:"/v1/terminal/configurations/{configuration}"}),list:Ue({method:"GET",fullPath:"/v1/terminal/configurations",methodType:"list"}),del:Ue({method:"DELETE",fullPath:"/v1/terminal/configurations/{configuration}"})});var Ha=n.method,is=n.extend({create:Ha({method:"POST",fullPath:"/v1/test_helpers/confirmation_tokens"})});var La=n.method,as=n.extend({create:La({method:"POST",fullPath:"/v1/terminal/connection_tokens"})});var Ua=n.method,cs=n.extend({retrieve:Ua({method:"GET",fullPath:"/v1/billing/credit_balance_summary"})});var ls=n.method,us=n.extend({retrieve:ls({method:"GET",fullPath:"/v1/billing/credit_balance_transactions/{id}"}),list:ls({method:"GET",fullPath:"/v1/billing/credit_balance_transactions",methodType:"list"})});var ve=n.method,ds=n.extend({create:ve({method:"POST",fullPath:"/v1/billing/credit_grants"}),retrieve:ve({method:"GET",fullPath:"/v1/billing/credit_grants/{id}"}),update:ve({method:"POST",fullPath:"/v1/billing/credit_grants/{id}"}),list:ve({method:"GET",fullPath:"/v1/billing/credit_grants",methodType:"list"}),expire:ve({method:"POST",fullPath:"/v1/billing/credit_grants/{id}/expire"}),voidGrant:ve({method:"POST",fullPath:"/v1/billing/credit_grants/{id}/void"})});var qr=n.method,hs=n.extend({create:qr({method:"POST",fullPath:"/v1/treasury/credit_reversals"}),retrieve:qr({method:"GET",fullPath:"/v1/treasury/credit_reversals/{credit_reversal}"}),list:qr({method:"GET",fullPath:"/v1/treasury/credit_reversals",methodType:"list"})});var Fa=n.method,ps=n.extend({fundCashBalance:Fa({method:"POST",fullPath:"/v1/test_helpers/customers/{customer}/fund_cash_balance"})});var Hr=n.method,ms=n.extend({create:Hr({method:"POST",fullPath:"/v1/treasury/debit_reversals"}),retrieve:Hr({method:"GET",fullPath:"/v1/treasury/debit_reversals/{debit_reversal}"}),list:Hr({method:"GET",fullPath:"/v1/treasury/debit_reversals",methodType:"list"})});var Fe=n.method,fs=n.extend({create:Fe({method:"POST",fullPath:"/v1/issuing/disputes"}),retrieve:Fe({method:"GET",fullPath:"/v1/issuing/disputes/{dispute}"}),update:Fe({method:"POST",fullPath:"/v1/issuing/disputes/{dispute}"}),list:Fe({method:"GET",fullPath:"/v1/issuing/disputes",methodType:"list"}),submit:Fe({method:"POST",fullPath:"/v1/issuing/disputes/{dispute}/submit"})});var gs=n.method,vs=n.extend({retrieve:gs({method:"GET",fullPath:"/v1/radar/early_fraud_warnings/{early_fraud_warning}"}),list:gs({method:"GET",fullPath:"/v1/radar/early_fraud_warnings",methodType:"list"})});var Y=n.method,ys=n.extend({create:Y({method:"POST",fullPath:"/v2/core/event_destinations"}),retrieve:Y({method:"GET",fullPath:"/v2/core/event_destinations/{id}"}),update:Y({method:"POST",fullPath:"/v2/core/event_destinations/{id}"}),list:Y({method:"GET",fullPath:"/v2/core/event_destinations",methodType:"list"}),del:Y({method:"DELETE",fullPath:"/v2/core/event_destinations/{id}"}),disable:Y({method:"POST",fullPath:"/v2/core/event_destinations/{id}/disable"}),enable:Y({method:"POST",fullPath:"/v2/core/event_destinations/{id}/enable"}),ping:Y({method:"POST",fullPath:"/v2/core/event_destinations/{id}/ping"})});var Lr=n.method,Ps=n.extend({retrieve(...t){return Lr({method:"GET",fullPath:"/v2/core/events/{id}",transformResponseData:r=>this.addFetchRelatedObjectIfNeeded(r)}).apply(this,t)},list(...t){return Lr({method:"GET",fullPath:"/v2/core/events",methodType:"list",transformResponseData:r=>Object.assign(Object.assign({},r),{data:r.data.map(this.addFetchRelatedObjectIfNeeded.bind(this))})}).apply(this,t)},addFetchRelatedObjectIfNeeded(t){return!t.related_object||!t.related_object.url?t:Object.assign(Object.assign({},t),{fetchRelatedObject:()=>Lr({method:"GET",fullPath:t.related_object.url}).apply(this,[{stripeAccount:t.context}])})}});var Nt=n.method,Ts=n.extend({create:Nt({method:"POST",fullPath:"/v1/entitlements/features"}),retrieve:Nt({method:"GET",fullPath:"/v1/entitlements/features/{id}"}),update:Nt({method:"POST",fullPath:"/v1/entitlements/features/{id}"}),list:Nt({method:"GET",fullPath:"/v1/entitlements/features",methodType:"list"})});var oe=n.method,_s=n.extend({create:oe({method:"POST",fullPath:"/v1/treasury/financial_accounts"}),retrieve:oe({method:"GET",fullPath:"/v1/treasury/financial_accounts/{financial_account}"}),update:oe({method:"POST",fullPath:"/v1/treasury/financial_accounts/{financial_account}"}),list:oe({method:"GET",fullPath:"/v1/treasury/financial_accounts",methodType:"list"}),close:oe({method:"POST",fullPath:"/v1/treasury/financial_accounts/{financial_account}/close"}),retrieveFeatures:oe({method:"GET",fullPath:"/v1/treasury/financial_accounts/{financial_account}/features"}),updateFeatures:oe({method:"POST",fullPath:"/v1/treasury/financial_accounts/{financial_account}/features"})});var Ur=n.method,Ss=n.extend({fail:Ur({method:"POST",fullPath:"/v1/test_helpers/treasury/inbound_transfers/{id}/fail"}),returnInboundTransfer:Ur({method:"POST",fullPath:"/v1/test_helpers/treasury/inbound_transfers/{id}/return"}),succeed:Ur({method:"POST",fullPath:"/v1/test_helpers/treasury/inbound_transfers/{id}/succeed"})});var qt=n.method,Es=n.extend({create:qt({method:"POST",fullPath:"/v1/treasury/inbound_transfers"}),retrieve:qt({method:"GET",fullPath:"/v1/treasury/inbound_transfers/{id}"}),list:qt({method:"GET",fullPath:"/v1/treasury/inbound_transfers",methodType:"list"}),cancel:qt({method:"POST",fullPath:"/v1/treasury/inbound_transfers/{inbound_transfer}/cancel"})});var $e=n.method,xs=n.extend({create:$e({method:"POST",fullPath:"/v1/terminal/locations"}),retrieve:$e({method:"GET",fullPath:"/v1/terminal/locations/{location}"}),update:$e({method:"POST",fullPath:"/v1/terminal/locations/{location}"}),list:$e({method:"GET",fullPath:"/v1/terminal/locations",methodType:"list"}),del:$e({method:"DELETE",fullPath:"/v1/terminal/locations/{location}"})});var $a=n.method,ws=n.extend({create:$a({method:"POST",fullPath:"/v1/billing/meter_event_adjustments"})});var Va=n.method,bs=n.extend({create:Va({method:"POST",fullPath:"/v2/billing/meter_event_adjustments"})});var Ka=n.method,Os=n.extend({create:Ka({method:"POST",fullPath:"/v2/billing/meter_event_session"})});var Ba=n.method,Rs=n.extend({create:Ba({method:"POST",fullPath:"/v2/billing/meter_event_stream",host:"meter-events.stripe.com"})});var za=n.method,As=n.extend({create:za({method:"POST",fullPath:"/v1/billing/meter_events"})});var Wa=n.method,Cs=n.extend({create:Wa({method:"POST",fullPath:"/v2/billing/meter_events"})});var se=n.method,Is=n.extend({create:se({method:"POST",fullPath:"/v1/billing/meters"}),retrieve:se({method:"GET",fullPath:"/v1/billing/meters/{id}"}),update:se({method:"POST",fullPath:"/v1/billing/meters/{id}"}),list:se({method:"GET",fullPath:"/v1/billing/meters",methodType:"list"}),deactivate:se({method:"POST",fullPath:"/v1/billing/meters/{id}/deactivate"}),listEventSummaries:se({method:"GET",fullPath:"/v1/billing/meters/{id}/event_summaries",methodType:"list"}),reactivate:se({method:"POST",fullPath:"/v1/billing/meters/{id}/reactivate"})});var Ve=n.method,ks=n.extend({create:Ve({method:"POST",fullPath:"/v1/climate/orders"}),retrieve:Ve({method:"GET",fullPath:"/v1/climate/orders/{order}"}),update:Ve({method:"POST",fullPath:"/v1/climate/orders/{order}"}),list:Ve({method:"GET",fullPath:"/v1/climate/orders",methodType:"list"}),cancel:Ve({method:"POST",fullPath:"/v1/climate/orders/{order}/cancel"})});var Ht=n.method,Ms=n.extend({update:Ht({method:"POST",fullPath:"/v1/test_helpers/treasury/outbound_payments/{id}"}),fail:Ht({method:"POST",fullPath:"/v1/test_helpers/treasury/outbound_payments/{id}/fail"}),post:Ht({method:"POST",fullPath:"/v1/test_helpers/treasury/outbound_payments/{id}/post"}),returnOutboundPayment:Ht({method:"POST",fullPath:"/v1/test_helpers/treasury/outbound_payments/{id}/return"})});var Lt=n.method,Ds=n.extend({create:Lt({method:"POST",fullPath:"/v1/treasury/outbound_payments"}),retrieve:Lt({method:"GET",fullPath:"/v1/treasury/outbound_payments/{id}"}),list:Lt({method:"GET",fullPath:"/v1/treasury/outbound_payments",methodType:"list"}),cancel:Lt({method:"POST",fullPath:"/v1/treasury/outbound_payments/{id}/cancel"})});var Ut=n.method,js=n.extend({update:Ut({method:"POST",fullPath:"/v1/test_helpers/treasury/outbound_transfers/{outbound_transfer}"}),fail:Ut({method:"POST",fullPath:"/v1/test_helpers/treasury/outbound_transfers/{outbound_transfer}/fail"}),post:Ut({method:"POST",fullPath:"/v1/test_helpers/treasury/outbound_transfers/{outbound_transfer}/post"}),returnOutboundTransfer:Ut({method:"POST",fullPath:"/v1/test_helpers/treasury/outbound_transfers/{outbound_transfer}/return"})});var Ft=n.method,Gs=n.extend({create:Ft({method:"POST",fullPath:"/v1/treasury/outbound_transfers"}),retrieve:Ft({method:"GET",fullPath:"/v1/treasury/outbound_transfers/{outbound_transfer}"}),list:Ft({method:"GET",fullPath:"/v1/treasury/outbound_transfers",methodType:"list"}),cancel:Ft({method:"POST",fullPath:"/v1/treasury/outbound_transfers/{outbound_transfer}/cancel"})});var $t=n.method,Ns=n.extend({create:$t({method:"POST",fullPath:"/v1/issuing/personalization_designs"}),retrieve:$t({method:"GET",fullPath:"/v1/issuing/personalization_designs/{personalization_design}"}),update:$t({method:"POST",fullPath:"/v1/issuing/personalization_designs/{personalization_design}"}),list:$t({method:"GET",fullPath:"/v1/issuing/personalization_designs",methodType:"list"})});var Fr=n.method,qs=n.extend({activate:Fr({method:"POST",fullPath:"/v1/test_helpers/issuing/personalization_designs/{personalization_design}/activate"}),deactivate:Fr({method:"POST",fullPath:"/v1/test_helpers/issuing/personalization_designs/{personalization_design}/deactivate"}),reject:Fr({method:"POST",fullPath:"/v1/test_helpers/issuing/personalization_designs/{personalization_design}/reject"})});var Hs=n.method,Ls=n.extend({retrieve:Hs({method:"GET",fullPath:"/v1/issuing/physical_bundles/{physical_bundle}"}),list:Hs({method:"GET",fullPath:"/v1/issuing/physical_bundles",methodType:"list"})});var Us=n.method,Fs=n.extend({retrieve:Us({method:"GET",fullPath:"/v1/climate/products/{product}"}),list:Us({method:"GET",fullPath:"/v1/climate/products",methodType:"list"})});var H=n.method,$s=n.extend({create:H({method:"POST",fullPath:"/v1/terminal/readers"}),retrieve:H({method:"GET",fullPath:"/v1/terminal/readers/{reader}"}),update:H({method:"POST",fullPath:"/v1/terminal/readers/{reader}"}),list:H({method:"GET",fullPath:"/v1/terminal/readers",methodType:"list"}),del:H({method:"DELETE",fullPath:"/v1/terminal/readers/{reader}"}),cancelAction:H({method:"POST",fullPath:"/v1/terminal/readers/{reader}/cancel_action"}),collectInputs:H({method:"POST",fullPath:"/v1/terminal/readers/{reader}/collect_inputs"}),collectPaymentMethod:H({method:"POST",fullPath:"/v1/terminal/readers/{reader}/collect_payment_method"}),confirmPaymentIntent:H({method:"POST",fullPath:"/v1/terminal/readers/{reader}/confirm_payment_intent"}),processPaymentIntent:H({method:"POST",fullPath:"/v1/terminal/readers/{reader}/process_payment_intent"}),processSetupIntent:H({method:"POST",fullPath:"/v1/terminal/readers/{reader}/process_setup_intent"}),refundPayment:H({method:"POST",fullPath:"/v1/terminal/readers/{reader}/refund_payment"}),setReaderDisplay:H({method:"POST",fullPath:"/v1/terminal/readers/{reader}/set_reader_display"})});var $r=n.method,Vs=n.extend({presentPaymentMethod:$r({method:"POST",fullPath:"/v1/test_helpers/terminal/readers/{reader}/present_payment_method"}),succeedInputCollection:$r({method:"POST",fullPath:"/v1/test_helpers/terminal/readers/{reader}/succeed_input_collection"}),timeoutInputCollection:$r({method:"POST",fullPath:"/v1/test_helpers/terminal/readers/{reader}/timeout_input_collection"})});var Ja=n.method,Ks=n.extend({create:Ja({method:"POST",fullPath:"/v1/test_helpers/treasury/received_credits"})});var Bs=n.method,zs=n.extend({retrieve:Bs({method:"GET",fullPath:"/v1/treasury/received_credits/{id}"}),list:Bs({method:"GET",fullPath:"/v1/treasury/received_credits",methodType:"list"})});var Ya=n.method,Ws=n.extend({create:Ya({method:"POST",fullPath:"/v1/test_helpers/treasury/received_debits"})});var Js=n.method,Ys=n.extend({retrieve:Js({method:"GET",fullPath:"/v1/treasury/received_debits/{id}"}),list:Js({method:"GET",fullPath:"/v1/treasury/received_debits",methodType:"list"})});var Xa=n.method,Xs=n.extend({expire:Xa({method:"POST",fullPath:"/v1/test_helpers/refunds/{refund}/expire"})});var Vt=n.method,Qs=n.extend({create:Vt({method:"POST",fullPath:"/v1/tax/registrations"}),retrieve:Vt({method:"GET",fullPath:"/v1/tax/registrations/{id}"}),update:Vt({method:"POST",fullPath:"/v1/tax/registrations/{id}"}),list:Vt({method:"GET",fullPath:"/v1/tax/registrations",methodType:"list"})});var Vr=n.method,Zs=n.extend({create:Vr({method:"POST",fullPath:"/v1/reporting/report_runs"}),retrieve:Vr({method:"GET",fullPath:"/v1/reporting/report_runs/{report_run}"}),list:Vr({method:"GET",fullPath:"/v1/reporting/report_runs",methodType:"list"})});var en=n.method,tn=n.extend({retrieve:en({method:"GET",fullPath:"/v1/reporting/report_types/{report_type}"}),list:en({method:"GET",fullPath:"/v1/reporting/report_types",methodType:"list"})});var Kr=n.method,rn=n.extend({create:Kr({method:"POST",fullPath:"/v1/forwarding/requests"}),retrieve:Kr({method:"GET",fullPath:"/v1/forwarding/requests/{id}"}),list:Kr({method:"GET",fullPath:"/v1/forwarding/requests",methodType:"list"})});var on=n.method,sn=n.extend({retrieve:on({method:"GET",fullPath:"/v1/sigma/scheduled_query_runs/{scheduled_query_run}"}),list:on({method:"GET",fullPath:"/v1/sigma/scheduled_query_runs",methodType:"list"})});var Kt=n.method,nn=n.extend({create:Kt({method:"POST",fullPath:"/v1/apps/secrets"}),list:Kt({method:"GET",fullPath:"/v1/apps/secrets",methodType:"list"}),deleteWhere:Kt({method:"POST",fullPath:"/v1/apps/secrets/delete"}),find:Kt({method:"GET",fullPath:"/v1/apps/secrets/find"})});var Qa=n.method,an=n.extend({create:Qa({method:"POST",fullPath:"/v1/billing_portal/sessions"})});var ye=n.method,cn=n.extend({create:ye({method:"POST",fullPath:"/v1/checkout/sessions"}),retrieve:ye({method:"GET",fullPath:"/v1/checkout/sessions/{session}"}),update:ye({method:"POST",fullPath:"/v1/checkout/sessions/{session}"}),list:ye({method:"GET",fullPath:"/v1/checkout/sessions",methodType:"list"}),expire:ye({method:"POST",fullPath:"/v1/checkout/sessions/{session}/expire"}),listLineItems:ye({method:"GET",fullPath:"/v1/checkout/sessions/{session}/line_items",methodType:"list"})});var ln=n.method,un=n.extend({create:ln({method:"POST",fullPath:"/v1/financial_connections/sessions"}),retrieve:ln({method:"GET",fullPath:"/v1/financial_connections/sessions/{session}"})});var dn=n.method,hn=n.extend({retrieve:dn({method:"GET",fullPath:"/v1/tax/settings"}),update:dn({method:"POST",fullPath:"/v1/tax/settings"})});var pn=n.method,mn=n.extend({retrieve:pn({method:"GET",fullPath:"/v1/climate/suppliers/{supplier}"}),list:pn({method:"GET",fullPath:"/v1/climate/suppliers",methodType:"list"})});var Ke=n.method,fn=n.extend({create:Ke({method:"POST",fullPath:"/v1/test_helpers/test_clocks"}),retrieve:Ke({method:"GET",fullPath:"/v1/test_helpers/test_clocks/{test_clock}"}),list:Ke({method:"GET",fullPath:"/v1/test_helpers/test_clocks",methodType:"list"}),del:Ke({method:"DELETE",fullPath:"/v1/test_helpers/test_clocks/{test_clock}"}),advance:Ke({method:"POST",fullPath:"/v1/test_helpers/test_clocks/{test_clock}/advance"})});var Br=n.method,gn=n.extend({retrieve:Br({method:"GET",fullPath:"/v1/issuing/tokens/{token}"}),update:Br({method:"POST",fullPath:"/v1/issuing/tokens/{token}"}),list:Br({method:"GET",fullPath:"/v1/issuing/tokens",methodType:"list"})});var vn=n.method,yn=n.extend({retrieve:vn({method:"GET",fullPath:"/v1/treasury/transaction_entries/{id}"}),list:vn({method:"GET",fullPath:"/v1/treasury/transaction_entries",methodType:"list"})});var Pn=n.method,Tn=n.extend({retrieve:Pn({method:"GET",fullPath:"/v1/financial_connections/transactions/{transaction}"}),list:Pn({method:"GET",fullPath:"/v1/financial_connections/transactions",methodType:"list"})});var zr=n.method,_n=n.extend({retrieve:zr({method:"GET",fullPath:"/v1/issuing/transactions/{transaction}"}),update:zr({method:"POST",fullPath:"/v1/issuing/transactions/{transaction}"}),list:zr({method:"GET",fullPath:"/v1/issuing/transactions",methodType:"list"})});var Bt=n.method,Sn=n.extend({retrieve:Bt({method:"GET",fullPath:"/v1/tax/transactions/{transaction}"}),createFromCalculation:Bt({method:"POST",fullPath:"/v1/tax/transactions/create_from_calculation"}),createReversal:Bt({method:"POST",fullPath:"/v1/tax/transactions/create_reversal"}),listLineItems:Bt({method:"GET",fullPath:"/v1/tax/transactions/{transaction}/line_items",methodType:"list"})});var Wr=n.method,En=n.extend({createForceCapture:Wr({method:"POST",fullPath:"/v1/test_helpers/issuing/transactions/create_force_capture"}),createUnlinkedRefund:Wr({method:"POST",fullPath:"/v1/test_helpers/issuing/transactions/create_unlinked_refund"}),refund:Wr({method:"POST",fullPath:"/v1/test_helpers/issuing/transactions/{transaction}/refund"})});var xn=n.method,wn=n.extend({retrieve:xn({method:"GET",fullPath:"/v1/treasury/transactions/{id}"}),list:xn({method:"GET",fullPath:"/v1/treasury/transactions",methodType:"list"})});var zt=n.method,bn=n.extend({create:zt({method:"POST",fullPath:"/v1/radar/value_list_items"}),retrieve:zt({method:"GET",fullPath:"/v1/radar/value_list_items/{item}"}),list:zt({method:"GET",fullPath:"/v1/radar/value_list_items",methodType:"list"}),del:zt({method:"DELETE",fullPath:"/v1/radar/value_list_items/{item}"})});var Be=n.method,On=n.extend({create:Be({method:"POST",fullPath:"/v1/radar/value_lists"}),retrieve:Be({method:"GET",fullPath:"/v1/radar/value_lists/{value_list}"}),update:Be({method:"POST",fullPath:"/v1/radar/value_lists/{value_list}"}),list:Be({method:"GET",fullPath:"/v1/radar/value_lists",methodType:"list"}),del:Be({method:"DELETE",fullPath:"/v1/radar/value_lists/{value_list}"})});var Rn=n.method,An=n.extend({retrieve:Rn({method:"GET",fullPath:"/v1/identity/verification_reports/{report}"}),list:Rn({method:"GET",fullPath:"/v1/identity/verification_reports",methodType:"list"})});var Pe=n.method,Cn=n.extend({create:Pe({method:"POST",fullPath:"/v1/identity/verification_sessions"}),retrieve:Pe({method:"GET",fullPath:"/v1/identity/verification_sessions/{session}"}),update:Pe({method:"POST",fullPath:"/v1/identity/verification_sessions/{session}"}),list:Pe({method:"GET",fullPath:"/v1/identity/verification_sessions",methodType:"list"}),cancel:Pe({method:"POST",fullPath:"/v1/identity/verification_sessions/{session}/cancel"}),redact:Pe({method:"POST",fullPath:"/v1/identity/verification_sessions/{session}/redact"})});var k=n.method,Jr=n.extend({create:k({method:"POST",fullPath:"/v1/accounts"}),retrieve(t,...e){return typeof t=="string"?k({method:"GET",fullPath:"/v1/accounts/{id}"}).apply(this,[t,...e]):(t==null&&[].shift.apply([t,...e]),k({method:"GET",fullPath:"/v1/account"}).apply(this,[t,...e]))},update:k({method:"POST",fullPath:"/v1/accounts/{account}"}),list:k({method:"GET",fullPath:"/v1/accounts",methodType:"list"}),del:k({method:"DELETE",fullPath:"/v1/accounts/{account}"}),createExternalAccount:k({method:"POST",fullPath:"/v1/accounts/{account}/external_accounts"}),createLoginLink:k({method:"POST",fullPath:"/v1/accounts/{account}/login_links"}),createPerson:k({method:"POST",fullPath:"/v1/accounts/{account}/persons"}),deleteExternalAccount:k({method:"DELETE",fullPath:"/v1/accounts/{account}/external_accounts/{id}"}),deletePerson:k({method:"DELETE",fullPath:"/v1/accounts/{account}/persons/{person}"}),listCapabilities:k({method:"GET",fullPath:"/v1/accounts/{account}/capabilities",methodType:"list"}),listExternalAccounts:k({method:"GET",fullPath:"/v1/accounts/{account}/external_accounts",methodType:"list"}),listPersons:k({method:"GET",fullPath:"/v1/accounts/{account}/persons",methodType:"list"}),reject:k({method:"POST",fullPath:"/v1/accounts/{account}/reject"}),retrieveCurrent:k({method:"GET",fullPath:"/v1/account"}),retrieveCapability:k({method:"GET",fullPath:"/v1/accounts/{account}/capabilities/{capability}"}),retrieveExternalAccount:k({method:"GET",fullPath:"/v1/accounts/{account}/external_accounts/{id}"}),retrievePerson:k({method:"GET",fullPath:"/v1/accounts/{account}/persons/{person}"}),updateCapability:k({method:"POST",fullPath:"/v1/accounts/{account}/capabilities/{capability}"}),updateExternalAccount:k({method:"POST",fullPath:"/v1/accounts/{account}/external_accounts/{id}"}),updatePerson:k({method:"POST",fullPath:"/v1/accounts/{account}/persons/{person}"})});var Za=n.method,In=n.extend({create:Za({method:"POST",fullPath:"/v1/account_links"})});var ec=n.method,kn=n.extend({create:ec({method:"POST",fullPath:"/v1/account_sessions"})});var Wt=n.method,Mn=n.extend({create:Wt({method:"POST",fullPath:"/v1/apple_pay/domains"}),retrieve:Wt({method:"GET",fullPath:"/v1/apple_pay/domains/{domain}"}),list:Wt({method:"GET",fullPath:"/v1/apple_pay/domains",methodType:"list"}),del:Wt({method:"DELETE",fullPath:"/v1/apple_pay/domains/{domain}"})});var Te=n.method,Dn=n.extend({retrieve:Te({method:"GET",fullPath:"/v1/application_fees/{id}"}),list:Te({method:"GET",fullPath:"/v1/application_fees",methodType:"list"}),createRefund:Te({method:"POST",fullPath:"/v1/application_fees/{id}/refunds"}),listRefunds:Te({method:"GET",fullPath:"/v1/application_fees/{id}/refunds",methodType:"list"}),retrieveRefund:Te({method:"GET",fullPath:"/v1/application_fees/{fee}/refunds/{id}"}),updateRefund:Te({method:"POST",fullPath:"/v1/application_fees/{fee}/refunds/{id}"})});var tc=n.method,jn=n.extend({retrieve:tc({method:"GET",fullPath:"/v1/balance"})});var Gn=n.method,Nn=n.extend({retrieve:Gn({method:"GET",fullPath:"/v1/balance_transactions/{id}"}),list:Gn({method:"GET",fullPath:"/v1/balance_transactions",methodType:"list"})});var _e=n.method,qn=n.extend({create:_e({method:"POST",fullPath:"/v1/charges"}),retrieve:_e({method:"GET",fullPath:"/v1/charges/{charge}"}),update:_e({method:"POST",fullPath:"/v1/charges/{charge}"}),list:_e({method:"GET",fullPath:"/v1/charges",methodType:"list"}),capture:_e({method:"POST",fullPath:"/v1/charges/{charge}/capture"}),search:_e({method:"GET",fullPath:"/v1/charges/search",methodType:"search"})});var rc=n.method,Hn=n.extend({retrieve:rc({method:"GET",fullPath:"/v1/confirmation_tokens/{confirmation_token}"})});var Ln=n.method,Un=n.extend({retrieve:Ln({method:"GET",fullPath:"/v1/country_specs/{country}"}),list:Ln({method:"GET",fullPath:"/v1/country_specs",methodType:"list"})});var ze=n.method,Fn=n.extend({create:ze({method:"POST",fullPath:"/v1/coupons"}),retrieve:ze({method:"GET",fullPath:"/v1/coupons/{coupon}"}),update:ze({method:"POST",fullPath:"/v1/coupons/{coupon}"}),list:ze({method:"GET",fullPath:"/v1/coupons",methodType:"list"}),del:ze({method:"DELETE",fullPath:"/v1/coupons/{coupon}"})});var X=n.method,$n=n.extend({create:X({method:"POST",fullPath:"/v1/credit_notes"}),retrieve:X({method:"GET",fullPath:"/v1/credit_notes/{id}"}),update:X({method:"POST",fullPath:"/v1/credit_notes/{id}"}),list:X({method:"GET",fullPath:"/v1/credit_notes",methodType:"list"}),listLineItems:X({method:"GET",fullPath:"/v1/credit_notes/{credit_note}/lines",methodType:"list"}),listPreviewLineItems:X({method:"GET",fullPath:"/v1/credit_notes/preview/lines",methodType:"list"}),preview:X({method:"GET",fullPath:"/v1/credit_notes/preview"}),voidCreditNote:X({method:"POST",fullPath:"/v1/credit_notes/{id}/void"})});var oc=n.method,Vn=n.extend({create:oc({method:"POST",fullPath:"/v1/customer_sessions"})});var w=n.method,Kn=n.extend({create:w({method:"POST",fullPath:"/v1/customers"}),retrieve:w({method:"GET",fullPath:"/v1/customers/{customer}"}),update:w({method:"POST",fullPath:"/v1/customers/{customer}"}),list:w({method:"GET",fullPath:"/v1/customers",methodType:"list"}),del:w({method:"DELETE",fullPath:"/v1/customers/{customer}"}),createBalanceTransaction:w({method:"POST",fullPath:"/v1/customers/{customer}/balance_transactions"}),createFundingInstructions:w({method:"POST",fullPath:"/v1/customers/{customer}/funding_instructions"}),createSource:w({method:"POST",fullPath:"/v1/customers/{customer}/sources"}),createTaxId:w({method:"POST",fullPath:"/v1/customers/{customer}/tax_ids"}),deleteDiscount:w({method:"DELETE",fullPath:"/v1/customers/{customer}/discount"}),deleteSource:w({method:"DELETE",fullPath:"/v1/customers/{customer}/sources/{id}"}),deleteTaxId:w({method:"DELETE",fullPath:"/v1/customers/{customer}/tax_ids/{id}"}),listBalanceTransactions:w({method:"GET",fullPath:"/v1/customers/{customer}/balance_transactions",methodType:"list"}),listCashBalanceTransactions:w({method:"GET",fullPath:"/v1/customers/{customer}/cash_balance_transactions",methodType:"list"}),listPaymentMethods:w({method:"GET",fullPath:"/v1/customers/{customer}/payment_methods",methodType:"list"}),listSources:w({method:"GET",fullPath:"/v1/customers/{customer}/sources",methodType:"list"}),listTaxIds:w({method:"GET",fullPath:"/v1/customers/{customer}/tax_ids",methodType:"list"}),retrieveBalanceTransaction:w({method:"GET",fullPath:"/v1/customers/{customer}/balance_transactions/{transaction}"}),retrieveCashBalance:w({method:"GET",fullPath:"/v1/customers/{customer}/cash_balance"}),retrieveCashBalanceTransaction:w({method:"GET",fullPath:"/v1/customers/{customer}/cash_balance_transactions/{transaction}"}),retrievePaymentMethod:w({method:"GET",fullPath:"/v1/customers/{customer}/payment_methods/{payment_method}"}),retrieveSource:w({method:"GET",fullPath:"/v1/customers/{customer}/sources/{id}"}),retrieveTaxId:w({method:"GET",fullPath:"/v1/customers/{customer}/tax_ids/{id}"}),search:w({method:"GET",fullPath:"/v1/customers/search",methodType:"search"}),updateBalanceTransaction:w({method:"POST",fullPath:"/v1/customers/{customer}/balance_transactions/{transaction}"}),updateCashBalance:w({method:"POST",fullPath:"/v1/customers/{customer}/cash_balance"}),updateSource:w({method:"POST",fullPath:"/v1/customers/{customer}/sources/{id}"}),verifySource:w({method:"POST",fullPath:"/v1/customers/{customer}/sources/{id}/verify"})});var Jt=n.method,Bn=n.extend({retrieve:Jt({method:"GET",fullPath:"/v1/disputes/{dispute}"}),update:Jt({method:"POST",fullPath:"/v1/disputes/{dispute}"}),list:Jt({method:"GET",fullPath:"/v1/disputes",methodType:"list"}),close:Jt({method:"POST",fullPath:"/v1/disputes/{dispute}/close"})});var zn=n.method,Wn=n.extend({create:zn({method:"POST",fullPath:"/v1/ephemeral_keys",validator:(t,e)=>{if(!e.headers||!e.headers["Stripe-Version"])throw new Error("Passing apiVersion in a separate options hash is required to create an ephemeral key. See https://stripe.com/docs/api/versioning?lang=node")}}),del:zn({method:"DELETE",fullPath:"/v1/ephemeral_keys/{key}"})});var Jn=n.method,Yn=n.extend({retrieve:Jn({method:"GET",fullPath:"/v1/events/{id}"}),list:Jn({method:"GET",fullPath:"/v1/events",methodType:"list"})});var Xn=n.method,Qn=n.extend({retrieve:Xn({method:"GET",fullPath:"/v1/exchange_rates/{rate_id}"}),list:Xn({method:"GET",fullPath:"/v1/exchange_rates",methodType:"list"})});var Yt=n.method,Zn=n.extend({create:Yt({method:"POST",fullPath:"/v1/file_links"}),retrieve:Yt({method:"GET",fullPath:"/v1/file_links/{link}"}),update:Yt({method:"POST",fullPath:"/v1/file_links/{link}"}),list:Yt({method:"GET",fullPath:"/v1/file_links",methodType:"list"})});var sc=(t,e,r)=>{let o=(Math.round(Math.random()*1e16)+Math.round(Math.random()*1e16)).toString();r["Content-Type"]=`multipart/form-data; boundary=${o}`;let s=new TextEncoder,i=new Uint8Array(0),a=s.encode(`\r
-`);function l(u){let h=i,f=u instanceof Uint8Array?u:new Uint8Array(s.encode(u));i=new Uint8Array(h.length+f.length+2),i.set(h),i.set(f,h.length),i.set(a,i.length-2)}function c(u){return`"${u.replace(/"|"/g,"%22").replace(/\r\n|\r|\n/g," ")}"`}let d=No(e);for(let u in d){if(!Object.prototype.hasOwnProperty.call(d,u))continue;let h=d[u];if(l(`--${o}`),Object.prototype.hasOwnProperty.call(h,"data")){let f=h;l(`Content-Disposition: form-data; name=${c(u)}; filename=${c(f.name||"blob")}`),l(`Content-Type: ${f.type||"application/octet-stream"}`),l(""),l(f.data)}else l(`Content-Disposition: form-data; name=${c(u)}`),l(""),l(h)}return l(`--${o}--`),i};function ei(t,e,r,o){if(e=e||{},t!=="POST")return o(null,J(e));this._stripe._platformFunctions.tryBufferData(e).then(s=>{let i=sc(t,s,r);return o(null,i)}).catch(s=>o(s,null))}var Yr=n.method,ti=n.extend({create:Yr({method:"POST",fullPath:"/v1/files",headers:{"Content-Type":"multipart/form-data"},host:"files.stripe.com"}),retrieve:Yr({method:"GET",fullPath:"/v1/files/{file}"}),list:Yr({method:"GET",fullPath:"/v1/files",methodType:"list"}),requestDataProcessor:ei});var We=n.method,ri=n.extend({create:We({method:"POST",fullPath:"/v1/invoiceitems"}),retrieve:We({method:"GET",fullPath:"/v1/invoiceitems/{invoiceitem}"}),update:We({method:"POST",fullPath:"/v1/invoiceitems/{invoiceitem}"}),list:We({method:"GET",fullPath:"/v1/invoiceitems",methodType:"list"}),del:We({method:"DELETE",fullPath:"/v1/invoiceitems/{invoiceitem}"})});var oi=n.method,si=n.extend({retrieve:oi({method:"GET",fullPath:"/v1/invoice_payments/{invoice_payment}"}),list:oi({method:"GET",fullPath:"/v1/invoice_payments",methodType:"list"})});var Xt=n.method,ni=n.extend({retrieve:Xt({method:"GET",fullPath:"/v1/invoice_rendering_templates/{template}"}),list:Xt({method:"GET",fullPath:"/v1/invoice_rendering_templates",methodType:"list"}),archive:Xt({method:"POST",fullPath:"/v1/invoice_rendering_templates/{template}/archive"}),unarchive:Xt({method:"POST",fullPath:"/v1/invoice_rendering_templates/{template}/unarchive"})});var G=n.method,ii=n.extend({create:G({method:"POST",fullPath:"/v1/invoices"}),retrieve:G({method:"GET",fullPath:"/v1/invoices/{invoice}"}),update:G({method:"POST",fullPath:"/v1/invoices/{invoice}"}),list:G({method:"GET",fullPath:"/v1/invoices",methodType:"list"}),del:G({method:"DELETE",fullPath:"/v1/invoices/{invoice}"}),addLines:G({method:"POST",fullPath:"/v1/invoices/{invoice}/add_lines"}),attachPayment:G({method:"POST",fullPath:"/v1/invoices/{invoice}/attach_payment"}),createPreview:G({method:"POST",fullPath:"/v1/invoices/create_preview"}),finalizeInvoice:G({method:"POST",fullPath:"/v1/invoices/{invoice}/finalize"}),listLineItems:G({method:"GET",fullPath:"/v1/invoices/{invoice}/lines",methodType:"list"}),markUncollectible:G({method:"POST",fullPath:"/v1/invoices/{invoice}/mark_uncollectible"}),pay:G({method:"POST",fullPath:"/v1/invoices/{invoice}/pay"}),removeLines:G({method:"POST",fullPath:"/v1/invoices/{invoice}/remove_lines"}),search:G({method:"GET",fullPath:"/v1/invoices/search",methodType:"search"}),sendInvoice:G({method:"POST",fullPath:"/v1/invoices/{invoice}/send"}),updateLines:G({method:"POST",fullPath:"/v1/invoices/{invoice}/update_lines"}),updateLineItem:G({method:"POST",fullPath:"/v1/invoices/{invoice}/lines/{line_item_id}"}),voidInvoice:G({method:"POST",fullPath:"/v1/invoices/{invoice}/void"})});var nc=n.method,ai=n.extend({retrieve:nc({method:"GET",fullPath:"/v1/mandates/{mandate}"})});var ci=n.method,Xr="connect.stripe.com",li=n.extend({basePath:"/",authorizeUrl(t,e){t=t||{},e=e||{};let r="oauth/authorize";return e.express&&(r=`express/${r}`),t.response_type||(t.response_type="code"),t.client_id||(t.client_id=this._stripe.getClientId()),t.scope||(t.scope="read_write"),`https://${Xr}/${r}?${J(t)}`},token:ci({method:"POST",path:"oauth/token",host:Xr}),deauthorize(t,...e){return t.client_id||(t.client_id=this._stripe.getClientId()),ci({method:"POST",path:"oauth/deauthorize",host:Xr}).apply(this,[t,...e])}});var U=n.method,ui=n.extend({create:U({method:"POST",fullPath:"/v1/payment_intents"}),retrieve:U({method:"GET",fullPath:"/v1/payment_intents/{intent}"}),update:U({method:"POST",fullPath:"/v1/payment_intents/{intent}"}),list:U({method:"GET",fullPath:"/v1/payment_intents",methodType:"list"}),applyCustomerBalance:U({method:"POST",fullPath:"/v1/payment_intents/{intent}/apply_customer_balance"}),cancel:U({method:"POST",fullPath:"/v1/payment_intents/{intent}/cancel"}),capture:U({method:"POST",fullPath:"/v1/payment_intents/{intent}/capture"}),confirm:U({method:"POST",fullPath:"/v1/payment_intents/{intent}/confirm"}),incrementAuthorization:U({method:"POST",fullPath:"/v1/payment_intents/{intent}/increment_authorization"}),search:U({method:"GET",fullPath:"/v1/payment_intents/search",methodType:"search"}),verifyMicrodeposits:U({method:"POST",fullPath:"/v1/payment_intents/{intent}/verify_microdeposits"})});var Je=n.method,di=n.extend({create:Je({method:"POST",fullPath:"/v1/payment_links"}),retrieve:Je({method:"GET",fullPath:"/v1/payment_links/{payment_link}"}),update:Je({method:"POST",fullPath:"/v1/payment_links/{payment_link}"}),list:Je({method:"GET",fullPath:"/v1/payment_links",methodType:"list"}),listLineItems:Je({method:"GET",fullPath:"/v1/payment_links/{payment_link}/line_items",methodType:"list"})});var Qt=n.method,hi=n.extend({create:Qt({method:"POST",fullPath:"/v1/payment_method_configurations"}),retrieve:Qt({method:"GET",fullPath:"/v1/payment_method_configurations/{configuration}"}),update:Qt({method:"POST",fullPath:"/v1/payment_method_configurations/{configuration}"}),list:Qt({method:"GET",fullPath:"/v1/payment_method_configurations",methodType:"list"})});var Ye=n.method,pi=n.extend({create:Ye({method:"POST",fullPath:"/v1/payment_method_domains"}),retrieve:Ye({method:"GET",fullPath:"/v1/payment_method_domains/{payment_method_domain}"}),update:Ye({method:"POST",fullPath:"/v1/payment_method_domains/{payment_method_domain}"}),list:Ye({method:"GET",fullPath:"/v1/payment_method_domains",methodType:"list"}),validate:Ye({method:"POST",fullPath:"/v1/payment_method_domains/{payment_method_domain}/validate"})});var Se=n.method,mi=n.extend({create:Se({method:"POST",fullPath:"/v1/payment_methods"}),retrieve:Se({method:"GET",fullPath:"/v1/payment_methods/{payment_method}"}),update:Se({method:"POST",fullPath:"/v1/payment_methods/{payment_method}"}),list:Se({method:"GET",fullPath:"/v1/payment_methods",methodType:"list"}),attach:Se({method:"POST",fullPath:"/v1/payment_methods/{payment_method}/attach"}),detach:Se({method:"POST",fullPath:"/v1/payment_methods/{payment_method}/detach"})});var Ee=n.method,fi=n.extend({create:Ee({method:"POST",fullPath:"/v1/payouts"}),retrieve:Ee({method:"GET",fullPath:"/v1/payouts/{payout}"}),update:Ee({method:"POST",fullPath:"/v1/payouts/{payout}"}),list:Ee({method:"GET",fullPath:"/v1/payouts",methodType:"list"}),cancel:Ee({method:"POST",fullPath:"/v1/payouts/{payout}/cancel"}),reverse:Ee({method:"POST",fullPath:"/v1/payouts/{payout}/reverse"})});var Xe=n.method,gi=n.extend({create:Xe({method:"POST",fullPath:"/v1/plans"}),retrieve:Xe({method:"GET",fullPath:"/v1/plans/{plan}"}),update:Xe({method:"POST",fullPath:"/v1/plans/{plan}"}),list:Xe({method:"GET",fullPath:"/v1/plans",methodType:"list"}),del:Xe({method:"DELETE",fullPath:"/v1/plans/{plan}"})});var Qe=n.method,vi=n.extend({create:Qe({method:"POST",fullPath:"/v1/prices"}),retrieve:Qe({method:"GET",fullPath:"/v1/prices/{price}"}),update:Qe({method:"POST",fullPath:"/v1/prices/{price}"}),list:Qe({method:"GET",fullPath:"/v1/prices",methodType:"list"}),search:Qe({method:"GET",fullPath:"/v1/prices/search",methodType:"search"})});var $=n.method,yi=n.extend({create:$({method:"POST",fullPath:"/v1/products"}),retrieve:$({method:"GET",fullPath:"/v1/products/{id}"}),update:$({method:"POST",fullPath:"/v1/products/{id}"}),list:$({method:"GET",fullPath:"/v1/products",methodType:"list"}),del:$({method:"DELETE",fullPath:"/v1/products/{id}"}),createFeature:$({method:"POST",fullPath:"/v1/products/{product}/features"}),deleteFeature:$({method:"DELETE",fullPath:"/v1/products/{product}/features/{id}"}),listFeatures:$({method:"GET",fullPath:"/v1/products/{product}/features",methodType:"list"}),retrieveFeature:$({method:"GET",fullPath:"/v1/products/{product}/features/{id}"}),search:$({method:"GET",fullPath:"/v1/products/search",methodType:"search"})});var Zt=n.method,Pi=n.extend({create:Zt({method:"POST",fullPath:"/v1/promotion_codes"}),retrieve:Zt({method:"GET",fullPath:"/v1/promotion_codes/{promotion_code}"}),update:Zt({method:"POST",fullPath:"/v1/promotion_codes/{promotion_code}"}),list:Zt({method:"GET",fullPath:"/v1/promotion_codes",methodType:"list"})});var V=n.method,Ti=n.extend({create:V({method:"POST",fullPath:"/v1/quotes"}),retrieve:V({method:"GET",fullPath:"/v1/quotes/{quote}"}),update:V({method:"POST",fullPath:"/v1/quotes/{quote}"}),list:V({method:"GET",fullPath:"/v1/quotes",methodType:"list"}),accept:V({method:"POST",fullPath:"/v1/quotes/{quote}/accept"}),cancel:V({method:"POST",fullPath:"/v1/quotes/{quote}/cancel"}),finalizeQuote:V({method:"POST",fullPath:"/v1/quotes/{quote}/finalize"}),listComputedUpfrontLineItems:V({method:"GET",fullPath:"/v1/quotes/{quote}/computed_upfront_line_items",methodType:"list"}),listLineItems:V({method:"GET",fullPath:"/v1/quotes/{quote}/line_items",methodType:"list"}),pdf:V({method:"GET",fullPath:"/v1/quotes/{quote}/pdf",host:"files.stripe.com",streaming:!0})});var Ze=n.method,_i=n.extend({create:Ze({method:"POST",fullPath:"/v1/refunds"}),retrieve:Ze({method:"GET",fullPath:"/v1/refunds/{refund}"}),update:Ze({method:"POST",fullPath:"/v1/refunds/{refund}"}),list:Ze({method:"GET",fullPath:"/v1/refunds",methodType:"list"}),cancel:Ze({method:"POST",fullPath:"/v1/refunds/{refund}/cancel"})});var Qr=n.method,Si=n.extend({retrieve:Qr({method:"GET",fullPath:"/v1/reviews/{review}"}),list:Qr({method:"GET",fullPath:"/v1/reviews",methodType:"list"}),approve:Qr({method:"POST",fullPath:"/v1/reviews/{review}/approve"})});var ic=n.method,Ei=n.extend({list:ic({method:"GET",fullPath:"/v1/setup_attempts",methodType:"list"})});var ne=n.method,xi=n.extend({create:ne({method:"POST",fullPath:"/v1/setup_intents"}),retrieve:ne({method:"GET",fullPath:"/v1/setup_intents/{intent}"}),update:ne({method:"POST",fullPath:"/v1/setup_intents/{intent}"}),list:ne({method:"GET",fullPath:"/v1/setup_intents",methodType:"list"}),cancel:ne({method:"POST",fullPath:"/v1/setup_intents/{intent}/cancel"}),confirm:ne({method:"POST",fullPath:"/v1/setup_intents/{intent}/confirm"}),verifyMicrodeposits:ne({method:"POST",fullPath:"/v1/setup_intents/{intent}/verify_microdeposits"})});var er=n.method,wi=n.extend({create:er({method:"POST",fullPath:"/v1/shipping_rates"}),retrieve:er({method:"GET",fullPath:"/v1/shipping_rates/{shipping_rate_token}"}),update:er({method:"POST",fullPath:"/v1/shipping_rates/{shipping_rate_token}"}),list:er({method:"GET",fullPath:"/v1/shipping_rates",methodType:"list"})});var et=n.method,bi=n.extend({create:et({method:"POST",fullPath:"/v1/sources"}),retrieve:et({method:"GET",fullPath:"/v1/sources/{source}"}),update:et({method:"POST",fullPath:"/v1/sources/{source}"}),listSourceTransactions:et({method:"GET",fullPath:"/v1/sources/{source}/source_transactions",methodType:"list"}),verify:et({method:"POST",fullPath:"/v1/sources/{source}/verify"})});var tt=n.method,Oi=n.extend({create:tt({method:"POST",fullPath:"/v1/subscription_items"}),retrieve:tt({method:"GET",fullPath:"/v1/subscription_items/{item}"}),update:tt({method:"POST",fullPath:"/v1/subscription_items/{item}"}),list:tt({method:"GET",fullPath:"/v1/subscription_items",methodType:"list"}),del:tt({method:"DELETE",fullPath:"/v1/subscription_items/{item}"})});var xe=n.method,Ri=n.extend({create:xe({method:"POST",fullPath:"/v1/subscription_schedules"}),retrieve:xe({method:"GET",fullPath:"/v1/subscription_schedules/{schedule}"}),update:xe({method:"POST",fullPath:"/v1/subscription_schedules/{schedule}"}),list:xe({method:"GET",fullPath:"/v1/subscription_schedules",methodType:"list"}),cancel:xe({method:"POST",fullPath:"/v1/subscription_schedules/{schedule}/cancel"}),release:xe({method:"POST",fullPath:"/v1/subscription_schedules/{schedule}/release"})});var K=n.method,Ai=n.extend({create:K({method:"POST",fullPath:"/v1/subscriptions"}),retrieve:K({method:"GET",fullPath:"/v1/subscriptions/{subscription_exposed_id}"}),update:K({method:"POST",fullPath:"/v1/subscriptions/{subscription_exposed_id}"}),list:K({method:"GET",fullPath:"/v1/subscriptions",methodType:"list"}),cancel:K({method:"DELETE",fullPath:"/v1/subscriptions/{subscription_exposed_id}"}),deleteDiscount:K({method:"DELETE",fullPath:"/v1/subscriptions/{subscription_exposed_id}/discount"}),migrate:K({method:"POST",fullPath:"/v1/subscriptions/{subscription}/migrate"}),resume:K({method:"POST",fullPath:"/v1/subscriptions/{subscription}/resume"}),search:K({method:"GET",fullPath:"/v1/subscriptions/search",methodType:"search"})});var Ci=n.method,Ii=n.extend({retrieve:Ci({method:"GET",fullPath:"/v1/tax_codes/{id}"}),list:Ci({method:"GET",fullPath:"/v1/tax_codes",methodType:"list"})});var tr=n.method,ki=n.extend({create:tr({method:"POST",fullPath:"/v1/tax_ids"}),retrieve:tr({method:"GET",fullPath:"/v1/tax_ids/{id}"}),list:tr({method:"GET",fullPath:"/v1/tax_ids",methodType:"list"}),del:tr({method:"DELETE",fullPath:"/v1/tax_ids/{id}"})});var rr=n.method,Mi=n.extend({create:rr({method:"POST",fullPath:"/v1/tax_rates"}),retrieve:rr({method:"GET",fullPath:"/v1/tax_rates/{tax_rate}"}),update:rr({method:"POST",fullPath:"/v1/tax_rates/{tax_rate}"}),list:rr({method:"GET",fullPath:"/v1/tax_rates",methodType:"list"})});var Di=n.method,ji=n.extend({create:Di({method:"POST",fullPath:"/v1/tokens"}),retrieve:Di({method:"GET",fullPath:"/v1/tokens/{token}"})});var rt=n.method,Gi=n.extend({create:rt({method:"POST",fullPath:"/v1/topups"}),retrieve:rt({method:"GET",fullPath:"/v1/topups/{topup}"}),update:rt({method:"POST",fullPath:"/v1/topups/{topup}"}),list:rt({method:"GET",fullPath:"/v1/topups",methodType:"list"}),cancel:rt({method:"POST",fullPath:"/v1/topups/{topup}/cancel"})});var Q=n.method,Ni=n.extend({create:Q({method:"POST",fullPath:"/v1/transfers"}),retrieve:Q({method:"GET",fullPath:"/v1/transfers/{transfer}"}),update:Q({method:"POST",fullPath:"/v1/transfers/{transfer}"}),list:Q({method:"GET",fullPath:"/v1/transfers",methodType:"list"}),createReversal:Q({method:"POST",fullPath:"/v1/transfers/{id}/reversals"}),listReversals:Q({method:"GET",fullPath:"/v1/transfers/{id}/reversals",methodType:"list"}),retrieveReversal:Q({method:"GET",fullPath:"/v1/transfers/{transfer}/reversals/{id}"}),updateReversal:Q({method:"POST",fullPath:"/v1/transfers/{transfer}/reversals/{id}"})});var ot=n.method,qi=n.extend({create:ot({method:"POST",fullPath:"/v1/webhook_endpoints"}),retrieve:ot({method:"GET",fullPath:"/v1/webhook_endpoints/{webhook_endpoint}"}),update:ot({method:"POST",fullPath:"/v1/webhook_endpoints/{webhook_endpoint}"}),list:ot({method:"GET",fullPath:"/v1/webhook_endpoints",methodType:"list"}),del:ot({method:"DELETE",fullPath:"/v1/webhook_endpoints/{webhook_endpoint}"})});var ac=R("apps",{Secrets:nn}),cc=R("billing",{Alerts:Xo,CreditBalanceSummary:cs,CreditBalanceTransactions:us,CreditGrants:ds,MeterEventAdjustments:ws,MeterEvents:As,Meters:Is}),lc=R("billingPortal",{Configurations:ss,Sessions:an}),uc=R("checkout",{Sessions:cn}),dc=R("climate",{Orders:ks,Products:Fs,Suppliers:mn}),hc=R("entitlements",{ActiveEntitlements:Yo,Features:Ts}),pc=R("financialConnections",{Accounts:Wo,Sessions:un,Transactions:Tn}),mc=R("forwarding",{Requests:rn}),fc=R("identity",{VerificationReports:An,VerificationSessions:Cn}),gc=R("issuing",{Authorizations:Qo,Cardholders:ts,Cards:rs,Disputes:fs,PersonalizationDesigns:Ns,PhysicalBundles:Ls,Tokens:gn,Transactions:_n}),vc=R("radar",{EarlyFraudWarnings:vs,ValueListItems:bn,ValueLists:On}),yc=R("reporting",{ReportRuns:Zs,ReportTypes:tn}),Pc=R("sigma",{ScheduledQueryRuns:sn}),Tc=R("tax",{Calculations:es,Registrations:Qs,Settings:hn,Transactions:Sn}),_c=R("terminal",{Configurations:ns,ConnectionTokens:as,Locations:xs,Readers:$s}),Sc=R("testHelpers",{ConfirmationTokens:is,Customers:ps,Refunds:Xs,TestClocks:fn,Issuing:R("issuing",{Authorizations:Zo,Cards:os,PersonalizationDesigns:qs,Transactions:En}),Terminal:R("terminal",{Readers:Vs}),Treasury:R("treasury",{InboundTransfers:Ss,OutboundPayments:Ms,OutboundTransfers:js,ReceivedCredits:Ks,ReceivedDebits:Ws})}),Ec=R("treasury",{CreditReversals:hs,DebitReversals:ms,FinancialAccounts:_s,InboundTransfers:Es,OutboundPayments:Ds,OutboundTransfers:Gs,ReceivedCredits:zs,ReceivedDebits:Ys,TransactionEntries:yn,Transactions:wn}),xc=R("v2",{Billing:R("billing",{MeterEventAdjustments:bs,MeterEventSession:Os,MeterEventStream:Rs,MeterEvents:Cs}),Core:R("core",{EventDestinations:ys,Events:Ps})});var Hi="api.stripe.com",Li="443",Ui="/v1/",Fi=Gr,$i=8e4,Vi=5,Ki=.5,wc=["name","version","url","partner_id"],Bi=["authenticator","apiVersion","typescript","maxNetworkRetries","httpAgent","httpClient","timeout","host","port","protocol","telemetry","appInfo","stripeAccount","stripeContext"],bc=t=>new kt(t,n.MAX_BUFFERED_REQUEST_METRICS);function zi(t,e=bc){r.PACKAGE_VERSION="18.5.0",r.API_VERSION=Gr,r.USER_AGENT=Object.assign({bindings_version:r.PACKAGE_VERSION,lang:"node",publisher:"stripe",uname:null,typescript:!1},qo()),r.StripeResource=n,r.resources=we,r.HttpClient=N,r.HttpClientResponse=W,r.CryptoProvider=z,r.webhooks=zo(t);function r(o,s={}){if(!(this instanceof r))return new r(o,s);let i=this._getPropsFromConfig(s);this._platformFunctions=t,Object.defineProperty(this,"_emitter",{value:this._platformFunctions.createEmitter(),enumerable:!1,configurable:!1,writable:!1}),this.VERSION=r.PACKAGE_VERSION,this.on=this._emitter.on.bind(this._emitter),this.once=this._emitter.once.bind(this._emitter),this.off=this._emitter.removeListener.bind(this._emitter);let a=i.httpAgent||null;this._api={host:i.host||Hi,port:i.port||Li,protocol:i.protocol||"https",basePath:Ui,version:i.apiVersion||Fi,timeout:Tt("timeout",i.timeout,$i),maxNetworkRetries:Tt("maxNetworkRetries",i.maxNetworkRetries,2),agent:a,httpClient:i.httpClient||(a?this._platformFunctions.createNodeHttpClient(a):this._platformFunctions.createDefaultHttpClient()),dev:!1,stripeAccount:i.stripeAccount||null,stripeContext:i.stripeContext||null};let l=i.typescript||!1;l!==r.USER_AGENT.typescript&&(r.USER_AGENT.typescript=l),i.appInfo&&this._setAppInfo(i.appInfo),this._prepResources(),this._setAuthenticator(o,i.authenticator),this.errors=Ct,this.webhooks=r.webhooks,this._prevRequestMetrics=[],this._enableTelemetry=i.telemetry!==!1,this._requestSender=e(this),this.StripeResource=r.StripeResource}return r.errors=Ct,r.createNodeHttpClient=t.createNodeHttpClient,r.createFetchHttpClient=t.createFetchHttpClient,r.createNodeCryptoProvider=t.createNodeCryptoProvider,r.createSubtleCryptoProvider=t.createSubtleCryptoProvider,r.prototype={_appInfo:void 0,on:null,off:null,once:null,VERSION:null,StripeResource:null,webhooks:null,errors:null,_api:null,_prevRequestMetrics:null,_emitter:null,_enableTelemetry:null,_requestSender:null,_platformFunctions:null,rawRequest(o,s,i,a){return this._requestSender._rawRequest(o,s,i,a)},_setAuthenticator(o,s){if(o&&s)throw new Error("Can't specify both apiKey and authenticator");if(!o&&!s)throw new Error("Neither apiKey nor config.authenticator provided");this._authenticator=o?gt(o):s},_setAppInfo(o){if(o&&typeof o!="object")throw new Error("AppInfo must be an object.");if(o&&!o.name)throw new Error("AppInfo.name is required");o=o||{},this._appInfo=wc.reduce((s,i)=>(typeof o[i]=="string"&&(s=s||{},s[i]=o[i]),s),{})},_setApiField(o,s){this._api[o]=s},getApiField(o){return this._api[o]},setClientId(o){this._clientId=o},getClientId(){return this._clientId},getConstant:o=>{switch(o){case"DEFAULT_HOST":return Hi;case"DEFAULT_PORT":return Li;case"DEFAULT_BASE_PATH":return Ui;case"DEFAULT_API_VERSION":return Fi;case"DEFAULT_TIMEOUT":return $i;case"MAX_NETWORK_RETRY_DELAY_SEC":return Vi;case"INITIAL_NETWORK_RETRY_DELAY_SEC":return Ki}return r[o]},getMaxNetworkRetries(){return this.getApiField("maxNetworkRetries")},_setApiNumberField(o,s,i){let a=Tt(o,s,i);this._setApiField(o,a)},getMaxNetworkRetryDelay(){return Vi},getInitialNetworkRetryDelay(){return Ki},getClientUserAgent(o){return this.getClientUserAgentSeeded(r.USER_AGENT,o)},getClientUserAgentSeeded(o,s){this._platformFunctions.getUname().then(i=>{var a;let l={};for(let d in o)Object.prototype.hasOwnProperty.call(o,d)&&(l[d]=encodeURIComponent((a=o[d])!==null&&a!==void 0?a:"null"));l.uname=encodeURIComponent(i||"UNKNOWN");let c=this.getApiField("httpClient");c&&(l.httplib=encodeURIComponent(c.getClientName())),this._appInfo&&(l.application=this._appInfo),s(JSON.stringify(l))})},getAppInfoAsString(){if(!this._appInfo)return"";let o=this._appInfo.name;return this._appInfo.version&&(o+=`/${this._appInfo.version}`),this._appInfo.url&&(o+=` (${this._appInfo.url})`),o},getTelemetryEnabled(){return this._enableTelemetry},_prepResources(){for(let o in we)Object.prototype.hasOwnProperty.call(we,o)&&(this[Go(o)]=new we[o](this))},_getPropsFromConfig(o){if(!o)return{};let s=typeof o=="string";if(!(o===Object(o)&&!Array.isArray(o))&&!s)throw new Error("Config must either be an object or a string");if(s)return{apiVersion:o};if(Object.keys(o).filter(l=>!Bi.includes(l)).length>0)throw new Error(`Config object may only contain the following: ${Bi.join(", ")}`);return o},parseThinEvent(o,s,i,a,l,c){return this.webhooks.constructEvent(o,s,i,a,l,c)}},r}var Oc=zi(new It),B=Oc;function x(t){console.log("Available env bindings:",Object.keys(t));let e=["OPENSHOP-TEST3_KV","OPENSHOP_TEST3_KV","OPENSHOP_KV"];for(let s of e)if(s in t&&t[s]){console.log(`Found KV namespace via direct access: ${s}`);let i=t[s];return console.log("KV namespace object:",!!i,typeof i),console.log("KV namespace has get method:",typeof i?.get),i}let r=Object.keys(t).find(s=>s.endsWith("_KV")||s.endsWith("-KV")||s.includes("KV"));if(console.log("Found KV binding name via search:",r),r){let s=t[r];if(console.log("KV namespace object via search:",!!s,typeof s),s)return s}let o=Object.values(t).find(s=>s&&typeof s.get=="function"&&typeof s.put=="function");return console.log("Fallback KV namespace found:",!!o),o||(console.error("No KV namespace found! Available bindings:",Object.keys(t)),console.error("Environment values:",Object.values(t).map(s=>typeof s))),o}var _=new fr,Rc=["primary","secondary","accent","text","background","card"],Ac=new Set(Tr.map(t=>t.id));function Wi(){let t=typeof globalThis<"u"?globalThis.crypto:null;if(!t)throw new Error("Web Crypto API is not available in this environment");return t}function Ji(t=16){let e=Wi();if(typeof e.getRandomValues!="function")throw new Error("crypto.getRandomValues is not available");let r=new Uint8Array(t);return e.getRandomValues(r),Array.from(r,o=>o.toString(16).padStart(2,"0")).join("")}function Yi(){let t=Wi();return typeof t.randomUUID=="function"?t.randomUUID().replace(/-/g,""):Ji(32)}function Cc(t){if(!t||typeof t!="object")return{valid:!1,message:"Invalid theme payload"};let e=t.colors;if(!e||typeof e!="object")return{valid:!1,message:"Missing colors object"};for(let o of Rc){let s=typeof e[o]=="string"?e[o].trim():"";if(!Pr.test(s))return{valid:!1,message:`Invalid ${o} color`}}let r=t.typography?.fontId??t.typography?.font??t.fontId??t.font;if(r&&!Ac.has(r))return{valid:!1,message:"Invalid font selection"};if(t.corners){if(t.corners.radiusMultiplier!==void 0){let o=Number(t.corners.radiusMultiplier);if(!Number.isFinite(o)||o<0||o>4)return{valid:!1,message:"Radius multiplier must be between 0 and 4"}}if(t.corners.enabled!==void 0&&typeof t.corners.enabled!="boolean")return{valid:!1,message:"Corners enabled must be a boolean"}}return{valid:!0}}_.use("*",_o({origin:["*"],allowMethods:["GET","POST","PUT","DELETE","OPTIONS"],allowHeaders:["Content-Type","X-Admin-Token"]}));_.get("/api/health",t=>t.json({status:"healthy",timestamp:new Date().toISOString()}));_.get("/api/image-proxy",async t=>{try{let e=t.req.query("src");if(!e)return t.json({error:"Missing src"},400);let r;try{let a=new URL(e);if(!["drive.google.com","drive.usercontent.google.com","lh3.googleusercontent.com"].some(d=>a.hostname===d||a.hostname.endsWith("."+d)))return t.json({error:"Host not allowed"},400);if(a.hostname.endsWith("drive.google.com")){let d=a.pathname.match(/\/file\/d\/([a-zA-Z0-9_-]+)/),u=a.searchParams.get("id"),h=d&&d[1]||u;if(!h)return t.json({error:"Missing Google Drive file id"},400);r=`https://drive.usercontent.google.com/download?id=${h}&export=view`}else if(a.hostname.endsWith("drive.usercontent.google.com")){let d=a.searchParams.get("id");if(!d)return t.json({error:"Missing Google Drive file id"},400);let u=new URL("https://drive.usercontent.google.com/download");u.searchParams.set("id",d),u.searchParams.set("export","view"),r=u.toString()}else r=a.toString()}catch{return t.json({error:"Invalid src url"},400)}let o=await fetch(r,{redirect:"follow",headers:{"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36",Accept:"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8","Accept-Language":"en-US,en;q=0.9",Referer:"https://drive.google.com/"},cf:{cacheEverything:!0}});if(!o.ok)return t.json({error:"Upstream error",status:o.status},o.status);let s=new Headers,i=o.headers.get("content-type")||"image/jpeg";return s.set("Content-Type",i),s.set("Cache-Control","public, max-age=86400"),s.set("Access-Control-Allow-Origin","*"),s.set("Cross-Origin-Resource-Policy","cross-origin"),new Response(o.body,{headers:s})}catch(e){return console.error("Image proxy error",e),t.json({error:"Proxy failed"},500)}});_.get("/api/products",async t=>{try{let o=(await new C(x(t.env)).getAllProducts()).filter(s=>!s.archived);return t.json(o)}catch(e){return console.error("Error fetching products:",e),t.json({error:"Failed to fetch products"},500)}});_.get("/api/products/:id",async t=>{try{let r=await new C(x(t.env)).getProduct(t.req.param("id"));return r?t.json(r):t.json({error:"Product not found"},404)}catch(e){return console.error("Error fetching product:",e),t.json({error:"Failed to fetch product"},500)}});_.get("/api/collections",async t=>{try{let o=(await new C(x(t.env)).getAllCollections()).filter(s=>!s.archived);return t.json(o)}catch(e){return console.error("Error fetching collections:",e),t.json({error:"Failed to fetch collections"},500)}});_.get("/api/collections/:id",async t=>{try{let r=await new C(x(t.env)).getCollection(t.req.param("id"));return r?t.json(r):t.json({error:"Collection not found"},404)}catch(e){return console.error("Error fetching collection:",e),t.json({error:"Failed to fetch collection"},500)}});_.get("/api/collections/:id/products",async t=>{try{let e=new C(x(t.env)),r=await e.getProductsByCollection(t.req.param("id")),o=await e.getCollection(t.req.param("id")),s=o&&o.archived?[]:r.filter(i=>!i.archived);return t.json(s)}catch(e){return console.error("Error fetching collection products:",e),t.json({error:"Failed to fetch collection products"},500)}});_.get("/api/storefront/theme",async t=>{try{let e=x(t.env),r=e?await e.get(Ce):null,o=null;if(r)try{o=JSON.parse(r)}catch(i){console.error("Invalid theme JSON in KV, falling back to defaults:",i)}let s=le(o||M);return t.json(s)}catch(e){return console.error("Error fetching storefront theme:",e),t.json(le(M),200)}});_.get("/api/store-settings",async t=>{try{let r=await new C(x(t.env)).namespace.get("store:settings"),o={logoType:"text",logoText:"OpenShop",logoImageUrl:"",storeName:"OpenShop",storeDescription:"Your amazing online store",heroImageUrl:"",heroTitle:"Welcome to OpenShop",heroSubtitle:"Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.",contactEmail:"contact@example.com",businessName:"",businessAddressLine1:"",businessAddressLine2:"",businessCity:"",businessState:"",businessPostalCode:"",businessCountry:""};return r?t.json(JSON.parse(r)):t.json(o)}catch(e){return console.error("Error fetching store settings:",e),t.json({error:"Failed to fetch store settings"},500)}});_.get("/api/contact-email",async t=>{try{let r=await new C(x(t.env)).namespace.get("store:settings");if(r){let o=JSON.parse(r);return t.json({email:o.contactEmail||"contact@example.com"})}else return t.json({email:"contact@example.com"})}catch(e){return console.error("Error fetching contact email:",e),t.json({email:"contact@example.com"})}});_.post("/api/create-checkout-session",async t=>{try{let{priceId:e}=await t.req.json();if(!e)return t.json({error:"Price ID is required"},400);let o=await new B(t.env.STRIPE_SECRET_KEY).checkout.sessions.create({payment_method_types:["card"],line_items:[{price:e,quantity:1}],mode:"payment",shipping_address_collection:{allowed_countries:["US","CA","GB","AU","DE","FR","IT","ES","NL","BE","AT","CH","SE","NO","DK","FI","IE","PT","PL","CZ","HU","GR","RO","BG","HR","SI","SK","EE","LV","LT","LU","MT","CY"]},billing_address_collection:"required",success_url:`${t.env.SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,cancel_url:`${t.env.SITE_URL}/`});return t.json({sessionId:o.id})}catch(e){return console.error("Error creating checkout session:",e),t.json({error:"Failed to create checkout session"},500)}});_.post("/api/create-cart-checkout-session",async t=>{try{let{items:e}=await t.req.json();if(!e||!Array.isArray(e)||e.length===0)return t.json({error:"Cart items are required"},400);let r=new B(t.env.STRIPE_SECRET_KEY),o=e.map(a=>{let l={price:a.stripePriceId,quantity:a.quantity},c=[];return a.name&&c.push(a.name),a.selectedVariant?.name&&c.push(a.selectedVariant.name),a.selectedVariant2?.name&&c.push(a.selectedVariant2.name),c.length>0&&(l.description=c.join(" - ")),l}),s={order_type:"cart_checkout",item_count:e.length.toString(),total_quantity:e.reduce((a,l)=>a+l.quantity,0).toString()};e.forEach((a,l)=>{let c=a.name||`Item ${l+1}`;s[`item_${l}_name`]=c,a.selectedVariant?.name&&(s[`item_${l}_variant1`]=a.selectedVariant.name),a.selectedVariant2?.name&&(s[`item_${l}_variant2`]=a.selectedVariant2.name)});let i=await r.checkout.sessions.create({payment_method_types:["card"],line_items:o,mode:"payment",shipping_address_collection:{allowed_countries:["US","CA","GB","AU","DE","FR","IT","ES","NL","BE","AT","CH","SE","NO","DK","FI","IE","PT","PL","CZ","HU","GR","RO","BG","HR","SI","SK","EE","LV","LT","LU","MT","CY"]},billing_address_collection:"required",success_url:`${t.env.SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,cancel_url:`${t.env.SITE_URL}/`,metadata:s});return t.json({sessionId:i.id})}catch(e){return console.error("Error creating cart checkout session:",e),t.json({error:"Failed to create checkout session"},500)}});_.get("/api/checkout-session/:sessionId",async t=>{try{let e=t.req.param("sessionId"),o=await new B(t.env.STRIPE_SECRET_KEY).checkout.sessions.retrieve(e);return t.json({id:o.id,amount_total:o.amount_total,currency:o.currency,customer_email:o.customer_details?.email,payment_status:o.payment_status,created:o.created})}catch(e){return console.error("Error fetching checkout session:",e),t.json({error:"Failed to fetch checkout session"},500)}});_.use("/api/admin/*",async(t,e)=>{if(new Set(["/api/admin/login","/api/admin/drive/oauth/start","/api/admin/drive/oauth/callback"]).has(t.req.path))return e();try{let o=await So(t.req,t.env);return o.isValid?e():(console.error("Auth failed:",o.error),t.json({error:o.error},o.status))}catch(o){return console.error("Auth middleware error:",o),t.json({error:"Authentication middleware failed"},500)}});_.post("/api/admin/ai/generate-image",async t=>{try{let{prompt:e,inputs:r}=await t.req.json();if(!e||typeof e!="string")return t.json({error:"Missing prompt"},400);let o=[];if(o.push({text:e}),Array.isArray(r))for(let h of r.slice(0,4))h&&h.dataBase64&&h.mimeType&&o.push({inline_data:{mime_type:h.mimeType,data:h.dataBase64}});let s=t.env.GEMINI_API_KEY;if(!s)return t.json({error:"GEMINI_API_KEY not configured"},500);let a=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent",{method:"POST",headers:{"x-goog-api-key":s,"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:o}]})});if(!a.ok){let h=await a.text();return console.error("Gemini API error",a.status,h),t.json({error:"Gemini API failed",details:h},a.status)}let c=(await a.json())?.candidates||[],d=null,u="image/png";for(let h of c){let f=h?.content?.parts||[];for(let g of f){let p=g?.inlineData||g?.inline_data;if(p&&p.data){d=p.data,u=p.mimeType||p.mime_type||u;break}}if(d)break}return d?t.json({mimeType:u,dataBase64:d}):t.json({error:"No image returned from Gemini"},502)}catch(e){return console.error("AI generation error",e),t.json({error:"Generation failed"},500)}});var be="drive:oauth:tokens",Xi="drive:folder";_.get("/api/admin/drive/status",async t=>{try{let r=await x(t.env).get(be);if(!r)return t.json({connected:!1});let o=JSON.parse(r);return t.json({connected:!!o?.access_token})}catch{return t.json({connected:!1})}});_.post("/api/admin/drive/disconnect",async t=>{try{let e=x(t.env);if(!e)return t.json({error:"KV namespace not available"},500);await e.delete(be);let r=await e.list({prefix:Xi});for(let o of r.keys)await e.delete(o.name);return t.json({success:!0})}catch(e){return console.error("Error disconnecting Google Drive:",e),t.json({error:"Failed to disconnect Google Drive"},500)}});_.get("/api/admin/drive/oauth/start",async t=>{try{let e=t.env.GOOGLE_CLIENT_ID,o=`${new URL(t.req.url).origin}/api/admin/drive/oauth/callback`;if(!e||!o)return t.json({error:"Drive OAuth not configured"},500);let s=new URLSearchParams;s.set("response_type","code"),s.set("client_id",e),s.set("redirect_uri",o),s.set("scope","https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file"),s.set("access_type","offline"),s.set("prompt","consent"),s.set("include_granted_scopes","true");let i=`https://accounts.google.com/o/oauth2/v2/auth?${s.toString()}`;return t.redirect(i,302)}catch(e){return console.error("Drive oauth start error",e),t.json({error:"OAuth start failed"},500)}});_.get("/api/admin/drive/oauth/callback",async t=>{try{let e=t.req.query("code");if(!e)return t.text("Missing code",400);let r=t.env.GOOGLE_CLIENT_ID,o=t.env.GOOGLE_CLIENT_SECRET,i=`${new URL(t.req.url).origin}/api/admin/drive/oauth/callback`;if(!r||!o)return t.text("OAuth not configured",500);let a=await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({code:e,client_id:r,client_secret:o,redirect_uri:i,grant_type:"authorization_code"})});if(!a.ok){let u=await a.text();return console.error("Token exchange failed",u),t.text("Token exchange failed",500)}let l=await a.json(),c=Math.floor(Date.now()/1e3),d={access_token:l.access_token,refresh_token:l.refresh_token||null,scope:l.scope,token_type:l.token_type,expiry:c+(l.expires_in||3600)-30};return await x(t.env).put(be,JSON.stringify(d)),t.html("<!doctype html><html><body><p>Google Drive connected. You can close this window.</p><script>setTimeout(()=>window.close(),500)</script></body></html>")}catch(e){return console.error("Drive oauth callback error",e),t.text("OAuth callback failed",500)}});async function Zr(t){let e=x(t),r=await e.get(be);if(!r)throw new Error("Drive not connected");let o=JSON.parse(r),s=Math.floor(Date.now()/1e3);if(o.expiry&&o.expiry>s+60||!o.refresh_token)return o;let i=await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({client_id:t.GOOGLE_CLIENT_ID,client_secret:t.GOOGLE_CLIENT_SECRET,refresh_token:o.refresh_token,grant_type:"refresh_token"})});if(!i.ok){let l="";try{l=await i.text()}catch{}if(console.error("Drive token refresh failed",i.status,l),l&&/invalid_grant/i.test(l))try{let c={...o,access_token:"",refresh_token:null,expiry:0};await e.put(be,JSON.stringify(c))}catch{}throw new Error("Failed to refresh token")}let a=await i.json();return o.access_token=a.access_token,o.expiry=Math.floor(Date.now()/1e3)+(a.expires_in||3600)-30,await e.put(be,JSON.stringify(o)),o}async function Qi(t,e){let r=x(t),o=t.DRIVE_ROOT_FOLDER&&String(t.DRIVE_ROOT_FOLDER).trim()||Ic(t),s=`${Xi}:${o}:id`,i=await r.get(s);if(i)return{id:i,name:o};let a=`mimeType='application/vnd.google-apps.folder' and name='${o.replace(/'/g,"\\'")}' and 'root' in parents and trashed=false`,l=`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(a)}&fields=files(id,name)`,c=await fetch(l,{headers:{Authorization:`Bearer ${e.access_token}`}});if(c.ok){let f=await c.json();if(Array.isArray(f.files)&&f.files.length>0){let g=f.files[0].id;return await r.put(s,g),{id:g,name:o}}}let d=await fetch("https://www.googleapis.com/drive/v3/files",{method:"POST",headers:{Authorization:`Bearer ${e.access_token}`,"Content-Type":"application/json"},body:JSON.stringify({name:o,mimeType:"application/vnd.google-apps.folder"})});if(!d.ok){let f=await d.text();throw console.error("Failed to create Drive folder",f),new Error("Failed to create Drive folder")}let h=(await d.json()).id;return await r.put(s,h),{id:h,name:o}}function Ic(t){try{if(t.SITE_URL)return(new URL(t.SITE_URL).hostname.split(".")[0]||"openshop").replace(/[-_]+/g," ").trim()}catch{}return"OpenShop"}_.post("/api/admin/drive/upload",async t=>{try{let{mimeType:e,dataBase64:r,filename:o}=await t.req.json();if(!e||!r)return t.json({error:"Missing mimeType or dataBase64"},400);let s;try{s=await Zr(t.env)}catch(g){let p=String(g&&g.message?g.message:g);return/Drive not connected/i.test(p)?t.json({error:"Drive not connected. Please connect Google Drive in Admin."},502):/Failed to refresh token/i.test(p)?t.json({error:"Drive session expired. Please reconnect Google Drive."},502):(console.error("Drive token ensure error",g),t.json({error:"Drive authentication failed"},502))}let i=await Qi(t.env,s),a=`openshop-${Yi()}`,l={name:o||"openshop-image",parents:[i.id]},c=`--${a}\r
+// node_modules/unenv/dist/runtime/_internal/utils.mjs
+// @__NO_SIDE_EFFECTS__
+function createNotImplementedError(name) {
+  return new Error(`[unenv] ${name} is not implemented yet!`);
+}
+// @__NO_SIDE_EFFECTS__
+function notImplemented(name) {
+  const fn = /* @__PURE__ */ __name(() => {
+    throw /* @__PURE__ */ createNotImplementedError(name);
+  }, "fn");
+  return Object.assign(fn, { __unenv__: true });
+}
+// @__NO_SIDE_EFFECTS__
+function notImplementedClass(name) {
+  return class {
+    __unenv__ = true;
+    constructor() {
+      throw new Error(`[unenv] ${name} is not implemented yet!`);
+    }
+  };
+}
+var init_utils = __esm({
+  "node_modules/unenv/dist/runtime/_internal/utils.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    __name(createNotImplementedError, "createNotImplementedError");
+    __name(notImplemented, "notImplemented");
+    __name(notImplementedClass, "notImplementedClass");
+  }
+});
+
+// node_modules/unenv/dist/runtime/node/internal/perf_hooks/performance.mjs
+var _timeOrigin, _performanceNow, nodeTiming, PerformanceEntry, PerformanceMark, PerformanceMeasure, PerformanceResourceTiming, PerformanceObserverEntryList, Performance, PerformanceObserver, performance;
+var init_performance = __esm({
+  "node_modules/unenv/dist/runtime/node/internal/perf_hooks/performance.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    init_utils();
+    _timeOrigin = globalThis.performance?.timeOrigin ?? Date.now();
+    _performanceNow = globalThis.performance?.now ? globalThis.performance.now.bind(globalThis.performance) : () => Date.now() - _timeOrigin;
+    nodeTiming = {
+      name: "node",
+      entryType: "node",
+      startTime: 0,
+      duration: 0,
+      nodeStart: 0,
+      v8Start: 0,
+      bootstrapComplete: 0,
+      environment: 0,
+      loopStart: 0,
+      loopExit: 0,
+      idleTime: 0,
+      uvMetricsInfo: {
+        loopCount: 0,
+        events: 0,
+        eventsWaiting: 0
+      },
+      detail: void 0,
+      toJSON() {
+        return this;
+      }
+    };
+    PerformanceEntry = class {
+      static {
+        __name(this, "PerformanceEntry");
+      }
+      __unenv__ = true;
+      detail;
+      entryType = "event";
+      name;
+      startTime;
+      constructor(name, options) {
+        this.name = name;
+        this.startTime = options?.startTime || _performanceNow();
+        this.detail = options?.detail;
+      }
+      get duration() {
+        return _performanceNow() - this.startTime;
+      }
+      toJSON() {
+        return {
+          name: this.name,
+          entryType: this.entryType,
+          startTime: this.startTime,
+          duration: this.duration,
+          detail: this.detail
+        };
+      }
+    };
+    PerformanceMark = class PerformanceMark2 extends PerformanceEntry {
+      static {
+        __name(this, "PerformanceMark");
+      }
+      entryType = "mark";
+      constructor() {
+        super(...arguments);
+      }
+      get duration() {
+        return 0;
+      }
+    };
+    PerformanceMeasure = class extends PerformanceEntry {
+      static {
+        __name(this, "PerformanceMeasure");
+      }
+      entryType = "measure";
+    };
+    PerformanceResourceTiming = class extends PerformanceEntry {
+      static {
+        __name(this, "PerformanceResourceTiming");
+      }
+      entryType = "resource";
+      serverTiming = [];
+      connectEnd = 0;
+      connectStart = 0;
+      decodedBodySize = 0;
+      domainLookupEnd = 0;
+      domainLookupStart = 0;
+      encodedBodySize = 0;
+      fetchStart = 0;
+      initiatorType = "";
+      name = "";
+      nextHopProtocol = "";
+      redirectEnd = 0;
+      redirectStart = 0;
+      requestStart = 0;
+      responseEnd = 0;
+      responseStart = 0;
+      secureConnectionStart = 0;
+      startTime = 0;
+      transferSize = 0;
+      workerStart = 0;
+      responseStatus = 0;
+    };
+    PerformanceObserverEntryList = class {
+      static {
+        __name(this, "PerformanceObserverEntryList");
+      }
+      __unenv__ = true;
+      getEntries() {
+        return [];
+      }
+      getEntriesByName(_name, _type) {
+        return [];
+      }
+      getEntriesByType(type) {
+        return [];
+      }
+    };
+    Performance = class {
+      static {
+        __name(this, "Performance");
+      }
+      __unenv__ = true;
+      timeOrigin = _timeOrigin;
+      eventCounts = /* @__PURE__ */ new Map();
+      _entries = [];
+      _resourceTimingBufferSize = 0;
+      navigation = void 0;
+      timing = void 0;
+      timerify(_fn, _options) {
+        throw createNotImplementedError("Performance.timerify");
+      }
+      get nodeTiming() {
+        return nodeTiming;
+      }
+      eventLoopUtilization() {
+        return {};
+      }
+      markResourceTiming() {
+        return new PerformanceResourceTiming("");
+      }
+      onresourcetimingbufferfull = null;
+      now() {
+        if (this.timeOrigin === _timeOrigin) {
+          return _performanceNow();
+        }
+        return Date.now() - this.timeOrigin;
+      }
+      clearMarks(markName) {
+        this._entries = markName ? this._entries.filter((e) => e.name !== markName) : this._entries.filter((e) => e.entryType !== "mark");
+      }
+      clearMeasures(measureName) {
+        this._entries = measureName ? this._entries.filter((e) => e.name !== measureName) : this._entries.filter((e) => e.entryType !== "measure");
+      }
+      clearResourceTimings() {
+        this._entries = this._entries.filter((e) => e.entryType !== "resource" || e.entryType !== "navigation");
+      }
+      getEntries() {
+        return this._entries;
+      }
+      getEntriesByName(name, type) {
+        return this._entries.filter((e) => e.name === name && (!type || e.entryType === type));
+      }
+      getEntriesByType(type) {
+        return this._entries.filter((e) => e.entryType === type);
+      }
+      mark(name, options) {
+        const entry = new PerformanceMark(name, options);
+        this._entries.push(entry);
+        return entry;
+      }
+      measure(measureName, startOrMeasureOptions, endMark) {
+        let start;
+        let end;
+        if (typeof startOrMeasureOptions === "string") {
+          start = this.getEntriesByName(startOrMeasureOptions, "mark")[0]?.startTime;
+          end = this.getEntriesByName(endMark, "mark")[0]?.startTime;
+        } else {
+          start = Number.parseFloat(startOrMeasureOptions?.start) || this.now();
+          end = Number.parseFloat(startOrMeasureOptions?.end) || this.now();
+        }
+        const entry = new PerformanceMeasure(measureName, {
+          startTime: start,
+          detail: {
+            start,
+            end
+          }
+        });
+        this._entries.push(entry);
+        return entry;
+      }
+      setResourceTimingBufferSize(maxSize) {
+        this._resourceTimingBufferSize = maxSize;
+      }
+      addEventListener(type, listener, options) {
+        throw createNotImplementedError("Performance.addEventListener");
+      }
+      removeEventListener(type, listener, options) {
+        throw createNotImplementedError("Performance.removeEventListener");
+      }
+      dispatchEvent(event) {
+        throw createNotImplementedError("Performance.dispatchEvent");
+      }
+      toJSON() {
+        return this;
+      }
+    };
+    PerformanceObserver = class {
+      static {
+        __name(this, "PerformanceObserver");
+      }
+      __unenv__ = true;
+      static supportedEntryTypes = [];
+      _callback = null;
+      constructor(callback) {
+        this._callback = callback;
+      }
+      takeRecords() {
+        return [];
+      }
+      disconnect() {
+        throw createNotImplementedError("PerformanceObserver.disconnect");
+      }
+      observe(options) {
+        throw createNotImplementedError("PerformanceObserver.observe");
+      }
+      bind(fn) {
+        return fn;
+      }
+      runInAsyncScope(fn, thisArg, ...args) {
+        return fn.call(thisArg, ...args);
+      }
+      asyncId() {
+        return 0;
+      }
+      triggerAsyncId() {
+        return 0;
+      }
+      emitDestroy() {
+        return this;
+      }
+    };
+    performance = globalThis.performance && "addEventListener" in globalThis.performance ? globalThis.performance : new Performance();
+  }
+});
+
+// node_modules/unenv/dist/runtime/node/perf_hooks.mjs
+var init_perf_hooks = __esm({
+  "node_modules/unenv/dist/runtime/node/perf_hooks.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    init_performance();
+  }
+});
+
+// node_modules/@cloudflare/unenv-preset/dist/runtime/polyfill/performance.mjs
+var init_performance2 = __esm({
+  "node_modules/@cloudflare/unenv-preset/dist/runtime/polyfill/performance.mjs"() {
+    init_perf_hooks();
+    globalThis.performance = performance;
+    globalThis.Performance = Performance;
+    globalThis.PerformanceEntry = PerformanceEntry;
+    globalThis.PerformanceMark = PerformanceMark;
+    globalThis.PerformanceMeasure = PerformanceMeasure;
+    globalThis.PerformanceObserver = PerformanceObserver;
+    globalThis.PerformanceObserverEntryList = PerformanceObserverEntryList;
+    globalThis.PerformanceResourceTiming = PerformanceResourceTiming;
+  }
+});
+
+// node_modules/unenv/dist/runtime/mock/noop.mjs
+var noop_default;
+var init_noop = __esm({
+  "node_modules/unenv/dist/runtime/mock/noop.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    noop_default = Object.assign(() => {
+    }, { __unenv__: true });
+  }
+});
+
+// node_modules/unenv/dist/runtime/node/console.mjs
+import { Writable } from "node:stream";
+var _console, _ignoreErrors, _stderr, _stdout, log, info, trace, debug, table, error, warn, createTask, clear, count, countReset, dir, dirxml, group, groupEnd, groupCollapsed, profile, profileEnd, time, timeEnd, timeLog, timeStamp, Console, _times, _stdoutErrorHandler, _stderrErrorHandler;
+var init_console = __esm({
+  "node_modules/unenv/dist/runtime/node/console.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    init_noop();
+    init_utils();
+    _console = globalThis.console;
+    _ignoreErrors = true;
+    _stderr = new Writable();
+    _stdout = new Writable();
+    log = _console?.log ?? noop_default;
+    info = _console?.info ?? log;
+    trace = _console?.trace ?? info;
+    debug = _console?.debug ?? log;
+    table = _console?.table ?? log;
+    error = _console?.error ?? log;
+    warn = _console?.warn ?? error;
+    createTask = _console?.createTask ?? /* @__PURE__ */ notImplemented("console.createTask");
+    clear = _console?.clear ?? noop_default;
+    count = _console?.count ?? noop_default;
+    countReset = _console?.countReset ?? noop_default;
+    dir = _console?.dir ?? noop_default;
+    dirxml = _console?.dirxml ?? noop_default;
+    group = _console?.group ?? noop_default;
+    groupEnd = _console?.groupEnd ?? noop_default;
+    groupCollapsed = _console?.groupCollapsed ?? noop_default;
+    profile = _console?.profile ?? noop_default;
+    profileEnd = _console?.profileEnd ?? noop_default;
+    time = _console?.time ?? noop_default;
+    timeEnd = _console?.timeEnd ?? noop_default;
+    timeLog = _console?.timeLog ?? noop_default;
+    timeStamp = _console?.timeStamp ?? noop_default;
+    Console = _console?.Console ?? /* @__PURE__ */ notImplementedClass("console.Console");
+    _times = /* @__PURE__ */ new Map();
+    _stdoutErrorHandler = noop_default;
+    _stderrErrorHandler = noop_default;
+  }
+});
+
+// node_modules/@cloudflare/unenv-preset/dist/runtime/node/console.mjs
+var workerdConsole, assert, clear2, context, count2, countReset2, createTask2, debug2, dir2, dirxml2, error2, group2, groupCollapsed2, groupEnd2, info2, log2, profile2, profileEnd2, table2, time2, timeEnd2, timeLog2, timeStamp2, trace2, warn2, console_default;
+var init_console2 = __esm({
+  "node_modules/@cloudflare/unenv-preset/dist/runtime/node/console.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    init_console();
+    workerdConsole = globalThis["console"];
+    ({
+      assert,
+      clear: clear2,
+      context: (
+        // @ts-expect-error undocumented public API
+        context
+      ),
+      count: count2,
+      countReset: countReset2,
+      createTask: (
+        // @ts-expect-error undocumented public API
+        createTask2
+      ),
+      debug: debug2,
+      dir: dir2,
+      dirxml: dirxml2,
+      error: error2,
+      group: group2,
+      groupCollapsed: groupCollapsed2,
+      groupEnd: groupEnd2,
+      info: info2,
+      log: log2,
+      profile: profile2,
+      profileEnd: profileEnd2,
+      table: table2,
+      time: time2,
+      timeEnd: timeEnd2,
+      timeLog: timeLog2,
+      timeStamp: timeStamp2,
+      trace: trace2,
+      warn: warn2
+    } = workerdConsole);
+    Object.assign(workerdConsole, {
+      Console,
+      _ignoreErrors,
+      _stderr,
+      _stderrErrorHandler,
+      _stdout,
+      _stdoutErrorHandler,
+      _times
+    });
+    console_default = workerdConsole;
+  }
+});
+
+// node_modules/wrangler/_virtual_unenv_global_polyfill-@cloudflare-unenv-preset-node-console
+var init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console = __esm({
+  "node_modules/wrangler/_virtual_unenv_global_polyfill-@cloudflare-unenv-preset-node-console"() {
+    init_console2();
+    globalThis.console = console_default;
+  }
+});
+
+// node_modules/unenv/dist/runtime/node/internal/process/hrtime.mjs
+var hrtime;
+var init_hrtime = __esm({
+  "node_modules/unenv/dist/runtime/node/internal/process/hrtime.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    hrtime = /* @__PURE__ */ Object.assign(/* @__PURE__ */ __name(function hrtime2(startTime) {
+      const now = Date.now();
+      const seconds = Math.trunc(now / 1e3);
+      const nanos = now % 1e3 * 1e6;
+      if (startTime) {
+        let diffSeconds = seconds - startTime[0];
+        let diffNanos = nanos - startTime[0];
+        if (diffNanos < 0) {
+          diffSeconds = diffSeconds - 1;
+          diffNanos = 1e9 + diffNanos;
+        }
+        return [diffSeconds, diffNanos];
+      }
+      return [seconds, nanos];
+    }, "hrtime"), { bigint: /* @__PURE__ */ __name(function bigint() {
+      return BigInt(Date.now() * 1e6);
+    }, "bigint") });
+  }
+});
+
+// node_modules/unenv/dist/runtime/node/internal/tty/read-stream.mjs
+var ReadStream;
+var init_read_stream = __esm({
+  "node_modules/unenv/dist/runtime/node/internal/tty/read-stream.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    ReadStream = class {
+      static {
+        __name(this, "ReadStream");
+      }
+      fd;
+      isRaw = false;
+      isTTY = false;
+      constructor(fd) {
+        this.fd = fd;
+      }
+      setRawMode(mode) {
+        this.isRaw = mode;
+        return this;
+      }
+    };
+  }
+});
+
+// node_modules/unenv/dist/runtime/node/internal/tty/write-stream.mjs
+var WriteStream;
+var init_write_stream = __esm({
+  "node_modules/unenv/dist/runtime/node/internal/tty/write-stream.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    WriteStream = class {
+      static {
+        __name(this, "WriteStream");
+      }
+      fd;
+      columns = 80;
+      rows = 24;
+      isTTY = false;
+      constructor(fd) {
+        this.fd = fd;
+      }
+      clearLine(dir3, callback) {
+        callback && callback();
+        return false;
+      }
+      clearScreenDown(callback) {
+        callback && callback();
+        return false;
+      }
+      cursorTo(x, y, callback) {
+        callback && typeof callback === "function" && callback();
+        return false;
+      }
+      moveCursor(dx, dy, callback) {
+        callback && callback();
+        return false;
+      }
+      getColorDepth(env2) {
+        return 1;
+      }
+      hasColors(count3, env2) {
+        return false;
+      }
+      getWindowSize() {
+        return [this.columns, this.rows];
+      }
+      write(str, encoding, cb) {
+        if (str instanceof Uint8Array) {
+          str = new TextDecoder().decode(str);
+        }
+        try {
+          console.log(str);
+        } catch {
+        }
+        cb && typeof cb === "function" && cb();
+        return false;
+      }
+    };
+  }
+});
+
+// node_modules/unenv/dist/runtime/node/tty.mjs
+var init_tty = __esm({
+  "node_modules/unenv/dist/runtime/node/tty.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    init_read_stream();
+    init_write_stream();
+  }
+});
+
+// node_modules/unenv/dist/runtime/node/internal/process/node-version.mjs
+var NODE_VERSION;
+var init_node_version = __esm({
+  "node_modules/unenv/dist/runtime/node/internal/process/node-version.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    NODE_VERSION = "22.14.0";
+  }
+});
+
+// node_modules/unenv/dist/runtime/node/internal/process/process.mjs
+import { EventEmitter } from "node:events";
+var Process;
+var init_process = __esm({
+  "node_modules/unenv/dist/runtime/node/internal/process/process.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    init_tty();
+    init_utils();
+    init_node_version();
+    Process = class _Process extends EventEmitter {
+      static {
+        __name(this, "Process");
+      }
+      env;
+      hrtime;
+      nextTick;
+      constructor(impl) {
+        super();
+        this.env = impl.env;
+        this.hrtime = impl.hrtime;
+        this.nextTick = impl.nextTick;
+        for (const prop of [...Object.getOwnPropertyNames(_Process.prototype), ...Object.getOwnPropertyNames(EventEmitter.prototype)]) {
+          const value = this[prop];
+          if (typeof value === "function") {
+            this[prop] = value.bind(this);
+          }
+        }
+      }
+      // --- event emitter ---
+      emitWarning(warning, type, code) {
+        console.warn(`${code ? `[${code}] ` : ""}${type ? `${type}: ` : ""}${warning}`);
+      }
+      emit(...args) {
+        return super.emit(...args);
+      }
+      listeners(eventName) {
+        return super.listeners(eventName);
+      }
+      // --- stdio (lazy initializers) ---
+      #stdin;
+      #stdout;
+      #stderr;
+      get stdin() {
+        return this.#stdin ??= new ReadStream(0);
+      }
+      get stdout() {
+        return this.#stdout ??= new WriteStream(1);
+      }
+      get stderr() {
+        return this.#stderr ??= new WriteStream(2);
+      }
+      // --- cwd ---
+      #cwd = "/";
+      chdir(cwd2) {
+        this.#cwd = cwd2;
+      }
+      cwd() {
+        return this.#cwd;
+      }
+      // --- dummy props and getters ---
+      arch = "";
+      platform = "";
+      argv = [];
+      argv0 = "";
+      execArgv = [];
+      execPath = "";
+      title = "";
+      pid = 200;
+      ppid = 100;
+      get version() {
+        return `v${NODE_VERSION}`;
+      }
+      get versions() {
+        return { node: NODE_VERSION };
+      }
+      get allowedNodeEnvironmentFlags() {
+        return /* @__PURE__ */ new Set();
+      }
+      get sourceMapsEnabled() {
+        return false;
+      }
+      get debugPort() {
+        return 0;
+      }
+      get throwDeprecation() {
+        return false;
+      }
+      get traceDeprecation() {
+        return false;
+      }
+      get features() {
+        return {};
+      }
+      get release() {
+        return {};
+      }
+      get connected() {
+        return false;
+      }
+      get config() {
+        return {};
+      }
+      get moduleLoadList() {
+        return [];
+      }
+      constrainedMemory() {
+        return 0;
+      }
+      availableMemory() {
+        return 0;
+      }
+      uptime() {
+        return 0;
+      }
+      resourceUsage() {
+        return {};
+      }
+      // --- noop methods ---
+      ref() {
+      }
+      unref() {
+      }
+      // --- unimplemented methods ---
+      umask() {
+        throw createNotImplementedError("process.umask");
+      }
+      getBuiltinModule() {
+        return void 0;
+      }
+      getActiveResourcesInfo() {
+        throw createNotImplementedError("process.getActiveResourcesInfo");
+      }
+      exit() {
+        throw createNotImplementedError("process.exit");
+      }
+      reallyExit() {
+        throw createNotImplementedError("process.reallyExit");
+      }
+      kill() {
+        throw createNotImplementedError("process.kill");
+      }
+      abort() {
+        throw createNotImplementedError("process.abort");
+      }
+      dlopen() {
+        throw createNotImplementedError("process.dlopen");
+      }
+      setSourceMapsEnabled() {
+        throw createNotImplementedError("process.setSourceMapsEnabled");
+      }
+      loadEnvFile() {
+        throw createNotImplementedError("process.loadEnvFile");
+      }
+      disconnect() {
+        throw createNotImplementedError("process.disconnect");
+      }
+      cpuUsage() {
+        throw createNotImplementedError("process.cpuUsage");
+      }
+      setUncaughtExceptionCaptureCallback() {
+        throw createNotImplementedError("process.setUncaughtExceptionCaptureCallback");
+      }
+      hasUncaughtExceptionCaptureCallback() {
+        throw createNotImplementedError("process.hasUncaughtExceptionCaptureCallback");
+      }
+      initgroups() {
+        throw createNotImplementedError("process.initgroups");
+      }
+      openStdin() {
+        throw createNotImplementedError("process.openStdin");
+      }
+      assert() {
+        throw createNotImplementedError("process.assert");
+      }
+      binding() {
+        throw createNotImplementedError("process.binding");
+      }
+      // --- attached interfaces ---
+      permission = { has: /* @__PURE__ */ notImplemented("process.permission.has") };
+      report = {
+        directory: "",
+        filename: "",
+        signal: "SIGUSR2",
+        compact: false,
+        reportOnFatalError: false,
+        reportOnSignal: false,
+        reportOnUncaughtException: false,
+        getReport: /* @__PURE__ */ notImplemented("process.report.getReport"),
+        writeReport: /* @__PURE__ */ notImplemented("process.report.writeReport")
+      };
+      finalization = {
+        register: /* @__PURE__ */ notImplemented("process.finalization.register"),
+        unregister: /* @__PURE__ */ notImplemented("process.finalization.unregister"),
+        registerBeforeExit: /* @__PURE__ */ notImplemented("process.finalization.registerBeforeExit")
+      };
+      memoryUsage = Object.assign(() => ({
+        arrayBuffers: 0,
+        rss: 0,
+        external: 0,
+        heapTotal: 0,
+        heapUsed: 0
+      }), { rss: /* @__PURE__ */ __name(() => 0, "rss") });
+      // --- undefined props ---
+      mainModule = void 0;
+      domain = void 0;
+      // optional
+      send = void 0;
+      exitCode = void 0;
+      channel = void 0;
+      getegid = void 0;
+      geteuid = void 0;
+      getgid = void 0;
+      getgroups = void 0;
+      getuid = void 0;
+      setegid = void 0;
+      seteuid = void 0;
+      setgid = void 0;
+      setgroups = void 0;
+      setuid = void 0;
+      // internals
+      _events = void 0;
+      _eventsCount = void 0;
+      _exiting = void 0;
+      _maxListeners = void 0;
+      _debugEnd = void 0;
+      _debugProcess = void 0;
+      _fatalException = void 0;
+      _getActiveHandles = void 0;
+      _getActiveRequests = void 0;
+      _kill = void 0;
+      _preload_modules = void 0;
+      _rawDebug = void 0;
+      _startProfilerIdleNotifier = void 0;
+      _stopProfilerIdleNotifier = void 0;
+      _tickCallback = void 0;
+      _disconnect = void 0;
+      _handleQueue = void 0;
+      _pendingMessage = void 0;
+      _channel = void 0;
+      _send = void 0;
+      _linkedBinding = void 0;
+    };
+  }
+});
+
+// node_modules/@cloudflare/unenv-preset/dist/runtime/node/process.mjs
+var globalProcess, getBuiltinModule, workerdProcess, isWorkerdProcessV2, unenvProcess, exit, features, platform, env, hrtime3, nextTick, _channel, _disconnect, _events, _eventsCount, _handleQueue, _maxListeners, _pendingMessage, _send, assert2, disconnect, mainModule, _debugEnd, _debugProcess, _exiting, _fatalException, _getActiveHandles, _getActiveRequests, _kill, _linkedBinding, _preload_modules, _rawDebug, _startProfilerIdleNotifier, _stopProfilerIdleNotifier, _tickCallback, abort, addListener, allowedNodeEnvironmentFlags, arch, argv, argv0, availableMemory, binding, channel, chdir, config, connected, constrainedMemory, cpuUsage, cwd, debugPort, dlopen, domain, emit, emitWarning, eventNames, execArgv, execPath, exitCode, finalization, getActiveResourcesInfo, getegid, geteuid, getgid, getgroups, getMaxListeners, getuid, hasUncaughtExceptionCaptureCallback, initgroups, kill, listenerCount, listeners, loadEnvFile, memoryUsage, moduleLoadList, off, on, once, openStdin, permission, pid, ppid, prependListener, prependOnceListener, rawListeners, reallyExit, ref, release, removeAllListeners, removeListener, report, resourceUsage, send, setegid, seteuid, setgid, setgroups, setMaxListeners, setSourceMapsEnabled, setuid, setUncaughtExceptionCaptureCallback, sourceMapsEnabled, stderr, stdin, stdout, throwDeprecation, title, traceDeprecation, umask, unref, uptime, version, versions, _process, process_default;
+var init_process2 = __esm({
+  "node_modules/@cloudflare/unenv-preset/dist/runtime/node/process.mjs"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    init_hrtime();
+    init_process();
+    globalProcess = globalThis["process"];
+    getBuiltinModule = globalProcess.getBuiltinModule;
+    workerdProcess = getBuiltinModule("node:process");
+    isWorkerdProcessV2 = globalThis.Cloudflare.compatibilityFlags.enable_nodejs_process_v2;
+    unenvProcess = new Process({
+      env: globalProcess.env,
+      // `hrtime` is only available from workerd process v2
+      hrtime: isWorkerdProcessV2 ? workerdProcess.hrtime : hrtime,
+      // `nextTick` is available from workerd process v1
+      nextTick: workerdProcess.nextTick
+    });
+    ({ exit, features, platform } = workerdProcess);
+    ({
+      env: (
+        // Always implemented by workerd
+        env
+      ),
+      hrtime: (
+        // Only implemented in workerd v2
+        hrtime3
+      ),
+      nextTick: (
+        // Always implemented by workerd
+        nextTick
+      )
+    } = unenvProcess);
+    ({
+      _channel,
+      _disconnect,
+      _events,
+      _eventsCount,
+      _handleQueue,
+      _maxListeners,
+      _pendingMessage,
+      _send,
+      assert: assert2,
+      disconnect,
+      mainModule
+    } = unenvProcess);
+    ({
+      _debugEnd: (
+        // @ts-expect-error `_debugEnd` is missing typings
+        _debugEnd
+      ),
+      _debugProcess: (
+        // @ts-expect-error `_debugProcess` is missing typings
+        _debugProcess
+      ),
+      _exiting: (
+        // @ts-expect-error `_exiting` is missing typings
+        _exiting
+      ),
+      _fatalException: (
+        // @ts-expect-error `_fatalException` is missing typings
+        _fatalException
+      ),
+      _getActiveHandles: (
+        // @ts-expect-error `_getActiveHandles` is missing typings
+        _getActiveHandles
+      ),
+      _getActiveRequests: (
+        // @ts-expect-error `_getActiveRequests` is missing typings
+        _getActiveRequests
+      ),
+      _kill: (
+        // @ts-expect-error `_kill` is missing typings
+        _kill
+      ),
+      _linkedBinding: (
+        // @ts-expect-error `_linkedBinding` is missing typings
+        _linkedBinding
+      ),
+      _preload_modules: (
+        // @ts-expect-error `_preload_modules` is missing typings
+        _preload_modules
+      ),
+      _rawDebug: (
+        // @ts-expect-error `_rawDebug` is missing typings
+        _rawDebug
+      ),
+      _startProfilerIdleNotifier: (
+        // @ts-expect-error `_startProfilerIdleNotifier` is missing typings
+        _startProfilerIdleNotifier
+      ),
+      _stopProfilerIdleNotifier: (
+        // @ts-expect-error `_stopProfilerIdleNotifier` is missing typings
+        _stopProfilerIdleNotifier
+      ),
+      _tickCallback: (
+        // @ts-expect-error `_tickCallback` is missing typings
+        _tickCallback
+      ),
+      abort,
+      addListener,
+      allowedNodeEnvironmentFlags,
+      arch,
+      argv,
+      argv0,
+      availableMemory,
+      binding: (
+        // @ts-expect-error `binding` is missing typings
+        binding
+      ),
+      channel,
+      chdir,
+      config,
+      connected,
+      constrainedMemory,
+      cpuUsage,
+      cwd,
+      debugPort,
+      dlopen,
+      domain: (
+        // @ts-expect-error `domain` is missing typings
+        domain
+      ),
+      emit,
+      emitWarning,
+      eventNames,
+      execArgv,
+      execPath,
+      exitCode,
+      finalization,
+      getActiveResourcesInfo,
+      getegid,
+      geteuid,
+      getgid,
+      getgroups,
+      getMaxListeners,
+      getuid,
+      hasUncaughtExceptionCaptureCallback,
+      initgroups: (
+        // @ts-expect-error `initgroups` is missing typings
+        initgroups
+      ),
+      kill,
+      listenerCount,
+      listeners,
+      loadEnvFile,
+      memoryUsage,
+      moduleLoadList: (
+        // @ts-expect-error `moduleLoadList` is missing typings
+        moduleLoadList
+      ),
+      off,
+      on,
+      once,
+      openStdin: (
+        // @ts-expect-error `openStdin` is missing typings
+        openStdin
+      ),
+      permission,
+      pid,
+      ppid,
+      prependListener,
+      prependOnceListener,
+      rawListeners,
+      reallyExit: (
+        // @ts-expect-error `reallyExit` is missing typings
+        reallyExit
+      ),
+      ref,
+      release,
+      removeAllListeners,
+      removeListener,
+      report,
+      resourceUsage,
+      send,
+      setegid,
+      seteuid,
+      setgid,
+      setgroups,
+      setMaxListeners,
+      setSourceMapsEnabled,
+      setuid,
+      setUncaughtExceptionCaptureCallback,
+      sourceMapsEnabled,
+      stderr,
+      stdin,
+      stdout,
+      throwDeprecation,
+      title,
+      traceDeprecation,
+      umask,
+      unref,
+      uptime,
+      version,
+      versions
+    } = isWorkerdProcessV2 ? workerdProcess : unenvProcess);
+    _process = {
+      abort,
+      addListener,
+      allowedNodeEnvironmentFlags,
+      hasUncaughtExceptionCaptureCallback,
+      setUncaughtExceptionCaptureCallback,
+      loadEnvFile,
+      sourceMapsEnabled,
+      arch,
+      argv,
+      argv0,
+      chdir,
+      config,
+      connected,
+      constrainedMemory,
+      availableMemory,
+      cpuUsage,
+      cwd,
+      debugPort,
+      dlopen,
+      disconnect,
+      emit,
+      emitWarning,
+      env,
+      eventNames,
+      execArgv,
+      execPath,
+      exit,
+      finalization,
+      features,
+      getBuiltinModule,
+      getActiveResourcesInfo,
+      getMaxListeners,
+      hrtime: hrtime3,
+      kill,
+      listeners,
+      listenerCount,
+      memoryUsage,
+      nextTick,
+      on,
+      off,
+      once,
+      pid,
+      platform,
+      ppid,
+      prependListener,
+      prependOnceListener,
+      rawListeners,
+      release,
+      removeAllListeners,
+      removeListener,
+      report,
+      resourceUsage,
+      setMaxListeners,
+      setSourceMapsEnabled,
+      stderr,
+      stdin,
+      stdout,
+      title,
+      throwDeprecation,
+      traceDeprecation,
+      umask,
+      uptime,
+      version,
+      versions,
+      // @ts-expect-error old API
+      domain,
+      initgroups,
+      moduleLoadList,
+      reallyExit,
+      openStdin,
+      assert: assert2,
+      binding,
+      send,
+      exitCode,
+      channel,
+      getegid,
+      geteuid,
+      getgid,
+      getgroups,
+      getuid,
+      setegid,
+      seteuid,
+      setgid,
+      setgroups,
+      setuid,
+      permission,
+      mainModule,
+      _events,
+      _eventsCount,
+      _exiting,
+      _maxListeners,
+      _debugEnd,
+      _debugProcess,
+      _fatalException,
+      _getActiveHandles,
+      _getActiveRequests,
+      _kill,
+      _preload_modules,
+      _rawDebug,
+      _startProfilerIdleNotifier,
+      _stopProfilerIdleNotifier,
+      _tickCallback,
+      _disconnect,
+      _handleQueue,
+      _pendingMessage,
+      _channel,
+      _send,
+      _linkedBinding
+    };
+    process_default = _process;
+  }
+});
+
+// node_modules/wrangler/_virtual_unenv_global_polyfill-@cloudflare-unenv-preset-node-process
+var init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process = __esm({
+  "node_modules/wrangler/_virtual_unenv_global_polyfill-@cloudflare-unenv-preset-node-process"() {
+    init_process2();
+    globalThis.process = process_default;
+  }
+});
+
+// node_modules/es-errors/type.js
+var require_type = __commonJS({
+  "node_modules/es-errors/type.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = TypeError;
+  }
+});
+
+// (disabled):node_modules/object-inspect/util.inspect
+var require_util = __commonJS({
+  "(disabled):node_modules/object-inspect/util.inspect"() {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+  }
+});
+
+// node_modules/object-inspect/index.js
+var require_object_inspect = __commonJS({
+  "node_modules/object-inspect/index.js"(exports, module) {
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var hasMap = typeof Map === "function" && Map.prototype;
+    var mapSizeDescriptor = Object.getOwnPropertyDescriptor && hasMap ? Object.getOwnPropertyDescriptor(Map.prototype, "size") : null;
+    var mapSize = hasMap && mapSizeDescriptor && typeof mapSizeDescriptor.get === "function" ? mapSizeDescriptor.get : null;
+    var mapForEach = hasMap && Map.prototype.forEach;
+    var hasSet = typeof Set === "function" && Set.prototype;
+    var setSizeDescriptor = Object.getOwnPropertyDescriptor && hasSet ? Object.getOwnPropertyDescriptor(Set.prototype, "size") : null;
+    var setSize = hasSet && setSizeDescriptor && typeof setSizeDescriptor.get === "function" ? setSizeDescriptor.get : null;
+    var setForEach = hasSet && Set.prototype.forEach;
+    var hasWeakMap = typeof WeakMap === "function" && WeakMap.prototype;
+    var weakMapHas = hasWeakMap ? WeakMap.prototype.has : null;
+    var hasWeakSet = typeof WeakSet === "function" && WeakSet.prototype;
+    var weakSetHas = hasWeakSet ? WeakSet.prototype.has : null;
+    var hasWeakRef = typeof WeakRef === "function" && WeakRef.prototype;
+    var weakRefDeref = hasWeakRef ? WeakRef.prototype.deref : null;
+    var booleanValueOf = Boolean.prototype.valueOf;
+    var objectToString = Object.prototype.toString;
+    var functionToString = Function.prototype.toString;
+    var $match = String.prototype.match;
+    var $slice = String.prototype.slice;
+    var $replace = String.prototype.replace;
+    var $toUpperCase = String.prototype.toUpperCase;
+    var $toLowerCase = String.prototype.toLowerCase;
+    var $test = RegExp.prototype.test;
+    var $concat = Array.prototype.concat;
+    var $join = Array.prototype.join;
+    var $arrSlice = Array.prototype.slice;
+    var $floor = Math.floor;
+    var bigIntValueOf = typeof BigInt === "function" ? BigInt.prototype.valueOf : null;
+    var gOPS = Object.getOwnPropertySymbols;
+    var symToString = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? Symbol.prototype.toString : null;
+    var hasShammedSymbols = typeof Symbol === "function" && typeof Symbol.iterator === "object";
+    var toStringTag = typeof Symbol === "function" && Symbol.toStringTag && (typeof Symbol.toStringTag === hasShammedSymbols ? "object" : "symbol") ? Symbol.toStringTag : null;
+    var isEnumerable = Object.prototype.propertyIsEnumerable;
+    var gPO = (typeof Reflect === "function" ? Reflect.getPrototypeOf : Object.getPrototypeOf) || ([].__proto__ === Array.prototype ? function(O) {
+      return O.__proto__;
+    } : null);
+    function addNumericSeparator(num, str) {
+      if (num === Infinity || num === -Infinity || num !== num || num && num > -1e3 && num < 1e3 || $test.call(/e/, str)) {
+        return str;
+      }
+      var sepRegex = /[0-9](?=(?:[0-9]{3})+(?![0-9]))/g;
+      if (typeof num === "number") {
+        var int = num < 0 ? -$floor(-num) : $floor(num);
+        if (int !== num) {
+          var intStr = String(int);
+          var dec = $slice.call(str, intStr.length + 1);
+          return $replace.call(intStr, sepRegex, "$&_") + "." + $replace.call($replace.call(dec, /([0-9]{3})/g, "$&_"), /_$/, "");
+        }
+      }
+      return $replace.call(str, sepRegex, "$&_");
+    }
+    __name(addNumericSeparator, "addNumericSeparator");
+    var utilInspect = require_util();
+    var inspectCustom = utilInspect.custom;
+    var inspectSymbol = isSymbol(inspectCustom) ? inspectCustom : null;
+    var quotes = {
+      __proto__: null,
+      "double": '"',
+      single: "'"
+    };
+    var quoteREs = {
+      __proto__: null,
+      "double": /(["\\])/g,
+      single: /(['\\])/g
+    };
+    module.exports = /* @__PURE__ */ __name(function inspect_(obj, options, depth, seen) {
+      var opts = options || {};
+      if (has(opts, "quoteStyle") && !has(quotes, opts.quoteStyle)) {
+        throw new TypeError('option "quoteStyle" must be "single" or "double"');
+      }
+      if (has(opts, "maxStringLength") && (typeof opts.maxStringLength === "number" ? opts.maxStringLength < 0 && opts.maxStringLength !== Infinity : opts.maxStringLength !== null)) {
+        throw new TypeError('option "maxStringLength", if provided, must be a positive integer, Infinity, or `null`');
+      }
+      var customInspect = has(opts, "customInspect") ? opts.customInspect : true;
+      if (typeof customInspect !== "boolean" && customInspect !== "symbol") {
+        throw new TypeError("option \"customInspect\", if provided, must be `true`, `false`, or `'symbol'`");
+      }
+      if (has(opts, "indent") && opts.indent !== null && opts.indent !== "	" && !(parseInt(opts.indent, 10) === opts.indent && opts.indent > 0)) {
+        throw new TypeError('option "indent" must be "\\t", an integer > 0, or `null`');
+      }
+      if (has(opts, "numericSeparator") && typeof opts.numericSeparator !== "boolean") {
+        throw new TypeError('option "numericSeparator", if provided, must be `true` or `false`');
+      }
+      var numericSeparator = opts.numericSeparator;
+      if (typeof obj === "undefined") {
+        return "undefined";
+      }
+      if (obj === null) {
+        return "null";
+      }
+      if (typeof obj === "boolean") {
+        return obj ? "true" : "false";
+      }
+      if (typeof obj === "string") {
+        return inspectString(obj, opts);
+      }
+      if (typeof obj === "number") {
+        if (obj === 0) {
+          return Infinity / obj > 0 ? "0" : "-0";
+        }
+        var str = String(obj);
+        return numericSeparator ? addNumericSeparator(obj, str) : str;
+      }
+      if (typeof obj === "bigint") {
+        var bigIntStr = String(obj) + "n";
+        return numericSeparator ? addNumericSeparator(obj, bigIntStr) : bigIntStr;
+      }
+      var maxDepth = typeof opts.depth === "undefined" ? 5 : opts.depth;
+      if (typeof depth === "undefined") {
+        depth = 0;
+      }
+      if (depth >= maxDepth && maxDepth > 0 && typeof obj === "object") {
+        return isArray(obj) ? "[Array]" : "[Object]";
+      }
+      var indent = getIndent(opts, depth);
+      if (typeof seen === "undefined") {
+        seen = [];
+      } else if (indexOf(seen, obj) >= 0) {
+        return "[Circular]";
+      }
+      function inspect(value, from, noIndent) {
+        if (from) {
+          seen = $arrSlice.call(seen);
+          seen.push(from);
+        }
+        if (noIndent) {
+          var newOpts = {
+            depth: opts.depth
+          };
+          if (has(opts, "quoteStyle")) {
+            newOpts.quoteStyle = opts.quoteStyle;
+          }
+          return inspect_(value, newOpts, depth + 1, seen);
+        }
+        return inspect_(value, opts, depth + 1, seen);
+      }
+      __name(inspect, "inspect");
+      if (typeof obj === "function" && !isRegExp(obj)) {
+        var name = nameOf(obj);
+        var keys = arrObjKeys(obj, inspect);
+        return "[Function" + (name ? ": " + name : " (anonymous)") + "]" + (keys.length > 0 ? " { " + $join.call(keys, ", ") + " }" : "");
+      }
+      if (isSymbol(obj)) {
+        var symString = hasShammedSymbols ? $replace.call(String(obj), /^(Symbol\(.*\))_[^)]*$/, "$1") : symToString.call(obj);
+        return typeof obj === "object" && !hasShammedSymbols ? markBoxed(symString) : symString;
+      }
+      if (isElement(obj)) {
+        var s = "<" + $toLowerCase.call(String(obj.nodeName));
+        var attrs = obj.attributes || [];
+        for (var i = 0; i < attrs.length; i++) {
+          s += " " + attrs[i].name + "=" + wrapQuotes(quote(attrs[i].value), "double", opts);
+        }
+        s += ">";
+        if (obj.childNodes && obj.childNodes.length) {
+          s += "...";
+        }
+        s += "</" + $toLowerCase.call(String(obj.nodeName)) + ">";
+        return s;
+      }
+      if (isArray(obj)) {
+        if (obj.length === 0) {
+          return "[]";
+        }
+        var xs = arrObjKeys(obj, inspect);
+        if (indent && !singleLineValues(xs)) {
+          return "[" + indentedJoin(xs, indent) + "]";
+        }
+        return "[ " + $join.call(xs, ", ") + " ]";
+      }
+      if (isError(obj)) {
+        var parts = arrObjKeys(obj, inspect);
+        if (!("cause" in Error.prototype) && "cause" in obj && !isEnumerable.call(obj, "cause")) {
+          return "{ [" + String(obj) + "] " + $join.call($concat.call("[cause]: " + inspect(obj.cause), parts), ", ") + " }";
+        }
+        if (parts.length === 0) {
+          return "[" + String(obj) + "]";
+        }
+        return "{ [" + String(obj) + "] " + $join.call(parts, ", ") + " }";
+      }
+      if (typeof obj === "object" && customInspect) {
+        if (inspectSymbol && typeof obj[inspectSymbol] === "function" && utilInspect) {
+          return utilInspect(obj, { depth: maxDepth - depth });
+        } else if (customInspect !== "symbol" && typeof obj.inspect === "function") {
+          return obj.inspect();
+        }
+      }
+      if (isMap(obj)) {
+        var mapParts = [];
+        if (mapForEach) {
+          mapForEach.call(obj, function(value, key) {
+            mapParts.push(inspect(key, obj, true) + " => " + inspect(value, obj));
+          });
+        }
+        return collectionOf("Map", mapSize.call(obj), mapParts, indent);
+      }
+      if (isSet(obj)) {
+        var setParts = [];
+        if (setForEach) {
+          setForEach.call(obj, function(value) {
+            setParts.push(inspect(value, obj));
+          });
+        }
+        return collectionOf("Set", setSize.call(obj), setParts, indent);
+      }
+      if (isWeakMap(obj)) {
+        return weakCollectionOf("WeakMap");
+      }
+      if (isWeakSet(obj)) {
+        return weakCollectionOf("WeakSet");
+      }
+      if (isWeakRef(obj)) {
+        return weakCollectionOf("WeakRef");
+      }
+      if (isNumber(obj)) {
+        return markBoxed(inspect(Number(obj)));
+      }
+      if (isBigInt(obj)) {
+        return markBoxed(inspect(bigIntValueOf.call(obj)));
+      }
+      if (isBoolean(obj)) {
+        return markBoxed(booleanValueOf.call(obj));
+      }
+      if (isString(obj)) {
+        return markBoxed(inspect(String(obj)));
+      }
+      if (typeof window !== "undefined" && obj === window) {
+        return "{ [object Window] }";
+      }
+      if (typeof globalThis !== "undefined" && obj === globalThis || typeof global !== "undefined" && obj === global) {
+        return "{ [object globalThis] }";
+      }
+      if (!isDate(obj) && !isRegExp(obj)) {
+        var ys = arrObjKeys(obj, inspect);
+        var isPlainObject = gPO ? gPO(obj) === Object.prototype : obj instanceof Object || obj.constructor === Object;
+        var protoTag = obj instanceof Object ? "" : "null prototype";
+        var stringTag = !isPlainObject && toStringTag && Object(obj) === obj && toStringTag in obj ? $slice.call(toStr(obj), 8, -1) : protoTag ? "Object" : "";
+        var constructorTag = isPlainObject || typeof obj.constructor !== "function" ? "" : obj.constructor.name ? obj.constructor.name + " " : "";
+        var tag = constructorTag + (stringTag || protoTag ? "[" + $join.call($concat.call([], stringTag || [], protoTag || []), ": ") + "] " : "");
+        if (ys.length === 0) {
+          return tag + "{}";
+        }
+        if (indent) {
+          return tag + "{" + indentedJoin(ys, indent) + "}";
+        }
+        return tag + "{ " + $join.call(ys, ", ") + " }";
+      }
+      return String(obj);
+    }, "inspect_");
+    function wrapQuotes(s, defaultStyle, opts) {
+      var style = opts.quoteStyle || defaultStyle;
+      var quoteChar = quotes[style];
+      return quoteChar + s + quoteChar;
+    }
+    __name(wrapQuotes, "wrapQuotes");
+    function quote(s) {
+      return $replace.call(String(s), /"/g, "&quot;");
+    }
+    __name(quote, "quote");
+    function canTrustToString(obj) {
+      return !toStringTag || !(typeof obj === "object" && (toStringTag in obj || typeof obj[toStringTag] !== "undefined"));
+    }
+    __name(canTrustToString, "canTrustToString");
+    function isArray(obj) {
+      return toStr(obj) === "[object Array]" && canTrustToString(obj);
+    }
+    __name(isArray, "isArray");
+    function isDate(obj) {
+      return toStr(obj) === "[object Date]" && canTrustToString(obj);
+    }
+    __name(isDate, "isDate");
+    function isRegExp(obj) {
+      return toStr(obj) === "[object RegExp]" && canTrustToString(obj);
+    }
+    __name(isRegExp, "isRegExp");
+    function isError(obj) {
+      return toStr(obj) === "[object Error]" && canTrustToString(obj);
+    }
+    __name(isError, "isError");
+    function isString(obj) {
+      return toStr(obj) === "[object String]" && canTrustToString(obj);
+    }
+    __name(isString, "isString");
+    function isNumber(obj) {
+      return toStr(obj) === "[object Number]" && canTrustToString(obj);
+    }
+    __name(isNumber, "isNumber");
+    function isBoolean(obj) {
+      return toStr(obj) === "[object Boolean]" && canTrustToString(obj);
+    }
+    __name(isBoolean, "isBoolean");
+    function isSymbol(obj) {
+      if (hasShammedSymbols) {
+        return obj && typeof obj === "object" && obj instanceof Symbol;
+      }
+      if (typeof obj === "symbol") {
+        return true;
+      }
+      if (!obj || typeof obj !== "object" || !symToString) {
+        return false;
+      }
+      try {
+        symToString.call(obj);
+        return true;
+      } catch (e) {
+      }
+      return false;
+    }
+    __name(isSymbol, "isSymbol");
+    function isBigInt(obj) {
+      if (!obj || typeof obj !== "object" || !bigIntValueOf) {
+        return false;
+      }
+      try {
+        bigIntValueOf.call(obj);
+        return true;
+      } catch (e) {
+      }
+      return false;
+    }
+    __name(isBigInt, "isBigInt");
+    var hasOwn = Object.prototype.hasOwnProperty || function(key) {
+      return key in this;
+    };
+    function has(obj, key) {
+      return hasOwn.call(obj, key);
+    }
+    __name(has, "has");
+    function toStr(obj) {
+      return objectToString.call(obj);
+    }
+    __name(toStr, "toStr");
+    function nameOf(f) {
+      if (f.name) {
+        return f.name;
+      }
+      var m = $match.call(functionToString.call(f), /^function\s*([\w$]+)/);
+      if (m) {
+        return m[1];
+      }
+      return null;
+    }
+    __name(nameOf, "nameOf");
+    function indexOf(xs, x) {
+      if (xs.indexOf) {
+        return xs.indexOf(x);
+      }
+      for (var i = 0, l = xs.length; i < l; i++) {
+        if (xs[i] === x) {
+          return i;
+        }
+      }
+      return -1;
+    }
+    __name(indexOf, "indexOf");
+    function isMap(x) {
+      if (!mapSize || !x || typeof x !== "object") {
+        return false;
+      }
+      try {
+        mapSize.call(x);
+        try {
+          setSize.call(x);
+        } catch (s) {
+          return true;
+        }
+        return x instanceof Map;
+      } catch (e) {
+      }
+      return false;
+    }
+    __name(isMap, "isMap");
+    function isWeakMap(x) {
+      if (!weakMapHas || !x || typeof x !== "object") {
+        return false;
+      }
+      try {
+        weakMapHas.call(x, weakMapHas);
+        try {
+          weakSetHas.call(x, weakSetHas);
+        } catch (s) {
+          return true;
+        }
+        return x instanceof WeakMap;
+      } catch (e) {
+      }
+      return false;
+    }
+    __name(isWeakMap, "isWeakMap");
+    function isWeakRef(x) {
+      if (!weakRefDeref || !x || typeof x !== "object") {
+        return false;
+      }
+      try {
+        weakRefDeref.call(x);
+        return true;
+      } catch (e) {
+      }
+      return false;
+    }
+    __name(isWeakRef, "isWeakRef");
+    function isSet(x) {
+      if (!setSize || !x || typeof x !== "object") {
+        return false;
+      }
+      try {
+        setSize.call(x);
+        try {
+          mapSize.call(x);
+        } catch (m) {
+          return true;
+        }
+        return x instanceof Set;
+      } catch (e) {
+      }
+      return false;
+    }
+    __name(isSet, "isSet");
+    function isWeakSet(x) {
+      if (!weakSetHas || !x || typeof x !== "object") {
+        return false;
+      }
+      try {
+        weakSetHas.call(x, weakSetHas);
+        try {
+          weakMapHas.call(x, weakMapHas);
+        } catch (s) {
+          return true;
+        }
+        return x instanceof WeakSet;
+      } catch (e) {
+      }
+      return false;
+    }
+    __name(isWeakSet, "isWeakSet");
+    function isElement(x) {
+      if (!x || typeof x !== "object") {
+        return false;
+      }
+      if (typeof HTMLElement !== "undefined" && x instanceof HTMLElement) {
+        return true;
+      }
+      return typeof x.nodeName === "string" && typeof x.getAttribute === "function";
+    }
+    __name(isElement, "isElement");
+    function inspectString(str, opts) {
+      if (str.length > opts.maxStringLength) {
+        var remaining = str.length - opts.maxStringLength;
+        var trailer = "... " + remaining + " more character" + (remaining > 1 ? "s" : "");
+        return inspectString($slice.call(str, 0, opts.maxStringLength), opts) + trailer;
+      }
+      var quoteRE = quoteREs[opts.quoteStyle || "single"];
+      quoteRE.lastIndex = 0;
+      var s = $replace.call($replace.call(str, quoteRE, "\\$1"), /[\x00-\x1f]/g, lowbyte);
+      return wrapQuotes(s, "single", opts);
+    }
+    __name(inspectString, "inspectString");
+    function lowbyte(c) {
+      var n = c.charCodeAt(0);
+      var x = {
+        8: "b",
+        9: "t",
+        10: "n",
+        12: "f",
+        13: "r"
+      }[n];
+      if (x) {
+        return "\\" + x;
+      }
+      return "\\x" + (n < 16 ? "0" : "") + $toUpperCase.call(n.toString(16));
+    }
+    __name(lowbyte, "lowbyte");
+    function markBoxed(str) {
+      return "Object(" + str + ")";
+    }
+    __name(markBoxed, "markBoxed");
+    function weakCollectionOf(type) {
+      return type + " { ? }";
+    }
+    __name(weakCollectionOf, "weakCollectionOf");
+    function collectionOf(type, size, entries, indent) {
+      var joinedEntries = indent ? indentedJoin(entries, indent) : $join.call(entries, ", ");
+      return type + " (" + size + ") {" + joinedEntries + "}";
+    }
+    __name(collectionOf, "collectionOf");
+    function singleLineValues(xs) {
+      for (var i = 0; i < xs.length; i++) {
+        if (indexOf(xs[i], "\n") >= 0) {
+          return false;
+        }
+      }
+      return true;
+    }
+    __name(singleLineValues, "singleLineValues");
+    function getIndent(opts, depth) {
+      var baseIndent;
+      if (opts.indent === "	") {
+        baseIndent = "	";
+      } else if (typeof opts.indent === "number" && opts.indent > 0) {
+        baseIndent = $join.call(Array(opts.indent + 1), " ");
+      } else {
+        return null;
+      }
+      return {
+        base: baseIndent,
+        prev: $join.call(Array(depth + 1), baseIndent)
+      };
+    }
+    __name(getIndent, "getIndent");
+    function indentedJoin(xs, indent) {
+      if (xs.length === 0) {
+        return "";
+      }
+      var lineJoiner = "\n" + indent.prev + indent.base;
+      return lineJoiner + $join.call(xs, "," + lineJoiner) + "\n" + indent.prev;
+    }
+    __name(indentedJoin, "indentedJoin");
+    function arrObjKeys(obj, inspect) {
+      var isArr = isArray(obj);
+      var xs = [];
+      if (isArr) {
+        xs.length = obj.length;
+        for (var i = 0; i < obj.length; i++) {
+          xs[i] = has(obj, i) ? inspect(obj[i], obj) : "";
+        }
+      }
+      var syms = typeof gOPS === "function" ? gOPS(obj) : [];
+      var symMap;
+      if (hasShammedSymbols) {
+        symMap = {};
+        for (var k = 0; k < syms.length; k++) {
+          symMap["$" + syms[k]] = syms[k];
+        }
+      }
+      for (var key in obj) {
+        if (!has(obj, key)) {
+          continue;
+        }
+        if (isArr && String(Number(key)) === key && key < obj.length) {
+          continue;
+        }
+        if (hasShammedSymbols && symMap["$" + key] instanceof Symbol) {
+          continue;
+        } else if ($test.call(/[^\w$]/, key)) {
+          xs.push(inspect(key, obj) + ": " + inspect(obj[key], obj));
+        } else {
+          xs.push(key + ": " + inspect(obj[key], obj));
+        }
+      }
+      if (typeof gOPS === "function") {
+        for (var j = 0; j < syms.length; j++) {
+          if (isEnumerable.call(obj, syms[j])) {
+            xs.push("[" + inspect(syms[j]) + "]: " + inspect(obj[syms[j]], obj));
+          }
+        }
+      }
+      return xs;
+    }
+    __name(arrObjKeys, "arrObjKeys");
+  }
+});
+
+// node_modules/side-channel-list/index.js
+var require_side_channel_list = __commonJS({
+  "node_modules/side-channel-list/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var inspect = require_object_inspect();
+    var $TypeError = require_type();
+    var listGetNode = /* @__PURE__ */ __name(function(list, key, isDelete) {
+      var prev = list;
+      var curr;
+      for (; (curr = prev.next) != null; prev = curr) {
+        if (curr.key === key) {
+          prev.next = curr.next;
+          if (!isDelete) {
+            curr.next = /** @type {NonNullable<typeof list.next>} */
+            list.next;
+            list.next = curr;
+          }
+          return curr;
+        }
+      }
+    }, "listGetNode");
+    var listGet = /* @__PURE__ */ __name(function(objects, key) {
+      if (!objects) {
+        return void 0;
+      }
+      var node = listGetNode(objects, key);
+      return node && node.value;
+    }, "listGet");
+    var listSet = /* @__PURE__ */ __name(function(objects, key, value) {
+      var node = listGetNode(objects, key);
+      if (node) {
+        node.value = value;
+      } else {
+        objects.next = /** @type {import('./list.d.ts').ListNode<typeof value, typeof key>} */
+        {
+          // eslint-disable-line no-param-reassign, no-extra-parens
+          key,
+          next: objects.next,
+          value
+        };
+      }
+    }, "listSet");
+    var listHas = /* @__PURE__ */ __name(function(objects, key) {
+      if (!objects) {
+        return false;
+      }
+      return !!listGetNode(objects, key);
+    }, "listHas");
+    var listDelete = /* @__PURE__ */ __name(function(objects, key) {
+      if (objects) {
+        return listGetNode(objects, key, true);
+      }
+    }, "listDelete");
+    module.exports = /* @__PURE__ */ __name(function getSideChannelList() {
+      var $o;
+      var channel2 = {
+        assert: /* @__PURE__ */ __name(function(key) {
+          if (!channel2.has(key)) {
+            throw new $TypeError("Side channel does not contain " + inspect(key));
+          }
+        }, "assert"),
+        "delete": /* @__PURE__ */ __name(function(key) {
+          var root = $o && $o.next;
+          var deletedNode = listDelete($o, key);
+          if (deletedNode && root && root === deletedNode) {
+            $o = void 0;
+          }
+          return !!deletedNode;
+        }, "delete"),
+        get: /* @__PURE__ */ __name(function(key) {
+          return listGet($o, key);
+        }, "get"),
+        has: /* @__PURE__ */ __name(function(key) {
+          return listHas($o, key);
+        }, "has"),
+        set: /* @__PURE__ */ __name(function(key, value) {
+          if (!$o) {
+            $o = {
+              next: void 0
+            };
+          }
+          listSet(
+            /** @type {NonNullable<typeof $o>} */
+            $o,
+            key,
+            value
+          );
+        }, "set")
+      };
+      return channel2;
+    }, "getSideChannelList");
+  }
+});
+
+// node_modules/es-object-atoms/index.js
+var require_es_object_atoms = __commonJS({
+  "node_modules/es-object-atoms/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Object;
+  }
+});
+
+// node_modules/es-errors/index.js
+var require_es_errors = __commonJS({
+  "node_modules/es-errors/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Error;
+  }
+});
+
+// node_modules/es-errors/eval.js
+var require_eval = __commonJS({
+  "node_modules/es-errors/eval.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = EvalError;
+  }
+});
+
+// node_modules/es-errors/range.js
+var require_range = __commonJS({
+  "node_modules/es-errors/range.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = RangeError;
+  }
+});
+
+// node_modules/es-errors/ref.js
+var require_ref = __commonJS({
+  "node_modules/es-errors/ref.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = ReferenceError;
+  }
+});
+
+// node_modules/es-errors/syntax.js
+var require_syntax = __commonJS({
+  "node_modules/es-errors/syntax.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = SyntaxError;
+  }
+});
+
+// node_modules/es-errors/uri.js
+var require_uri = __commonJS({
+  "node_modules/es-errors/uri.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = URIError;
+  }
+});
+
+// node_modules/math-intrinsics/abs.js
+var require_abs = __commonJS({
+  "node_modules/math-intrinsics/abs.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Math.abs;
+  }
+});
+
+// node_modules/math-intrinsics/floor.js
+var require_floor = __commonJS({
+  "node_modules/math-intrinsics/floor.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Math.floor;
+  }
+});
+
+// node_modules/math-intrinsics/max.js
+var require_max = __commonJS({
+  "node_modules/math-intrinsics/max.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Math.max;
+  }
+});
+
+// node_modules/math-intrinsics/min.js
+var require_min = __commonJS({
+  "node_modules/math-intrinsics/min.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Math.min;
+  }
+});
+
+// node_modules/math-intrinsics/pow.js
+var require_pow = __commonJS({
+  "node_modules/math-intrinsics/pow.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Math.pow;
+  }
+});
+
+// node_modules/math-intrinsics/round.js
+var require_round = __commonJS({
+  "node_modules/math-intrinsics/round.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Math.round;
+  }
+});
+
+// node_modules/math-intrinsics/isNaN.js
+var require_isNaN = __commonJS({
+  "node_modules/math-intrinsics/isNaN.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Number.isNaN || /* @__PURE__ */ __name(function isNaN2(a) {
+      return a !== a;
+    }, "isNaN");
+  }
+});
+
+// node_modules/math-intrinsics/sign.js
+var require_sign = __commonJS({
+  "node_modules/math-intrinsics/sign.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var $isNaN = require_isNaN();
+    module.exports = /* @__PURE__ */ __name(function sign(number) {
+      if ($isNaN(number) || number === 0) {
+        return number;
+      }
+      return number < 0 ? -1 : 1;
+    }, "sign");
+  }
+});
+
+// node_modules/gopd/gOPD.js
+var require_gOPD = __commonJS({
+  "node_modules/gopd/gOPD.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Object.getOwnPropertyDescriptor;
+  }
+});
+
+// node_modules/gopd/index.js
+var require_gopd = __commonJS({
+  "node_modules/gopd/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var $gOPD = require_gOPD();
+    if ($gOPD) {
+      try {
+        $gOPD([], "length");
+      } catch (e) {
+        $gOPD = null;
+      }
+    }
+    module.exports = $gOPD;
+  }
+});
+
+// node_modules/es-define-property/index.js
+var require_es_define_property = __commonJS({
+  "node_modules/es-define-property/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var $defineProperty = Object.defineProperty || false;
+    if ($defineProperty) {
+      try {
+        $defineProperty({}, "a", { value: 1 });
+      } catch (e) {
+        $defineProperty = false;
+      }
+    }
+    module.exports = $defineProperty;
+  }
+});
+
+// node_modules/has-symbols/shams.js
+var require_shams = __commonJS({
+  "node_modules/has-symbols/shams.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = /* @__PURE__ */ __name(function hasSymbols() {
+      if (typeof Symbol !== "function" || typeof Object.getOwnPropertySymbols !== "function") {
+        return false;
+      }
+      if (typeof Symbol.iterator === "symbol") {
+        return true;
+      }
+      var obj = {};
+      var sym = Symbol("test");
+      var symObj = Object(sym);
+      if (typeof sym === "string") {
+        return false;
+      }
+      if (Object.prototype.toString.call(sym) !== "[object Symbol]") {
+        return false;
+      }
+      if (Object.prototype.toString.call(symObj) !== "[object Symbol]") {
+        return false;
+      }
+      var symVal = 42;
+      obj[sym] = symVal;
+      for (var _ in obj) {
+        return false;
+      }
+      if (typeof Object.keys === "function" && Object.keys(obj).length !== 0) {
+        return false;
+      }
+      if (typeof Object.getOwnPropertyNames === "function" && Object.getOwnPropertyNames(obj).length !== 0) {
+        return false;
+      }
+      var syms = Object.getOwnPropertySymbols(obj);
+      if (syms.length !== 1 || syms[0] !== sym) {
+        return false;
+      }
+      if (!Object.prototype.propertyIsEnumerable.call(obj, sym)) {
+        return false;
+      }
+      if (typeof Object.getOwnPropertyDescriptor === "function") {
+        var descriptor = (
+          /** @type {PropertyDescriptor} */
+          Object.getOwnPropertyDescriptor(obj, sym)
+        );
+        if (descriptor.value !== symVal || descriptor.enumerable !== true) {
+          return false;
+        }
+      }
+      return true;
+    }, "hasSymbols");
+  }
+});
+
+// node_modules/has-symbols/index.js
+var require_has_symbols = __commonJS({
+  "node_modules/has-symbols/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var origSymbol = typeof Symbol !== "undefined" && Symbol;
+    var hasSymbolSham = require_shams();
+    module.exports = /* @__PURE__ */ __name(function hasNativeSymbols() {
+      if (typeof origSymbol !== "function") {
+        return false;
+      }
+      if (typeof Symbol !== "function") {
+        return false;
+      }
+      if (typeof origSymbol("foo") !== "symbol") {
+        return false;
+      }
+      if (typeof Symbol("bar") !== "symbol") {
+        return false;
+      }
+      return hasSymbolSham();
+    }, "hasNativeSymbols");
+  }
+});
+
+// node_modules/get-proto/Reflect.getPrototypeOf.js
+var require_Reflect_getPrototypeOf = __commonJS({
+  "node_modules/get-proto/Reflect.getPrototypeOf.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = typeof Reflect !== "undefined" && Reflect.getPrototypeOf || null;
+  }
+});
+
+// node_modules/get-proto/Object.getPrototypeOf.js
+var require_Object_getPrototypeOf = __commonJS({
+  "node_modules/get-proto/Object.getPrototypeOf.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var $Object = require_es_object_atoms();
+    module.exports = $Object.getPrototypeOf || null;
+  }
+});
+
+// node_modules/function-bind/implementation.js
+var require_implementation = __commonJS({
+  "node_modules/function-bind/implementation.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var ERROR_MESSAGE = "Function.prototype.bind called on incompatible ";
+    var toStr = Object.prototype.toString;
+    var max = Math.max;
+    var funcType = "[object Function]";
+    var concatty = /* @__PURE__ */ __name(function concatty2(a, b) {
+      var arr = [];
+      for (var i = 0; i < a.length; i += 1) {
+        arr[i] = a[i];
+      }
+      for (var j = 0; j < b.length; j += 1) {
+        arr[j + a.length] = b[j];
+      }
+      return arr;
+    }, "concatty");
+    var slicy = /* @__PURE__ */ __name(function slicy2(arrLike, offset) {
+      var arr = [];
+      for (var i = offset || 0, j = 0; i < arrLike.length; i += 1, j += 1) {
+        arr[j] = arrLike[i];
+      }
+      return arr;
+    }, "slicy");
+    var joiny = /* @__PURE__ */ __name(function(arr, joiner) {
+      var str = "";
+      for (var i = 0; i < arr.length; i += 1) {
+        str += arr[i];
+        if (i + 1 < arr.length) {
+          str += joiner;
+        }
+      }
+      return str;
+    }, "joiny");
+    module.exports = /* @__PURE__ */ __name(function bind(that) {
+      var target = this;
+      if (typeof target !== "function" || toStr.apply(target) !== funcType) {
+        throw new TypeError(ERROR_MESSAGE + target);
+      }
+      var args = slicy(arguments, 1);
+      var bound;
+      var binder = /* @__PURE__ */ __name(function() {
+        if (this instanceof bound) {
+          var result = target.apply(
+            this,
+            concatty(args, arguments)
+          );
+          if (Object(result) === result) {
+            return result;
+          }
+          return this;
+        }
+        return target.apply(
+          that,
+          concatty(args, arguments)
+        );
+      }, "binder");
+      var boundLength = max(0, target.length - args.length);
+      var boundArgs = [];
+      for (var i = 0; i < boundLength; i++) {
+        boundArgs[i] = "$" + i;
+      }
+      bound = Function("binder", "return function (" + joiny(boundArgs, ",") + "){ return binder.apply(this,arguments); }")(binder);
+      if (target.prototype) {
+        var Empty = /* @__PURE__ */ __name(function Empty2() {
+        }, "Empty");
+        Empty.prototype = target.prototype;
+        bound.prototype = new Empty();
+        Empty.prototype = null;
+      }
+      return bound;
+    }, "bind");
+  }
+});
+
+// node_modules/function-bind/index.js
+var require_function_bind = __commonJS({
+  "node_modules/function-bind/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var implementation = require_implementation();
+    module.exports = Function.prototype.bind || implementation;
+  }
+});
+
+// node_modules/call-bind-apply-helpers/functionCall.js
+var require_functionCall = __commonJS({
+  "node_modules/call-bind-apply-helpers/functionCall.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Function.prototype.call;
+  }
+});
+
+// node_modules/call-bind-apply-helpers/functionApply.js
+var require_functionApply = __commonJS({
+  "node_modules/call-bind-apply-helpers/functionApply.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = Function.prototype.apply;
+  }
+});
+
+// node_modules/call-bind-apply-helpers/reflectApply.js
+var require_reflectApply = __commonJS({
+  "node_modules/call-bind-apply-helpers/reflectApply.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    module.exports = typeof Reflect !== "undefined" && Reflect && Reflect.apply;
+  }
+});
+
+// node_modules/call-bind-apply-helpers/actualApply.js
+var require_actualApply = __commonJS({
+  "node_modules/call-bind-apply-helpers/actualApply.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var bind = require_function_bind();
+    var $apply = require_functionApply();
+    var $call = require_functionCall();
+    var $reflectApply = require_reflectApply();
+    module.exports = $reflectApply || bind.call($call, $apply);
+  }
+});
+
+// node_modules/call-bind-apply-helpers/index.js
+var require_call_bind_apply_helpers = __commonJS({
+  "node_modules/call-bind-apply-helpers/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var bind = require_function_bind();
+    var $TypeError = require_type();
+    var $call = require_functionCall();
+    var $actualApply = require_actualApply();
+    module.exports = /* @__PURE__ */ __name(function callBindBasic(args) {
+      if (args.length < 1 || typeof args[0] !== "function") {
+        throw new $TypeError("a function is required");
+      }
+      return $actualApply(bind, $call, args);
+    }, "callBindBasic");
+  }
+});
+
+// node_modules/dunder-proto/get.js
+var require_get = __commonJS({
+  "node_modules/dunder-proto/get.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var callBind = require_call_bind_apply_helpers();
+    var gOPD = require_gopd();
+    var hasProtoAccessor;
+    try {
+      hasProtoAccessor = /** @type {{ __proto__?: typeof Array.prototype }} */
+      [].__proto__ === Array.prototype;
+    } catch (e) {
+      if (!e || typeof e !== "object" || !("code" in e) || e.code !== "ERR_PROTO_ACCESS") {
+        throw e;
+      }
+    }
+    var desc = !!hasProtoAccessor && gOPD && gOPD(
+      Object.prototype,
+      /** @type {keyof typeof Object.prototype} */
+      "__proto__"
+    );
+    var $Object = Object;
+    var $getPrototypeOf = $Object.getPrototypeOf;
+    module.exports = desc && typeof desc.get === "function" ? callBind([desc.get]) : typeof $getPrototypeOf === "function" ? (
+      /** @type {import('./get')} */
+      /* @__PURE__ */ __name(function getDunder(value) {
+        return $getPrototypeOf(value == null ? value : $Object(value));
+      }, "getDunder")
+    ) : false;
+  }
+});
+
+// node_modules/get-proto/index.js
+var require_get_proto = __commonJS({
+  "node_modules/get-proto/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var reflectGetProto = require_Reflect_getPrototypeOf();
+    var originalGetProto = require_Object_getPrototypeOf();
+    var getDunderProto = require_get();
+    module.exports = reflectGetProto ? /* @__PURE__ */ __name(function getProto(O) {
+      return reflectGetProto(O);
+    }, "getProto") : originalGetProto ? /* @__PURE__ */ __name(function getProto(O) {
+      if (!O || typeof O !== "object" && typeof O !== "function") {
+        throw new TypeError("getProto: not an object");
+      }
+      return originalGetProto(O);
+    }, "getProto") : getDunderProto ? /* @__PURE__ */ __name(function getProto(O) {
+      return getDunderProto(O);
+    }, "getProto") : null;
+  }
+});
+
+// node_modules/hasown/index.js
+var require_hasown = __commonJS({
+  "node_modules/hasown/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var call = Function.prototype.call;
+    var $hasOwn = Object.prototype.hasOwnProperty;
+    var bind = require_function_bind();
+    module.exports = bind.call(call, $hasOwn);
+  }
+});
+
+// node_modules/get-intrinsic/index.js
+var require_get_intrinsic = __commonJS({
+  "node_modules/get-intrinsic/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var undefined2;
+    var $Object = require_es_object_atoms();
+    var $Error = require_es_errors();
+    var $EvalError = require_eval();
+    var $RangeError = require_range();
+    var $ReferenceError = require_ref();
+    var $SyntaxError = require_syntax();
+    var $TypeError = require_type();
+    var $URIError = require_uri();
+    var abs = require_abs();
+    var floor = require_floor();
+    var max = require_max();
+    var min = require_min();
+    var pow = require_pow();
+    var round = require_round();
+    var sign = require_sign();
+    var $Function = Function;
+    var getEvalledConstructor = /* @__PURE__ */ __name(function(expressionSyntax) {
+      try {
+        return $Function('"use strict"; return (' + expressionSyntax + ").constructor;")();
+      } catch (e) {
+      }
+    }, "getEvalledConstructor");
+    var $gOPD = require_gopd();
+    var $defineProperty = require_es_define_property();
+    var throwTypeError = /* @__PURE__ */ __name(function() {
+      throw new $TypeError();
+    }, "throwTypeError");
+    var ThrowTypeError = $gOPD ? function() {
+      try {
+        arguments.callee;
+        return throwTypeError;
+      } catch (calleeThrows) {
+        try {
+          return $gOPD(arguments, "callee").get;
+        } catch (gOPDthrows) {
+          return throwTypeError;
+        }
+      }
+    }() : throwTypeError;
+    var hasSymbols = require_has_symbols()();
+    var getProto = require_get_proto();
+    var $ObjectGPO = require_Object_getPrototypeOf();
+    var $ReflectGPO = require_Reflect_getPrototypeOf();
+    var $apply = require_functionApply();
+    var $call = require_functionCall();
+    var needsEval = {};
+    var TypedArray = typeof Uint8Array === "undefined" || !getProto ? undefined2 : getProto(Uint8Array);
+    var INTRINSICS = {
+      __proto__: null,
+      "%AggregateError%": typeof AggregateError === "undefined" ? undefined2 : AggregateError,
+      "%Array%": Array,
+      "%ArrayBuffer%": typeof ArrayBuffer === "undefined" ? undefined2 : ArrayBuffer,
+      "%ArrayIteratorPrototype%": hasSymbols && getProto ? getProto([][Symbol.iterator]()) : undefined2,
+      "%AsyncFromSyncIteratorPrototype%": undefined2,
+      "%AsyncFunction%": needsEval,
+      "%AsyncGenerator%": needsEval,
+      "%AsyncGeneratorFunction%": needsEval,
+      "%AsyncIteratorPrototype%": needsEval,
+      "%Atomics%": typeof Atomics === "undefined" ? undefined2 : Atomics,
+      "%BigInt%": typeof BigInt === "undefined" ? undefined2 : BigInt,
+      "%BigInt64Array%": typeof BigInt64Array === "undefined" ? undefined2 : BigInt64Array,
+      "%BigUint64Array%": typeof BigUint64Array === "undefined" ? undefined2 : BigUint64Array,
+      "%Boolean%": Boolean,
+      "%DataView%": typeof DataView === "undefined" ? undefined2 : DataView,
+      "%Date%": Date,
+      "%decodeURI%": decodeURI,
+      "%decodeURIComponent%": decodeURIComponent,
+      "%encodeURI%": encodeURI,
+      "%encodeURIComponent%": encodeURIComponent,
+      "%Error%": $Error,
+      "%eval%": eval,
+      // eslint-disable-line no-eval
+      "%EvalError%": $EvalError,
+      "%Float16Array%": typeof Float16Array === "undefined" ? undefined2 : Float16Array,
+      "%Float32Array%": typeof Float32Array === "undefined" ? undefined2 : Float32Array,
+      "%Float64Array%": typeof Float64Array === "undefined" ? undefined2 : Float64Array,
+      "%FinalizationRegistry%": typeof FinalizationRegistry === "undefined" ? undefined2 : FinalizationRegistry,
+      "%Function%": $Function,
+      "%GeneratorFunction%": needsEval,
+      "%Int8Array%": typeof Int8Array === "undefined" ? undefined2 : Int8Array,
+      "%Int16Array%": typeof Int16Array === "undefined" ? undefined2 : Int16Array,
+      "%Int32Array%": typeof Int32Array === "undefined" ? undefined2 : Int32Array,
+      "%isFinite%": isFinite,
+      "%isNaN%": isNaN,
+      "%IteratorPrototype%": hasSymbols && getProto ? getProto(getProto([][Symbol.iterator]())) : undefined2,
+      "%JSON%": typeof JSON === "object" ? JSON : undefined2,
+      "%Map%": typeof Map === "undefined" ? undefined2 : Map,
+      "%MapIteratorPrototype%": typeof Map === "undefined" || !hasSymbols || !getProto ? undefined2 : getProto((/* @__PURE__ */ new Map())[Symbol.iterator]()),
+      "%Math%": Math,
+      "%Number%": Number,
+      "%Object%": $Object,
+      "%Object.getOwnPropertyDescriptor%": $gOPD,
+      "%parseFloat%": parseFloat,
+      "%parseInt%": parseInt,
+      "%Promise%": typeof Promise === "undefined" ? undefined2 : Promise,
+      "%Proxy%": typeof Proxy === "undefined" ? undefined2 : Proxy,
+      "%RangeError%": $RangeError,
+      "%ReferenceError%": $ReferenceError,
+      "%Reflect%": typeof Reflect === "undefined" ? undefined2 : Reflect,
+      "%RegExp%": RegExp,
+      "%Set%": typeof Set === "undefined" ? undefined2 : Set,
+      "%SetIteratorPrototype%": typeof Set === "undefined" || !hasSymbols || !getProto ? undefined2 : getProto((/* @__PURE__ */ new Set())[Symbol.iterator]()),
+      "%SharedArrayBuffer%": typeof SharedArrayBuffer === "undefined" ? undefined2 : SharedArrayBuffer,
+      "%String%": String,
+      "%StringIteratorPrototype%": hasSymbols && getProto ? getProto(""[Symbol.iterator]()) : undefined2,
+      "%Symbol%": hasSymbols ? Symbol : undefined2,
+      "%SyntaxError%": $SyntaxError,
+      "%ThrowTypeError%": ThrowTypeError,
+      "%TypedArray%": TypedArray,
+      "%TypeError%": $TypeError,
+      "%Uint8Array%": typeof Uint8Array === "undefined" ? undefined2 : Uint8Array,
+      "%Uint8ClampedArray%": typeof Uint8ClampedArray === "undefined" ? undefined2 : Uint8ClampedArray,
+      "%Uint16Array%": typeof Uint16Array === "undefined" ? undefined2 : Uint16Array,
+      "%Uint32Array%": typeof Uint32Array === "undefined" ? undefined2 : Uint32Array,
+      "%URIError%": $URIError,
+      "%WeakMap%": typeof WeakMap === "undefined" ? undefined2 : WeakMap,
+      "%WeakRef%": typeof WeakRef === "undefined" ? undefined2 : WeakRef,
+      "%WeakSet%": typeof WeakSet === "undefined" ? undefined2 : WeakSet,
+      "%Function.prototype.call%": $call,
+      "%Function.prototype.apply%": $apply,
+      "%Object.defineProperty%": $defineProperty,
+      "%Object.getPrototypeOf%": $ObjectGPO,
+      "%Math.abs%": abs,
+      "%Math.floor%": floor,
+      "%Math.max%": max,
+      "%Math.min%": min,
+      "%Math.pow%": pow,
+      "%Math.round%": round,
+      "%Math.sign%": sign,
+      "%Reflect.getPrototypeOf%": $ReflectGPO
+    };
+    if (getProto) {
+      try {
+        null.error;
+      } catch (e) {
+        errorProto = getProto(getProto(e));
+        INTRINSICS["%Error.prototype%"] = errorProto;
+      }
+    }
+    var errorProto;
+    var doEval = /* @__PURE__ */ __name(function doEval2(name) {
+      var value;
+      if (name === "%AsyncFunction%") {
+        value = getEvalledConstructor("async function () {}");
+      } else if (name === "%GeneratorFunction%") {
+        value = getEvalledConstructor("function* () {}");
+      } else if (name === "%AsyncGeneratorFunction%") {
+        value = getEvalledConstructor("async function* () {}");
+      } else if (name === "%AsyncGenerator%") {
+        var fn = doEval2("%AsyncGeneratorFunction%");
+        if (fn) {
+          value = fn.prototype;
+        }
+      } else if (name === "%AsyncIteratorPrototype%") {
+        var gen = doEval2("%AsyncGenerator%");
+        if (gen && getProto) {
+          value = getProto(gen.prototype);
+        }
+      }
+      INTRINSICS[name] = value;
+      return value;
+    }, "doEval");
+    var LEGACY_ALIASES = {
+      __proto__: null,
+      "%ArrayBufferPrototype%": ["ArrayBuffer", "prototype"],
+      "%ArrayPrototype%": ["Array", "prototype"],
+      "%ArrayProto_entries%": ["Array", "prototype", "entries"],
+      "%ArrayProto_forEach%": ["Array", "prototype", "forEach"],
+      "%ArrayProto_keys%": ["Array", "prototype", "keys"],
+      "%ArrayProto_values%": ["Array", "prototype", "values"],
+      "%AsyncFunctionPrototype%": ["AsyncFunction", "prototype"],
+      "%AsyncGenerator%": ["AsyncGeneratorFunction", "prototype"],
+      "%AsyncGeneratorPrototype%": ["AsyncGeneratorFunction", "prototype", "prototype"],
+      "%BooleanPrototype%": ["Boolean", "prototype"],
+      "%DataViewPrototype%": ["DataView", "prototype"],
+      "%DatePrototype%": ["Date", "prototype"],
+      "%ErrorPrototype%": ["Error", "prototype"],
+      "%EvalErrorPrototype%": ["EvalError", "prototype"],
+      "%Float32ArrayPrototype%": ["Float32Array", "prototype"],
+      "%Float64ArrayPrototype%": ["Float64Array", "prototype"],
+      "%FunctionPrototype%": ["Function", "prototype"],
+      "%Generator%": ["GeneratorFunction", "prototype"],
+      "%GeneratorPrototype%": ["GeneratorFunction", "prototype", "prototype"],
+      "%Int8ArrayPrototype%": ["Int8Array", "prototype"],
+      "%Int16ArrayPrototype%": ["Int16Array", "prototype"],
+      "%Int32ArrayPrototype%": ["Int32Array", "prototype"],
+      "%JSONParse%": ["JSON", "parse"],
+      "%JSONStringify%": ["JSON", "stringify"],
+      "%MapPrototype%": ["Map", "prototype"],
+      "%NumberPrototype%": ["Number", "prototype"],
+      "%ObjectPrototype%": ["Object", "prototype"],
+      "%ObjProto_toString%": ["Object", "prototype", "toString"],
+      "%ObjProto_valueOf%": ["Object", "prototype", "valueOf"],
+      "%PromisePrototype%": ["Promise", "prototype"],
+      "%PromiseProto_then%": ["Promise", "prototype", "then"],
+      "%Promise_all%": ["Promise", "all"],
+      "%Promise_reject%": ["Promise", "reject"],
+      "%Promise_resolve%": ["Promise", "resolve"],
+      "%RangeErrorPrototype%": ["RangeError", "prototype"],
+      "%ReferenceErrorPrototype%": ["ReferenceError", "prototype"],
+      "%RegExpPrototype%": ["RegExp", "prototype"],
+      "%SetPrototype%": ["Set", "prototype"],
+      "%SharedArrayBufferPrototype%": ["SharedArrayBuffer", "prototype"],
+      "%StringPrototype%": ["String", "prototype"],
+      "%SymbolPrototype%": ["Symbol", "prototype"],
+      "%SyntaxErrorPrototype%": ["SyntaxError", "prototype"],
+      "%TypedArrayPrototype%": ["TypedArray", "prototype"],
+      "%TypeErrorPrototype%": ["TypeError", "prototype"],
+      "%Uint8ArrayPrototype%": ["Uint8Array", "prototype"],
+      "%Uint8ClampedArrayPrototype%": ["Uint8ClampedArray", "prototype"],
+      "%Uint16ArrayPrototype%": ["Uint16Array", "prototype"],
+      "%Uint32ArrayPrototype%": ["Uint32Array", "prototype"],
+      "%URIErrorPrototype%": ["URIError", "prototype"],
+      "%WeakMapPrototype%": ["WeakMap", "prototype"],
+      "%WeakSetPrototype%": ["WeakSet", "prototype"]
+    };
+    var bind = require_function_bind();
+    var hasOwn = require_hasown();
+    var $concat = bind.call($call, Array.prototype.concat);
+    var $spliceApply = bind.call($apply, Array.prototype.splice);
+    var $replace = bind.call($call, String.prototype.replace);
+    var $strSlice = bind.call($call, String.prototype.slice);
+    var $exec = bind.call($call, RegExp.prototype.exec);
+    var rePropName = /[^%.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|%$))/g;
+    var reEscapeChar = /\\(\\)?/g;
+    var stringToPath = /* @__PURE__ */ __name(function stringToPath2(string) {
+      var first = $strSlice(string, 0, 1);
+      var last = $strSlice(string, -1);
+      if (first === "%" && last !== "%") {
+        throw new $SyntaxError("invalid intrinsic syntax, expected closing `%`");
+      } else if (last === "%" && first !== "%") {
+        throw new $SyntaxError("invalid intrinsic syntax, expected opening `%`");
+      }
+      var result = [];
+      $replace(string, rePropName, function(match, number, quote, subString) {
+        result[result.length] = quote ? $replace(subString, reEscapeChar, "$1") : number || match;
+      });
+      return result;
+    }, "stringToPath");
+    var getBaseIntrinsic = /* @__PURE__ */ __name(function getBaseIntrinsic2(name, allowMissing) {
+      var intrinsicName = name;
+      var alias;
+      if (hasOwn(LEGACY_ALIASES, intrinsicName)) {
+        alias = LEGACY_ALIASES[intrinsicName];
+        intrinsicName = "%" + alias[0] + "%";
+      }
+      if (hasOwn(INTRINSICS, intrinsicName)) {
+        var value = INTRINSICS[intrinsicName];
+        if (value === needsEval) {
+          value = doEval(intrinsicName);
+        }
+        if (typeof value === "undefined" && !allowMissing) {
+          throw new $TypeError("intrinsic " + name + " exists, but is not available. Please file an issue!");
+        }
+        return {
+          alias,
+          name: intrinsicName,
+          value
+        };
+      }
+      throw new $SyntaxError("intrinsic " + name + " does not exist!");
+    }, "getBaseIntrinsic");
+    module.exports = /* @__PURE__ */ __name(function GetIntrinsic(name, allowMissing) {
+      if (typeof name !== "string" || name.length === 0) {
+        throw new $TypeError("intrinsic name must be a non-empty string");
+      }
+      if (arguments.length > 1 && typeof allowMissing !== "boolean") {
+        throw new $TypeError('"allowMissing" argument must be a boolean');
+      }
+      if ($exec(/^%?[^%]*%?$/, name) === null) {
+        throw new $SyntaxError("`%` may not be present anywhere but at the beginning and end of the intrinsic name");
+      }
+      var parts = stringToPath(name);
+      var intrinsicBaseName = parts.length > 0 ? parts[0] : "";
+      var intrinsic = getBaseIntrinsic("%" + intrinsicBaseName + "%", allowMissing);
+      var intrinsicRealName = intrinsic.name;
+      var value = intrinsic.value;
+      var skipFurtherCaching = false;
+      var alias = intrinsic.alias;
+      if (alias) {
+        intrinsicBaseName = alias[0];
+        $spliceApply(parts, $concat([0, 1], alias));
+      }
+      for (var i = 1, isOwn = true; i < parts.length; i += 1) {
+        var part = parts[i];
+        var first = $strSlice(part, 0, 1);
+        var last = $strSlice(part, -1);
+        if ((first === '"' || first === "'" || first === "`" || (last === '"' || last === "'" || last === "`")) && first !== last) {
+          throw new $SyntaxError("property names with quotes must have matching quotes");
+        }
+        if (part === "constructor" || !isOwn) {
+          skipFurtherCaching = true;
+        }
+        intrinsicBaseName += "." + part;
+        intrinsicRealName = "%" + intrinsicBaseName + "%";
+        if (hasOwn(INTRINSICS, intrinsicRealName)) {
+          value = INTRINSICS[intrinsicRealName];
+        } else if (value != null) {
+          if (!(part in value)) {
+            if (!allowMissing) {
+              throw new $TypeError("base intrinsic for " + name + " exists, but the property is not available.");
+            }
+            return void undefined2;
+          }
+          if ($gOPD && i + 1 >= parts.length) {
+            var desc = $gOPD(value, part);
+            isOwn = !!desc;
+            if (isOwn && "get" in desc && !("originalValue" in desc.get)) {
+              value = desc.get;
+            } else {
+              value = value[part];
+            }
+          } else {
+            isOwn = hasOwn(value, part);
+            value = value[part];
+          }
+          if (isOwn && !skipFurtherCaching) {
+            INTRINSICS[intrinsicRealName] = value;
+          }
+        }
+      }
+      return value;
+    }, "GetIntrinsic");
+  }
+});
+
+// node_modules/call-bound/index.js
+var require_call_bound = __commonJS({
+  "node_modules/call-bound/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var GetIntrinsic = require_get_intrinsic();
+    var callBindBasic = require_call_bind_apply_helpers();
+    var $indexOf = callBindBasic([GetIntrinsic("%String.prototype.indexOf%")]);
+    module.exports = /* @__PURE__ */ __name(function callBoundIntrinsic(name, allowMissing) {
+      var intrinsic = (
+        /** @type {(this: unknown, ...args: unknown[]) => unknown} */
+        GetIntrinsic(name, !!allowMissing)
+      );
+      if (typeof intrinsic === "function" && $indexOf(name, ".prototype.") > -1) {
+        return callBindBasic(
+          /** @type {const} */
+          [intrinsic]
+        );
+      }
+      return intrinsic;
+    }, "callBoundIntrinsic");
+  }
+});
+
+// node_modules/side-channel-map/index.js
+var require_side_channel_map = __commonJS({
+  "node_modules/side-channel-map/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var GetIntrinsic = require_get_intrinsic();
+    var callBound = require_call_bound();
+    var inspect = require_object_inspect();
+    var $TypeError = require_type();
+    var $Map = GetIntrinsic("%Map%", true);
+    var $mapGet = callBound("Map.prototype.get", true);
+    var $mapSet = callBound("Map.prototype.set", true);
+    var $mapHas = callBound("Map.prototype.has", true);
+    var $mapDelete = callBound("Map.prototype.delete", true);
+    var $mapSize = callBound("Map.prototype.size", true);
+    module.exports = !!$Map && /** @type {Exclude<import('.'), false>} */
+    /* @__PURE__ */ __name(function getSideChannelMap() {
+      var $m;
+      var channel2 = {
+        assert: /* @__PURE__ */ __name(function(key) {
+          if (!channel2.has(key)) {
+            throw new $TypeError("Side channel does not contain " + inspect(key));
+          }
+        }, "assert"),
+        "delete": /* @__PURE__ */ __name(function(key) {
+          if ($m) {
+            var result = $mapDelete($m, key);
+            if ($mapSize($m) === 0) {
+              $m = void 0;
+            }
+            return result;
+          }
+          return false;
+        }, "delete"),
+        get: /* @__PURE__ */ __name(function(key) {
+          if ($m) {
+            return $mapGet($m, key);
+          }
+        }, "get"),
+        has: /* @__PURE__ */ __name(function(key) {
+          if ($m) {
+            return $mapHas($m, key);
+          }
+          return false;
+        }, "has"),
+        set: /* @__PURE__ */ __name(function(key, value) {
+          if (!$m) {
+            $m = new $Map();
+          }
+          $mapSet($m, key, value);
+        }, "set")
+      };
+      return channel2;
+    }, "getSideChannelMap");
+  }
+});
+
+// node_modules/side-channel-weakmap/index.js
+var require_side_channel_weakmap = __commonJS({
+  "node_modules/side-channel-weakmap/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var GetIntrinsic = require_get_intrinsic();
+    var callBound = require_call_bound();
+    var inspect = require_object_inspect();
+    var getSideChannelMap = require_side_channel_map();
+    var $TypeError = require_type();
+    var $WeakMap = GetIntrinsic("%WeakMap%", true);
+    var $weakMapGet = callBound("WeakMap.prototype.get", true);
+    var $weakMapSet = callBound("WeakMap.prototype.set", true);
+    var $weakMapHas = callBound("WeakMap.prototype.has", true);
+    var $weakMapDelete = callBound("WeakMap.prototype.delete", true);
+    module.exports = $WeakMap ? (
+      /** @type {Exclude<import('.'), false>} */
+      /* @__PURE__ */ __name(function getSideChannelWeakMap() {
+        var $wm;
+        var $m;
+        var channel2 = {
+          assert: /* @__PURE__ */ __name(function(key) {
+            if (!channel2.has(key)) {
+              throw new $TypeError("Side channel does not contain " + inspect(key));
+            }
+          }, "assert"),
+          "delete": /* @__PURE__ */ __name(function(key) {
+            if ($WeakMap && key && (typeof key === "object" || typeof key === "function")) {
+              if ($wm) {
+                return $weakMapDelete($wm, key);
+              }
+            } else if (getSideChannelMap) {
+              if ($m) {
+                return $m["delete"](key);
+              }
+            }
+            return false;
+          }, "delete"),
+          get: /* @__PURE__ */ __name(function(key) {
+            if ($WeakMap && key && (typeof key === "object" || typeof key === "function")) {
+              if ($wm) {
+                return $weakMapGet($wm, key);
+              }
+            }
+            return $m && $m.get(key);
+          }, "get"),
+          has: /* @__PURE__ */ __name(function(key) {
+            if ($WeakMap && key && (typeof key === "object" || typeof key === "function")) {
+              if ($wm) {
+                return $weakMapHas($wm, key);
+              }
+            }
+            return !!$m && $m.has(key);
+          }, "has"),
+          set: /* @__PURE__ */ __name(function(key, value) {
+            if ($WeakMap && key && (typeof key === "object" || typeof key === "function")) {
+              if (!$wm) {
+                $wm = new $WeakMap();
+              }
+              $weakMapSet($wm, key, value);
+            } else if (getSideChannelMap) {
+              if (!$m) {
+                $m = getSideChannelMap();
+              }
+              $m.set(key, value);
+            }
+          }, "set")
+        };
+        return channel2;
+      }, "getSideChannelWeakMap")
+    ) : getSideChannelMap;
+  }
+});
+
+// node_modules/side-channel/index.js
+var require_side_channel = __commonJS({
+  "node_modules/side-channel/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var $TypeError = require_type();
+    var inspect = require_object_inspect();
+    var getSideChannelList = require_side_channel_list();
+    var getSideChannelMap = require_side_channel_map();
+    var getSideChannelWeakMap = require_side_channel_weakmap();
+    var makeChannel = getSideChannelWeakMap || getSideChannelMap || getSideChannelList;
+    module.exports = /* @__PURE__ */ __name(function getSideChannel() {
+      var $channelData;
+      var channel2 = {
+        assert: /* @__PURE__ */ __name(function(key) {
+          if (!channel2.has(key)) {
+            throw new $TypeError("Side channel does not contain " + inspect(key));
+          }
+        }, "assert"),
+        "delete": /* @__PURE__ */ __name(function(key) {
+          return !!$channelData && $channelData["delete"](key);
+        }, "delete"),
+        get: /* @__PURE__ */ __name(function(key) {
+          return $channelData && $channelData.get(key);
+        }, "get"),
+        has: /* @__PURE__ */ __name(function(key) {
+          return !!$channelData && $channelData.has(key);
+        }, "has"),
+        set: /* @__PURE__ */ __name(function(key, value) {
+          if (!$channelData) {
+            $channelData = makeChannel();
+          }
+          $channelData.set(key, value);
+        }, "set")
+      };
+      return channel2;
+    }, "getSideChannel");
+  }
+});
+
+// node_modules/qs/lib/formats.js
+var require_formats = __commonJS({
+  "node_modules/qs/lib/formats.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var replace = String.prototype.replace;
+    var percentTwenties = /%20/g;
+    var Format = {
+      RFC1738: "RFC1738",
+      RFC3986: "RFC3986"
+    };
+    module.exports = {
+      "default": Format.RFC3986,
+      formatters: {
+        RFC1738: /* @__PURE__ */ __name(function(value) {
+          return replace.call(value, percentTwenties, "+");
+        }, "RFC1738"),
+        RFC3986: /* @__PURE__ */ __name(function(value) {
+          return String(value);
+        }, "RFC3986")
+      },
+      RFC1738: Format.RFC1738,
+      RFC3986: Format.RFC3986
+    };
+  }
+});
+
+// node_modules/qs/lib/utils.js
+var require_utils = __commonJS({
+  "node_modules/qs/lib/utils.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var formats = require_formats();
+    var has = Object.prototype.hasOwnProperty;
+    var isArray = Array.isArray;
+    var hexTable = function() {
+      var array = [];
+      for (var i = 0; i < 256; ++i) {
+        array.push("%" + ((i < 16 ? "0" : "") + i.toString(16)).toUpperCase());
+      }
+      return array;
+    }();
+    var compactQueue = /* @__PURE__ */ __name(function compactQueue2(queue) {
+      while (queue.length > 1) {
+        var item = queue.pop();
+        var obj = item.obj[item.prop];
+        if (isArray(obj)) {
+          var compacted = [];
+          for (var j = 0; j < obj.length; ++j) {
+            if (typeof obj[j] !== "undefined") {
+              compacted.push(obj[j]);
+            }
+          }
+          item.obj[item.prop] = compacted;
+        }
+      }
+    }, "compactQueue");
+    var arrayToObject = /* @__PURE__ */ __name(function arrayToObject2(source, options) {
+      var obj = options && options.plainObjects ? { __proto__: null } : {};
+      for (var i = 0; i < source.length; ++i) {
+        if (typeof source[i] !== "undefined") {
+          obj[i] = source[i];
+        }
+      }
+      return obj;
+    }, "arrayToObject");
+    var merge = /* @__PURE__ */ __name(function merge2(target, source, options) {
+      if (!source) {
+        return target;
+      }
+      if (typeof source !== "object" && typeof source !== "function") {
+        if (isArray(target)) {
+          target.push(source);
+        } else if (target && typeof target === "object") {
+          if (options && (options.plainObjects || options.allowPrototypes) || !has.call(Object.prototype, source)) {
+            target[source] = true;
+          }
+        } else {
+          return [target, source];
+        }
+        return target;
+      }
+      if (!target || typeof target !== "object") {
+        return [target].concat(source);
+      }
+      var mergeTarget = target;
+      if (isArray(target) && !isArray(source)) {
+        mergeTarget = arrayToObject(target, options);
+      }
+      if (isArray(target) && isArray(source)) {
+        source.forEach(function(item, i) {
+          if (has.call(target, i)) {
+            var targetItem = target[i];
+            if (targetItem && typeof targetItem === "object" && item && typeof item === "object") {
+              target[i] = merge2(targetItem, item, options);
+            } else {
+              target.push(item);
+            }
+          } else {
+            target[i] = item;
+          }
+        });
+        return target;
+      }
+      return Object.keys(source).reduce(function(acc, key) {
+        var value = source[key];
+        if (has.call(acc, key)) {
+          acc[key] = merge2(acc[key], value, options);
+        } else {
+          acc[key] = value;
+        }
+        return acc;
+      }, mergeTarget);
+    }, "merge");
+    var assign = /* @__PURE__ */ __name(function assignSingleSource(target, source) {
+      return Object.keys(source).reduce(function(acc, key) {
+        acc[key] = source[key];
+        return acc;
+      }, target);
+    }, "assignSingleSource");
+    var decode = /* @__PURE__ */ __name(function(str, defaultDecoder, charset) {
+      var strWithoutPlus = str.replace(/\+/g, " ");
+      if (charset === "iso-8859-1") {
+        return strWithoutPlus.replace(/%[0-9a-f]{2}/gi, unescape);
+      }
+      try {
+        return decodeURIComponent(strWithoutPlus);
+      } catch (e) {
+        return strWithoutPlus;
+      }
+    }, "decode");
+    var limit = 1024;
+    var encode = /* @__PURE__ */ __name(function encode2(str, defaultEncoder, charset, kind, format) {
+      if (str.length === 0) {
+        return str;
+      }
+      var string = str;
+      if (typeof str === "symbol") {
+        string = Symbol.prototype.toString.call(str);
+      } else if (typeof str !== "string") {
+        string = String(str);
+      }
+      if (charset === "iso-8859-1") {
+        return escape(string).replace(/%u[0-9a-f]{4}/gi, function($0) {
+          return "%26%23" + parseInt($0.slice(2), 16) + "%3B";
+        });
+      }
+      var out = "";
+      for (var j = 0; j < string.length; j += limit) {
+        var segment = string.length >= limit ? string.slice(j, j + limit) : string;
+        var arr = [];
+        for (var i = 0; i < segment.length; ++i) {
+          var c = segment.charCodeAt(i);
+          if (c === 45 || c === 46 || c === 95 || c === 126 || c >= 48 && c <= 57 || c >= 65 && c <= 90 || c >= 97 && c <= 122 || format === formats.RFC1738 && (c === 40 || c === 41)) {
+            arr[arr.length] = segment.charAt(i);
+            continue;
+          }
+          if (c < 128) {
+            arr[arr.length] = hexTable[c];
+            continue;
+          }
+          if (c < 2048) {
+            arr[arr.length] = hexTable[192 | c >> 6] + hexTable[128 | c & 63];
+            continue;
+          }
+          if (c < 55296 || c >= 57344) {
+            arr[arr.length] = hexTable[224 | c >> 12] + hexTable[128 | c >> 6 & 63] + hexTable[128 | c & 63];
+            continue;
+          }
+          i += 1;
+          c = 65536 + ((c & 1023) << 10 | segment.charCodeAt(i) & 1023);
+          arr[arr.length] = hexTable[240 | c >> 18] + hexTable[128 | c >> 12 & 63] + hexTable[128 | c >> 6 & 63] + hexTable[128 | c & 63];
+        }
+        out += arr.join("");
+      }
+      return out;
+    }, "encode");
+    var compact = /* @__PURE__ */ __name(function compact2(value) {
+      var queue = [{ obj: { o: value }, prop: "o" }];
+      var refs = [];
+      for (var i = 0; i < queue.length; ++i) {
+        var item = queue[i];
+        var obj = item.obj[item.prop];
+        var keys = Object.keys(obj);
+        for (var j = 0; j < keys.length; ++j) {
+          var key = keys[j];
+          var val = obj[key];
+          if (typeof val === "object" && val !== null && refs.indexOf(val) === -1) {
+            queue.push({ obj, prop: key });
+            refs.push(val);
+          }
+        }
+      }
+      compactQueue(queue);
+      return value;
+    }, "compact");
+    var isRegExp = /* @__PURE__ */ __name(function isRegExp2(obj) {
+      return Object.prototype.toString.call(obj) === "[object RegExp]";
+    }, "isRegExp");
+    var isBuffer = /* @__PURE__ */ __name(function isBuffer2(obj) {
+      if (!obj || typeof obj !== "object") {
+        return false;
+      }
+      return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
+    }, "isBuffer");
+    var combine = /* @__PURE__ */ __name(function combine2(a, b) {
+      return [].concat(a, b);
+    }, "combine");
+    var maybeMap = /* @__PURE__ */ __name(function maybeMap2(val, fn) {
+      if (isArray(val)) {
+        var mapped = [];
+        for (var i = 0; i < val.length; i += 1) {
+          mapped.push(fn(val[i]));
+        }
+        return mapped;
+      }
+      return fn(val);
+    }, "maybeMap");
+    module.exports = {
+      arrayToObject,
+      assign,
+      combine,
+      compact,
+      decode,
+      encode,
+      isBuffer,
+      isRegExp,
+      maybeMap,
+      merge
+    };
+  }
+});
+
+// node_modules/qs/lib/stringify.js
+var require_stringify = __commonJS({
+  "node_modules/qs/lib/stringify.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var getSideChannel = require_side_channel();
+    var utils = require_utils();
+    var formats = require_formats();
+    var has = Object.prototype.hasOwnProperty;
+    var arrayPrefixGenerators = {
+      brackets: /* @__PURE__ */ __name(function brackets(prefix) {
+        return prefix + "[]";
+      }, "brackets"),
+      comma: "comma",
+      indices: /* @__PURE__ */ __name(function indices(prefix, key) {
+        return prefix + "[" + key + "]";
+      }, "indices"),
+      repeat: /* @__PURE__ */ __name(function repeat(prefix) {
+        return prefix;
+      }, "repeat")
+    };
+    var isArray = Array.isArray;
+    var push = Array.prototype.push;
+    var pushToArray = /* @__PURE__ */ __name(function(arr, valueOrArray) {
+      push.apply(arr, isArray(valueOrArray) ? valueOrArray : [valueOrArray]);
+    }, "pushToArray");
+    var toISO = Date.prototype.toISOString;
+    var defaultFormat = formats["default"];
+    var defaults = {
+      addQueryPrefix: false,
+      allowDots: false,
+      allowEmptyArrays: false,
+      arrayFormat: "indices",
+      charset: "utf-8",
+      charsetSentinel: false,
+      commaRoundTrip: false,
+      delimiter: "&",
+      encode: true,
+      encodeDotInKeys: false,
+      encoder: utils.encode,
+      encodeValuesOnly: false,
+      filter: void 0,
+      format: defaultFormat,
+      formatter: formats.formatters[defaultFormat],
+      // deprecated
+      indices: false,
+      serializeDate: /* @__PURE__ */ __name(function serializeDate(date) {
+        return toISO.call(date);
+      }, "serializeDate"),
+      skipNulls: false,
+      strictNullHandling: false
+    };
+    var isNonNullishPrimitive = /* @__PURE__ */ __name(function isNonNullishPrimitive2(v) {
+      return typeof v === "string" || typeof v === "number" || typeof v === "boolean" || typeof v === "symbol" || typeof v === "bigint";
+    }, "isNonNullishPrimitive");
+    var sentinel = {};
+    var stringify2 = /* @__PURE__ */ __name(function stringify3(object, prefix, generateArrayPrefix, commaRoundTrip, allowEmptyArrays, strictNullHandling, skipNulls, encodeDotInKeys, encoder, filter, sort, allowDots, serializeDate, format, formatter, encodeValuesOnly, charset, sideChannel) {
+      var obj = object;
+      var tmpSc = sideChannel;
+      var step = 0;
+      var findFlag = false;
+      while ((tmpSc = tmpSc.get(sentinel)) !== void 0 && !findFlag) {
+        var pos = tmpSc.get(object);
+        step += 1;
+        if (typeof pos !== "undefined") {
+          if (pos === step) {
+            throw new RangeError("Cyclic object value");
+          } else {
+            findFlag = true;
+          }
+        }
+        if (typeof tmpSc.get(sentinel) === "undefined") {
+          step = 0;
+        }
+      }
+      if (typeof filter === "function") {
+        obj = filter(prefix, obj);
+      } else if (obj instanceof Date) {
+        obj = serializeDate(obj);
+      } else if (generateArrayPrefix === "comma" && isArray(obj)) {
+        obj = utils.maybeMap(obj, function(value2) {
+          if (value2 instanceof Date) {
+            return serializeDate(value2);
+          }
+          return value2;
+        });
+      }
+      if (obj === null) {
+        if (strictNullHandling) {
+          return encoder && !encodeValuesOnly ? encoder(prefix, defaults.encoder, charset, "key", format) : prefix;
+        }
+        obj = "";
+      }
+      if (isNonNullishPrimitive(obj) || utils.isBuffer(obj)) {
+        if (encoder) {
+          var keyValue = encodeValuesOnly ? prefix : encoder(prefix, defaults.encoder, charset, "key", format);
+          return [formatter(keyValue) + "=" + formatter(encoder(obj, defaults.encoder, charset, "value", format))];
+        }
+        return [formatter(prefix) + "=" + formatter(String(obj))];
+      }
+      var values = [];
+      if (typeof obj === "undefined") {
+        return values;
+      }
+      var objKeys;
+      if (generateArrayPrefix === "comma" && isArray(obj)) {
+        if (encodeValuesOnly && encoder) {
+          obj = utils.maybeMap(obj, encoder);
+        }
+        objKeys = [{ value: obj.length > 0 ? obj.join(",") || null : void 0 }];
+      } else if (isArray(filter)) {
+        objKeys = filter;
+      } else {
+        var keys = Object.keys(obj);
+        objKeys = sort ? keys.sort(sort) : keys;
+      }
+      var encodedPrefix = encodeDotInKeys ? String(prefix).replace(/\./g, "%2E") : String(prefix);
+      var adjustedPrefix = commaRoundTrip && isArray(obj) && obj.length === 1 ? encodedPrefix + "[]" : encodedPrefix;
+      if (allowEmptyArrays && isArray(obj) && obj.length === 0) {
+        return adjustedPrefix + "[]";
+      }
+      for (var j = 0; j < objKeys.length; ++j) {
+        var key = objKeys[j];
+        var value = typeof key === "object" && key && typeof key.value !== "undefined" ? key.value : obj[key];
+        if (skipNulls && value === null) {
+          continue;
+        }
+        var encodedKey = allowDots && encodeDotInKeys ? String(key).replace(/\./g, "%2E") : String(key);
+        var keyPrefix = isArray(obj) ? typeof generateArrayPrefix === "function" ? generateArrayPrefix(adjustedPrefix, encodedKey) : adjustedPrefix : adjustedPrefix + (allowDots ? "." + encodedKey : "[" + encodedKey + "]");
+        sideChannel.set(object, step);
+        var valueSideChannel = getSideChannel();
+        valueSideChannel.set(sentinel, sideChannel);
+        pushToArray(values, stringify3(
+          value,
+          keyPrefix,
+          generateArrayPrefix,
+          commaRoundTrip,
+          allowEmptyArrays,
+          strictNullHandling,
+          skipNulls,
+          encodeDotInKeys,
+          generateArrayPrefix === "comma" && encodeValuesOnly && isArray(obj) ? null : encoder,
+          filter,
+          sort,
+          allowDots,
+          serializeDate,
+          format,
+          formatter,
+          encodeValuesOnly,
+          charset,
+          valueSideChannel
+        ));
+      }
+      return values;
+    }, "stringify");
+    var normalizeStringifyOptions = /* @__PURE__ */ __name(function normalizeStringifyOptions2(opts) {
+      if (!opts) {
+        return defaults;
+      }
+      if (typeof opts.allowEmptyArrays !== "undefined" && typeof opts.allowEmptyArrays !== "boolean") {
+        throw new TypeError("`allowEmptyArrays` option can only be `true` or `false`, when provided");
+      }
+      if (typeof opts.encodeDotInKeys !== "undefined" && typeof opts.encodeDotInKeys !== "boolean") {
+        throw new TypeError("`encodeDotInKeys` option can only be `true` or `false`, when provided");
+      }
+      if (opts.encoder !== null && typeof opts.encoder !== "undefined" && typeof opts.encoder !== "function") {
+        throw new TypeError("Encoder has to be a function.");
+      }
+      var charset = opts.charset || defaults.charset;
+      if (typeof opts.charset !== "undefined" && opts.charset !== "utf-8" && opts.charset !== "iso-8859-1") {
+        throw new TypeError("The charset option must be either utf-8, iso-8859-1, or undefined");
+      }
+      var format = formats["default"];
+      if (typeof opts.format !== "undefined") {
+        if (!has.call(formats.formatters, opts.format)) {
+          throw new TypeError("Unknown format option provided.");
+        }
+        format = opts.format;
+      }
+      var formatter = formats.formatters[format];
+      var filter = defaults.filter;
+      if (typeof opts.filter === "function" || isArray(opts.filter)) {
+        filter = opts.filter;
+      }
+      var arrayFormat;
+      if (opts.arrayFormat in arrayPrefixGenerators) {
+        arrayFormat = opts.arrayFormat;
+      } else if ("indices" in opts) {
+        arrayFormat = opts.indices ? "indices" : "repeat";
+      } else {
+        arrayFormat = defaults.arrayFormat;
+      }
+      if ("commaRoundTrip" in opts && typeof opts.commaRoundTrip !== "boolean") {
+        throw new TypeError("`commaRoundTrip` must be a boolean, or absent");
+      }
+      var allowDots = typeof opts.allowDots === "undefined" ? opts.encodeDotInKeys === true ? true : defaults.allowDots : !!opts.allowDots;
+      return {
+        addQueryPrefix: typeof opts.addQueryPrefix === "boolean" ? opts.addQueryPrefix : defaults.addQueryPrefix,
+        allowDots,
+        allowEmptyArrays: typeof opts.allowEmptyArrays === "boolean" ? !!opts.allowEmptyArrays : defaults.allowEmptyArrays,
+        arrayFormat,
+        charset,
+        charsetSentinel: typeof opts.charsetSentinel === "boolean" ? opts.charsetSentinel : defaults.charsetSentinel,
+        commaRoundTrip: !!opts.commaRoundTrip,
+        delimiter: typeof opts.delimiter === "undefined" ? defaults.delimiter : opts.delimiter,
+        encode: typeof opts.encode === "boolean" ? opts.encode : defaults.encode,
+        encodeDotInKeys: typeof opts.encodeDotInKeys === "boolean" ? opts.encodeDotInKeys : defaults.encodeDotInKeys,
+        encoder: typeof opts.encoder === "function" ? opts.encoder : defaults.encoder,
+        encodeValuesOnly: typeof opts.encodeValuesOnly === "boolean" ? opts.encodeValuesOnly : defaults.encodeValuesOnly,
+        filter,
+        format,
+        formatter,
+        serializeDate: typeof opts.serializeDate === "function" ? opts.serializeDate : defaults.serializeDate,
+        skipNulls: typeof opts.skipNulls === "boolean" ? opts.skipNulls : defaults.skipNulls,
+        sort: typeof opts.sort === "function" ? opts.sort : null,
+        strictNullHandling: typeof opts.strictNullHandling === "boolean" ? opts.strictNullHandling : defaults.strictNullHandling
+      };
+    }, "normalizeStringifyOptions");
+    module.exports = function(object, opts) {
+      var obj = object;
+      var options = normalizeStringifyOptions(opts);
+      var objKeys;
+      var filter;
+      if (typeof options.filter === "function") {
+        filter = options.filter;
+        obj = filter("", obj);
+      } else if (isArray(options.filter)) {
+        filter = options.filter;
+        objKeys = filter;
+      }
+      var keys = [];
+      if (typeof obj !== "object" || obj === null) {
+        return "";
+      }
+      var generateArrayPrefix = arrayPrefixGenerators[options.arrayFormat];
+      var commaRoundTrip = generateArrayPrefix === "comma" && options.commaRoundTrip;
+      if (!objKeys) {
+        objKeys = Object.keys(obj);
+      }
+      if (options.sort) {
+        objKeys.sort(options.sort);
+      }
+      var sideChannel = getSideChannel();
+      for (var i = 0; i < objKeys.length; ++i) {
+        var key = objKeys[i];
+        var value = obj[key];
+        if (options.skipNulls && value === null) {
+          continue;
+        }
+        pushToArray(keys, stringify2(
+          value,
+          key,
+          generateArrayPrefix,
+          commaRoundTrip,
+          options.allowEmptyArrays,
+          options.strictNullHandling,
+          options.skipNulls,
+          options.encodeDotInKeys,
+          options.encode ? options.encoder : null,
+          options.filter,
+          options.sort,
+          options.allowDots,
+          options.serializeDate,
+          options.format,
+          options.formatter,
+          options.encodeValuesOnly,
+          options.charset,
+          sideChannel
+        ));
+      }
+      var joined = keys.join(options.delimiter);
+      var prefix = options.addQueryPrefix === true ? "?" : "";
+      if (options.charsetSentinel) {
+        if (options.charset === "iso-8859-1") {
+          prefix += "utf8=%26%2310003%3B&";
+        } else {
+          prefix += "utf8=%E2%9C%93&";
+        }
+      }
+      return joined.length > 0 ? prefix + joined : "";
+    };
+  }
+});
+
+// node_modules/qs/lib/parse.js
+var require_parse = __commonJS({
+  "node_modules/qs/lib/parse.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var utils = require_utils();
+    var has = Object.prototype.hasOwnProperty;
+    var isArray = Array.isArray;
+    var defaults = {
+      allowDots: false,
+      allowEmptyArrays: false,
+      allowPrototypes: false,
+      allowSparse: false,
+      arrayLimit: 20,
+      charset: "utf-8",
+      charsetSentinel: false,
+      comma: false,
+      decodeDotInKeys: false,
+      decoder: utils.decode,
+      delimiter: "&",
+      depth: 5,
+      duplicates: "combine",
+      ignoreQueryPrefix: false,
+      interpretNumericEntities: false,
+      parameterLimit: 1e3,
+      parseArrays: true,
+      plainObjects: false,
+      strictDepth: false,
+      strictNullHandling: false,
+      throwOnLimitExceeded: false
+    };
+    var interpretNumericEntities = /* @__PURE__ */ __name(function(str) {
+      return str.replace(/&#(\d+);/g, function($0, numberStr) {
+        return String.fromCharCode(parseInt(numberStr, 10));
+      });
+    }, "interpretNumericEntities");
+    var parseArrayValue = /* @__PURE__ */ __name(function(val, options, currentArrayLength) {
+      if (val && typeof val === "string" && options.comma && val.indexOf(",") > -1) {
+        return val.split(",");
+      }
+      if (options.throwOnLimitExceeded && currentArrayLength >= options.arrayLimit) {
+        throw new RangeError("Array limit exceeded. Only " + options.arrayLimit + " element" + (options.arrayLimit === 1 ? "" : "s") + " allowed in an array.");
+      }
+      return val;
+    }, "parseArrayValue");
+    var isoSentinel = "utf8=%26%2310003%3B";
+    var charsetSentinel = "utf8=%E2%9C%93";
+    var parseValues = /* @__PURE__ */ __name(function parseQueryStringValues(str, options) {
+      var obj = { __proto__: null };
+      var cleanStr = options.ignoreQueryPrefix ? str.replace(/^\?/, "") : str;
+      cleanStr = cleanStr.replace(/%5B/gi, "[").replace(/%5D/gi, "]");
+      var limit = options.parameterLimit === Infinity ? void 0 : options.parameterLimit;
+      var parts = cleanStr.split(
+        options.delimiter,
+        options.throwOnLimitExceeded ? limit + 1 : limit
+      );
+      if (options.throwOnLimitExceeded && parts.length > limit) {
+        throw new RangeError("Parameter limit exceeded. Only " + limit + " parameter" + (limit === 1 ? "" : "s") + " allowed.");
+      }
+      var skipIndex = -1;
+      var i;
+      var charset = options.charset;
+      if (options.charsetSentinel) {
+        for (i = 0; i < parts.length; ++i) {
+          if (parts[i].indexOf("utf8=") === 0) {
+            if (parts[i] === charsetSentinel) {
+              charset = "utf-8";
+            } else if (parts[i] === isoSentinel) {
+              charset = "iso-8859-1";
+            }
+            skipIndex = i;
+            i = parts.length;
+          }
+        }
+      }
+      for (i = 0; i < parts.length; ++i) {
+        if (i === skipIndex) {
+          continue;
+        }
+        var part = parts[i];
+        var bracketEqualsPos = part.indexOf("]=");
+        var pos = bracketEqualsPos === -1 ? part.indexOf("=") : bracketEqualsPos + 1;
+        var key;
+        var val;
+        if (pos === -1) {
+          key = options.decoder(part, defaults.decoder, charset, "key");
+          val = options.strictNullHandling ? null : "";
+        } else {
+          key = options.decoder(part.slice(0, pos), defaults.decoder, charset, "key");
+          val = utils.maybeMap(
+            parseArrayValue(
+              part.slice(pos + 1),
+              options,
+              isArray(obj[key]) ? obj[key].length : 0
+            ),
+            function(encodedVal) {
+              return options.decoder(encodedVal, defaults.decoder, charset, "value");
+            }
+          );
+        }
+        if (val && options.interpretNumericEntities && charset === "iso-8859-1") {
+          val = interpretNumericEntities(String(val));
+        }
+        if (part.indexOf("[]=") > -1) {
+          val = isArray(val) ? [val] : val;
+        }
+        var existing = has.call(obj, key);
+        if (existing && options.duplicates === "combine") {
+          obj[key] = utils.combine(obj[key], val);
+        } else if (!existing || options.duplicates === "last") {
+          obj[key] = val;
+        }
+      }
+      return obj;
+    }, "parseQueryStringValues");
+    var parseObject = /* @__PURE__ */ __name(function(chain, val, options, valuesParsed) {
+      var currentArrayLength = 0;
+      if (chain.length > 0 && chain[chain.length - 1] === "[]") {
+        var parentKey = chain.slice(0, -1).join("");
+        currentArrayLength = Array.isArray(val) && val[parentKey] ? val[parentKey].length : 0;
+      }
+      var leaf = valuesParsed ? val : parseArrayValue(val, options, currentArrayLength);
+      for (var i = chain.length - 1; i >= 0; --i) {
+        var obj;
+        var root = chain[i];
+        if (root === "[]" && options.parseArrays) {
+          obj = options.allowEmptyArrays && (leaf === "" || options.strictNullHandling && leaf === null) ? [] : utils.combine([], leaf);
+        } else {
+          obj = options.plainObjects ? { __proto__: null } : {};
+          var cleanRoot = root.charAt(0) === "[" && root.charAt(root.length - 1) === "]" ? root.slice(1, -1) : root;
+          var decodedRoot = options.decodeDotInKeys ? cleanRoot.replace(/%2E/g, ".") : cleanRoot;
+          var index = parseInt(decodedRoot, 10);
+          if (!options.parseArrays && decodedRoot === "") {
+            obj = { 0: leaf };
+          } else if (!isNaN(index) && root !== decodedRoot && String(index) === decodedRoot && index >= 0 && (options.parseArrays && index <= options.arrayLimit)) {
+            obj = [];
+            obj[index] = leaf;
+          } else if (decodedRoot !== "__proto__") {
+            obj[decodedRoot] = leaf;
+          }
+        }
+        leaf = obj;
+      }
+      return leaf;
+    }, "parseObject");
+    var parseKeys = /* @__PURE__ */ __name(function parseQueryStringKeys(givenKey, val, options, valuesParsed) {
+      if (!givenKey) {
+        return;
+      }
+      var key = options.allowDots ? givenKey.replace(/\.([^.[]+)/g, "[$1]") : givenKey;
+      var brackets = /(\[[^[\]]*])/;
+      var child = /(\[[^[\]]*])/g;
+      var segment = options.depth > 0 && brackets.exec(key);
+      var parent = segment ? key.slice(0, segment.index) : key;
+      var keys = [];
+      if (parent) {
+        if (!options.plainObjects && has.call(Object.prototype, parent)) {
+          if (!options.allowPrototypes) {
+            return;
+          }
+        }
+        keys.push(parent);
+      }
+      var i = 0;
+      while (options.depth > 0 && (segment = child.exec(key)) !== null && i < options.depth) {
+        i += 1;
+        if (!options.plainObjects && has.call(Object.prototype, segment[1].slice(1, -1))) {
+          if (!options.allowPrototypes) {
+            return;
+          }
+        }
+        keys.push(segment[1]);
+      }
+      if (segment) {
+        if (options.strictDepth === true) {
+          throw new RangeError("Input depth exceeded depth option of " + options.depth + " and strictDepth is true");
+        }
+        keys.push("[" + key.slice(segment.index) + "]");
+      }
+      return parseObject(keys, val, options, valuesParsed);
+    }, "parseQueryStringKeys");
+    var normalizeParseOptions = /* @__PURE__ */ __name(function normalizeParseOptions2(opts) {
+      if (!opts) {
+        return defaults;
+      }
+      if (typeof opts.allowEmptyArrays !== "undefined" && typeof opts.allowEmptyArrays !== "boolean") {
+        throw new TypeError("`allowEmptyArrays` option can only be `true` or `false`, when provided");
+      }
+      if (typeof opts.decodeDotInKeys !== "undefined" && typeof opts.decodeDotInKeys !== "boolean") {
+        throw new TypeError("`decodeDotInKeys` option can only be `true` or `false`, when provided");
+      }
+      if (opts.decoder !== null && typeof opts.decoder !== "undefined" && typeof opts.decoder !== "function") {
+        throw new TypeError("Decoder has to be a function.");
+      }
+      if (typeof opts.charset !== "undefined" && opts.charset !== "utf-8" && opts.charset !== "iso-8859-1") {
+        throw new TypeError("The charset option must be either utf-8, iso-8859-1, or undefined");
+      }
+      if (typeof opts.throwOnLimitExceeded !== "undefined" && typeof opts.throwOnLimitExceeded !== "boolean") {
+        throw new TypeError("`throwOnLimitExceeded` option must be a boolean");
+      }
+      var charset = typeof opts.charset === "undefined" ? defaults.charset : opts.charset;
+      var duplicates = typeof opts.duplicates === "undefined" ? defaults.duplicates : opts.duplicates;
+      if (duplicates !== "combine" && duplicates !== "first" && duplicates !== "last") {
+        throw new TypeError("The duplicates option must be either combine, first, or last");
+      }
+      var allowDots = typeof opts.allowDots === "undefined" ? opts.decodeDotInKeys === true ? true : defaults.allowDots : !!opts.allowDots;
+      return {
+        allowDots,
+        allowEmptyArrays: typeof opts.allowEmptyArrays === "boolean" ? !!opts.allowEmptyArrays : defaults.allowEmptyArrays,
+        allowPrototypes: typeof opts.allowPrototypes === "boolean" ? opts.allowPrototypes : defaults.allowPrototypes,
+        allowSparse: typeof opts.allowSparse === "boolean" ? opts.allowSparse : defaults.allowSparse,
+        arrayLimit: typeof opts.arrayLimit === "number" ? opts.arrayLimit : defaults.arrayLimit,
+        charset,
+        charsetSentinel: typeof opts.charsetSentinel === "boolean" ? opts.charsetSentinel : defaults.charsetSentinel,
+        comma: typeof opts.comma === "boolean" ? opts.comma : defaults.comma,
+        decodeDotInKeys: typeof opts.decodeDotInKeys === "boolean" ? opts.decodeDotInKeys : defaults.decodeDotInKeys,
+        decoder: typeof opts.decoder === "function" ? opts.decoder : defaults.decoder,
+        delimiter: typeof opts.delimiter === "string" || utils.isRegExp(opts.delimiter) ? opts.delimiter : defaults.delimiter,
+        // eslint-disable-next-line no-implicit-coercion, no-extra-parens
+        depth: typeof opts.depth === "number" || opts.depth === false ? +opts.depth : defaults.depth,
+        duplicates,
+        ignoreQueryPrefix: opts.ignoreQueryPrefix === true,
+        interpretNumericEntities: typeof opts.interpretNumericEntities === "boolean" ? opts.interpretNumericEntities : defaults.interpretNumericEntities,
+        parameterLimit: typeof opts.parameterLimit === "number" ? opts.parameterLimit : defaults.parameterLimit,
+        parseArrays: opts.parseArrays !== false,
+        plainObjects: typeof opts.plainObjects === "boolean" ? opts.plainObjects : defaults.plainObjects,
+        strictDepth: typeof opts.strictDepth === "boolean" ? !!opts.strictDepth : defaults.strictDepth,
+        strictNullHandling: typeof opts.strictNullHandling === "boolean" ? opts.strictNullHandling : defaults.strictNullHandling,
+        throwOnLimitExceeded: typeof opts.throwOnLimitExceeded === "boolean" ? opts.throwOnLimitExceeded : false
+      };
+    }, "normalizeParseOptions");
+    module.exports = function(str, opts) {
+      var options = normalizeParseOptions(opts);
+      if (str === "" || str === null || typeof str === "undefined") {
+        return options.plainObjects ? { __proto__: null } : {};
+      }
+      var tempObj = typeof str === "string" ? parseValues(str, options) : str;
+      var obj = options.plainObjects ? { __proto__: null } : {};
+      var keys = Object.keys(tempObj);
+      for (var i = 0; i < keys.length; ++i) {
+        var key = keys[i];
+        var newObj = parseKeys(key, tempObj[key], options, typeof str === "string");
+        obj = utils.merge(obj, newObj, options);
+      }
+      if (options.allowSparse === true) {
+        return obj;
+      }
+      return utils.compact(obj);
+    };
+  }
+});
+
+// node_modules/qs/lib/index.js
+var require_lib = __commonJS({
+  "node_modules/qs/lib/index.js"(exports, module) {
+    "use strict";
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+    init_performance2();
+    var stringify2 = require_stringify();
+    var parse = require_parse();
+    var formats = require_formats();
+    module.exports = {
+      formats,
+      parse,
+      stringify: stringify2
+    };
+  }
+});
+
+// src/worker.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/hono/dist/index.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/hono/dist/hono.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/hono/dist/hono-base.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/hono/dist/compose.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var compose = /* @__PURE__ */ __name((middleware, onError, onNotFound) => {
+  return (context2, next) => {
+    let index = -1;
+    return dispatch(0);
+    async function dispatch(i) {
+      if (i <= index) {
+        throw new Error("next() called multiple times");
+      }
+      index = i;
+      let res;
+      let isError = false;
+      let handler;
+      if (middleware[i]) {
+        handler = middleware[i][0][0];
+        context2.req.routeIndex = i;
+      } else {
+        handler = i === middleware.length && next || void 0;
+      }
+      if (handler) {
+        try {
+          res = await handler(context2, () => dispatch(i + 1));
+        } catch (err) {
+          if (err instanceof Error && onError) {
+            context2.error = err;
+            res = await onError(err, context2);
+            isError = true;
+          } else {
+            throw err;
+          }
+        }
+      } else {
+        if (context2.finalized === false && onNotFound) {
+          res = await onNotFound(context2);
+        }
+      }
+      if (res && (context2.finalized === false || isError)) {
+        context2.res = res;
+      }
+      return context2;
+    }
+    __name(dispatch, "dispatch");
+  };
+}, "compose");
+
+// node_modules/hono/dist/context.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/hono/dist/request.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/hono/dist/request/constants.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var GET_MATCH_RESULT = Symbol();
+
+// node_modules/hono/dist/utils/body.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var parseBody = /* @__PURE__ */ __name(async (request, options = /* @__PURE__ */ Object.create(null)) => {
+  const { all = false, dot = false } = options;
+  const headers = request instanceof HonoRequest ? request.raw.headers : request.headers;
+  const contentType = headers.get("Content-Type");
+  if (contentType?.startsWith("multipart/form-data") || contentType?.startsWith("application/x-www-form-urlencoded")) {
+    return parseFormData(request, { all, dot });
+  }
+  return {};
+}, "parseBody");
+async function parseFormData(request, options) {
+  const formData = await request.formData();
+  if (formData) {
+    return convertFormDataToBodyData(formData, options);
+  }
+  return {};
+}
+__name(parseFormData, "parseFormData");
+function convertFormDataToBodyData(formData, options) {
+  const form = /* @__PURE__ */ Object.create(null);
+  formData.forEach((value, key) => {
+    const shouldParseAllValues = options.all || key.endsWith("[]");
+    if (!shouldParseAllValues) {
+      form[key] = value;
+    } else {
+      handleParsingAllValues(form, key, value);
+    }
+  });
+  if (options.dot) {
+    Object.entries(form).forEach(([key, value]) => {
+      const shouldParseDotValues = key.includes(".");
+      if (shouldParseDotValues) {
+        handleParsingNestedValues(form, key, value);
+        delete form[key];
+      }
+    });
+  }
+  return form;
+}
+__name(convertFormDataToBodyData, "convertFormDataToBodyData");
+var handleParsingAllValues = /* @__PURE__ */ __name((form, key, value) => {
+  if (form[key] !== void 0) {
+    if (Array.isArray(form[key])) {
+      ;
+      form[key].push(value);
+    } else {
+      form[key] = [form[key], value];
+    }
+  } else {
+    if (!key.endsWith("[]")) {
+      form[key] = value;
+    } else {
+      form[key] = [value];
+    }
+  }
+}, "handleParsingAllValues");
+var handleParsingNestedValues = /* @__PURE__ */ __name((form, key, value) => {
+  let nestedForm = form;
+  const keys = key.split(".");
+  keys.forEach((key2, index) => {
+    if (index === keys.length - 1) {
+      nestedForm[key2] = value;
+    } else {
+      if (!nestedForm[key2] || typeof nestedForm[key2] !== "object" || Array.isArray(nestedForm[key2]) || nestedForm[key2] instanceof File) {
+        nestedForm[key2] = /* @__PURE__ */ Object.create(null);
+      }
+      nestedForm = nestedForm[key2];
+    }
+  });
+}, "handleParsingNestedValues");
+
+// node_modules/hono/dist/utils/url.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var splitPath = /* @__PURE__ */ __name((path) => {
+  const paths = path.split("/");
+  if (paths[0] === "") {
+    paths.shift();
+  }
+  return paths;
+}, "splitPath");
+var splitRoutingPath = /* @__PURE__ */ __name((routePath) => {
+  const { groups, path } = extractGroupsFromPath(routePath);
+  const paths = splitPath(path);
+  return replaceGroupMarks(paths, groups);
+}, "splitRoutingPath");
+var extractGroupsFromPath = /* @__PURE__ */ __name((path) => {
+  const groups = [];
+  path = path.replace(/\{[^}]+\}/g, (match, index) => {
+    const mark = `@${index}`;
+    groups.push([mark, match]);
+    return mark;
+  });
+  return { groups, path };
+}, "extractGroupsFromPath");
+var replaceGroupMarks = /* @__PURE__ */ __name((paths, groups) => {
+  for (let i = groups.length - 1; i >= 0; i--) {
+    const [mark] = groups[i];
+    for (let j = paths.length - 1; j >= 0; j--) {
+      if (paths[j].includes(mark)) {
+        paths[j] = paths[j].replace(mark, groups[i][1]);
+        break;
+      }
+    }
+  }
+  return paths;
+}, "replaceGroupMarks");
+var patternCache = {};
+var getPattern = /* @__PURE__ */ __name((label, next) => {
+  if (label === "*") {
+    return "*";
+  }
+  const match = label.match(/^\:([^\{\}]+)(?:\{(.+)\})?$/);
+  if (match) {
+    const cacheKey = `${label}#${next}`;
+    if (!patternCache[cacheKey]) {
+      if (match[2]) {
+        patternCache[cacheKey] = next && next[0] !== ":" && next[0] !== "*" ? [cacheKey, match[1], new RegExp(`^${match[2]}(?=/${next})`)] : [label, match[1], new RegExp(`^${match[2]}$`)];
+      } else {
+        patternCache[cacheKey] = [label, match[1], true];
+      }
+    }
+    return patternCache[cacheKey];
+  }
+  return null;
+}, "getPattern");
+var tryDecode = /* @__PURE__ */ __name((str, decoder) => {
+  try {
+    return decoder(str);
+  } catch {
+    return str.replace(/(?:%[0-9A-Fa-f]{2})+/g, (match) => {
+      try {
+        return decoder(match);
+      } catch {
+        return match;
+      }
+    });
+  }
+}, "tryDecode");
+var tryDecodeURI = /* @__PURE__ */ __name((str) => tryDecode(str, decodeURI), "tryDecodeURI");
+var getPath = /* @__PURE__ */ __name((request) => {
+  const url = request.url;
+  const start = url.indexOf("/", url.indexOf(":") + 4);
+  let i = start;
+  for (; i < url.length; i++) {
+    const charCode = url.charCodeAt(i);
+    if (charCode === 37) {
+      const queryIndex = url.indexOf("?", i);
+      const path = url.slice(start, queryIndex === -1 ? void 0 : queryIndex);
+      return tryDecodeURI(path.includes("%25") ? path.replace(/%25/g, "%2525") : path);
+    } else if (charCode === 63) {
+      break;
+    }
+  }
+  return url.slice(start, i);
+}, "getPath");
+var getPathNoStrict = /* @__PURE__ */ __name((request) => {
+  const result = getPath(request);
+  return result.length > 1 && result.at(-1) === "/" ? result.slice(0, -1) : result;
+}, "getPathNoStrict");
+var mergePath = /* @__PURE__ */ __name((base, sub, ...rest) => {
+  if (rest.length) {
+    sub = mergePath(sub, ...rest);
+  }
+  return `${base?.[0] === "/" ? "" : "/"}${base}${sub === "/" ? "" : `${base?.at(-1) === "/" ? "" : "/"}${sub?.[0] === "/" ? sub.slice(1) : sub}`}`;
+}, "mergePath");
+var checkOptionalParameter = /* @__PURE__ */ __name((path) => {
+  if (path.charCodeAt(path.length - 1) !== 63 || !path.includes(":")) {
+    return null;
+  }
+  const segments = path.split("/");
+  const results = [];
+  let basePath = "";
+  segments.forEach((segment) => {
+    if (segment !== "" && !/\:/.test(segment)) {
+      basePath += "/" + segment;
+    } else if (/\:/.test(segment)) {
+      if (/\?/.test(segment)) {
+        if (results.length === 0 && basePath === "") {
+          results.push("/");
+        } else {
+          results.push(basePath);
+        }
+        const optionalSegment = segment.replace("?", "");
+        basePath += "/" + optionalSegment;
+        results.push(basePath);
+      } else {
+        basePath += "/" + segment;
+      }
+    }
+  });
+  return results.filter((v, i, a) => a.indexOf(v) === i);
+}, "checkOptionalParameter");
+var _decodeURI = /* @__PURE__ */ __name((value) => {
+  if (!/[%+]/.test(value)) {
+    return value;
+  }
+  if (value.indexOf("+") !== -1) {
+    value = value.replace(/\+/g, " ");
+  }
+  return value.indexOf("%") !== -1 ? tryDecode(value, decodeURIComponent_) : value;
+}, "_decodeURI");
+var _getQueryParam = /* @__PURE__ */ __name((url, key, multiple) => {
+  let encoded;
+  if (!multiple && key && !/[%+]/.test(key)) {
+    let keyIndex2 = url.indexOf(`?${key}`, 8);
+    if (keyIndex2 === -1) {
+      keyIndex2 = url.indexOf(`&${key}`, 8);
+    }
+    while (keyIndex2 !== -1) {
+      const trailingKeyCode = url.charCodeAt(keyIndex2 + key.length + 1);
+      if (trailingKeyCode === 61) {
+        const valueIndex = keyIndex2 + key.length + 2;
+        const endIndex = url.indexOf("&", valueIndex);
+        return _decodeURI(url.slice(valueIndex, endIndex === -1 ? void 0 : endIndex));
+      } else if (trailingKeyCode == 38 || isNaN(trailingKeyCode)) {
+        return "";
+      }
+      keyIndex2 = url.indexOf(`&${key}`, keyIndex2 + 1);
+    }
+    encoded = /[%+]/.test(url);
+    if (!encoded) {
+      return void 0;
+    }
+  }
+  const results = {};
+  encoded ??= /[%+]/.test(url);
+  let keyIndex = url.indexOf("?", 8);
+  while (keyIndex !== -1) {
+    const nextKeyIndex = url.indexOf("&", keyIndex + 1);
+    let valueIndex = url.indexOf("=", keyIndex);
+    if (valueIndex > nextKeyIndex && nextKeyIndex !== -1) {
+      valueIndex = -1;
+    }
+    let name = url.slice(
+      keyIndex + 1,
+      valueIndex === -1 ? nextKeyIndex === -1 ? void 0 : nextKeyIndex : valueIndex
+    );
+    if (encoded) {
+      name = _decodeURI(name);
+    }
+    keyIndex = nextKeyIndex;
+    if (name === "") {
+      continue;
+    }
+    let value;
+    if (valueIndex === -1) {
+      value = "";
+    } else {
+      value = url.slice(valueIndex + 1, nextKeyIndex === -1 ? void 0 : nextKeyIndex);
+      if (encoded) {
+        value = _decodeURI(value);
+      }
+    }
+    if (multiple) {
+      if (!(results[name] && Array.isArray(results[name]))) {
+        results[name] = [];
+      }
+      ;
+      results[name].push(value);
+    } else {
+      results[name] ??= value;
+    }
+  }
+  return key ? results[key] : results;
+}, "_getQueryParam");
+var getQueryParam = _getQueryParam;
+var getQueryParams = /* @__PURE__ */ __name((url, key) => {
+  return _getQueryParam(url, key, true);
+}, "getQueryParams");
+var decodeURIComponent_ = decodeURIComponent;
+
+// node_modules/hono/dist/request.js
+var tryDecodeURIComponent = /* @__PURE__ */ __name((str) => tryDecode(str, decodeURIComponent_), "tryDecodeURIComponent");
+var HonoRequest = class {
+  static {
+    __name(this, "HonoRequest");
+  }
+  raw;
+  #validatedData;
+  #matchResult;
+  routeIndex = 0;
+  path;
+  bodyCache = {};
+  constructor(request, path = "/", matchResult = [[]]) {
+    this.raw = request;
+    this.path = path;
+    this.#matchResult = matchResult;
+    this.#validatedData = {};
+  }
+  param(key) {
+    return key ? this.#getDecodedParam(key) : this.#getAllDecodedParams();
+  }
+  #getDecodedParam(key) {
+    const paramKey = this.#matchResult[0][this.routeIndex][1][key];
+    const param = this.#getParamValue(paramKey);
+    return param ? /\%/.test(param) ? tryDecodeURIComponent(param) : param : void 0;
+  }
+  #getAllDecodedParams() {
+    const decoded = {};
+    const keys = Object.keys(this.#matchResult[0][this.routeIndex][1]);
+    for (const key of keys) {
+      const value = this.#getParamValue(this.#matchResult[0][this.routeIndex][1][key]);
+      if (value && typeof value === "string") {
+        decoded[key] = /\%/.test(value) ? tryDecodeURIComponent(value) : value;
+      }
+    }
+    return decoded;
+  }
+  #getParamValue(paramKey) {
+    return this.#matchResult[1] ? this.#matchResult[1][paramKey] : paramKey;
+  }
+  query(key) {
+    return getQueryParam(this.url, key);
+  }
+  queries(key) {
+    return getQueryParams(this.url, key);
+  }
+  header(name) {
+    if (name) {
+      return this.raw.headers.get(name) ?? void 0;
+    }
+    const headerData = {};
+    this.raw.headers.forEach((value, key) => {
+      headerData[key] = value;
+    });
+    return headerData;
+  }
+  async parseBody(options) {
+    return this.bodyCache.parsedBody ??= await parseBody(this, options);
+  }
+  #cachedBody = /* @__PURE__ */ __name((key) => {
+    const { bodyCache, raw: raw2 } = this;
+    const cachedBody = bodyCache[key];
+    if (cachedBody) {
+      return cachedBody;
+    }
+    const anyCachedKey = Object.keys(bodyCache)[0];
+    if (anyCachedKey) {
+      return bodyCache[anyCachedKey].then((body) => {
+        if (anyCachedKey === "json") {
+          body = JSON.stringify(body);
+        }
+        return new Response(body)[key]();
+      });
+    }
+    return bodyCache[key] = raw2[key]();
+  }, "#cachedBody");
+  json() {
+    return this.#cachedBody("text").then((text) => JSON.parse(text));
+  }
+  text() {
+    return this.#cachedBody("text");
+  }
+  arrayBuffer() {
+    return this.#cachedBody("arrayBuffer");
+  }
+  blob() {
+    return this.#cachedBody("blob");
+  }
+  formData() {
+    return this.#cachedBody("formData");
+  }
+  addValidatedData(target, data) {
+    this.#validatedData[target] = data;
+  }
+  valid(target) {
+    return this.#validatedData[target];
+  }
+  get url() {
+    return this.raw.url;
+  }
+  get method() {
+    return this.raw.method;
+  }
+  get [GET_MATCH_RESULT]() {
+    return this.#matchResult;
+  }
+  get matchedRoutes() {
+    return this.#matchResult[0].map(([[, route]]) => route);
+  }
+  get routePath() {
+    return this.#matchResult[0].map(([[, route]]) => route)[this.routeIndex].path;
+  }
+};
+
+// node_modules/hono/dist/utils/html.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var HtmlEscapedCallbackPhase = {
+  Stringify: 1,
+  BeforeStream: 2,
+  Stream: 3
+};
+var raw = /* @__PURE__ */ __name((value, callbacks) => {
+  const escapedString = new String(value);
+  escapedString.isEscaped = true;
+  escapedString.callbacks = callbacks;
+  return escapedString;
+}, "raw");
+var resolveCallback = /* @__PURE__ */ __name(async (str, phase, preserveCallbacks, context2, buffer) => {
+  if (typeof str === "object" && !(str instanceof String)) {
+    if (!(str instanceof Promise)) {
+      str = str.toString();
+    }
+    if (str instanceof Promise) {
+      str = await str;
+    }
+  }
+  const callbacks = str.callbacks;
+  if (!callbacks?.length) {
+    return Promise.resolve(str);
+  }
+  if (buffer) {
+    buffer[0] += str;
+  } else {
+    buffer = [str];
+  }
+  const resStr = Promise.all(callbacks.map((c) => c({ phase, buffer, context: context2 }))).then(
+    (res) => Promise.all(
+      res.filter(Boolean).map((str2) => resolveCallback(str2, phase, false, context2, buffer))
+    ).then(() => buffer[0])
+  );
+  if (preserveCallbacks) {
+    return raw(await resStr, callbacks);
+  } else {
+    return resStr;
+  }
+}, "resolveCallback");
+
+// node_modules/hono/dist/context.js
+var TEXT_PLAIN = "text/plain; charset=UTF-8";
+var setDefaultContentType = /* @__PURE__ */ __name((contentType, headers) => {
+  return {
+    "Content-Type": contentType,
+    ...headers
+  };
+}, "setDefaultContentType");
+var Context = class {
+  static {
+    __name(this, "Context");
+  }
+  #rawRequest;
+  #req;
+  env = {};
+  #var;
+  finalized = false;
+  error;
+  #status;
+  #executionCtx;
+  #res;
+  #layout;
+  #renderer;
+  #notFoundHandler;
+  #preparedHeaders;
+  #matchResult;
+  #path;
+  constructor(req, options) {
+    this.#rawRequest = req;
+    if (options) {
+      this.#executionCtx = options.executionCtx;
+      this.env = options.env;
+      this.#notFoundHandler = options.notFoundHandler;
+      this.#path = options.path;
+      this.#matchResult = options.matchResult;
+    }
+  }
+  get req() {
+    this.#req ??= new HonoRequest(this.#rawRequest, this.#path, this.#matchResult);
+    return this.#req;
+  }
+  get event() {
+    if (this.#executionCtx && "respondWith" in this.#executionCtx) {
+      return this.#executionCtx;
+    } else {
+      throw Error("This context has no FetchEvent");
+    }
+  }
+  get executionCtx() {
+    if (this.#executionCtx) {
+      return this.#executionCtx;
+    } else {
+      throw Error("This context has no ExecutionContext");
+    }
+  }
+  get res() {
+    return this.#res ||= new Response(null, {
+      headers: this.#preparedHeaders ??= new Headers()
+    });
+  }
+  set res(_res) {
+    if (this.#res && _res) {
+      _res = new Response(_res.body, _res);
+      for (const [k, v] of this.#res.headers.entries()) {
+        if (k === "content-type") {
+          continue;
+        }
+        if (k === "set-cookie") {
+          const cookies = this.#res.headers.getSetCookie();
+          _res.headers.delete("set-cookie");
+          for (const cookie of cookies) {
+            _res.headers.append("set-cookie", cookie);
+          }
+        } else {
+          _res.headers.set(k, v);
+        }
+      }
+    }
+    this.#res = _res;
+    this.finalized = true;
+  }
+  render = /* @__PURE__ */ __name((...args) => {
+    this.#renderer ??= (content) => this.html(content);
+    return this.#renderer(...args);
+  }, "render");
+  setLayout = /* @__PURE__ */ __name((layout) => this.#layout = layout, "setLayout");
+  getLayout = /* @__PURE__ */ __name(() => this.#layout, "getLayout");
+  setRenderer = /* @__PURE__ */ __name((renderer) => {
+    this.#renderer = renderer;
+  }, "setRenderer");
+  header = /* @__PURE__ */ __name((name, value, options) => {
+    if (this.finalized) {
+      this.#res = new Response(this.#res.body, this.#res);
+    }
+    const headers = this.#res ? this.#res.headers : this.#preparedHeaders ??= new Headers();
+    if (value === void 0) {
+      headers.delete(name);
+    } else if (options?.append) {
+      headers.append(name, value);
+    } else {
+      headers.set(name, value);
+    }
+  }, "header");
+  status = /* @__PURE__ */ __name((status) => {
+    this.#status = status;
+  }, "status");
+  set = /* @__PURE__ */ __name((key, value) => {
+    this.#var ??= /* @__PURE__ */ new Map();
+    this.#var.set(key, value);
+  }, "set");
+  get = /* @__PURE__ */ __name((key) => {
+    return this.#var ? this.#var.get(key) : void 0;
+  }, "get");
+  get var() {
+    if (!this.#var) {
+      return {};
+    }
+    return Object.fromEntries(this.#var);
+  }
+  #newResponse(data, arg, headers) {
+    const responseHeaders = this.#res ? new Headers(this.#res.headers) : this.#preparedHeaders ?? new Headers();
+    if (typeof arg === "object" && "headers" in arg) {
+      const argHeaders = arg.headers instanceof Headers ? arg.headers : new Headers(arg.headers);
+      for (const [key, value] of argHeaders) {
+        if (key.toLowerCase() === "set-cookie") {
+          responseHeaders.append(key, value);
+        } else {
+          responseHeaders.set(key, value);
+        }
+      }
+    }
+    if (headers) {
+      for (const [k, v] of Object.entries(headers)) {
+        if (typeof v === "string") {
+          responseHeaders.set(k, v);
+        } else {
+          responseHeaders.delete(k);
+          for (const v2 of v) {
+            responseHeaders.append(k, v2);
+          }
+        }
+      }
+    }
+    const status = typeof arg === "number" ? arg : arg?.status ?? this.#status;
+    return new Response(data, { status, headers: responseHeaders });
+  }
+  newResponse = /* @__PURE__ */ __name((...args) => this.#newResponse(...args), "newResponse");
+  body = /* @__PURE__ */ __name((data, arg, headers) => this.#newResponse(data, arg, headers), "body");
+  text = /* @__PURE__ */ __name((text, arg, headers) => {
+    return !this.#preparedHeaders && !this.#status && !arg && !headers && !this.finalized ? new Response(text) : this.#newResponse(
+      text,
+      arg,
+      setDefaultContentType(TEXT_PLAIN, headers)
+    );
+  }, "text");
+  json = /* @__PURE__ */ __name((object, arg, headers) => {
+    return this.#newResponse(
+      JSON.stringify(object),
+      arg,
+      setDefaultContentType("application/json", headers)
+    );
+  }, "json");
+  html = /* @__PURE__ */ __name((html, arg, headers) => {
+    const res = /* @__PURE__ */ __name((html2) => this.#newResponse(html2, arg, setDefaultContentType("text/html; charset=UTF-8", headers)), "res");
+    return typeof html === "object" ? resolveCallback(html, HtmlEscapedCallbackPhase.Stringify, false, {}).then(res) : res(html);
+  }, "html");
+  redirect = /* @__PURE__ */ __name((location, status) => {
+    const locationString = String(location);
+    this.header(
+      "Location",
+      !/[^\x00-\xFF]/.test(locationString) ? locationString : encodeURI(locationString)
+    );
+    return this.newResponse(null, status ?? 302);
+  }, "redirect");
+  notFound = /* @__PURE__ */ __name(() => {
+    this.#notFoundHandler ??= () => new Response();
+    return this.#notFoundHandler(this);
+  }, "notFound");
+};
+
+// node_modules/hono/dist/router.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var METHOD_NAME_ALL = "ALL";
+var METHOD_NAME_ALL_LOWERCASE = "all";
+var METHODS = ["get", "post", "put", "delete", "options", "patch"];
+var MESSAGE_MATCHER_IS_ALREADY_BUILT = "Can not add a route since the matcher is already built.";
+var UnsupportedPathError = class extends Error {
+  static {
+    __name(this, "UnsupportedPathError");
+  }
+};
+
+// node_modules/hono/dist/utils/constants.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var COMPOSED_HANDLER = "__COMPOSED_HANDLER";
+
+// node_modules/hono/dist/hono-base.js
+var notFoundHandler = /* @__PURE__ */ __name((c) => {
+  return c.text("404 Not Found", 404);
+}, "notFoundHandler");
+var errorHandler = /* @__PURE__ */ __name((err, c) => {
+  if ("getResponse" in err) {
+    const res = err.getResponse();
+    return c.newResponse(res.body, res);
+  }
+  console.error(err);
+  return c.text("Internal Server Error", 500);
+}, "errorHandler");
+var Hono = class {
+  static {
+    __name(this, "Hono");
+  }
+  get;
+  post;
+  put;
+  delete;
+  options;
+  patch;
+  all;
+  on;
+  use;
+  router;
+  getPath;
+  _basePath = "/";
+  #path = "/";
+  routes = [];
+  constructor(options = {}) {
+    const allMethods = [...METHODS, METHOD_NAME_ALL_LOWERCASE];
+    allMethods.forEach((method) => {
+      this[method] = (args1, ...args) => {
+        if (typeof args1 === "string") {
+          this.#path = args1;
+        } else {
+          this.#addRoute(method, this.#path, args1);
+        }
+        args.forEach((handler) => {
+          this.#addRoute(method, this.#path, handler);
+        });
+        return this;
+      };
+    });
+    this.on = (method, path, ...handlers) => {
+      for (const p of [path].flat()) {
+        this.#path = p;
+        for (const m of [method].flat()) {
+          handlers.map((handler) => {
+            this.#addRoute(m.toUpperCase(), this.#path, handler);
+          });
+        }
+      }
+      return this;
+    };
+    this.use = (arg1, ...handlers) => {
+      if (typeof arg1 === "string") {
+        this.#path = arg1;
+      } else {
+        this.#path = "*";
+        handlers.unshift(arg1);
+      }
+      handlers.forEach((handler) => {
+        this.#addRoute(METHOD_NAME_ALL, this.#path, handler);
+      });
+      return this;
+    };
+    const { strict, ...optionsWithoutStrict } = options;
+    Object.assign(this, optionsWithoutStrict);
+    this.getPath = strict ?? true ? options.getPath ?? getPath : getPathNoStrict;
+  }
+  #clone() {
+    const clone = new Hono({
+      router: this.router,
+      getPath: this.getPath
+    });
+    clone.errorHandler = this.errorHandler;
+    clone.#notFoundHandler = this.#notFoundHandler;
+    clone.routes = this.routes;
+    return clone;
+  }
+  #notFoundHandler = notFoundHandler;
+  errorHandler = errorHandler;
+  route(path, app2) {
+    const subApp = this.basePath(path);
+    app2.routes.map((r) => {
+      let handler;
+      if (app2.errorHandler === errorHandler) {
+        handler = r.handler;
+      } else {
+        handler = /* @__PURE__ */ __name(async (c, next) => (await compose([], app2.errorHandler)(c, () => r.handler(c, next))).res, "handler");
+        handler[COMPOSED_HANDLER] = r.handler;
+      }
+      subApp.#addRoute(r.method, r.path, handler);
+    });
+    return this;
+  }
+  basePath(path) {
+    const subApp = this.#clone();
+    subApp._basePath = mergePath(this._basePath, path);
+    return subApp;
+  }
+  onError = /* @__PURE__ */ __name((handler) => {
+    this.errorHandler = handler;
+    return this;
+  }, "onError");
+  notFound = /* @__PURE__ */ __name((handler) => {
+    this.#notFoundHandler = handler;
+    return this;
+  }, "notFound");
+  mount(path, applicationHandler, options) {
+    let replaceRequest;
+    let optionHandler;
+    if (options) {
+      if (typeof options === "function") {
+        optionHandler = options;
+      } else {
+        optionHandler = options.optionHandler;
+        if (options.replaceRequest === false) {
+          replaceRequest = /* @__PURE__ */ __name((request) => request, "replaceRequest");
+        } else {
+          replaceRequest = options.replaceRequest;
+        }
+      }
+    }
+    const getOptions = optionHandler ? (c) => {
+      const options2 = optionHandler(c);
+      return Array.isArray(options2) ? options2 : [options2];
+    } : (c) => {
+      let executionContext = void 0;
+      try {
+        executionContext = c.executionCtx;
+      } catch {
+      }
+      return [c.env, executionContext];
+    };
+    replaceRequest ||= (() => {
+      const mergedPath = mergePath(this._basePath, path);
+      const pathPrefixLength = mergedPath === "/" ? 0 : mergedPath.length;
+      return (request) => {
+        const url = new URL(request.url);
+        url.pathname = url.pathname.slice(pathPrefixLength) || "/";
+        return new Request(url, request);
+      };
+    })();
+    const handler = /* @__PURE__ */ __name(async (c, next) => {
+      const res = await applicationHandler(replaceRequest(c.req.raw), ...getOptions(c));
+      if (res) {
+        return res;
+      }
+      await next();
+    }, "handler");
+    this.#addRoute(METHOD_NAME_ALL, mergePath(path, "*"), handler);
+    return this;
+  }
+  #addRoute(method, path, handler) {
+    method = method.toUpperCase();
+    path = mergePath(this._basePath, path);
+    const r = { basePath: this._basePath, path, method, handler };
+    this.router.add(method, path, [handler, r]);
+    this.routes.push(r);
+  }
+  #handleError(err, c) {
+    if (err instanceof Error) {
+      return this.errorHandler(err, c);
+    }
+    throw err;
+  }
+  #dispatch(request, executionCtx, env2, method) {
+    if (method === "HEAD") {
+      return (async () => new Response(null, await this.#dispatch(request, executionCtx, env2, "GET")))();
+    }
+    const path = this.getPath(request, { env: env2 });
+    const matchResult = this.router.match(method, path);
+    const c = new Context(request, {
+      path,
+      matchResult,
+      env: env2,
+      executionCtx,
+      notFoundHandler: this.#notFoundHandler
+    });
+    if (matchResult[0].length === 1) {
+      let res;
+      try {
+        res = matchResult[0][0][0][0](c, async () => {
+          c.res = await this.#notFoundHandler(c);
+        });
+      } catch (err) {
+        return this.#handleError(err, c);
+      }
+      return res instanceof Promise ? res.then(
+        (resolved) => resolved || (c.finalized ? c.res : this.#notFoundHandler(c))
+      ).catch((err) => this.#handleError(err, c)) : res ?? this.#notFoundHandler(c);
+    }
+    const composed = compose(matchResult[0], this.errorHandler, this.#notFoundHandler);
+    return (async () => {
+      try {
+        const context2 = await composed(c);
+        if (!context2.finalized) {
+          throw new Error(
+            "Context is not finalized. Did you forget to return a Response object or `await next()`?"
+          );
+        }
+        return context2.res;
+      } catch (err) {
+        return this.#handleError(err, c);
+      }
+    })();
+  }
+  fetch = /* @__PURE__ */ __name((request, ...rest) => {
+    return this.#dispatch(request, rest[1], rest[0], request.method);
+  }, "fetch");
+  request = /* @__PURE__ */ __name((input, requestInit, Env, executionCtx) => {
+    if (input instanceof Request) {
+      return this.fetch(requestInit ? new Request(input, requestInit) : input, Env, executionCtx);
+    }
+    input = input.toString();
+    return this.fetch(
+      new Request(
+        /^https?:\/\//.test(input) ? input : `http://localhost${mergePath("/", input)}`,
+        requestInit
+      ),
+      Env,
+      executionCtx
+    );
+  }, "request");
+  fire = /* @__PURE__ */ __name(() => {
+    addEventListener("fetch", (event) => {
+      event.respondWith(this.#dispatch(event.request, event, void 0, event.request.method));
+    });
+  }, "fire");
+};
+
+// node_modules/hono/dist/router/reg-exp-router/index.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/hono/dist/router/reg-exp-router/router.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/hono/dist/router/reg-exp-router/node.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var LABEL_REG_EXP_STR = "[^/]+";
+var ONLY_WILDCARD_REG_EXP_STR = ".*";
+var TAIL_WILDCARD_REG_EXP_STR = "(?:|/.*)";
+var PATH_ERROR = Symbol();
+var regExpMetaChars = new Set(".\\+*[^]$()");
+function compareKey(a, b) {
+  if (a.length === 1) {
+    return b.length === 1 ? a < b ? -1 : 1 : -1;
+  }
+  if (b.length === 1) {
+    return 1;
+  }
+  if (a === ONLY_WILDCARD_REG_EXP_STR || a === TAIL_WILDCARD_REG_EXP_STR) {
+    return 1;
+  } else if (b === ONLY_WILDCARD_REG_EXP_STR || b === TAIL_WILDCARD_REG_EXP_STR) {
+    return -1;
+  }
+  if (a === LABEL_REG_EXP_STR) {
+    return 1;
+  } else if (b === LABEL_REG_EXP_STR) {
+    return -1;
+  }
+  return a.length === b.length ? a < b ? -1 : 1 : b.length - a.length;
+}
+__name(compareKey, "compareKey");
+var Node = class {
+  static {
+    __name(this, "Node");
+  }
+  #index;
+  #varIndex;
+  #children = /* @__PURE__ */ Object.create(null);
+  insert(tokens, index, paramMap, context2, pathErrorCheckOnly) {
+    if (tokens.length === 0) {
+      if (this.#index !== void 0) {
+        throw PATH_ERROR;
+      }
+      if (pathErrorCheckOnly) {
+        return;
+      }
+      this.#index = index;
+      return;
+    }
+    const [token, ...restTokens] = tokens;
+    const pattern = token === "*" ? restTokens.length === 0 ? ["", "", ONLY_WILDCARD_REG_EXP_STR] : ["", "", LABEL_REG_EXP_STR] : token === "/*" ? ["", "", TAIL_WILDCARD_REG_EXP_STR] : token.match(/^\:([^\{\}]+)(?:\{(.+)\})?$/);
+    let node;
+    if (pattern) {
+      const name = pattern[1];
+      let regexpStr = pattern[2] || LABEL_REG_EXP_STR;
+      if (name && pattern[2]) {
+        if (regexpStr === ".*") {
+          throw PATH_ERROR;
+        }
+        regexpStr = regexpStr.replace(/^\((?!\?:)(?=[^)]+\)$)/, "(?:");
+        if (/\((?!\?:)/.test(regexpStr)) {
+          throw PATH_ERROR;
+        }
+      }
+      node = this.#children[regexpStr];
+      if (!node) {
+        if (Object.keys(this.#children).some(
+          (k) => k !== ONLY_WILDCARD_REG_EXP_STR && k !== TAIL_WILDCARD_REG_EXP_STR
+        )) {
+          throw PATH_ERROR;
+        }
+        if (pathErrorCheckOnly) {
+          return;
+        }
+        node = this.#children[regexpStr] = new Node();
+        if (name !== "") {
+          node.#varIndex = context2.varIndex++;
+        }
+      }
+      if (!pathErrorCheckOnly && name !== "") {
+        paramMap.push([name, node.#varIndex]);
+      }
+    } else {
+      node = this.#children[token];
+      if (!node) {
+        if (Object.keys(this.#children).some(
+          (k) => k.length > 1 && k !== ONLY_WILDCARD_REG_EXP_STR && k !== TAIL_WILDCARD_REG_EXP_STR
+        )) {
+          throw PATH_ERROR;
+        }
+        if (pathErrorCheckOnly) {
+          return;
+        }
+        node = this.#children[token] = new Node();
+      }
+    }
+    node.insert(restTokens, index, paramMap, context2, pathErrorCheckOnly);
+  }
+  buildRegExpStr() {
+    const childKeys = Object.keys(this.#children).sort(compareKey);
+    const strList = childKeys.map((k) => {
+      const c = this.#children[k];
+      return (typeof c.#varIndex === "number" ? `(${k})@${c.#varIndex}` : regExpMetaChars.has(k) ? `\\${k}` : k) + c.buildRegExpStr();
+    });
+    if (typeof this.#index === "number") {
+      strList.unshift(`#${this.#index}`);
+    }
+    if (strList.length === 0) {
+      return "";
+    }
+    if (strList.length === 1) {
+      return strList[0];
+    }
+    return "(?:" + strList.join("|") + ")";
+  }
+};
+
+// node_modules/hono/dist/router/reg-exp-router/trie.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var Trie = class {
+  static {
+    __name(this, "Trie");
+  }
+  #context = { varIndex: 0 };
+  #root = new Node();
+  insert(path, index, pathErrorCheckOnly) {
+    const paramAssoc = [];
+    const groups = [];
+    for (let i = 0; ; ) {
+      let replaced = false;
+      path = path.replace(/\{[^}]+\}/g, (m) => {
+        const mark = `@\\${i}`;
+        groups[i] = [mark, m];
+        i++;
+        replaced = true;
+        return mark;
+      });
+      if (!replaced) {
+        break;
+      }
+    }
+    const tokens = path.match(/(?::[^\/]+)|(?:\/\*$)|./g) || [];
+    for (let i = groups.length - 1; i >= 0; i--) {
+      const [mark] = groups[i];
+      for (let j = tokens.length - 1; j >= 0; j--) {
+        if (tokens[j].indexOf(mark) !== -1) {
+          tokens[j] = tokens[j].replace(mark, groups[i][1]);
+          break;
+        }
+      }
+    }
+    this.#root.insert(tokens, index, paramAssoc, this.#context, pathErrorCheckOnly);
+    return paramAssoc;
+  }
+  buildRegExp() {
+    let regexp = this.#root.buildRegExpStr();
+    if (regexp === "") {
+      return [/^$/, [], []];
+    }
+    let captureIndex = 0;
+    const indexReplacementMap = [];
+    const paramReplacementMap = [];
+    regexp = regexp.replace(/#(\d+)|@(\d+)|\.\*\$/g, (_, handlerIndex, paramIndex) => {
+      if (handlerIndex !== void 0) {
+        indexReplacementMap[++captureIndex] = Number(handlerIndex);
+        return "$()";
+      }
+      if (paramIndex !== void 0) {
+        paramReplacementMap[Number(paramIndex)] = ++captureIndex;
+        return "";
+      }
+      return "";
+    });
+    return [new RegExp(`^${regexp}`), indexReplacementMap, paramReplacementMap];
+  }
+};
+
+// node_modules/hono/dist/router/reg-exp-router/router.js
+var emptyParam = [];
+var nullMatcher = [/^$/, [], /* @__PURE__ */ Object.create(null)];
+var wildcardRegExpCache = /* @__PURE__ */ Object.create(null);
+function buildWildcardRegExp(path) {
+  return wildcardRegExpCache[path] ??= new RegExp(
+    path === "*" ? "" : `^${path.replace(
+      /\/\*$|([.\\+*[^\]$()])/g,
+      (_, metaChar) => metaChar ? `\\${metaChar}` : "(?:|/.*)"
+    )}$`
+  );
+}
+__name(buildWildcardRegExp, "buildWildcardRegExp");
+function clearWildcardRegExpCache() {
+  wildcardRegExpCache = /* @__PURE__ */ Object.create(null);
+}
+__name(clearWildcardRegExpCache, "clearWildcardRegExpCache");
+function buildMatcherFromPreprocessedRoutes(routes) {
+  const trie = new Trie();
+  const handlerData = [];
+  if (routes.length === 0) {
+    return nullMatcher;
+  }
+  const routesWithStaticPathFlag = routes.map(
+    (route) => [!/\*|\/:/.test(route[0]), ...route]
+  ).sort(
+    ([isStaticA, pathA], [isStaticB, pathB]) => isStaticA ? 1 : isStaticB ? -1 : pathA.length - pathB.length
+  );
+  const staticMap = /* @__PURE__ */ Object.create(null);
+  for (let i = 0, j = -1, len = routesWithStaticPathFlag.length; i < len; i++) {
+    const [pathErrorCheckOnly, path, handlers] = routesWithStaticPathFlag[i];
+    if (pathErrorCheckOnly) {
+      staticMap[path] = [handlers.map(([h]) => [h, /* @__PURE__ */ Object.create(null)]), emptyParam];
+    } else {
+      j++;
+    }
+    let paramAssoc;
+    try {
+      paramAssoc = trie.insert(path, j, pathErrorCheckOnly);
+    } catch (e) {
+      throw e === PATH_ERROR ? new UnsupportedPathError(path) : e;
+    }
+    if (pathErrorCheckOnly) {
+      continue;
+    }
+    handlerData[j] = handlers.map(([h, paramCount]) => {
+      const paramIndexMap = /* @__PURE__ */ Object.create(null);
+      paramCount -= 1;
+      for (; paramCount >= 0; paramCount--) {
+        const [key, value] = paramAssoc[paramCount];
+        paramIndexMap[key] = value;
+      }
+      return [h, paramIndexMap];
+    });
+  }
+  const [regexp, indexReplacementMap, paramReplacementMap] = trie.buildRegExp();
+  for (let i = 0, len = handlerData.length; i < len; i++) {
+    for (let j = 0, len2 = handlerData[i].length; j < len2; j++) {
+      const map = handlerData[i][j]?.[1];
+      if (!map) {
+        continue;
+      }
+      const keys = Object.keys(map);
+      for (let k = 0, len3 = keys.length; k < len3; k++) {
+        map[keys[k]] = paramReplacementMap[map[keys[k]]];
+      }
+    }
+  }
+  const handlerMap = [];
+  for (const i in indexReplacementMap) {
+    handlerMap[i] = handlerData[indexReplacementMap[i]];
+  }
+  return [regexp, handlerMap, staticMap];
+}
+__name(buildMatcherFromPreprocessedRoutes, "buildMatcherFromPreprocessedRoutes");
+function findMiddleware(middleware, path) {
+  if (!middleware) {
+    return void 0;
+  }
+  for (const k of Object.keys(middleware).sort((a, b) => b.length - a.length)) {
+    if (buildWildcardRegExp(k).test(path)) {
+      return [...middleware[k]];
+    }
+  }
+  return void 0;
+}
+__name(findMiddleware, "findMiddleware");
+var RegExpRouter = class {
+  static {
+    __name(this, "RegExpRouter");
+  }
+  name = "RegExpRouter";
+  #middleware;
+  #routes;
+  constructor() {
+    this.#middleware = { [METHOD_NAME_ALL]: /* @__PURE__ */ Object.create(null) };
+    this.#routes = { [METHOD_NAME_ALL]: /* @__PURE__ */ Object.create(null) };
+  }
+  add(method, path, handler) {
+    const middleware = this.#middleware;
+    const routes = this.#routes;
+    if (!middleware || !routes) {
+      throw new Error(MESSAGE_MATCHER_IS_ALREADY_BUILT);
+    }
+    if (!middleware[method]) {
+      ;
+      [middleware, routes].forEach((handlerMap) => {
+        handlerMap[method] = /* @__PURE__ */ Object.create(null);
+        Object.keys(handlerMap[METHOD_NAME_ALL]).forEach((p) => {
+          handlerMap[method][p] = [...handlerMap[METHOD_NAME_ALL][p]];
+        });
+      });
+    }
+    if (path === "/*") {
+      path = "*";
+    }
+    const paramCount = (path.match(/\/:/g) || []).length;
+    if (/\*$/.test(path)) {
+      const re = buildWildcardRegExp(path);
+      if (method === METHOD_NAME_ALL) {
+        Object.keys(middleware).forEach((m) => {
+          middleware[m][path] ||= findMiddleware(middleware[m], path) || findMiddleware(middleware[METHOD_NAME_ALL], path) || [];
+        });
+      } else {
+        middleware[method][path] ||= findMiddleware(middleware[method], path) || findMiddleware(middleware[METHOD_NAME_ALL], path) || [];
+      }
+      Object.keys(middleware).forEach((m) => {
+        if (method === METHOD_NAME_ALL || method === m) {
+          Object.keys(middleware[m]).forEach((p) => {
+            re.test(p) && middleware[m][p].push([handler, paramCount]);
+          });
+        }
+      });
+      Object.keys(routes).forEach((m) => {
+        if (method === METHOD_NAME_ALL || method === m) {
+          Object.keys(routes[m]).forEach(
+            (p) => re.test(p) && routes[m][p].push([handler, paramCount])
+          );
+        }
+      });
+      return;
+    }
+    const paths = checkOptionalParameter(path) || [path];
+    for (let i = 0, len = paths.length; i < len; i++) {
+      const path2 = paths[i];
+      Object.keys(routes).forEach((m) => {
+        if (method === METHOD_NAME_ALL || method === m) {
+          routes[m][path2] ||= [
+            ...findMiddleware(middleware[m], path2) || findMiddleware(middleware[METHOD_NAME_ALL], path2) || []
+          ];
+          routes[m][path2].push([handler, paramCount - len + i + 1]);
+        }
+      });
+    }
+  }
+  match(method, path) {
+    clearWildcardRegExpCache();
+    const matchers = this.#buildAllMatchers();
+    this.match = (method2, path2) => {
+      const matcher = matchers[method2] || matchers[METHOD_NAME_ALL];
+      const staticMatch = matcher[2][path2];
+      if (staticMatch) {
+        return staticMatch;
+      }
+      const match = path2.match(matcher[0]);
+      if (!match) {
+        return [[], emptyParam];
+      }
+      const index = match.indexOf("", 1);
+      return [matcher[1][index], match];
+    };
+    return this.match(method, path);
+  }
+  #buildAllMatchers() {
+    const matchers = /* @__PURE__ */ Object.create(null);
+    Object.keys(this.#routes).concat(Object.keys(this.#middleware)).forEach((method) => {
+      matchers[method] ||= this.#buildMatcher(method);
+    });
+    this.#middleware = this.#routes = void 0;
+    return matchers;
+  }
+  #buildMatcher(method) {
+    const routes = [];
+    let hasOwnRoute = method === METHOD_NAME_ALL;
+    [this.#middleware, this.#routes].forEach((r) => {
+      const ownRoute = r[method] ? Object.keys(r[method]).map((path) => [path, r[method][path]]) : [];
+      if (ownRoute.length !== 0) {
+        hasOwnRoute ||= true;
+        routes.push(...ownRoute);
+      } else if (method !== METHOD_NAME_ALL) {
+        routes.push(
+          ...Object.keys(r[METHOD_NAME_ALL]).map((path) => [path, r[METHOD_NAME_ALL][path]])
+        );
+      }
+    });
+    if (!hasOwnRoute) {
+      return null;
+    } else {
+      return buildMatcherFromPreprocessedRoutes(routes);
+    }
+  }
+};
+
+// node_modules/hono/dist/router/smart-router/index.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/hono/dist/router/smart-router/router.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var SmartRouter = class {
+  static {
+    __name(this, "SmartRouter");
+  }
+  name = "SmartRouter";
+  #routers = [];
+  #routes = [];
+  constructor(init) {
+    this.#routers = init.routers;
+  }
+  add(method, path, handler) {
+    if (!this.#routes) {
+      throw new Error(MESSAGE_MATCHER_IS_ALREADY_BUILT);
+    }
+    this.#routes.push([method, path, handler]);
+  }
+  match(method, path) {
+    if (!this.#routes) {
+      throw new Error("Fatal error");
+    }
+    const routers = this.#routers;
+    const routes = this.#routes;
+    const len = routers.length;
+    let i = 0;
+    let res;
+    for (; i < len; i++) {
+      const router = routers[i];
+      try {
+        for (let i2 = 0, len2 = routes.length; i2 < len2; i2++) {
+          router.add(...routes[i2]);
+        }
+        res = router.match(method, path);
+      } catch (e) {
+        if (e instanceof UnsupportedPathError) {
+          continue;
+        }
+        throw e;
+      }
+      this.match = router.match.bind(router);
+      this.#routers = [router];
+      this.#routes = void 0;
+      break;
+    }
+    if (i === len) {
+      throw new Error("Fatal error");
+    }
+    this.name = `SmartRouter + ${this.activeRouter.name}`;
+    return res;
+  }
+  get activeRouter() {
+    if (this.#routes || this.#routers.length !== 1) {
+      throw new Error("No active router has been determined yet.");
+    }
+    return this.#routers[0];
+  }
+};
+
+// node_modules/hono/dist/router/trie-router/index.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/hono/dist/router/trie-router/router.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/hono/dist/router/trie-router/node.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var emptyParams = /* @__PURE__ */ Object.create(null);
+var Node2 = class {
+  static {
+    __name(this, "Node");
+  }
+  #methods;
+  #children;
+  #patterns;
+  #order = 0;
+  #params = emptyParams;
+  constructor(method, handler, children) {
+    this.#children = children || /* @__PURE__ */ Object.create(null);
+    this.#methods = [];
+    if (method && handler) {
+      const m = /* @__PURE__ */ Object.create(null);
+      m[method] = { handler, possibleKeys: [], score: 0 };
+      this.#methods = [m];
+    }
+    this.#patterns = [];
+  }
+  insert(method, path, handler) {
+    this.#order = ++this.#order;
+    let curNode = this;
+    const parts = splitRoutingPath(path);
+    const possibleKeys = [];
+    for (let i = 0, len = parts.length; i < len; i++) {
+      const p = parts[i];
+      const nextP = parts[i + 1];
+      const pattern = getPattern(p, nextP);
+      const key = Array.isArray(pattern) ? pattern[0] : p;
+      if (key in curNode.#children) {
+        curNode = curNode.#children[key];
+        if (pattern) {
+          possibleKeys.push(pattern[1]);
+        }
+        continue;
+      }
+      curNode.#children[key] = new Node2();
+      if (pattern) {
+        curNode.#patterns.push(pattern);
+        possibleKeys.push(pattern[1]);
+      }
+      curNode = curNode.#children[key];
+    }
+    curNode.#methods.push({
+      [method]: {
+        handler,
+        possibleKeys: possibleKeys.filter((v, i, a) => a.indexOf(v) === i),
+        score: this.#order
+      }
+    });
+    return curNode;
+  }
+  #getHandlerSets(node, method, nodeParams, params) {
+    const handlerSets = [];
+    for (let i = 0, len = node.#methods.length; i < len; i++) {
+      const m = node.#methods[i];
+      const handlerSet = m[method] || m[METHOD_NAME_ALL];
+      const processedSet = {};
+      if (handlerSet !== void 0) {
+        handlerSet.params = /* @__PURE__ */ Object.create(null);
+        handlerSets.push(handlerSet);
+        if (nodeParams !== emptyParams || params && params !== emptyParams) {
+          for (let i2 = 0, len2 = handlerSet.possibleKeys.length; i2 < len2; i2++) {
+            const key = handlerSet.possibleKeys[i2];
+            const processed = processedSet[handlerSet.score];
+            handlerSet.params[key] = params?.[key] && !processed ? params[key] : nodeParams[key] ?? params?.[key];
+            processedSet[handlerSet.score] = true;
+          }
+        }
+      }
+    }
+    return handlerSets;
+  }
+  search(method, path) {
+    const handlerSets = [];
+    this.#params = emptyParams;
+    const curNode = this;
+    let curNodes = [curNode];
+    const parts = splitPath(path);
+    const curNodesQueue = [];
+    for (let i = 0, len = parts.length; i < len; i++) {
+      const part = parts[i];
+      const isLast = i === len - 1;
+      const tempNodes = [];
+      for (let j = 0, len2 = curNodes.length; j < len2; j++) {
+        const node = curNodes[j];
+        const nextNode = node.#children[part];
+        if (nextNode) {
+          nextNode.#params = node.#params;
+          if (isLast) {
+            if (nextNode.#children["*"]) {
+              handlerSets.push(
+                ...this.#getHandlerSets(nextNode.#children["*"], method, node.#params)
+              );
+            }
+            handlerSets.push(...this.#getHandlerSets(nextNode, method, node.#params));
+          } else {
+            tempNodes.push(nextNode);
+          }
+        }
+        for (let k = 0, len3 = node.#patterns.length; k < len3; k++) {
+          const pattern = node.#patterns[k];
+          const params = node.#params === emptyParams ? {} : { ...node.#params };
+          if (pattern === "*") {
+            const astNode = node.#children["*"];
+            if (astNode) {
+              handlerSets.push(...this.#getHandlerSets(astNode, method, node.#params));
+              astNode.#params = params;
+              tempNodes.push(astNode);
+            }
+            continue;
+          }
+          const [key, name, matcher] = pattern;
+          if (!part && !(matcher instanceof RegExp)) {
+            continue;
+          }
+          const child = node.#children[key];
+          const restPathString = parts.slice(i).join("/");
+          if (matcher instanceof RegExp) {
+            const m = matcher.exec(restPathString);
+            if (m) {
+              params[name] = m[0];
+              handlerSets.push(...this.#getHandlerSets(child, method, node.#params, params));
+              if (Object.keys(child.#children).length) {
+                child.#params = params;
+                const componentCount = m[0].match(/\//)?.length ?? 0;
+                const targetCurNodes = curNodesQueue[componentCount] ||= [];
+                targetCurNodes.push(child);
+              }
+              continue;
+            }
+          }
+          if (matcher === true || matcher.test(part)) {
+            params[name] = part;
+            if (isLast) {
+              handlerSets.push(...this.#getHandlerSets(child, method, params, node.#params));
+              if (child.#children["*"]) {
+                handlerSets.push(
+                  ...this.#getHandlerSets(child.#children["*"], method, params, node.#params)
+                );
+              }
+            } else {
+              child.#params = params;
+              tempNodes.push(child);
+            }
+          }
+        }
+      }
+      curNodes = tempNodes.concat(curNodesQueue.shift() ?? []);
+    }
+    if (handlerSets.length > 1) {
+      handlerSets.sort((a, b) => {
+        return a.score - b.score;
+      });
+    }
+    return [handlerSets.map(({ handler, params }) => [handler, params])];
+  }
+};
+
+// node_modules/hono/dist/router/trie-router/router.js
+var TrieRouter = class {
+  static {
+    __name(this, "TrieRouter");
+  }
+  name = "TrieRouter";
+  #node;
+  constructor() {
+    this.#node = new Node2();
+  }
+  add(method, path, handler) {
+    const results = checkOptionalParameter(path);
+    if (results) {
+      for (let i = 0, len = results.length; i < len; i++) {
+        this.#node.insert(method, results[i], handler);
+      }
+      return;
+    }
+    this.#node.insert(method, path, handler);
+  }
+  match(method, path) {
+    return this.#node.search(method, path);
+  }
+};
+
+// node_modules/hono/dist/hono.js
+var Hono2 = class extends Hono {
+  static {
+    __name(this, "Hono");
+  }
+  constructor(options = {}) {
+    super(options);
+    this.router = options.router ?? new SmartRouter({
+      routers: [new RegExpRouter(), new TrieRouter()]
+    });
+  }
+};
+
+// node_modules/hono/dist/middleware/cors/index.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var cors = /* @__PURE__ */ __name((options) => {
+  const defaults = {
+    origin: "*",
+    allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH"],
+    allowHeaders: [],
+    exposeHeaders: []
+  };
+  const opts = {
+    ...defaults,
+    ...options
+  };
+  const findAllowOrigin = ((optsOrigin) => {
+    if (typeof optsOrigin === "string") {
+      if (optsOrigin === "*") {
+        return () => optsOrigin;
+      } else {
+        return (origin) => optsOrigin === origin ? origin : null;
+      }
+    } else if (typeof optsOrigin === "function") {
+      return optsOrigin;
+    } else {
+      return (origin) => optsOrigin.includes(origin) ? origin : null;
+    }
+  })(opts.origin);
+  const findAllowMethods = ((optsAllowMethods) => {
+    if (typeof optsAllowMethods === "function") {
+      return optsAllowMethods;
+    } else if (Array.isArray(optsAllowMethods)) {
+      return () => optsAllowMethods;
+    } else {
+      return () => [];
+    }
+  })(opts.allowMethods);
+  return /* @__PURE__ */ __name(async function cors2(c, next) {
+    function set(key, value) {
+      c.res.headers.set(key, value);
+    }
+    __name(set, "set");
+    const allowOrigin = await findAllowOrigin(c.req.header("origin") || "", c);
+    if (allowOrigin) {
+      set("Access-Control-Allow-Origin", allowOrigin);
+    }
+    if (opts.origin !== "*") {
+      const existingVary = c.req.header("Vary");
+      if (existingVary) {
+        set("Vary", existingVary);
+      } else {
+        set("Vary", "Origin");
+      }
+    }
+    if (opts.credentials) {
+      set("Access-Control-Allow-Credentials", "true");
+    }
+    if (opts.exposeHeaders?.length) {
+      set("Access-Control-Expose-Headers", opts.exposeHeaders.join(","));
+    }
+    if (c.req.method === "OPTIONS") {
+      if (opts.maxAge != null) {
+        set("Access-Control-Max-Age", opts.maxAge.toString());
+      }
+      const allowMethods = await findAllowMethods(c.req.header("origin") || "", c);
+      if (allowMethods.length) {
+        set("Access-Control-Allow-Methods", allowMethods.join(","));
+      }
+      let headers = opts.allowHeaders;
+      if (!headers?.length) {
+        const requestHeaders = c.req.header("Access-Control-Request-Headers");
+        if (requestHeaders) {
+          headers = requestHeaders.split(/\s*,\s*/);
+        }
+      }
+      if (headers?.length) {
+        set("Access-Control-Allow-Headers", headers.join(","));
+        c.res.headers.append("Vary", "Access-Control-Request-Headers");
+      }
+      c.res.headers.delete("Content-Length");
+      c.res.headers.delete("Content-Type");
+      return new Response(null, {
+        headers: c.res.headers,
+        status: 204,
+        statusText: "No Content"
+      });
+    }
+    await next();
+  }, "cors2");
+}, "cors");
+
+// src/lib/kv.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var KVManager = class {
+  static {
+    __name(this, "KVManager");
+  }
+  constructor(namespace) {
+    this.namespace = namespace;
+  }
+  // Product operations
+  async createProduct(product) {
+    const key = `product:${product.id}`;
+    const productData = {
+      ...product,
+      images: Array.isArray(product.images) ? product.images : product.imageUrl ? [product.imageUrl] : []
+    };
+    await this.namespace.put(key, JSON.stringify(productData));
+    const productIds = await this.namespace.get("products:all");
+    const existingIds = productIds ? JSON.parse(productIds) : [];
+    existingIds.push(product.id);
+    await this.namespace.put("products:all", JSON.stringify(existingIds));
+    return productData;
+  }
+  async getProduct(id) {
+    const key = `product:${id}`;
+    const product = await this.namespace.get(key);
+    return product ? JSON.parse(product) : null;
+  }
+  async updateProduct(id, updates) {
+    const existing = await this.getProduct(id);
+    if (!existing) throw new Error("Product not found");
+    const updated = {
+      ...existing,
+      ...updates,
+      // Ensure images is always an array
+      images: Array.isArray(updates.images) ? updates.images : updates.imageUrl ? [updates.imageUrl] : existing.images || []
+    };
+    const key = `product:${id}`;
+    await this.namespace.put(key, JSON.stringify(updated));
+    return updated;
+  }
+  async deleteProduct(id) {
+    const key = `product:${id}`;
+    await this.namespace.delete(key);
+    const productIds = await this.namespace.get("products:all");
+    if (productIds) {
+      const existingIds = JSON.parse(productIds);
+      const filtered = existingIds.filter((pid2) => pid2 !== id);
+      await this.namespace.put("products:all", JSON.stringify(filtered));
+    }
+  }
+  async getAllProducts() {
+    const productIds = await this.namespace.get("products:all");
+    if (!productIds) return [];
+    const ids = JSON.parse(productIds);
+    const products = await Promise.all(
+      ids.map((id) => this.getProduct(id))
+    );
+    return products.filter(Boolean);
+  }
+  // Collection operations
+  async createCollection(collection) {
+    const key = `collection:${collection.id}`;
+    await this.namespace.put(key, JSON.stringify(collection));
+    const collectionIds = await this.namespace.get("collections:all");
+    const existingIds = collectionIds ? JSON.parse(collectionIds) : [];
+    existingIds.push(collection.id);
+    await this.namespace.put("collections:all", JSON.stringify(existingIds));
+    return collection;
+  }
+  async getCollection(id) {
+    const key = `collection:${id}`;
+    const collection = await this.namespace.get(key);
+    return collection ? JSON.parse(collection) : null;
+  }
+  async updateCollection(id, updates) {
+    const existing = await this.getCollection(id);
+    if (!existing) throw new Error("Collection not found");
+    const updated = { ...existing, ...updates };
+    const key = `collection:${id}`;
+    await this.namespace.put(key, JSON.stringify(updated));
+    return updated;
+  }
+  async deleteCollection(id) {
+    const key = `collection:${id}`;
+    await this.namespace.delete(key);
+    const collectionIds = await this.namespace.get("collections:all");
+    if (collectionIds) {
+      const existingIds = JSON.parse(collectionIds);
+      const filtered = existingIds.filter((cid) => cid !== id);
+      await this.namespace.put("collections:all", JSON.stringify(filtered));
+    }
+  }
+  async getAllCollections() {
+    const collectionIds = await this.namespace.get("collections:all");
+    if (!collectionIds) return [];
+    const ids = JSON.parse(collectionIds);
+    const collections = await Promise.all(
+      ids.map((id) => this.getCollection(id))
+    );
+    return collections.filter(Boolean);
+  }
+  async getProductsByCollection(collectionId) {
+    const allProducts = await this.getAllProducts();
+    return allProducts.filter((product) => product.collectionId === collectionId);
+  }
+  // Media operations
+  async createMediaItem(item) {
+    const id = item.id;
+    if (!id) throw new Error("Media item missing id");
+    const key = `media:${id}`;
+    const record = {
+      id,
+      url: String(item.url || ""),
+      source: item.source || "unknown",
+      filename: item.filename || "",
+      mimeType: item.mimeType || "",
+      driveFileId: item.driveFileId || "",
+      createdAt: typeof item.createdAt === "number" ? item.createdAt : Date.now(),
+      updatedAt: Date.now()
+    };
+    await this.namespace.put(key, JSON.stringify(record));
+    const listKey = "media:all";
+    const existing = await this.namespace.get(listKey);
+    const ids = existing ? JSON.parse(existing) : [];
+    if (!ids.includes(id)) ids.push(id);
+    await this.namespace.put(listKey, JSON.stringify(ids));
+    return record;
+  }
+  async getMediaItem(id) {
+    const key = `media:${id}`;
+    const raw2 = await this.namespace.get(key);
+    return raw2 ? JSON.parse(raw2) : null;
+  }
+  async deleteMediaItem(id) {
+    const key = `media:${id}`;
+    await this.namespace.delete(key);
+    const listKey = "media:all";
+    const existing = await this.namespace.get(listKey);
+    if (existing) {
+      const ids = JSON.parse(existing);
+      const next = ids.filter((mid) => mid !== id);
+      await this.namespace.put(listKey, JSON.stringify(next));
+    }
+  }
+  async getAllMediaItems() {
+    const listKey = "media:all";
+    const existing = await this.namespace.get(listKey);
+    if (!existing) return [];
+    const ids = JSON.parse(existing);
+    const items = await Promise.all(ids.map((id) => this.getMediaItem(id)));
+    return items.filter(Boolean);
+  }
+};
+
+// src/middleware/auth.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+function getKVNamespace(env2) {
+  console.log("Auth middleware - Available env bindings:", Object.keys(env2));
+  const possibleBindings = [
+    "OPENSHOP-TEST3_KV",
+    "OPENSHOP_TEST3_KV",
+    "OPENSHOP_KV"
+  ];
+  for (const bindingName of possibleBindings) {
+    if (bindingName in env2 && env2[bindingName]) {
+      console.log(`Auth middleware - Found KV namespace via direct access: ${bindingName}`);
+      const kvNamespace2 = env2[bindingName];
+      console.log("Auth middleware - KV namespace object:", !!kvNamespace2, typeof kvNamespace2);
+      console.log("Auth middleware - KV namespace has get method:", typeof kvNamespace2?.get);
+      return kvNamespace2;
+    }
+  }
+  const kvBindingName = Object.keys(env2).find(
+    (key) => key.endsWith("_KV") || key.endsWith("-KV") || key.includes("KV")
+  );
+  console.log("Auth middleware - Found KV binding name via search:", kvBindingName);
+  if (kvBindingName) {
+    const kvNamespace2 = env2[kvBindingName];
+    console.log("Auth middleware - KV namespace object via search:", !!kvNamespace2, typeof kvNamespace2);
+    if (kvNamespace2) {
+      return kvNamespace2;
+    }
+  }
+  const kvNamespace = Object.values(env2).find(
+    (binding2) => binding2 && typeof binding2.get === "function" && typeof binding2.put === "function"
+  );
+  console.log("Auth middleware - Fallback KV namespace found:", !!kvNamespace);
+  if (!kvNamespace) {
+    console.error("Auth middleware - No KV namespace found! Available bindings:", Object.keys(env2));
+    console.error("Auth middleware - Environment values:", Object.values(env2).map((v) => typeof v));
+  }
+  return kvNamespace;
+}
+__name(getKVNamespace, "getKVNamespace");
+async function hashToken(token) {
+  if (typeof token !== "string" || token.length === 0) {
+    throw new Error("Token must be a non-empty string for hashing");
+  }
+  const cryptoObj = typeof globalThis !== "undefined" ? globalThis.crypto : null;
+  if (!cryptoObj || !cryptoObj.subtle || typeof cryptoObj.subtle.digest !== "function") {
+    throw new Error("Web Crypto API is not available for hashing tokens");
+  }
+  const encoder = new TextEncoder();
+  const data = encoder.encode(token);
+  const digest = await cryptoObj.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(digest));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+__name(hashToken, "hashToken");
+async function verifyAdminAuth(request, env2) {
+  let adminToken;
+  try {
+    if (request && typeof request.header === "function") {
+      adminToken = request.header("X-Admin-Token") || request.header("x-admin-token");
+    } else if (request && request.headers && typeof request.headers.get === "function") {
+      adminToken = request.headers.get("X-Admin-Token") || request.headers.get("x-admin-token");
+    } else if (request && request.raw && request.raw.headers && typeof request.raw.headers.get === "function") {
+      adminToken = request.raw.headers.get("X-Admin-Token") || request.raw.headers.get("x-admin-token");
+    }
+  } catch (e) {
+    console.error("Auth middleware - error reading admin token header:", e);
+  }
+  if (!adminToken) {
+    return {
+      isValid: false,
+      error: "Admin authentication required",
+      status: 401
+    };
+  }
+  try {
+    const kvNamespace = getKVNamespace(env2);
+    if (!kvNamespace) {
+      console.error("Auth middleware - KV namespace is undefined");
+      return {
+        isValid: false,
+        error: "KV namespace not available",
+        status: 500
+      };
+    }
+    const hashedToken = await hashToken(adminToken);
+    const storageKey = `admin_token:${hashedToken}`;
+    const tokenData = await kvNamespace.get(storageKey);
+    if (!tokenData) {
+      return {
+        isValid: false,
+        error: "Invalid or expired admin token",
+        status: 401
+      };
+    }
+    const tokenTime = parseInt(tokenData);
+    const now = Date.now();
+    const twentyFourHours = 864e5;
+    if (now - tokenTime > twentyFourHours) {
+      await kvNamespace.delete(storageKey);
+      return {
+        isValid: false,
+        error: "Admin session expired",
+        status: 401
+      };
+    }
+    return { isValid: true };
+  } catch (error3) {
+    console.error("Admin auth verification error:", error3);
+    return {
+      isValid: false,
+      error: "Authentication verification failed",
+      status: 500
+    };
+  }
+}
+__name(verifyAdminAuth, "verifyAdminAuth");
+
+// src/lib/theme.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var BASE_RADIUS_PX = 12;
+var THEME_KV_KEY = "storefront:theme";
+var HEX_COLOR_REGEX = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/;
+var FONT_OPTIONS = [
+  {
+    id: "inter",
+    label: "Inter",
+    stack: "'Inter', 'system-ui', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+  },
+  {
+    id: "roboto",
+    label: "Roboto",
+    stack: "'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
+  },
+  {
+    id: "montserrat",
+    label: "Montserrat",
+    stack: "'Montserrat', 'Segoe UI', sans-serif"
+  },
+  {
+    id: "poppins",
+    label: "Poppins",
+    stack: "'Poppins', 'Segoe UI', sans-serif"
+  },
+  {
+    id: "lora",
+    label: "Lora",
+    stack: "'Lora', 'Georgia', serif"
+  }
+];
+var FONT_LOOKUP = FONT_OPTIONS.reduce((acc, option) => {
+  acc[option.id] = option;
+  return acc;
+}, {});
+var DEFAULT_STORE_THEME = {
+  colors: {
+    primary: "#1e293b",
+    secondary: "#475569",
+    accent: "#3b82f6",
+    text: "#0f172a",
+    background: "#f8fafc",
+    card: "#ffffff"
+  },
+  typography: {
+    fontId: "inter"
+  },
+  corners: {
+    enabled: true,
+    radiusMultiplier: 1
+  }
+};
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+__name(clamp, "clamp");
+function hexToRgb(hex) {
+  if (!hex) return null;
+  const normalized = hex.length === 4 ? `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}` : hex;
+  const value = normalized.replace("#", "");
+  const int = parseInt(value, 16);
+  if (Number.isNaN(int)) return null;
+  return {
+    r: int >> 16 & 255,
+    g: int >> 8 & 255,
+    b: int & 255
+  };
+}
+__name(hexToRgb, "hexToRgb");
+function rgbToHex({ r, g, b }) {
+  const toHex = /* @__PURE__ */ __name((channel2) => channel2.toString(16).padStart(2, "0"), "toHex");
+  return `#${toHex(clamp(Math.round(channelSafe(r)), 0, 255))}${toHex(clamp(Math.round(channelSafe(g)), 0, 255))}${toHex(clamp(Math.round(channelSafe(b)), 0, 255))}`;
+}
+__name(rgbToHex, "rgbToHex");
+function channelSafe(value) {
+  return Number.isFinite(value) ? value : 0;
+}
+__name(channelSafe, "channelSafe");
+function mixChannel(channel2, target, factor) {
+  return channel2 + (target - channel2) * factor;
+}
+__name(mixChannel, "mixChannel");
+function lighten(hex, factor = 0.1) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return hex;
+  return rgbToHex({
+    r: mixChannel(rgb.r, 255, factor),
+    g: mixChannel(rgb.g, 255, factor),
+    b: mixChannel(rgb.b, 255, factor)
+  });
+}
+__name(lighten, "lighten");
+function darken(hex, factor = 0.1) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return hex;
+  return rgbToHex({
+    r: mixChannel(rgb.r, 0, factor),
+    g: mixChannel(rgb.g, 0, factor),
+    b: mixChannel(rgb.b, 0, factor)
+  });
+}
+__name(darken, "darken");
+function getContrastColor(hex) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return "#ffffff";
+  const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+  return luminance > 0.6 ? "#0f172a" : "#ffffff";
+}
+__name(getContrastColor, "getContrastColor");
+function ensureHex(color, fallback) {
+  if (typeof color !== "string") return fallback;
+  return HEX_COLOR_REGEX.test(color.trim()) ? color.trim() : fallback;
+}
+__name(ensureHex, "ensureHex");
+function ensureFontId(fontId) {
+  return FONT_LOOKUP[fontId] ? fontId : DEFAULT_STORE_THEME.typography.fontId;
+}
+__name(ensureFontId, "ensureFontId");
+function ensureRadiusMultiplier(value) {
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    if (!Number.isNaN(parsed)) {
+      value = parsed;
+    }
+  }
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    value = DEFAULT_STORE_THEME.corners.radiusMultiplier;
+  }
+  return clamp(Math.abs(value), 0, 4);
+}
+__name(ensureRadiusMultiplier, "ensureRadiusMultiplier");
+function sanitizeThemeInput(partialTheme = {}) {
+  const colors = partialTheme.colors || {};
+  const typography = partialTheme.typography || partialTheme.font;
+  const corners = partialTheme.corners || partialTheme.radius;
+  const sanitizedColors = {
+    primary: ensureHex(colors.primary, DEFAULT_STORE_THEME.colors.primary),
+    secondary: ensureHex(colors.secondary, DEFAULT_STORE_THEME.colors.secondary),
+    accent: ensureHex(colors.accent, DEFAULT_STORE_THEME.colors.accent),
+    text: ensureHex(colors.text, DEFAULT_STORE_THEME.colors.text),
+    background: ensureHex(colors.background, DEFAULT_STORE_THEME.colors.background),
+    card: ensureHex(colors.card, DEFAULT_STORE_THEME.colors.card)
+  };
+  const sanitizedTypography = {
+    fontId: ensureFontId(typography?.fontId ?? typography?.font ?? typography?.id)
+  };
+  const sanitizedCorners = {
+    enabled: corners?.enabled !== void 0 ? Boolean(corners.enabled) : DEFAULT_STORE_THEME.corners.enabled,
+    radiusMultiplier: ensureRadiusMultiplier(corners?.radiusMultiplier ?? corners?.multiplier ?? corners?.value)
+  };
+  return {
+    colors: sanitizedColors,
+    typography: sanitizedTypography,
+    corners: sanitizedCorners
+  };
+}
+__name(sanitizeThemeInput, "sanitizeThemeInput");
+function deriveThemeDetails(theme) {
+  const { colors, typography, corners } = theme;
+  const { fontId } = typography;
+  const fontOption = FONT_LOOKUP[fontId] || FONT_LOOKUP[DEFAULT_STORE_THEME.typography.fontId];
+  const radiusBase = corners.enabled ? corners.radiusMultiplier * BASE_RADIUS_PX : 0;
+  const derivedColors = {
+    onPrimary: getContrastColor(colors.primary),
+    onSecondary: getContrastColor(colors.secondary),
+    primaryHover: darken(colors.primary, 0.12),
+    secondaryHover: darken(colors.secondary, 0.12),
+    accentSoft: lighten(colors.accent, 0.4),
+    background: colors.background,
+    surface: "#ffffff",
+    mutedText: lighten(colors.text, 0.35)
+  };
+  return {
+    colors: derivedColors,
+    typography: {
+      fontFamily: fontOption.stack,
+      fontLabel: fontOption.label
+    },
+    corners: {
+      radiusPx: radiusBase,
+      radiusSm: corners.enabled ? Math.max(radiusBase * 0.5, 2) : 0,
+      radiusLg: corners.enabled ? radiusBase * 1.5 : 0
+    }
+  };
+}
+__name(deriveThemeDetails, "deriveThemeDetails");
+function buildCssVariables(theme) {
+  const base = sanitizeThemeInput(theme);
+  const derived = deriveThemeDetails(base);
+  return {
+    "--storefront-color-primary": base.colors.primary,
+    "--storefront-color-primary-hover": derived.colors.primaryHover,
+    "--storefront-color-primary-contrast": derived.colors.onPrimary,
+    "--storefront-color-secondary": base.colors.secondary,
+    "--storefront-color-secondary-hover": derived.colors.secondaryHover,
+    "--storefront-color-secondary-contrast": derived.colors.onSecondary,
+    "--storefront-color-accent": base.colors.accent,
+    "--storefront-color-accent-soft": derived.colors.accentSoft,
+    "--storefront-color-text": base.colors.text,
+    "--storefront-color-text-muted": derived.colors.mutedText,
+    "--storefront-color-background": derived.colors.background,
+    "--storefront-color-surface": derived.colors.surface,
+    "--storefront-color-card": base.colors.card,
+    "--storefront-font-family": derived.typography.fontFamily,
+    "--storefront-radius-base": `${derived.corners.radiusPx}px`,
+    "--storefront-radius-sm": `${derived.corners.radiusSm}px`,
+    "--storefront-radius-lg": `${derived.corners.radiusLg}px`
+  };
+}
+__name(buildCssVariables, "buildCssVariables");
+function resolveStorefrontTheme(partialTheme = {}) {
+  const sanitized = sanitizeThemeInput(partialTheme.theme ?? partialTheme);
+  const merged = {
+    ...DEFAULT_STORE_THEME,
+    ...sanitized,
+    colors: {
+      ...DEFAULT_STORE_THEME.colors,
+      ...sanitized.colors
+    },
+    typography: {
+      ...DEFAULT_STORE_THEME.typography,
+      ...sanitized.typography
+    },
+    corners: {
+      ...DEFAULT_STORE_THEME.corners,
+      ...sanitized.corners
+    }
+  };
+  const { typography, corners } = deriveThemeDetails(merged);
+  return {
+    ...merged,
+    typography: {
+      ...merged.typography,
+      fontFamily: typography.fontFamily,
+      fontLabel: typography.fontLabel
+    },
+    corners: {
+      ...merged.corners,
+      radiusPx: corners.radiusPx,
+      radiusSm: corners.radiusSm,
+      radiusLg: corners.radiusLg
+    },
+    meta: {
+      updatedAt: partialTheme.updatedAt ?? null
+    },
+    cssVariables: buildCssVariables(merged)
+  };
+}
+__name(resolveStorefrontTheme, "resolveStorefrontTheme");
+
+// node_modules/stripe/esm/stripe.esm.worker.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/stripe/esm/platform/WebPlatformFunctions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/stripe/esm/platform/PlatformFunctions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/stripe/esm/net/FetchHttpClient.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/stripe/esm/utils.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var qs = __toESM(require_lib(), 1);
+var OPTIONS_KEYS = [
+  "apiKey",
+  "idempotencyKey",
+  "stripeAccount",
+  "apiVersion",
+  "maxNetworkRetries",
+  "timeout",
+  "host",
+  "authenticator",
+  "stripeContext",
+  "additionalHeaders",
+  "streaming"
+];
+function isOptionsHash(o) {
+  return o && typeof o === "object" && OPTIONS_KEYS.some((prop) => Object.prototype.hasOwnProperty.call(o, prop));
+}
+__name(isOptionsHash, "isOptionsHash");
+function queryStringifyRequestData(data, apiMode) {
+  return qs.stringify(data, {
+    serializeDate: /* @__PURE__ */ __name((d) => Math.floor(d.getTime() / 1e3).toString(), "serializeDate"),
+    arrayFormat: apiMode == "v2" ? "repeat" : "indices"
+  }).replace(/%5B/g, "[").replace(/%5D/g, "]");
+}
+__name(queryStringifyRequestData, "queryStringifyRequestData");
+var makeURLInterpolator = /* @__PURE__ */ (() => {
+  const rc = {
+    "\n": "\\n",
+    '"': '\\"',
+    "\u2028": "\\u2028",
+    "\u2029": "\\u2029"
+  };
+  return (str) => {
+    const cleanString = str.replace(/["\n\r\u2028\u2029]/g, ($0) => rc[$0]);
+    return (outputs) => {
+      return cleanString.replace(/\{([\s\S]+?)\}/g, ($0, $1) => {
+        const output = outputs[$1];
+        if (isValidEncodeUriComponentType(output))
+          return encodeURIComponent(output);
+        return "";
+      });
+    };
+  };
+})();
+function isValidEncodeUriComponentType(value) {
+  return ["number", "string", "boolean"].includes(typeof value);
+}
+__name(isValidEncodeUriComponentType, "isValidEncodeUriComponentType");
+function extractUrlParams(path) {
+  const params = path.match(/\{\w+\}/g);
+  if (!params) {
+    return [];
+  }
+  return params.map((param) => param.replace(/[{}]/g, ""));
+}
+__name(extractUrlParams, "extractUrlParams");
+function getDataFromArgs(args) {
+  if (!Array.isArray(args) || !args[0] || typeof args[0] !== "object") {
+    return {};
+  }
+  if (!isOptionsHash(args[0])) {
+    return args.shift();
+  }
+  const argKeys = Object.keys(args[0]);
+  const optionKeysInArgs = argKeys.filter((key) => OPTIONS_KEYS.includes(key));
+  if (optionKeysInArgs.length > 0 && optionKeysInArgs.length !== argKeys.length) {
+    emitWarning2(`Options found in arguments (${optionKeysInArgs.join(", ")}). Did you mean to pass an options object? See https://github.com/stripe/stripe-node/wiki/Passing-Options.`);
+  }
+  return {};
+}
+__name(getDataFromArgs, "getDataFromArgs");
+function getOptionsFromArgs(args) {
+  const opts = {
+    host: null,
+    headers: {},
+    settings: {},
+    streaming: false
+  };
+  if (args.length > 0) {
+    const arg = args[args.length - 1];
+    if (typeof arg === "string") {
+      opts.authenticator = createApiKeyAuthenticator(args.pop());
+    } else if (isOptionsHash(arg)) {
+      const params = Object.assign({}, args.pop());
+      const extraKeys = Object.keys(params).filter((key) => !OPTIONS_KEYS.includes(key));
+      if (extraKeys.length) {
+        emitWarning2(`Invalid options found (${extraKeys.join(", ")}); ignoring.`);
+      }
+      if (params.apiKey) {
+        opts.authenticator = createApiKeyAuthenticator(params.apiKey);
+      }
+      if (params.idempotencyKey) {
+        opts.headers["Idempotency-Key"] = params.idempotencyKey;
+      }
+      if (params.stripeAccount) {
+        opts.headers["Stripe-Account"] = params.stripeAccount;
+      }
+      if (params.stripeContext) {
+        if (opts.headers["Stripe-Account"]) {
+          throw new Error("Can't specify both stripeAccount and stripeContext.");
+        }
+        opts.headers["Stripe-Context"] = params.stripeContext;
+      }
+      if (params.apiVersion) {
+        opts.headers["Stripe-Version"] = params.apiVersion;
+      }
+      if (Number.isInteger(params.maxNetworkRetries)) {
+        opts.settings.maxNetworkRetries = params.maxNetworkRetries;
+      }
+      if (Number.isInteger(params.timeout)) {
+        opts.settings.timeout = params.timeout;
+      }
+      if (params.host) {
+        opts.host = params.host;
+      }
+      if (params.authenticator) {
+        if (params.apiKey) {
+          throw new Error("Can't specify both apiKey and authenticator.");
+        }
+        if (typeof params.authenticator !== "function") {
+          throw new Error("The authenticator must be a function receiving a request as the first parameter.");
+        }
+        opts.authenticator = params.authenticator;
+      }
+      if (params.additionalHeaders) {
+        opts.headers = params.additionalHeaders;
+      }
+      if (params.streaming) {
+        opts.streaming = true;
+      }
+    }
+  }
+  return opts;
+}
+__name(getOptionsFromArgs, "getOptionsFromArgs");
+function protoExtend(sub) {
+  const Super = this;
+  const Constructor = Object.prototype.hasOwnProperty.call(sub, "constructor") ? sub.constructor : function(...args) {
+    Super.apply(this, args);
+  };
+  Object.assign(Constructor, Super);
+  Constructor.prototype = Object.create(Super.prototype);
+  Object.assign(Constructor.prototype, sub);
+  return Constructor;
+}
+__name(protoExtend, "protoExtend");
+function removeNullish(obj) {
+  if (typeof obj !== "object") {
+    throw new Error("Argument must be an object");
+  }
+  return Object.keys(obj).reduce((result, key) => {
+    if (obj[key] != null) {
+      result[key] = obj[key];
+    }
+    return result;
+  }, {});
+}
+__name(removeNullish, "removeNullish");
+function normalizeHeaders(obj) {
+  if (!(obj && typeof obj === "object")) {
+    return obj;
+  }
+  return Object.keys(obj).reduce((result, header) => {
+    result[normalizeHeader(header)] = obj[header];
+    return result;
+  }, {});
+}
+__name(normalizeHeaders, "normalizeHeaders");
+function normalizeHeader(header) {
+  return header.split("-").map((text) => text.charAt(0).toUpperCase() + text.substr(1).toLowerCase()).join("-");
+}
+__name(normalizeHeader, "normalizeHeader");
+function callbackifyPromiseWithTimeout(promise, callback) {
+  if (callback) {
+    return promise.then((res) => {
+      setTimeout(() => {
+        callback(null, res);
+      }, 0);
+    }, (err) => {
+      setTimeout(() => {
+        callback(err, null);
+      }, 0);
+    });
+  }
+  return promise;
+}
+__name(callbackifyPromiseWithTimeout, "callbackifyPromiseWithTimeout");
+function pascalToCamelCase(name) {
+  if (name === "OAuth") {
+    return "oauth";
+  } else {
+    return name[0].toLowerCase() + name.substring(1);
+  }
+}
+__name(pascalToCamelCase, "pascalToCamelCase");
+function emitWarning2(warning) {
+  if (typeof process.emitWarning !== "function") {
+    return console.warn(`Stripe: ${warning}`);
+  }
+  return process.emitWarning(warning, "Stripe");
+}
+__name(emitWarning2, "emitWarning");
+function isObject(obj) {
+  const type = typeof obj;
+  return (type === "function" || type === "object") && !!obj;
+}
+__name(isObject, "isObject");
+function flattenAndStringify(data) {
+  const result = {};
+  const step = /* @__PURE__ */ __name((obj, prevKey) => {
+    Object.entries(obj).forEach(([key, value]) => {
+      const newKey = prevKey ? `${prevKey}[${key}]` : key;
+      if (isObject(value)) {
+        if (!(value instanceof Uint8Array) && !Object.prototype.hasOwnProperty.call(value, "data")) {
+          return step(value, newKey);
+        } else {
+          result[newKey] = value;
+        }
+      } else {
+        result[newKey] = String(value);
+      }
+    });
+  }, "step");
+  step(data, null);
+  return result;
+}
+__name(flattenAndStringify, "flattenAndStringify");
+function validateInteger(name, n, defaultVal) {
+  if (!Number.isInteger(n)) {
+    if (defaultVal !== void 0) {
+      return defaultVal;
+    } else {
+      throw new Error(`${name} must be an integer`);
+    }
+  }
+  return n;
+}
+__name(validateInteger, "validateInteger");
+function determineProcessUserAgentProperties() {
+  return typeof process === "undefined" ? {} : {
+    lang_version: process.version,
+    platform: process.platform
+  };
+}
+__name(determineProcessUserAgentProperties, "determineProcessUserAgentProperties");
+function createApiKeyAuthenticator(apiKey) {
+  const authenticator = /* @__PURE__ */ __name((request) => {
+    request.headers.Authorization = "Bearer " + apiKey;
+    return Promise.resolve();
+  }, "authenticator");
+  authenticator._apiKey = apiKey;
+  return authenticator;
+}
+__name(createApiKeyAuthenticator, "createApiKeyAuthenticator");
+function dateTimeReplacer(key, value) {
+  if (this[key] instanceof Date) {
+    return Math.floor(this[key].getTime() / 1e3).toString();
+  }
+  return value;
+}
+__name(dateTimeReplacer, "dateTimeReplacer");
+function jsonStringifyRequestData(data) {
+  return JSON.stringify(data, dateTimeReplacer);
+}
+__name(jsonStringifyRequestData, "jsonStringifyRequestData");
+function getAPIMode(path) {
+  if (!path) {
+    return "v1";
+  }
+  return path.startsWith("/v2") ? "v2" : "v1";
+}
+__name(getAPIMode, "getAPIMode");
+function parseHttpHeaderAsString(header) {
+  if (Array.isArray(header)) {
+    return header.join(", ");
+  }
+  return String(header);
+}
+__name(parseHttpHeaderAsString, "parseHttpHeaderAsString");
+function parseHttpHeaderAsNumber(header) {
+  const number = Array.isArray(header) ? header[0] : header;
+  return Number(number);
+}
+__name(parseHttpHeaderAsNumber, "parseHttpHeaderAsNumber");
+function parseHeadersForFetch(headers) {
+  return Object.entries(headers).map(([key, value]) => {
+    return [key, parseHttpHeaderAsString(value)];
+  });
+}
+__name(parseHeadersForFetch, "parseHeadersForFetch");
+
+// node_modules/stripe/esm/net/HttpClient.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var HttpClient = class _HttpClient {
+  static {
+    __name(this, "HttpClient");
+  }
+  /** The client name used for diagnostics. */
+  getClientName() {
+    throw new Error("getClientName not implemented.");
+  }
+  makeRequest(host, port, path, method, headers, requestData, protocol, timeout) {
+    throw new Error("makeRequest not implemented.");
+  }
+  /** Helper to make a consistent timeout error across implementations. */
+  static makeTimeoutError() {
+    const timeoutErr = new TypeError(_HttpClient.TIMEOUT_ERROR_CODE);
+    timeoutErr.code = _HttpClient.TIMEOUT_ERROR_CODE;
+    return timeoutErr;
+  }
+};
+HttpClient.CONNECTION_CLOSED_ERROR_CODES = ["ECONNRESET", "EPIPE"];
+HttpClient.TIMEOUT_ERROR_CODE = "ETIMEDOUT";
+var HttpClientResponse = class {
+  static {
+    __name(this, "HttpClientResponse");
+  }
+  constructor(statusCode, headers) {
+    this._statusCode = statusCode;
+    this._headers = headers;
+  }
+  getStatusCode() {
+    return this._statusCode;
+  }
+  getHeaders() {
+    return this._headers;
+  }
+  getRawResponse() {
+    throw new Error("getRawResponse not implemented.");
+  }
+  toStream(streamCompleteCallback) {
+    throw new Error("toStream not implemented.");
+  }
+  toJSON() {
+    throw new Error("toJSON not implemented.");
+  }
+};
+
+// node_modules/stripe/esm/net/FetchHttpClient.js
+var FetchHttpClient = class _FetchHttpClient extends HttpClient {
+  static {
+    __name(this, "FetchHttpClient");
+  }
+  constructor(fetchFn) {
+    super();
+    if (!fetchFn) {
+      if (!globalThis.fetch) {
+        throw new Error("fetch() function not provided and is not defined in the global scope. You must provide a fetch implementation.");
+      }
+      fetchFn = globalThis.fetch;
+    }
+    if (globalThis.AbortController) {
+      this._fetchFn = _FetchHttpClient.makeFetchWithAbortTimeout(fetchFn);
+    } else {
+      this._fetchFn = _FetchHttpClient.makeFetchWithRaceTimeout(fetchFn);
+    }
+  }
+  static makeFetchWithRaceTimeout(fetchFn) {
+    return (url, init, timeout) => {
+      let pendingTimeoutId;
+      const timeoutPromise = new Promise((_, reject) => {
+        pendingTimeoutId = setTimeout(() => {
+          pendingTimeoutId = null;
+          reject(HttpClient.makeTimeoutError());
+        }, timeout);
+      });
+      const fetchPromise = fetchFn(url, init);
+      return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
+        if (pendingTimeoutId) {
+          clearTimeout(pendingTimeoutId);
+        }
+      });
+    };
+  }
+  static makeFetchWithAbortTimeout(fetchFn) {
+    return async (url, init, timeout) => {
+      const abort2 = new AbortController();
+      let timeoutId = setTimeout(() => {
+        timeoutId = null;
+        abort2.abort(HttpClient.makeTimeoutError());
+      }, timeout);
+      try {
+        return await fetchFn(url, Object.assign(Object.assign({}, init), { signal: abort2.signal }));
+      } catch (err) {
+        if (err.name === "AbortError") {
+          throw HttpClient.makeTimeoutError();
+        } else {
+          throw err;
+        }
+      } finally {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+      }
+    };
+  }
+  /** @override. */
+  getClientName() {
+    return "fetch";
+  }
+  async makeRequest(host, port, path, method, headers, requestData, protocol, timeout) {
+    const isInsecureConnection = protocol === "http";
+    const url = new URL(path, `${isInsecureConnection ? "http" : "https"}://${host}`);
+    url.port = port;
+    const methodHasPayload = method == "POST" || method == "PUT" || method == "PATCH";
+    const body = requestData || (methodHasPayload ? "" : void 0);
+    const res = await this._fetchFn(url.toString(), {
+      method,
+      headers: parseHeadersForFetch(headers),
+      body: typeof body === "object" ? JSON.stringify(body) : body
+    }, timeout);
+    return new FetchHttpClientResponse(res);
+  }
+};
+var FetchHttpClientResponse = class _FetchHttpClientResponse extends HttpClientResponse {
+  static {
+    __name(this, "FetchHttpClientResponse");
+  }
+  constructor(res) {
+    super(res.status, _FetchHttpClientResponse._transformHeadersToObject(res.headers));
+    this._res = res;
+  }
+  getRawResponse() {
+    return this._res;
+  }
+  toStream(streamCompleteCallback) {
+    streamCompleteCallback();
+    return this._res.body;
+  }
+  toJSON() {
+    return this._res.json();
+  }
+  static _transformHeadersToObject(headers) {
+    const headersObj = {};
+    for (const entry of headers) {
+      if (!Array.isArray(entry) || entry.length != 2) {
+        throw new Error("Response objects produced by the fetch function given to FetchHttpClient do not have an iterable headers map. Response#headers should be an iterable object.");
+      }
+      headersObj[entry[0]] = entry[1];
+    }
+    return headersObj;
+  }
+};
+
+// node_modules/stripe/esm/crypto/SubtleCryptoProvider.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/stripe/esm/crypto/CryptoProvider.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var CryptoProvider = class {
+  static {
+    __name(this, "CryptoProvider");
+  }
+  /**
+   * Computes a SHA-256 HMAC given a secret and a payload (encoded in UTF-8).
+   * The output HMAC should be encoded in hexadecimal.
+   *
+   * Sample values for implementations:
+   * - computeHMACSignature('', 'test_secret') => 'f7f9bd47fb987337b5796fdc1fdb9ba221d0d5396814bfcaf9521f43fd8927fd'
+   * - computeHMACSignature('\ud83d\ude00', 'test_secret') => '837da296d05c4fe31f61d5d7ead035099d9585a5bcde87de952012a78f0b0c43
+   */
+  computeHMACSignature(payload, secret) {
+    throw new Error("computeHMACSignature not implemented.");
+  }
+  /**
+   * Asynchronous version of `computeHMACSignature`. Some implementations may
+   * only allow support async signature computation.
+   *
+   * Computes a SHA-256 HMAC given a secret and a payload (encoded in UTF-8).
+   * The output HMAC should be encoded in hexadecimal.
+   *
+   * Sample values for implementations:
+   * - computeHMACSignature('', 'test_secret') => 'f7f9bd47fb987337b5796fdc1fdb9ba221d0d5396814bfcaf9521f43fd8927fd'
+   * - computeHMACSignature('\ud83d\ude00', 'test_secret') => '837da296d05c4fe31f61d5d7ead035099d9585a5bcde87de952012a78f0b0c43
+   */
+  computeHMACSignatureAsync(payload, secret) {
+    throw new Error("computeHMACSignatureAsync not implemented.");
+  }
+  /**
+   * Computes a SHA-256 hash of the data.
+   */
+  computeSHA256Async(data) {
+    throw new Error("computeSHA256 not implemented.");
+  }
+};
+var CryptoProviderOnlySupportsAsyncError = class extends Error {
+  static {
+    __name(this, "CryptoProviderOnlySupportsAsyncError");
+  }
+};
+
+// node_modules/stripe/esm/crypto/SubtleCryptoProvider.js
+var SubtleCryptoProvider = class extends CryptoProvider {
+  static {
+    __name(this, "SubtleCryptoProvider");
+  }
+  constructor(subtleCrypto) {
+    super();
+    this.subtleCrypto = subtleCrypto || crypto.subtle;
+  }
+  /** @override */
+  computeHMACSignature(payload, secret) {
+    throw new CryptoProviderOnlySupportsAsyncError("SubtleCryptoProvider cannot be used in a synchronous context.");
+  }
+  /** @override */
+  async computeHMACSignatureAsync(payload, secret) {
+    const encoder = new TextEncoder();
+    const key = await this.subtleCrypto.importKey("raw", encoder.encode(secret), {
+      name: "HMAC",
+      hash: { name: "SHA-256" }
+    }, false, ["sign"]);
+    const signatureBuffer = await this.subtleCrypto.sign("hmac", key, encoder.encode(payload));
+    const signatureBytes = new Uint8Array(signatureBuffer);
+    const signatureHexCodes = new Array(signatureBytes.length);
+    for (let i = 0; i < signatureBytes.length; i++) {
+      signatureHexCodes[i] = byteHexMapping[signatureBytes[i]];
+    }
+    return signatureHexCodes.join("");
+  }
+  /** @override */
+  async computeSHA256Async(data) {
+    return new Uint8Array(await this.subtleCrypto.digest("SHA-256", data));
+  }
+};
+var byteHexMapping = new Array(256);
+for (let i = 0; i < byteHexMapping.length; i++) {
+  byteHexMapping[i] = i.toString(16).padStart(2, "0");
+}
+
+// node_modules/stripe/esm/platform/PlatformFunctions.js
+var PlatformFunctions = class {
+  static {
+    __name(this, "PlatformFunctions");
+  }
+  constructor() {
+    this._fetchFn = null;
+    this._agent = null;
+  }
+  /**
+   * Gets uname with Node's built-in `exec` function, if available.
+   */
+  getUname() {
+    throw new Error("getUname not implemented.");
+  }
+  /**
+   * Generates a v4 UUID. See https://stackoverflow.com/a/2117523
+   */
+  uuid4() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+      const r = Math.random() * 16 | 0;
+      const v = c === "x" ? r : r & 3 | 8;
+      return v.toString(16);
+    });
+  }
+  /**
+   * Compares strings in constant time.
+   */
+  secureCompare(a, b) {
+    if (a.length !== b.length) {
+      return false;
+    }
+    const len = a.length;
+    let result = 0;
+    for (let i = 0; i < len; ++i) {
+      result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    }
+    return result === 0;
+  }
+  /**
+   * Creates an event emitter.
+   */
+  createEmitter() {
+    throw new Error("createEmitter not implemented.");
+  }
+  /**
+   * Checks if the request data is a stream. If so, read the entire stream
+   * to a buffer and return the buffer.
+   */
+  tryBufferData(data) {
+    throw new Error("tryBufferData not implemented.");
+  }
+  /**
+   * Creates an HTTP client which uses the Node `http` and `https` packages
+   * to issue requests.
+   */
+  createNodeHttpClient(agent) {
+    throw new Error("createNodeHttpClient not implemented.");
+  }
+  /**
+   * Creates an HTTP client for issuing Stripe API requests which uses the Web
+   * Fetch API.
+   *
+   * A fetch function can optionally be passed in as a parameter. If none is
+   * passed, will default to the default `fetch` function in the global scope.
+   */
+  createFetchHttpClient(fetchFn) {
+    return new FetchHttpClient(fetchFn);
+  }
+  /**
+   * Creates an HTTP client using runtime-specific APIs.
+   */
+  createDefaultHttpClient() {
+    throw new Error("createDefaultHttpClient not implemented.");
+  }
+  /**
+   * Creates a CryptoProvider which uses the Node `crypto` package for its computations.
+   */
+  createNodeCryptoProvider() {
+    throw new Error("createNodeCryptoProvider not implemented.");
+  }
+  /**
+   * Creates a CryptoProvider which uses the SubtleCrypto interface of the Web Crypto API.
+   */
+  createSubtleCryptoProvider(subtleCrypto) {
+    return new SubtleCryptoProvider(subtleCrypto);
+  }
+  createDefaultCryptoProvider() {
+    throw new Error("createDefaultCryptoProvider not implemented.");
+  }
+};
+
+// node_modules/stripe/esm/StripeEmitter.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var _StripeEvent = class extends Event {
+  static {
+    __name(this, "_StripeEvent");
+  }
+  constructor(eventName, data) {
+    super(eventName);
+    this.data = data;
+  }
+};
+var StripeEmitter = class {
+  static {
+    __name(this, "StripeEmitter");
+  }
+  constructor() {
+    this.eventTarget = new EventTarget();
+    this.listenerMapping = /* @__PURE__ */ new Map();
+  }
+  on(eventName, listener) {
+    const listenerWrapper = /* @__PURE__ */ __name((event) => {
+      listener(event.data);
+    }, "listenerWrapper");
+    this.listenerMapping.set(listener, listenerWrapper);
+    return this.eventTarget.addEventListener(eventName, listenerWrapper);
+  }
+  removeListener(eventName, listener) {
+    const listenerWrapper = this.listenerMapping.get(listener);
+    this.listenerMapping.delete(listener);
+    return this.eventTarget.removeEventListener(eventName, listenerWrapper);
+  }
+  once(eventName, listener) {
+    const listenerWrapper = /* @__PURE__ */ __name((event) => {
+      listener(event.data);
+    }, "listenerWrapper");
+    this.listenerMapping.set(listener, listenerWrapper);
+    return this.eventTarget.addEventListener(eventName, listenerWrapper, {
+      once: true
+    });
+  }
+  emit(eventName, data) {
+    return this.eventTarget.dispatchEvent(new _StripeEvent(eventName, data));
+  }
+};
+
+// node_modules/stripe/esm/platform/WebPlatformFunctions.js
+var WebPlatformFunctions = class extends PlatformFunctions {
+  static {
+    __name(this, "WebPlatformFunctions");
+  }
+  /** @override */
+  getUname() {
+    return Promise.resolve(null);
+  }
+  /** @override */
+  createEmitter() {
+    return new StripeEmitter();
+  }
+  /** @override */
+  tryBufferData(data) {
+    if (data.file.data instanceof ReadableStream) {
+      throw new Error("Uploading a file as a stream is not supported in non-Node environments. Please open or upvote an issue at github.com/stripe/stripe-node if you use this, detailing your use-case.");
+    }
+    return Promise.resolve(data);
+  }
+  /** @override */
+  createNodeHttpClient() {
+    throw new Error("Stripe: `createNodeHttpClient()` is not available in non-Node environments. Please use `createFetchHttpClient()` instead.");
+  }
+  /** @override */
+  createDefaultHttpClient() {
+    return super.createFetchHttpClient();
+  }
+  /** @override */
+  createNodeCryptoProvider() {
+    throw new Error("Stripe: `createNodeCryptoProvider()` is not available in non-Node environments. Please use `createSubtleCryptoProvider()` instead.");
+  }
+  /** @override */
+  createDefaultCryptoProvider() {
+    return this.createSubtleCryptoProvider();
+  }
+};
+
+// node_modules/stripe/esm/stripe.core.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/stripe/esm/Error.js
+var Error_exports = {};
+__export(Error_exports, {
+  StripeAPIError: () => StripeAPIError,
+  StripeAuthenticationError: () => StripeAuthenticationError,
+  StripeCardError: () => StripeCardError,
+  StripeConnectionError: () => StripeConnectionError,
+  StripeError: () => StripeError,
+  StripeIdempotencyError: () => StripeIdempotencyError,
+  StripeInvalidGrantError: () => StripeInvalidGrantError,
+  StripeInvalidRequestError: () => StripeInvalidRequestError,
+  StripePermissionError: () => StripePermissionError,
+  StripeRateLimitError: () => StripeRateLimitError,
+  StripeSignatureVerificationError: () => StripeSignatureVerificationError,
+  StripeUnknownError: () => StripeUnknownError,
+  TemporarySessionExpiredError: () => TemporarySessionExpiredError,
+  generateV1Error: () => generateV1Error,
+  generateV2Error: () => generateV2Error
+});
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var generateV1Error = /* @__PURE__ */ __name((rawStripeError) => {
+  switch (rawStripeError.type) {
+    case "card_error":
+      return new StripeCardError(rawStripeError);
+    case "invalid_request_error":
+      return new StripeInvalidRequestError(rawStripeError);
+    case "api_error":
+      return new StripeAPIError(rawStripeError);
+    case "authentication_error":
+      return new StripeAuthenticationError(rawStripeError);
+    case "rate_limit_error":
+      return new StripeRateLimitError(rawStripeError);
+    case "idempotency_error":
+      return new StripeIdempotencyError(rawStripeError);
+    case "invalid_grant":
+      return new StripeInvalidGrantError(rawStripeError);
+    default:
+      return new StripeUnknownError(rawStripeError);
+  }
+}, "generateV1Error");
+var generateV2Error = /* @__PURE__ */ __name((rawStripeError) => {
+  switch (rawStripeError.type) {
+    // switchCases: The beginning of the section generated from our OpenAPI spec
+    case "temporary_session_expired":
+      return new TemporarySessionExpiredError(rawStripeError);
+  }
+  switch (rawStripeError.code) {
+    case "invalid_fields":
+      return new StripeInvalidRequestError(rawStripeError);
+  }
+  return generateV1Error(rawStripeError);
+}, "generateV2Error");
+var StripeError = class extends Error {
+  static {
+    __name(this, "StripeError");
+  }
+  constructor(raw2 = {}, type = null) {
+    var _a;
+    super(raw2.message);
+    this.type = type || this.constructor.name;
+    this.raw = raw2;
+    this.rawType = raw2.type;
+    this.code = raw2.code;
+    this.doc_url = raw2.doc_url;
+    this.param = raw2.param;
+    this.detail = raw2.detail;
+    this.headers = raw2.headers;
+    this.requestId = raw2.requestId;
+    this.statusCode = raw2.statusCode;
+    this.message = (_a = raw2.message) !== null && _a !== void 0 ? _a : "";
+    this.userMessage = raw2.user_message;
+    this.charge = raw2.charge;
+    this.decline_code = raw2.decline_code;
+    this.payment_intent = raw2.payment_intent;
+    this.payment_method = raw2.payment_method;
+    this.payment_method_type = raw2.payment_method_type;
+    this.setup_intent = raw2.setup_intent;
+    this.source = raw2.source;
+  }
+};
+StripeError.generate = generateV1Error;
+var StripeCardError = class extends StripeError {
+  static {
+    __name(this, "StripeCardError");
+  }
+  constructor(raw2 = {}) {
+    super(raw2, "StripeCardError");
+  }
+};
+var StripeInvalidRequestError = class extends StripeError {
+  static {
+    __name(this, "StripeInvalidRequestError");
+  }
+  constructor(raw2 = {}) {
+    super(raw2, "StripeInvalidRequestError");
+  }
+};
+var StripeAPIError = class extends StripeError {
+  static {
+    __name(this, "StripeAPIError");
+  }
+  constructor(raw2 = {}) {
+    super(raw2, "StripeAPIError");
+  }
+};
+var StripeAuthenticationError = class extends StripeError {
+  static {
+    __name(this, "StripeAuthenticationError");
+  }
+  constructor(raw2 = {}) {
+    super(raw2, "StripeAuthenticationError");
+  }
+};
+var StripePermissionError = class extends StripeError {
+  static {
+    __name(this, "StripePermissionError");
+  }
+  constructor(raw2 = {}) {
+    super(raw2, "StripePermissionError");
+  }
+};
+var StripeRateLimitError = class extends StripeError {
+  static {
+    __name(this, "StripeRateLimitError");
+  }
+  constructor(raw2 = {}) {
+    super(raw2, "StripeRateLimitError");
+  }
+};
+var StripeConnectionError = class extends StripeError {
+  static {
+    __name(this, "StripeConnectionError");
+  }
+  constructor(raw2 = {}) {
+    super(raw2, "StripeConnectionError");
+  }
+};
+var StripeSignatureVerificationError = class extends StripeError {
+  static {
+    __name(this, "StripeSignatureVerificationError");
+  }
+  constructor(header, payload, raw2 = {}) {
+    super(raw2, "StripeSignatureVerificationError");
+    this.header = header;
+    this.payload = payload;
+  }
+};
+var StripeIdempotencyError = class extends StripeError {
+  static {
+    __name(this, "StripeIdempotencyError");
+  }
+  constructor(raw2 = {}) {
+    super(raw2, "StripeIdempotencyError");
+  }
+};
+var StripeInvalidGrantError = class extends StripeError {
+  static {
+    __name(this, "StripeInvalidGrantError");
+  }
+  constructor(raw2 = {}) {
+    super(raw2, "StripeInvalidGrantError");
+  }
+};
+var StripeUnknownError = class extends StripeError {
+  static {
+    __name(this, "StripeUnknownError");
+  }
+  constructor(raw2 = {}) {
+    super(raw2, "StripeUnknownError");
+  }
+};
+var TemporarySessionExpiredError = class extends StripeError {
+  static {
+    __name(this, "TemporarySessionExpiredError");
+  }
+  constructor(rawStripeError = {}) {
+    super(rawStripeError, "TemporarySessionExpiredError");
+  }
+};
+
+// node_modules/stripe/esm/RequestSender.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var MAX_RETRY_AFTER_WAIT = 60;
+var RequestSender = class _RequestSender {
+  static {
+    __name(this, "RequestSender");
+  }
+  constructor(stripe, maxBufferedRequestMetric) {
+    this._stripe = stripe;
+    this._maxBufferedRequestMetric = maxBufferedRequestMetric;
+  }
+  _addHeadersDirectlyToObject(obj, headers) {
+    obj.requestId = headers["request-id"];
+    obj.stripeAccount = obj.stripeAccount || headers["stripe-account"];
+    obj.apiVersion = obj.apiVersion || headers["stripe-version"];
+    obj.idempotencyKey = obj.idempotencyKey || headers["idempotency-key"];
+  }
+  _makeResponseEvent(requestEvent, statusCode, headers) {
+    const requestEndTime = Date.now();
+    const requestDurationMs = requestEndTime - requestEvent.request_start_time;
+    return removeNullish({
+      api_version: headers["stripe-version"],
+      account: headers["stripe-account"],
+      idempotency_key: headers["idempotency-key"],
+      method: requestEvent.method,
+      path: requestEvent.path,
+      status: statusCode,
+      request_id: this._getRequestId(headers),
+      elapsed: requestDurationMs,
+      request_start_time: requestEvent.request_start_time,
+      request_end_time: requestEndTime
+    });
+  }
+  _getRequestId(headers) {
+    return headers["request-id"];
+  }
+  /**
+   * Used by methods with spec.streaming === true. For these methods, we do not
+   * buffer successful responses into memory or do parse them into stripe
+   * objects, we delegate that all of that to the user and pass back the raw
+   * http.Response object to the callback.
+   *
+   * (Unsuccessful responses shouldn't make it here, they should
+   * still be buffered/parsed and handled by _jsonResponseHandler -- see
+   * makeRequest)
+   */
+  _streamingResponseHandler(requestEvent, usage, callback) {
+    return (res) => {
+      const headers = res.getHeaders();
+      const streamCompleteCallback = /* @__PURE__ */ __name(() => {
+        const responseEvent = this._makeResponseEvent(requestEvent, res.getStatusCode(), headers);
+        this._stripe._emitter.emit("response", responseEvent);
+        this._recordRequestMetrics(this._getRequestId(headers), responseEvent.elapsed, usage);
+      }, "streamCompleteCallback");
+      const stream = res.toStream(streamCompleteCallback);
+      this._addHeadersDirectlyToObject(stream, headers);
+      return callback(null, stream);
+    };
+  }
+  /**
+   * Default handler for Stripe responses. Buffers the response into memory,
+   * parses the JSON and returns it (i.e. passes it to the callback) if there
+   * is no "error" field. Otherwise constructs/passes an appropriate Error.
+   */
+  _jsonResponseHandler(requestEvent, apiMode, usage, callback) {
+    return (res) => {
+      const headers = res.getHeaders();
+      const requestId = this._getRequestId(headers);
+      const statusCode = res.getStatusCode();
+      const responseEvent = this._makeResponseEvent(requestEvent, statusCode, headers);
+      this._stripe._emitter.emit("response", responseEvent);
+      res.toJSON().then((jsonResponse) => {
+        if (jsonResponse.error) {
+          let err;
+          if (typeof jsonResponse.error === "string") {
+            jsonResponse.error = {
+              type: jsonResponse.error,
+              message: jsonResponse.error_description
+            };
+          }
+          jsonResponse.error.headers = headers;
+          jsonResponse.error.statusCode = statusCode;
+          jsonResponse.error.requestId = requestId;
+          if (statusCode === 401) {
+            err = new StripeAuthenticationError(jsonResponse.error);
+          } else if (statusCode === 403) {
+            err = new StripePermissionError(jsonResponse.error);
+          } else if (statusCode === 429) {
+            err = new StripeRateLimitError(jsonResponse.error);
+          } else if (apiMode === "v2") {
+            err = generateV2Error(jsonResponse.error);
+          } else {
+            err = generateV1Error(jsonResponse.error);
+          }
+          throw err;
+        }
+        return jsonResponse;
+      }, (e) => {
+        throw new StripeAPIError({
+          message: "Invalid JSON received from the Stripe API",
+          exception: e,
+          requestId: headers["request-id"]
+        });
+      }).then((jsonResponse) => {
+        this._recordRequestMetrics(requestId, responseEvent.elapsed, usage);
+        const rawResponse = res.getRawResponse();
+        this._addHeadersDirectlyToObject(rawResponse, headers);
+        Object.defineProperty(jsonResponse, "lastResponse", {
+          enumerable: false,
+          writable: false,
+          value: rawResponse
+        });
+        callback(null, jsonResponse);
+      }, (e) => callback(e, null));
+    };
+  }
+  static _generateConnectionErrorMessage(requestRetries) {
+    return `An error occurred with our connection to Stripe.${requestRetries > 0 ? ` Request was retried ${requestRetries} times.` : ""}`;
+  }
+  // For more on when and how to retry API requests, see https://stripe.com/docs/error-handling#safely-retrying-requests-with-idempotency
+  static _shouldRetry(res, numRetries, maxRetries, error3) {
+    if (error3 && numRetries === 0 && HttpClient.CONNECTION_CLOSED_ERROR_CODES.includes(error3.code)) {
+      return true;
+    }
+    if (numRetries >= maxRetries) {
+      return false;
+    }
+    if (!res) {
+      return true;
+    }
+    if (res.getHeaders()["stripe-should-retry"] === "false") {
+      return false;
+    }
+    if (res.getHeaders()["stripe-should-retry"] === "true") {
+      return true;
+    }
+    if (res.getStatusCode() === 409) {
+      return true;
+    }
+    if (res.getStatusCode() >= 500) {
+      return true;
+    }
+    return false;
+  }
+  _getSleepTimeInMS(numRetries, retryAfter = null) {
+    const initialNetworkRetryDelay = this._stripe.getInitialNetworkRetryDelay();
+    const maxNetworkRetryDelay = this._stripe.getMaxNetworkRetryDelay();
+    let sleepSeconds = Math.min(initialNetworkRetryDelay * Math.pow(2, numRetries - 1), maxNetworkRetryDelay);
+    sleepSeconds *= 0.5 * (1 + Math.random());
+    sleepSeconds = Math.max(initialNetworkRetryDelay, sleepSeconds);
+    if (Number.isInteger(retryAfter) && retryAfter <= MAX_RETRY_AFTER_WAIT) {
+      sleepSeconds = Math.max(sleepSeconds, retryAfter);
+    }
+    return sleepSeconds * 1e3;
+  }
+  // Max retries can be set on a per request basis. Favor those over the global setting
+  _getMaxNetworkRetries(settings = {}) {
+    return settings.maxNetworkRetries !== void 0 && Number.isInteger(settings.maxNetworkRetries) ? settings.maxNetworkRetries : this._stripe.getMaxNetworkRetries();
+  }
+  _defaultIdempotencyKey(method, settings, apiMode) {
+    const maxRetries = this._getMaxNetworkRetries(settings);
+    const genKey = /* @__PURE__ */ __name(() => `stripe-node-retry-${this._stripe._platformFunctions.uuid4()}`, "genKey");
+    if (apiMode === "v2") {
+      if (method === "POST" || method === "DELETE") {
+        return genKey();
+      }
+    } else if (apiMode === "v1") {
+      if (method === "POST" && maxRetries > 0) {
+        return genKey();
+      }
+    }
+    return null;
+  }
+  _makeHeaders({ contentType, contentLength, apiVersion, clientUserAgent, method, userSuppliedHeaders, userSuppliedSettings, stripeAccount, stripeContext, apiMode }) {
+    const defaultHeaders = {
+      Accept: "application/json",
+      "Content-Type": contentType,
+      "User-Agent": this._getUserAgentString(apiMode),
+      "X-Stripe-Client-User-Agent": clientUserAgent,
+      "X-Stripe-Client-Telemetry": this._getTelemetryHeader(),
+      "Stripe-Version": apiVersion,
+      "Stripe-Account": stripeAccount,
+      "Stripe-Context": stripeContext,
+      "Idempotency-Key": this._defaultIdempotencyKey(method, userSuppliedSettings, apiMode)
+    };
+    const methodHasPayload = method == "POST" || method == "PUT" || method == "PATCH";
+    if (methodHasPayload || contentLength) {
+      if (!methodHasPayload) {
+        emitWarning2(`${method} method had non-zero contentLength but no payload is expected for this verb`);
+      }
+      defaultHeaders["Content-Length"] = contentLength;
+    }
+    return Object.assign(
+      removeNullish(defaultHeaders),
+      // If the user supplied, say 'idempotency-key', override instead of appending by ensuring caps are the same.
+      normalizeHeaders(userSuppliedHeaders)
+    );
+  }
+  _getUserAgentString(apiMode) {
+    const packageVersion = this._stripe.getConstant("PACKAGE_VERSION");
+    const appInfo = this._stripe._appInfo ? this._stripe.getAppInfoAsString() : "";
+    return `Stripe/${apiMode} NodeBindings/${packageVersion} ${appInfo}`.trim();
+  }
+  _getTelemetryHeader() {
+    if (this._stripe.getTelemetryEnabled() && this._stripe._prevRequestMetrics.length > 0) {
+      const metrics = this._stripe._prevRequestMetrics.shift();
+      return JSON.stringify({
+        last_request_metrics: metrics
+      });
+    }
+  }
+  _recordRequestMetrics(requestId, requestDurationMs, usage) {
+    if (this._stripe.getTelemetryEnabled() && requestId) {
+      if (this._stripe._prevRequestMetrics.length > this._maxBufferedRequestMetric) {
+        emitWarning2("Request metrics buffer is full, dropping telemetry message.");
+      } else {
+        const m = {
+          request_id: requestId,
+          request_duration_ms: requestDurationMs
+        };
+        if (usage && usage.length > 0) {
+          m.usage = usage;
+        }
+        this._stripe._prevRequestMetrics.push(m);
+      }
+    }
+  }
+  _rawRequest(method, path, params, options) {
+    const requestPromise = new Promise((resolve, reject) => {
+      let opts;
+      try {
+        const requestMethod = method.toUpperCase();
+        if (requestMethod !== "POST" && params && Object.keys(params).length !== 0) {
+          throw new Error("rawRequest only supports params on POST requests. Please pass null and add your parameters to path.");
+        }
+        const args = [].slice.call([params, options]);
+        const dataFromArgs = getDataFromArgs(args);
+        const data = requestMethod === "POST" ? Object.assign({}, dataFromArgs) : null;
+        const calculatedOptions = getOptionsFromArgs(args);
+        const headers2 = calculatedOptions.headers;
+        const authenticator2 = calculatedOptions.authenticator;
+        opts = {
+          requestMethod,
+          requestPath: path,
+          bodyData: data,
+          queryData: {},
+          authenticator: authenticator2,
+          headers: headers2,
+          host: calculatedOptions.host,
+          streaming: !!calculatedOptions.streaming,
+          settings: {},
+          usage: ["raw_request"]
+        };
+      } catch (err) {
+        reject(err);
+        return;
+      }
+      function requestCallback(err, response) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(response);
+        }
+      }
+      __name(requestCallback, "requestCallback");
+      const { headers, settings } = opts;
+      const authenticator = opts.authenticator;
+      this._request(opts.requestMethod, opts.host, path, opts.bodyData, authenticator, { headers, settings, streaming: opts.streaming }, opts.usage, requestCallback);
+    });
+    return requestPromise;
+  }
+  _request(method, host, path, data, authenticator, options, usage = [], callback, requestDataProcessor = null) {
+    var _a;
+    let requestData;
+    authenticator = (_a = authenticator !== null && authenticator !== void 0 ? authenticator : this._stripe._authenticator) !== null && _a !== void 0 ? _a : null;
+    const apiMode = getAPIMode(path);
+    const retryRequest = /* @__PURE__ */ __name((requestFn, apiVersion, headers, requestRetries, retryAfter) => {
+      return setTimeout(requestFn, this._getSleepTimeInMS(requestRetries, retryAfter), apiVersion, headers, requestRetries + 1);
+    }, "retryRequest");
+    const makeRequest = /* @__PURE__ */ __name((apiVersion, headers, numRetries) => {
+      const timeout = options.settings && options.settings.timeout && Number.isInteger(options.settings.timeout) && options.settings.timeout >= 0 ? options.settings.timeout : this._stripe.getApiField("timeout");
+      const request = {
+        host: host || this._stripe.getApiField("host"),
+        port: this._stripe.getApiField("port"),
+        path,
+        method,
+        headers: Object.assign({}, headers),
+        body: requestData,
+        protocol: this._stripe.getApiField("protocol")
+      };
+      authenticator(request).then(() => {
+        const req = this._stripe.getApiField("httpClient").makeRequest(request.host, request.port, request.path, request.method, request.headers, request.body, request.protocol, timeout);
+        const requestStartTime = Date.now();
+        const requestEvent = removeNullish({
+          api_version: apiVersion,
+          account: parseHttpHeaderAsString(headers["Stripe-Account"]),
+          idempotency_key: parseHttpHeaderAsString(headers["Idempotency-Key"]),
+          method,
+          path,
+          request_start_time: requestStartTime
+        });
+        const requestRetries = numRetries || 0;
+        const maxRetries = this._getMaxNetworkRetries(options.settings || {});
+        this._stripe._emitter.emit("request", requestEvent);
+        req.then((res) => {
+          if (_RequestSender._shouldRetry(res, requestRetries, maxRetries)) {
+            return retryRequest(makeRequest, apiVersion, headers, requestRetries, parseHttpHeaderAsNumber(res.getHeaders()["retry-after"]));
+          } else if (options.streaming && res.getStatusCode() < 400) {
+            return this._streamingResponseHandler(requestEvent, usage, callback)(res);
+          } else {
+            return this._jsonResponseHandler(requestEvent, apiMode, usage, callback)(res);
+          }
+        }).catch((error3) => {
+          if (_RequestSender._shouldRetry(null, requestRetries, maxRetries, error3)) {
+            return retryRequest(makeRequest, apiVersion, headers, requestRetries, null);
+          } else {
+            const isTimeoutError = error3.code && error3.code === HttpClient.TIMEOUT_ERROR_CODE;
+            return callback(new StripeConnectionError({
+              message: isTimeoutError ? `Request aborted due to timeout being reached (${timeout}ms)` : _RequestSender._generateConnectionErrorMessage(requestRetries),
+              detail: error3
+            }));
+          }
+        });
+      }).catch((e) => {
+        throw new StripeError({
+          message: "Unable to authenticate the request",
+          exception: e
+        });
+      });
+    }, "makeRequest");
+    const prepareAndMakeRequest = /* @__PURE__ */ __name((error3, data2) => {
+      if (error3) {
+        return callback(error3);
+      }
+      requestData = data2;
+      this._stripe.getClientUserAgent((clientUserAgent) => {
+        const apiVersion = this._stripe.getApiField("version");
+        const headers = this._makeHeaders({
+          contentType: apiMode == "v2" ? "application/json" : "application/x-www-form-urlencoded",
+          contentLength: requestData.length,
+          apiVersion,
+          clientUserAgent,
+          method,
+          userSuppliedHeaders: options.headers,
+          userSuppliedSettings: options.settings,
+          stripeAccount: apiMode == "v2" ? null : this._stripe.getApiField("stripeAccount"),
+          stripeContext: apiMode == "v2" ? this._stripe.getApiField("stripeContext") : null,
+          apiMode
+        });
+        makeRequest(apiVersion, headers, 0);
+      });
+    }, "prepareAndMakeRequest");
+    if (requestDataProcessor) {
+      requestDataProcessor(method, data, options.headers, prepareAndMakeRequest);
+    } else {
+      let stringifiedData;
+      if (apiMode == "v2") {
+        stringifiedData = data ? jsonStringifyRequestData(data) : "";
+      } else {
+        stringifiedData = queryStringifyRequestData(data || {}, apiMode);
+      }
+      prepareAndMakeRequest(null, stringifiedData);
+    }
+  }
+};
+
+// node_modules/stripe/esm/StripeResource.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/stripe/esm/StripeMethod.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/stripe/esm/autoPagination.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var V1Iterator = class {
+  static {
+    __name(this, "V1Iterator");
+  }
+  constructor(firstPagePromise, requestArgs, spec, stripeResource) {
+    this.index = 0;
+    this.pagePromise = firstPagePromise;
+    this.promiseCache = { currentPromise: null };
+    this.requestArgs = requestArgs;
+    this.spec = spec;
+    this.stripeResource = stripeResource;
+  }
+  async iterate(pageResult) {
+    if (!(pageResult && pageResult.data && typeof pageResult.data.length === "number")) {
+      throw Error("Unexpected: Stripe API response does not have a well-formed `data` array.");
+    }
+    const reverseIteration = isReverseIteration(this.requestArgs);
+    if (this.index < pageResult.data.length) {
+      const idx = reverseIteration ? pageResult.data.length - 1 - this.index : this.index;
+      const value = pageResult.data[idx];
+      this.index += 1;
+      return { value, done: false };
+    } else if (pageResult.has_more) {
+      this.index = 0;
+      this.pagePromise = this.getNextPage(pageResult);
+      const nextPageResult = await this.pagePromise;
+      return this.iterate(nextPageResult);
+    }
+    return { done: true, value: void 0 };
+  }
+  /** @abstract */
+  getNextPage(_pageResult) {
+    throw new Error("Unimplemented");
+  }
+  async _next() {
+    return this.iterate(await this.pagePromise);
+  }
+  next() {
+    if (this.promiseCache.currentPromise) {
+      return this.promiseCache.currentPromise;
+    }
+    const nextPromise = (async () => {
+      const ret = await this._next();
+      this.promiseCache.currentPromise = null;
+      return ret;
+    })();
+    this.promiseCache.currentPromise = nextPromise;
+    return nextPromise;
+  }
+};
+var V1ListIterator = class extends V1Iterator {
+  static {
+    __name(this, "V1ListIterator");
+  }
+  getNextPage(pageResult) {
+    const reverseIteration = isReverseIteration(this.requestArgs);
+    const lastId = getLastId(pageResult, reverseIteration);
+    return this.stripeResource._makeRequest(this.requestArgs, this.spec, {
+      [reverseIteration ? "ending_before" : "starting_after"]: lastId
+    });
+  }
+};
+var V1SearchIterator = class extends V1Iterator {
+  static {
+    __name(this, "V1SearchIterator");
+  }
+  getNextPage(pageResult) {
+    if (!pageResult.next_page) {
+      throw Error("Unexpected: Stripe API response does not have a well-formed `next_page` field, but `has_more` was true.");
+    }
+    return this.stripeResource._makeRequest(this.requestArgs, this.spec, {
+      page: pageResult.next_page
+    });
+  }
+};
+var V2ListIterator = class {
+  static {
+    __name(this, "V2ListIterator");
+  }
+  constructor(firstPagePromise, requestArgs, spec, stripeResource) {
+    this.currentPageIterator = (async () => {
+      const page = await firstPagePromise;
+      return page.data[Symbol.iterator]();
+    })();
+    this.nextPageUrl = (async () => {
+      const page = await firstPagePromise;
+      return page.next_page_url || null;
+    })();
+    this.requestArgs = requestArgs;
+    this.spec = spec;
+    this.stripeResource = stripeResource;
+  }
+  async turnPage() {
+    const nextPageUrl = await this.nextPageUrl;
+    if (!nextPageUrl)
+      return null;
+    this.spec.fullPath = nextPageUrl;
+    const page = await this.stripeResource._makeRequest([], this.spec, {});
+    this.nextPageUrl = Promise.resolve(page.next_page_url);
+    this.currentPageIterator = Promise.resolve(page.data[Symbol.iterator]());
+    return this.currentPageIterator;
+  }
+  async next() {
+    {
+      const result2 = (await this.currentPageIterator).next();
+      if (!result2.done)
+        return { done: false, value: result2.value };
+    }
+    const nextPageIterator = await this.turnPage();
+    if (!nextPageIterator) {
+      return { done: true, value: void 0 };
+    }
+    const result = nextPageIterator.next();
+    if (!result.done)
+      return { done: false, value: result.value };
+    return { done: true, value: void 0 };
+  }
+};
+var makeAutoPaginationMethods = /* @__PURE__ */ __name((stripeResource, requestArgs, spec, firstPagePromise) => {
+  const apiMode = getAPIMode(spec.fullPath || spec.path);
+  if (apiMode !== "v2" && spec.methodType === "search") {
+    return makeAutoPaginationMethodsFromIterator(new V1SearchIterator(firstPagePromise, requestArgs, spec, stripeResource));
+  }
+  if (apiMode !== "v2" && spec.methodType === "list") {
+    return makeAutoPaginationMethodsFromIterator(new V1ListIterator(firstPagePromise, requestArgs, spec, stripeResource));
+  }
+  if (apiMode === "v2" && spec.methodType === "list") {
+    return makeAutoPaginationMethodsFromIterator(new V2ListIterator(firstPagePromise, requestArgs, spec, stripeResource));
+  }
+  return null;
+}, "makeAutoPaginationMethods");
+var makeAutoPaginationMethodsFromIterator = /* @__PURE__ */ __name((iterator) => {
+  const autoPagingEach = makeAutoPagingEach((...args) => iterator.next(...args));
+  const autoPagingToArray = makeAutoPagingToArray(autoPagingEach);
+  const autoPaginationMethods = {
+    autoPagingEach,
+    autoPagingToArray,
+    // Async iterator functions:
+    next: /* @__PURE__ */ __name(() => iterator.next(), "next"),
+    return: /* @__PURE__ */ __name(() => {
+      return {};
+    }, "return"),
+    [getAsyncIteratorSymbol()]: () => {
+      return autoPaginationMethods;
+    }
+  };
+  return autoPaginationMethods;
+}, "makeAutoPaginationMethodsFromIterator");
+function getAsyncIteratorSymbol() {
+  if (typeof Symbol !== "undefined" && Symbol.asyncIterator) {
+    return Symbol.asyncIterator;
+  }
+  return "@@asyncIterator";
+}
+__name(getAsyncIteratorSymbol, "getAsyncIteratorSymbol");
+function getDoneCallback(args) {
+  if (args.length < 2) {
+    return null;
+  }
+  const onDone = args[1];
+  if (typeof onDone !== "function") {
+    throw Error(`The second argument to autoPagingEach, if present, must be a callback function; received ${typeof onDone}`);
+  }
+  return onDone;
+}
+__name(getDoneCallback, "getDoneCallback");
+function getItemCallback(args) {
+  if (args.length === 0) {
+    return void 0;
+  }
+  const onItem = args[0];
+  if (typeof onItem !== "function") {
+    throw Error(`The first argument to autoPagingEach, if present, must be a callback function; received ${typeof onItem}`);
+  }
+  if (onItem.length === 2) {
+    return onItem;
+  }
+  if (onItem.length > 2) {
+    throw Error(`The \`onItem\` callback function passed to autoPagingEach must accept at most two arguments; got ${onItem}`);
+  }
+  return /* @__PURE__ */ __name(function _onItem(item, next) {
+    const shouldContinue = onItem(item);
+    next(shouldContinue);
+  }, "_onItem");
+}
+__name(getItemCallback, "getItemCallback");
+function getLastId(listResult, reverseIteration) {
+  const lastIdx = reverseIteration ? 0 : listResult.data.length - 1;
+  const lastItem = listResult.data[lastIdx];
+  const lastId = lastItem && lastItem.id;
+  if (!lastId) {
+    throw Error("Unexpected: No `id` found on the last item while auto-paging a list.");
+  }
+  return lastId;
+}
+__name(getLastId, "getLastId");
+function makeAutoPagingEach(asyncIteratorNext) {
+  return /* @__PURE__ */ __name(function autoPagingEach() {
+    const args = [].slice.call(arguments);
+    const onItem = getItemCallback(args);
+    const onDone = getDoneCallback(args);
+    if (args.length > 2) {
+      throw Error(`autoPagingEach takes up to two arguments; received ${args}`);
+    }
+    const autoPagePromise = wrapAsyncIteratorWithCallback(
+      asyncIteratorNext,
+      // @ts-ignore we might need a null check
+      onItem
+    );
+    return callbackifyPromiseWithTimeout(autoPagePromise, onDone);
+  }, "autoPagingEach");
+}
+__name(makeAutoPagingEach, "makeAutoPagingEach");
+function makeAutoPagingToArray(autoPagingEach) {
+  return /* @__PURE__ */ __name(function autoPagingToArray(opts, onDone) {
+    const limit = opts && opts.limit;
+    if (!limit) {
+      throw Error("You must pass a `limit` option to autoPagingToArray, e.g., `autoPagingToArray({limit: 1000});`.");
+    }
+    if (limit > 1e4) {
+      throw Error("You cannot specify a limit of more than 10,000 items to fetch in `autoPagingToArray`; use `autoPagingEach` to iterate through longer lists.");
+    }
+    const promise = new Promise((resolve, reject) => {
+      const items = [];
+      autoPagingEach((item) => {
+        items.push(item);
+        if (items.length >= limit) {
+          return false;
+        }
+      }).then(() => {
+        resolve(items);
+      }).catch(reject);
+    });
+    return callbackifyPromiseWithTimeout(promise, onDone);
+  }, "autoPagingToArray");
+}
+__name(makeAutoPagingToArray, "makeAutoPagingToArray");
+function wrapAsyncIteratorWithCallback(asyncIteratorNext, onItem) {
+  return new Promise((resolve, reject) => {
+    function handleIteration(iterResult) {
+      if (iterResult.done) {
+        resolve();
+        return;
+      }
+      const item = iterResult.value;
+      return new Promise((next) => {
+        onItem(item, next);
+      }).then((shouldContinue) => {
+        if (shouldContinue === false) {
+          return handleIteration({ done: true, value: void 0 });
+        } else {
+          return asyncIteratorNext().then(handleIteration);
+        }
+      });
+    }
+    __name(handleIteration, "handleIteration");
+    asyncIteratorNext().then(handleIteration).catch(reject);
+  });
+}
+__name(wrapAsyncIteratorWithCallback, "wrapAsyncIteratorWithCallback");
+function isReverseIteration(requestArgs) {
+  const args = [].slice.call(requestArgs);
+  const dataFromArgs = getDataFromArgs(args);
+  return !!dataFromArgs.ending_before;
+}
+__name(isReverseIteration, "isReverseIteration");
+
+// node_modules/stripe/esm/StripeMethod.js
+function stripeMethod(spec) {
+  if (spec.path !== void 0 && spec.fullPath !== void 0) {
+    throw new Error(`Method spec specified both a 'path' (${spec.path}) and a 'fullPath' (${spec.fullPath}).`);
+  }
+  return function(...args) {
+    const callback = typeof args[args.length - 1] == "function" && args.pop();
+    spec.urlParams = extractUrlParams(spec.fullPath || this.createResourcePathWithSymbols(spec.path || ""));
+    const requestPromise = callbackifyPromiseWithTimeout(this._makeRequest(args, spec, {}), callback);
+    Object.assign(requestPromise, makeAutoPaginationMethods(this, args, spec, requestPromise));
+    return requestPromise;
+  };
+}
+__name(stripeMethod, "stripeMethod");
+
+// node_modules/stripe/esm/StripeResource.js
+StripeResource.extend = protoExtend;
+StripeResource.method = stripeMethod;
+StripeResource.MAX_BUFFERED_REQUEST_METRICS = 100;
+function StripeResource(stripe, deprecatedUrlData) {
+  this._stripe = stripe;
+  if (deprecatedUrlData) {
+    throw new Error("Support for curried url params was dropped in stripe-node v7.0.0. Instead, pass two ids.");
+  }
+  this.basePath = makeURLInterpolator(
+    // @ts-ignore changing type of basePath
+    this.basePath || stripe.getApiField("basePath")
+  );
+  this.resourcePath = this.path;
+  this.path = makeURLInterpolator(this.path);
+  this.initialize(...arguments);
+}
+__name(StripeResource, "StripeResource");
+StripeResource.prototype = {
+  _stripe: null,
+  // @ts-ignore the type of path changes in ctor
+  path: "",
+  resourcePath: "",
+  // Methods that don't use the API's default '/v1' path can override it with this setting.
+  basePath: null,
+  initialize() {
+  },
+  // Function to override the default data processor. This allows full control
+  // over how a StripeResource's request data will get converted into an HTTP
+  // body. This is useful for non-standard HTTP requests. The function should
+  // take method name, data, and headers as arguments.
+  requestDataProcessor: null,
+  // Function to add a validation checks before sending the request, errors should
+  // be thrown, and they will be passed to the callback/promise.
+  validateRequest: null,
+  createFullPath(commandPath, urlData) {
+    const urlParts = [this.basePath(urlData), this.path(urlData)];
+    if (typeof commandPath === "function") {
+      const computedCommandPath = commandPath(urlData);
+      if (computedCommandPath) {
+        urlParts.push(computedCommandPath);
+      }
+    } else {
+      urlParts.push(commandPath);
+    }
+    return this._joinUrlParts(urlParts);
+  },
+  // Creates a relative resource path with symbols left in (unlike
+  // createFullPath which takes some data to replace them with). For example it
+  // might produce: /invoices/{id}
+  createResourcePathWithSymbols(pathWithSymbols) {
+    if (pathWithSymbols) {
+      return `/${this._joinUrlParts([this.resourcePath, pathWithSymbols])}`;
+    } else {
+      return `/${this.resourcePath}`;
+    }
+  },
+  _joinUrlParts(parts) {
+    return parts.join("/").replace(/\/{2,}/g, "/");
+  },
+  _getRequestOpts(requestArgs, spec, overrideData) {
+    var _a;
+    const requestMethod = (spec.method || "GET").toUpperCase();
+    const usage = spec.usage || [];
+    const urlParams = spec.urlParams || [];
+    const encode = spec.encode || ((data2) => data2);
+    const isUsingFullPath = !!spec.fullPath;
+    const commandPath = makeURLInterpolator(isUsingFullPath ? spec.fullPath : spec.path || "");
+    const path = isUsingFullPath ? spec.fullPath : this.createResourcePathWithSymbols(spec.path);
+    const args = [].slice.call(requestArgs);
+    const urlData = urlParams.reduce((urlData2, param) => {
+      const arg = args.shift();
+      if (typeof arg !== "string") {
+        throw new Error(`Stripe: Argument "${param}" must be a string, but got: ${arg} (on API request to \`${requestMethod} ${path}\`)`);
+      }
+      urlData2[param] = arg;
+      return urlData2;
+    }, {});
+    const dataFromArgs = getDataFromArgs(args);
+    const data = encode(Object.assign({}, dataFromArgs, overrideData));
+    const options = getOptionsFromArgs(args);
+    const host = options.host || spec.host;
+    const streaming = !!spec.streaming || !!options.streaming;
+    if (args.filter((x) => x != null).length) {
+      throw new Error(`Stripe: Unknown arguments (${args}). Did you mean to pass an options object? See https://github.com/stripe/stripe-node/wiki/Passing-Options. (on API request to ${requestMethod} \`${path}\`)`);
+    }
+    const requestPath = isUsingFullPath ? commandPath(urlData) : this.createFullPath(commandPath, urlData);
+    const headers = Object.assign(options.headers, spec.headers);
+    if (spec.validator) {
+      spec.validator(data, { headers });
+    }
+    const dataInQuery = spec.method === "GET" || spec.method === "DELETE";
+    const bodyData = dataInQuery ? null : data;
+    const queryData = dataInQuery ? data : {};
+    return {
+      requestMethod,
+      requestPath,
+      bodyData,
+      queryData,
+      authenticator: (_a = options.authenticator) !== null && _a !== void 0 ? _a : null,
+      headers,
+      host: host !== null && host !== void 0 ? host : null,
+      streaming,
+      settings: options.settings,
+      usage
+    };
+  },
+  _makeRequest(requestArgs, spec, overrideData) {
+    return new Promise((resolve, reject) => {
+      var _a;
+      let opts;
+      try {
+        opts = this._getRequestOpts(requestArgs, spec, overrideData);
+      } catch (err) {
+        reject(err);
+        return;
+      }
+      function requestCallback(err, response) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(spec.transformResponseData ? spec.transformResponseData(response) : response);
+        }
+      }
+      __name(requestCallback, "requestCallback");
+      const emptyQuery = Object.keys(opts.queryData).length === 0;
+      const path = [
+        opts.requestPath,
+        emptyQuery ? "" : "?",
+        queryStringifyRequestData(opts.queryData, getAPIMode(opts.requestPath))
+      ].join("");
+      const { headers, settings } = opts;
+      this._stripe._requestSender._request(opts.requestMethod, opts.host, path, opts.bodyData, opts.authenticator, {
+        headers,
+        settings,
+        streaming: opts.streaming
+      }, opts.usage, requestCallback, (_a = this.requestDataProcessor) === null || _a === void 0 ? void 0 : _a.bind(this));
+    });
+  }
+};
+
+// node_modules/stripe/esm/Webhooks.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+function createWebhooks(platformFunctions) {
+  const Webhook = {
+    DEFAULT_TOLERANCE: 300,
+    signature: null,
+    constructEvent(payload, header, secret, tolerance, cryptoProvider, receivedAt) {
+      try {
+        if (!this.signature) {
+          throw new Error("ERR: missing signature helper, unable to verify");
+        }
+        this.signature.verifyHeader(payload, header, secret, tolerance || Webhook.DEFAULT_TOLERANCE, cryptoProvider, receivedAt);
+      } catch (e) {
+        if (e instanceof CryptoProviderOnlySupportsAsyncError) {
+          e.message += "\nUse `await constructEventAsync(...)` instead of `constructEvent(...)`";
+        }
+        throw e;
+      }
+      const jsonPayload = payload instanceof Uint8Array ? JSON.parse(new TextDecoder("utf8").decode(payload)) : JSON.parse(payload);
+      return jsonPayload;
+    },
+    async constructEventAsync(payload, header, secret, tolerance, cryptoProvider, receivedAt) {
+      if (!this.signature) {
+        throw new Error("ERR: missing signature helper, unable to verify");
+      }
+      await this.signature.verifyHeaderAsync(payload, header, secret, tolerance || Webhook.DEFAULT_TOLERANCE, cryptoProvider, receivedAt);
+      const jsonPayload = payload instanceof Uint8Array ? JSON.parse(new TextDecoder("utf8").decode(payload)) : JSON.parse(payload);
+      return jsonPayload;
+    },
+    /**
+     * Generates a header to be used for webhook mocking
+     *
+     * @typedef {object} opts
+     * @property {number} timestamp - Timestamp of the header. Defaults to Date.now()
+     * @property {string} payload - JSON stringified payload object, containing the 'id' and 'object' parameters
+     * @property {string} secret - Stripe webhook secret 'whsec_...'
+     * @property {string} scheme - Version of API to hit. Defaults to 'v1'.
+     * @property {string} signature - Computed webhook signature
+     * @property {CryptoProvider} cryptoProvider - Crypto provider to use for computing the signature if none was provided. Defaults to NodeCryptoProvider.
+     */
+    generateTestHeaderString: /* @__PURE__ */ __name(function(opts) {
+      const preparedOpts = prepareOptions(opts);
+      const signature2 = preparedOpts.signature || preparedOpts.cryptoProvider.computeHMACSignature(preparedOpts.payloadString, preparedOpts.secret);
+      return preparedOpts.generateHeaderString(signature2);
+    }, "generateTestHeaderString"),
+    generateTestHeaderStringAsync: /* @__PURE__ */ __name(async function(opts) {
+      const preparedOpts = prepareOptions(opts);
+      const signature2 = preparedOpts.signature || await preparedOpts.cryptoProvider.computeHMACSignatureAsync(preparedOpts.payloadString, preparedOpts.secret);
+      return preparedOpts.generateHeaderString(signature2);
+    }, "generateTestHeaderStringAsync")
+  };
+  const signature = {
+    EXPECTED_SCHEME: "v1",
+    verifyHeader(encodedPayload, encodedHeader, secret, tolerance, cryptoProvider, receivedAt) {
+      const { decodedHeader: header, decodedPayload: payload, details, suspectPayloadType } = parseEventDetails(encodedPayload, encodedHeader, this.EXPECTED_SCHEME);
+      const secretContainsWhitespace = /\s/.test(secret);
+      cryptoProvider = cryptoProvider || getCryptoProvider();
+      const expectedSignature = cryptoProvider.computeHMACSignature(makeHMACContent(payload, details), secret);
+      validateComputedSignature(payload, header, details, expectedSignature, tolerance, suspectPayloadType, secretContainsWhitespace, receivedAt);
+      return true;
+    },
+    async verifyHeaderAsync(encodedPayload, encodedHeader, secret, tolerance, cryptoProvider, receivedAt) {
+      const { decodedHeader: header, decodedPayload: payload, details, suspectPayloadType } = parseEventDetails(encodedPayload, encodedHeader, this.EXPECTED_SCHEME);
+      const secretContainsWhitespace = /\s/.test(secret);
+      cryptoProvider = cryptoProvider || getCryptoProvider();
+      const expectedSignature = await cryptoProvider.computeHMACSignatureAsync(makeHMACContent(payload, details), secret);
+      return validateComputedSignature(payload, header, details, expectedSignature, tolerance, suspectPayloadType, secretContainsWhitespace, receivedAt);
+    }
+  };
+  function makeHMACContent(payload, details) {
+    return `${details.timestamp}.${payload}`;
+  }
+  __name(makeHMACContent, "makeHMACContent");
+  function parseEventDetails(encodedPayload, encodedHeader, expectedScheme) {
+    if (!encodedPayload) {
+      throw new StripeSignatureVerificationError(encodedHeader, encodedPayload, {
+        message: "No webhook payload was provided."
+      });
+    }
+    const suspectPayloadType = typeof encodedPayload != "string" && !(encodedPayload instanceof Uint8Array);
+    const textDecoder = new TextDecoder("utf8");
+    const decodedPayload = encodedPayload instanceof Uint8Array ? textDecoder.decode(encodedPayload) : encodedPayload;
+    if (Array.isArray(encodedHeader)) {
+      throw new Error("Unexpected: An array was passed as a header, which should not be possible for the stripe-signature header.");
+    }
+    if (encodedHeader == null || encodedHeader == "") {
+      throw new StripeSignatureVerificationError(encodedHeader, encodedPayload, {
+        message: "No stripe-signature header value was provided."
+      });
+    }
+    const decodedHeader = encodedHeader instanceof Uint8Array ? textDecoder.decode(encodedHeader) : encodedHeader;
+    const details = parseHeader(decodedHeader, expectedScheme);
+    if (!details || details.timestamp === -1) {
+      throw new StripeSignatureVerificationError(decodedHeader, decodedPayload, {
+        message: "Unable to extract timestamp and signatures from header"
+      });
+    }
+    if (!details.signatures.length) {
+      throw new StripeSignatureVerificationError(decodedHeader, decodedPayload, {
+        message: "No signatures found with expected scheme"
+      });
+    }
+    return {
+      decodedPayload,
+      decodedHeader,
+      details,
+      suspectPayloadType
+    };
+  }
+  __name(parseEventDetails, "parseEventDetails");
+  function validateComputedSignature(payload, header, details, expectedSignature, tolerance, suspectPayloadType, secretContainsWhitespace, receivedAt) {
+    const signatureFound = !!details.signatures.filter(platformFunctions.secureCompare.bind(platformFunctions, expectedSignature)).length;
+    const docsLocation = "\nLearn more about webhook signing and explore webhook integration examples for various frameworks at https://docs.stripe.com/webhooks/signature";
+    const whitespaceMessage = secretContainsWhitespace ? "\n\nNote: The provided signing secret contains whitespace. This often indicates an extra newline or space is in the value" : "";
+    if (!signatureFound) {
+      if (suspectPayloadType) {
+        throw new StripeSignatureVerificationError(header, payload, {
+          message: "Webhook payload must be provided as a string or a Buffer (https://nodejs.org/api/buffer.html) instance representing the _raw_ request body.Payload was provided as a parsed JavaScript object instead. \nSignature verification is impossible without access to the original signed material. \n" + docsLocation + "\n" + whitespaceMessage
+        });
+      }
+      throw new StripeSignatureVerificationError(header, payload, {
+        message: "No signatures found matching the expected signature for payload. Are you passing the raw request body you received from Stripe? \n If a webhook request is being forwarded by a third-party tool, ensure that the exact request body, including JSON formatting and new line style, is preserved.\n" + docsLocation + "\n" + whitespaceMessage
+      });
+    }
+    const timestampAge = Math.floor((typeof receivedAt === "number" ? receivedAt : Date.now()) / 1e3) - details.timestamp;
+    if (tolerance > 0 && timestampAge > tolerance) {
+      throw new StripeSignatureVerificationError(header, payload, {
+        message: "Timestamp outside the tolerance zone"
+      });
+    }
+    return true;
+  }
+  __name(validateComputedSignature, "validateComputedSignature");
+  function parseHeader(header, scheme) {
+    if (typeof header !== "string") {
+      return null;
+    }
+    return header.split(",").reduce((accum, item) => {
+      const kv = item.split("=");
+      if (kv[0] === "t") {
+        accum.timestamp = parseInt(kv[1], 10);
+      }
+      if (kv[0] === scheme) {
+        accum.signatures.push(kv[1]);
+      }
+      return accum;
+    }, {
+      timestamp: -1,
+      signatures: []
+    });
+  }
+  __name(parseHeader, "parseHeader");
+  let webhooksCryptoProviderInstance = null;
+  function getCryptoProvider() {
+    if (!webhooksCryptoProviderInstance) {
+      webhooksCryptoProviderInstance = platformFunctions.createDefaultCryptoProvider();
+    }
+    return webhooksCryptoProviderInstance;
+  }
+  __name(getCryptoProvider, "getCryptoProvider");
+  function prepareOptions(opts) {
+    if (!opts) {
+      throw new StripeError({
+        message: "Options are required"
+      });
+    }
+    const timestamp = Math.floor(opts.timestamp) || Math.floor(Date.now() / 1e3);
+    const scheme = opts.scheme || signature.EXPECTED_SCHEME;
+    const cryptoProvider = opts.cryptoProvider || getCryptoProvider();
+    const payloadString = `${timestamp}.${opts.payload}`;
+    const generateHeaderString = /* @__PURE__ */ __name((signature2) => {
+      return `t=${timestamp},${scheme}=${signature2}`;
+    }, "generateHeaderString");
+    return Object.assign(Object.assign({}, opts), {
+      timestamp,
+      scheme,
+      cryptoProvider,
+      payloadString,
+      generateHeaderString
+    });
+  }
+  __name(prepareOptions, "prepareOptions");
+  Webhook.signature = signature;
+  return Webhook;
+}
+__name(createWebhooks, "createWebhooks");
+
+// node_modules/stripe/esm/apiVersion.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var ApiVersion = "2025-08-27.basil";
+
+// node_modules/stripe/esm/resources.js
+var resources_exports = {};
+__export(resources_exports, {
+  Account: () => Accounts2,
+  AccountLinks: () => AccountLinks,
+  AccountSessions: () => AccountSessions,
+  Accounts: () => Accounts2,
+  ApplePayDomains: () => ApplePayDomains,
+  ApplicationFees: () => ApplicationFees,
+  Apps: () => Apps,
+  Balance: () => Balance,
+  BalanceTransactions: () => BalanceTransactions,
+  Billing: () => Billing,
+  BillingPortal: () => BillingPortal,
+  Charges: () => Charges,
+  Checkout: () => Checkout,
+  Climate: () => Climate,
+  ConfirmationTokens: () => ConfirmationTokens2,
+  CountrySpecs: () => CountrySpecs,
+  Coupons: () => Coupons,
+  CreditNotes: () => CreditNotes,
+  CustomerSessions: () => CustomerSessions,
+  Customers: () => Customers2,
+  Disputes: () => Disputes2,
+  Entitlements: () => Entitlements,
+  EphemeralKeys: () => EphemeralKeys,
+  Events: () => Events2,
+  ExchangeRates: () => ExchangeRates,
+  FileLinks: () => FileLinks,
+  Files: () => Files,
+  FinancialConnections: () => FinancialConnections,
+  Forwarding: () => Forwarding,
+  Identity: () => Identity,
+  InvoiceItems: () => InvoiceItems,
+  InvoicePayments: () => InvoicePayments,
+  InvoiceRenderingTemplates: () => InvoiceRenderingTemplates,
+  Invoices: () => Invoices,
+  Issuing: () => Issuing,
+  Mandates: () => Mandates,
+  OAuth: () => OAuth,
+  PaymentIntents: () => PaymentIntents,
+  PaymentLinks: () => PaymentLinks,
+  PaymentMethodConfigurations: () => PaymentMethodConfigurations,
+  PaymentMethodDomains: () => PaymentMethodDomains,
+  PaymentMethods: () => PaymentMethods,
+  Payouts: () => Payouts,
+  Plans: () => Plans,
+  Prices: () => Prices,
+  Products: () => Products2,
+  PromotionCodes: () => PromotionCodes,
+  Quotes: () => Quotes,
+  Radar: () => Radar,
+  Refunds: () => Refunds2,
+  Reporting: () => Reporting,
+  Reviews: () => Reviews,
+  SetupAttempts: () => SetupAttempts,
+  SetupIntents: () => SetupIntents,
+  ShippingRates: () => ShippingRates,
+  Sigma: () => Sigma,
+  Sources: () => Sources,
+  SubscriptionItems: () => SubscriptionItems,
+  SubscriptionSchedules: () => SubscriptionSchedules,
+  Subscriptions: () => Subscriptions,
+  Tax: () => Tax,
+  TaxCodes: () => TaxCodes,
+  TaxIds: () => TaxIds,
+  TaxRates: () => TaxRates,
+  Terminal: () => Terminal,
+  TestHelpers: () => TestHelpers,
+  Tokens: () => Tokens2,
+  Topups: () => Topups,
+  Transfers: () => Transfers,
+  Treasury: () => Treasury,
+  V2: () => V2,
+  WebhookEndpoints: () => WebhookEndpoints
+});
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/stripe/esm/ResourceNamespace.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+function ResourceNamespace(stripe, resources) {
+  for (const name in resources) {
+    if (!Object.prototype.hasOwnProperty.call(resources, name)) {
+      continue;
+    }
+    const camelCaseName = name[0].toLowerCase() + name.substring(1);
+    const resource = new resources[name](stripe);
+    this[camelCaseName] = resource;
+  }
+}
+__name(ResourceNamespace, "ResourceNamespace");
+function resourceNamespace(namespace, resources) {
+  return function(stripe) {
+    return new ResourceNamespace(stripe, resources);
+  };
+}
+__name(resourceNamespace, "resourceNamespace");
+
+// node_modules/stripe/esm/resources/FinancialConnections/Accounts.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod2 = StripeResource.method;
+var Accounts = StripeResource.extend({
+  retrieve: stripeMethod2({
+    method: "GET",
+    fullPath: "/v1/financial_connections/accounts/{account}"
+  }),
+  list: stripeMethod2({
+    method: "GET",
+    fullPath: "/v1/financial_connections/accounts",
+    methodType: "list"
+  }),
+  disconnect: stripeMethod2({
+    method: "POST",
+    fullPath: "/v1/financial_connections/accounts/{account}/disconnect"
+  }),
+  listOwners: stripeMethod2({
+    method: "GET",
+    fullPath: "/v1/financial_connections/accounts/{account}/owners",
+    methodType: "list"
+  }),
+  refresh: stripeMethod2({
+    method: "POST",
+    fullPath: "/v1/financial_connections/accounts/{account}/refresh"
+  }),
+  subscribe: stripeMethod2({
+    method: "POST",
+    fullPath: "/v1/financial_connections/accounts/{account}/subscribe"
+  }),
+  unsubscribe: stripeMethod2({
+    method: "POST",
+    fullPath: "/v1/financial_connections/accounts/{account}/unsubscribe"
+  })
+});
+
+// node_modules/stripe/esm/resources/Entitlements/ActiveEntitlements.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod3 = StripeResource.method;
+var ActiveEntitlements = StripeResource.extend({
+  retrieve: stripeMethod3({
+    method: "GET",
+    fullPath: "/v1/entitlements/active_entitlements/{id}"
+  }),
+  list: stripeMethod3({
+    method: "GET",
+    fullPath: "/v1/entitlements/active_entitlements",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Billing/Alerts.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod4 = StripeResource.method;
+var Alerts = StripeResource.extend({
+  create: stripeMethod4({ method: "POST", fullPath: "/v1/billing/alerts" }),
+  retrieve: stripeMethod4({ method: "GET", fullPath: "/v1/billing/alerts/{id}" }),
+  list: stripeMethod4({
+    method: "GET",
+    fullPath: "/v1/billing/alerts",
+    methodType: "list"
+  }),
+  activate: stripeMethod4({
+    method: "POST",
+    fullPath: "/v1/billing/alerts/{id}/activate"
+  }),
+  archive: stripeMethod4({
+    method: "POST",
+    fullPath: "/v1/billing/alerts/{id}/archive"
+  }),
+  deactivate: stripeMethod4({
+    method: "POST",
+    fullPath: "/v1/billing/alerts/{id}/deactivate"
+  })
+});
+
+// node_modules/stripe/esm/resources/Issuing/Authorizations.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod5 = StripeResource.method;
+var Authorizations = StripeResource.extend({
+  retrieve: stripeMethod5({
+    method: "GET",
+    fullPath: "/v1/issuing/authorizations/{authorization}"
+  }),
+  update: stripeMethod5({
+    method: "POST",
+    fullPath: "/v1/issuing/authorizations/{authorization}"
+  }),
+  list: stripeMethod5({
+    method: "GET",
+    fullPath: "/v1/issuing/authorizations",
+    methodType: "list"
+  }),
+  approve: stripeMethod5({
+    method: "POST",
+    fullPath: "/v1/issuing/authorizations/{authorization}/approve"
+  }),
+  decline: stripeMethod5({
+    method: "POST",
+    fullPath: "/v1/issuing/authorizations/{authorization}/decline"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Issuing/Authorizations.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod6 = StripeResource.method;
+var Authorizations2 = StripeResource.extend({
+  create: stripeMethod6({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/authorizations"
+  }),
+  capture: stripeMethod6({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/authorizations/{authorization}/capture"
+  }),
+  expire: stripeMethod6({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/authorizations/{authorization}/expire"
+  }),
+  finalizeAmount: stripeMethod6({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/authorizations/{authorization}/finalize_amount"
+  }),
+  increment: stripeMethod6({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/authorizations/{authorization}/increment"
+  }),
+  respond: stripeMethod6({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/authorizations/{authorization}/fraud_challenges/respond"
+  }),
+  reverse: stripeMethod6({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/authorizations/{authorization}/reverse"
+  })
+});
+
+// node_modules/stripe/esm/resources/Tax/Calculations.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod7 = StripeResource.method;
+var Calculations = StripeResource.extend({
+  create: stripeMethod7({ method: "POST", fullPath: "/v1/tax/calculations" }),
+  retrieve: stripeMethod7({
+    method: "GET",
+    fullPath: "/v1/tax/calculations/{calculation}"
+  }),
+  listLineItems: stripeMethod7({
+    method: "GET",
+    fullPath: "/v1/tax/calculations/{calculation}/line_items",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Issuing/Cardholders.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod8 = StripeResource.method;
+var Cardholders = StripeResource.extend({
+  create: stripeMethod8({ method: "POST", fullPath: "/v1/issuing/cardholders" }),
+  retrieve: stripeMethod8({
+    method: "GET",
+    fullPath: "/v1/issuing/cardholders/{cardholder}"
+  }),
+  update: stripeMethod8({
+    method: "POST",
+    fullPath: "/v1/issuing/cardholders/{cardholder}"
+  }),
+  list: stripeMethod8({
+    method: "GET",
+    fullPath: "/v1/issuing/cardholders",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Issuing/Cards.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod9 = StripeResource.method;
+var Cards = StripeResource.extend({
+  create: stripeMethod9({ method: "POST", fullPath: "/v1/issuing/cards" }),
+  retrieve: stripeMethod9({ method: "GET", fullPath: "/v1/issuing/cards/{card}" }),
+  update: stripeMethod9({ method: "POST", fullPath: "/v1/issuing/cards/{card}" }),
+  list: stripeMethod9({
+    method: "GET",
+    fullPath: "/v1/issuing/cards",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Issuing/Cards.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod10 = StripeResource.method;
+var Cards2 = StripeResource.extend({
+  deliverCard: stripeMethod10({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/cards/{card}/shipping/deliver"
+  }),
+  failCard: stripeMethod10({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/cards/{card}/shipping/fail"
+  }),
+  returnCard: stripeMethod10({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/cards/{card}/shipping/return"
+  }),
+  shipCard: stripeMethod10({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/cards/{card}/shipping/ship"
+  }),
+  submitCard: stripeMethod10({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/cards/{card}/shipping/submit"
+  })
+});
+
+// node_modules/stripe/esm/resources/BillingPortal/Configurations.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod11 = StripeResource.method;
+var Configurations = StripeResource.extend({
+  create: stripeMethod11({
+    method: "POST",
+    fullPath: "/v1/billing_portal/configurations"
+  }),
+  retrieve: stripeMethod11({
+    method: "GET",
+    fullPath: "/v1/billing_portal/configurations/{configuration}"
+  }),
+  update: stripeMethod11({
+    method: "POST",
+    fullPath: "/v1/billing_portal/configurations/{configuration}"
+  }),
+  list: stripeMethod11({
+    method: "GET",
+    fullPath: "/v1/billing_portal/configurations",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Terminal/Configurations.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod12 = StripeResource.method;
+var Configurations2 = StripeResource.extend({
+  create: stripeMethod12({
+    method: "POST",
+    fullPath: "/v1/terminal/configurations"
+  }),
+  retrieve: stripeMethod12({
+    method: "GET",
+    fullPath: "/v1/terminal/configurations/{configuration}"
+  }),
+  update: stripeMethod12({
+    method: "POST",
+    fullPath: "/v1/terminal/configurations/{configuration}"
+  }),
+  list: stripeMethod12({
+    method: "GET",
+    fullPath: "/v1/terminal/configurations",
+    methodType: "list"
+  }),
+  del: stripeMethod12({
+    method: "DELETE",
+    fullPath: "/v1/terminal/configurations/{configuration}"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/ConfirmationTokens.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod13 = StripeResource.method;
+var ConfirmationTokens = StripeResource.extend({
+  create: stripeMethod13({
+    method: "POST",
+    fullPath: "/v1/test_helpers/confirmation_tokens"
+  })
+});
+
+// node_modules/stripe/esm/resources/Terminal/ConnectionTokens.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod14 = StripeResource.method;
+var ConnectionTokens = StripeResource.extend({
+  create: stripeMethod14({
+    method: "POST",
+    fullPath: "/v1/terminal/connection_tokens"
+  })
+});
+
+// node_modules/stripe/esm/resources/Billing/CreditBalanceSummary.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod15 = StripeResource.method;
+var CreditBalanceSummary = StripeResource.extend({
+  retrieve: stripeMethod15({
+    method: "GET",
+    fullPath: "/v1/billing/credit_balance_summary"
+  })
+});
+
+// node_modules/stripe/esm/resources/Billing/CreditBalanceTransactions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod16 = StripeResource.method;
+var CreditBalanceTransactions = StripeResource.extend({
+  retrieve: stripeMethod16({
+    method: "GET",
+    fullPath: "/v1/billing/credit_balance_transactions/{id}"
+  }),
+  list: stripeMethod16({
+    method: "GET",
+    fullPath: "/v1/billing/credit_balance_transactions",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Billing/CreditGrants.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod17 = StripeResource.method;
+var CreditGrants = StripeResource.extend({
+  create: stripeMethod17({ method: "POST", fullPath: "/v1/billing/credit_grants" }),
+  retrieve: stripeMethod17({
+    method: "GET",
+    fullPath: "/v1/billing/credit_grants/{id}"
+  }),
+  update: stripeMethod17({
+    method: "POST",
+    fullPath: "/v1/billing/credit_grants/{id}"
+  }),
+  list: stripeMethod17({
+    method: "GET",
+    fullPath: "/v1/billing/credit_grants",
+    methodType: "list"
+  }),
+  expire: stripeMethod17({
+    method: "POST",
+    fullPath: "/v1/billing/credit_grants/{id}/expire"
+  }),
+  voidGrant: stripeMethod17({
+    method: "POST",
+    fullPath: "/v1/billing/credit_grants/{id}/void"
+  })
+});
+
+// node_modules/stripe/esm/resources/Treasury/CreditReversals.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod18 = StripeResource.method;
+var CreditReversals = StripeResource.extend({
+  create: stripeMethod18({
+    method: "POST",
+    fullPath: "/v1/treasury/credit_reversals"
+  }),
+  retrieve: stripeMethod18({
+    method: "GET",
+    fullPath: "/v1/treasury/credit_reversals/{credit_reversal}"
+  }),
+  list: stripeMethod18({
+    method: "GET",
+    fullPath: "/v1/treasury/credit_reversals",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Customers.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod19 = StripeResource.method;
+var Customers = StripeResource.extend({
+  fundCashBalance: stripeMethod19({
+    method: "POST",
+    fullPath: "/v1/test_helpers/customers/{customer}/fund_cash_balance"
+  })
+});
+
+// node_modules/stripe/esm/resources/Treasury/DebitReversals.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod20 = StripeResource.method;
+var DebitReversals = StripeResource.extend({
+  create: stripeMethod20({
+    method: "POST",
+    fullPath: "/v1/treasury/debit_reversals"
+  }),
+  retrieve: stripeMethod20({
+    method: "GET",
+    fullPath: "/v1/treasury/debit_reversals/{debit_reversal}"
+  }),
+  list: stripeMethod20({
+    method: "GET",
+    fullPath: "/v1/treasury/debit_reversals",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Issuing/Disputes.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod21 = StripeResource.method;
+var Disputes = StripeResource.extend({
+  create: stripeMethod21({ method: "POST", fullPath: "/v1/issuing/disputes" }),
+  retrieve: stripeMethod21({
+    method: "GET",
+    fullPath: "/v1/issuing/disputes/{dispute}"
+  }),
+  update: stripeMethod21({
+    method: "POST",
+    fullPath: "/v1/issuing/disputes/{dispute}"
+  }),
+  list: stripeMethod21({
+    method: "GET",
+    fullPath: "/v1/issuing/disputes",
+    methodType: "list"
+  }),
+  submit: stripeMethod21({
+    method: "POST",
+    fullPath: "/v1/issuing/disputes/{dispute}/submit"
+  })
+});
+
+// node_modules/stripe/esm/resources/Radar/EarlyFraudWarnings.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod22 = StripeResource.method;
+var EarlyFraudWarnings = StripeResource.extend({
+  retrieve: stripeMethod22({
+    method: "GET",
+    fullPath: "/v1/radar/early_fraud_warnings/{early_fraud_warning}"
+  }),
+  list: stripeMethod22({
+    method: "GET",
+    fullPath: "/v1/radar/early_fraud_warnings",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/V2/Core/EventDestinations.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod23 = StripeResource.method;
+var EventDestinations = StripeResource.extend({
+  create: stripeMethod23({
+    method: "POST",
+    fullPath: "/v2/core/event_destinations"
+  }),
+  retrieve: stripeMethod23({
+    method: "GET",
+    fullPath: "/v2/core/event_destinations/{id}"
+  }),
+  update: stripeMethod23({
+    method: "POST",
+    fullPath: "/v2/core/event_destinations/{id}"
+  }),
+  list: stripeMethod23({
+    method: "GET",
+    fullPath: "/v2/core/event_destinations",
+    methodType: "list"
+  }),
+  del: stripeMethod23({
+    method: "DELETE",
+    fullPath: "/v2/core/event_destinations/{id}"
+  }),
+  disable: stripeMethod23({
+    method: "POST",
+    fullPath: "/v2/core/event_destinations/{id}/disable"
+  }),
+  enable: stripeMethod23({
+    method: "POST",
+    fullPath: "/v2/core/event_destinations/{id}/enable"
+  }),
+  ping: stripeMethod23({
+    method: "POST",
+    fullPath: "/v2/core/event_destinations/{id}/ping"
+  })
+});
+
+// node_modules/stripe/esm/resources/V2/Core/Events.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod24 = StripeResource.method;
+var Events = StripeResource.extend({
+  retrieve(...args) {
+    const transformResponseData = /* @__PURE__ */ __name((response) => {
+      return this.addFetchRelatedObjectIfNeeded(response);
+    }, "transformResponseData");
+    return stripeMethod24({
+      method: "GET",
+      fullPath: "/v2/core/events/{id}",
+      transformResponseData
+    }).apply(this, args);
+  },
+  list(...args) {
+    const transformResponseData = /* @__PURE__ */ __name((response) => {
+      return Object.assign(Object.assign({}, response), { data: response.data.map(this.addFetchRelatedObjectIfNeeded.bind(this)) });
+    }, "transformResponseData");
+    return stripeMethod24({
+      method: "GET",
+      fullPath: "/v2/core/events",
+      methodType: "list",
+      transformResponseData
+    }).apply(this, args);
+  },
+  /**
+   * @private
+   *
+   * For internal use in stripe-node.
+   *
+   * @param pulledEvent The retrieved event object
+   * @returns The retrieved event object with a fetchRelatedObject method,
+   * if pulledEvent.related_object is valid (non-null and has a url)
+   */
+  addFetchRelatedObjectIfNeeded(pulledEvent) {
+    if (!pulledEvent.related_object || !pulledEvent.related_object.url) {
+      return pulledEvent;
+    }
+    return Object.assign(Object.assign({}, pulledEvent), { fetchRelatedObject: /* @__PURE__ */ __name(() => (
+      // call stripeMethod with 'this' resource to fetch
+      // the related object. 'this' is needed to construct
+      // and send the request, but the method spec controls
+      // the url endpoint and method, so it doesn't matter
+      // that 'this' is an Events resource object here
+      stripeMethod24({
+        method: "GET",
+        fullPath: pulledEvent.related_object.url
+      }).apply(this, [
+        {
+          stripeAccount: pulledEvent.context
+        }
+      ])
+    ), "fetchRelatedObject") });
+  }
+});
+
+// node_modules/stripe/esm/resources/Entitlements/Features.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod25 = StripeResource.method;
+var Features = StripeResource.extend({
+  create: stripeMethod25({ method: "POST", fullPath: "/v1/entitlements/features" }),
+  retrieve: stripeMethod25({
+    method: "GET",
+    fullPath: "/v1/entitlements/features/{id}"
+  }),
+  update: stripeMethod25({
+    method: "POST",
+    fullPath: "/v1/entitlements/features/{id}"
+  }),
+  list: stripeMethod25({
+    method: "GET",
+    fullPath: "/v1/entitlements/features",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Treasury/FinancialAccounts.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod26 = StripeResource.method;
+var FinancialAccounts = StripeResource.extend({
+  create: stripeMethod26({
+    method: "POST",
+    fullPath: "/v1/treasury/financial_accounts"
+  }),
+  retrieve: stripeMethod26({
+    method: "GET",
+    fullPath: "/v1/treasury/financial_accounts/{financial_account}"
+  }),
+  update: stripeMethod26({
+    method: "POST",
+    fullPath: "/v1/treasury/financial_accounts/{financial_account}"
+  }),
+  list: stripeMethod26({
+    method: "GET",
+    fullPath: "/v1/treasury/financial_accounts",
+    methodType: "list"
+  }),
+  close: stripeMethod26({
+    method: "POST",
+    fullPath: "/v1/treasury/financial_accounts/{financial_account}/close"
+  }),
+  retrieveFeatures: stripeMethod26({
+    method: "GET",
+    fullPath: "/v1/treasury/financial_accounts/{financial_account}/features"
+  }),
+  updateFeatures: stripeMethod26({
+    method: "POST",
+    fullPath: "/v1/treasury/financial_accounts/{financial_account}/features"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Treasury/InboundTransfers.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod27 = StripeResource.method;
+var InboundTransfers = StripeResource.extend({
+  fail: stripeMethod27({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/inbound_transfers/{id}/fail"
+  }),
+  returnInboundTransfer: stripeMethod27({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/inbound_transfers/{id}/return"
+  }),
+  succeed: stripeMethod27({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/inbound_transfers/{id}/succeed"
+  })
+});
+
+// node_modules/stripe/esm/resources/Treasury/InboundTransfers.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod28 = StripeResource.method;
+var InboundTransfers2 = StripeResource.extend({
+  create: stripeMethod28({
+    method: "POST",
+    fullPath: "/v1/treasury/inbound_transfers"
+  }),
+  retrieve: stripeMethod28({
+    method: "GET",
+    fullPath: "/v1/treasury/inbound_transfers/{id}"
+  }),
+  list: stripeMethod28({
+    method: "GET",
+    fullPath: "/v1/treasury/inbound_transfers",
+    methodType: "list"
+  }),
+  cancel: stripeMethod28({
+    method: "POST",
+    fullPath: "/v1/treasury/inbound_transfers/{inbound_transfer}/cancel"
+  })
+});
+
+// node_modules/stripe/esm/resources/Terminal/Locations.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod29 = StripeResource.method;
+var Locations = StripeResource.extend({
+  create: stripeMethod29({ method: "POST", fullPath: "/v1/terminal/locations" }),
+  retrieve: stripeMethod29({
+    method: "GET",
+    fullPath: "/v1/terminal/locations/{location}"
+  }),
+  update: stripeMethod29({
+    method: "POST",
+    fullPath: "/v1/terminal/locations/{location}"
+  }),
+  list: stripeMethod29({
+    method: "GET",
+    fullPath: "/v1/terminal/locations",
+    methodType: "list"
+  }),
+  del: stripeMethod29({
+    method: "DELETE",
+    fullPath: "/v1/terminal/locations/{location}"
+  })
+});
+
+// node_modules/stripe/esm/resources/Billing/MeterEventAdjustments.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod30 = StripeResource.method;
+var MeterEventAdjustments = StripeResource.extend({
+  create: stripeMethod30({
+    method: "POST",
+    fullPath: "/v1/billing/meter_event_adjustments"
+  })
+});
+
+// node_modules/stripe/esm/resources/V2/Billing/MeterEventAdjustments.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod31 = StripeResource.method;
+var MeterEventAdjustments2 = StripeResource.extend({
+  create: stripeMethod31({
+    method: "POST",
+    fullPath: "/v2/billing/meter_event_adjustments"
+  })
+});
+
+// node_modules/stripe/esm/resources/V2/Billing/MeterEventSession.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod32 = StripeResource.method;
+var MeterEventSession = StripeResource.extend({
+  create: stripeMethod32({
+    method: "POST",
+    fullPath: "/v2/billing/meter_event_session"
+  })
+});
+
+// node_modules/stripe/esm/resources/V2/Billing/MeterEventStream.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod33 = StripeResource.method;
+var MeterEventStream = StripeResource.extend({
+  create: stripeMethod33({
+    method: "POST",
+    fullPath: "/v2/billing/meter_event_stream",
+    host: "meter-events.stripe.com"
+  })
+});
+
+// node_modules/stripe/esm/resources/Billing/MeterEvents.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod34 = StripeResource.method;
+var MeterEvents = StripeResource.extend({
+  create: stripeMethod34({ method: "POST", fullPath: "/v1/billing/meter_events" })
+});
+
+// node_modules/stripe/esm/resources/V2/Billing/MeterEvents.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod35 = StripeResource.method;
+var MeterEvents2 = StripeResource.extend({
+  create: stripeMethod35({ method: "POST", fullPath: "/v2/billing/meter_events" })
+});
+
+// node_modules/stripe/esm/resources/Billing/Meters.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod36 = StripeResource.method;
+var Meters = StripeResource.extend({
+  create: stripeMethod36({ method: "POST", fullPath: "/v1/billing/meters" }),
+  retrieve: stripeMethod36({ method: "GET", fullPath: "/v1/billing/meters/{id}" }),
+  update: stripeMethod36({ method: "POST", fullPath: "/v1/billing/meters/{id}" }),
+  list: stripeMethod36({
+    method: "GET",
+    fullPath: "/v1/billing/meters",
+    methodType: "list"
+  }),
+  deactivate: stripeMethod36({
+    method: "POST",
+    fullPath: "/v1/billing/meters/{id}/deactivate"
+  }),
+  listEventSummaries: stripeMethod36({
+    method: "GET",
+    fullPath: "/v1/billing/meters/{id}/event_summaries",
+    methodType: "list"
+  }),
+  reactivate: stripeMethod36({
+    method: "POST",
+    fullPath: "/v1/billing/meters/{id}/reactivate"
+  })
+});
+
+// node_modules/stripe/esm/resources/Climate/Orders.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod37 = StripeResource.method;
+var Orders = StripeResource.extend({
+  create: stripeMethod37({ method: "POST", fullPath: "/v1/climate/orders" }),
+  retrieve: stripeMethod37({
+    method: "GET",
+    fullPath: "/v1/climate/orders/{order}"
+  }),
+  update: stripeMethod37({
+    method: "POST",
+    fullPath: "/v1/climate/orders/{order}"
+  }),
+  list: stripeMethod37({
+    method: "GET",
+    fullPath: "/v1/climate/orders",
+    methodType: "list"
+  }),
+  cancel: stripeMethod37({
+    method: "POST",
+    fullPath: "/v1/climate/orders/{order}/cancel"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Treasury/OutboundPayments.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod38 = StripeResource.method;
+var OutboundPayments = StripeResource.extend({
+  update: stripeMethod38({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/outbound_payments/{id}"
+  }),
+  fail: stripeMethod38({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/outbound_payments/{id}/fail"
+  }),
+  post: stripeMethod38({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/outbound_payments/{id}/post"
+  }),
+  returnOutboundPayment: stripeMethod38({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/outbound_payments/{id}/return"
+  })
+});
+
+// node_modules/stripe/esm/resources/Treasury/OutboundPayments.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod39 = StripeResource.method;
+var OutboundPayments2 = StripeResource.extend({
+  create: stripeMethod39({
+    method: "POST",
+    fullPath: "/v1/treasury/outbound_payments"
+  }),
+  retrieve: stripeMethod39({
+    method: "GET",
+    fullPath: "/v1/treasury/outbound_payments/{id}"
+  }),
+  list: stripeMethod39({
+    method: "GET",
+    fullPath: "/v1/treasury/outbound_payments",
+    methodType: "list"
+  }),
+  cancel: stripeMethod39({
+    method: "POST",
+    fullPath: "/v1/treasury/outbound_payments/{id}/cancel"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Treasury/OutboundTransfers.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod40 = StripeResource.method;
+var OutboundTransfers = StripeResource.extend({
+  update: stripeMethod40({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/outbound_transfers/{outbound_transfer}"
+  }),
+  fail: stripeMethod40({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/outbound_transfers/{outbound_transfer}/fail"
+  }),
+  post: stripeMethod40({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/outbound_transfers/{outbound_transfer}/post"
+  }),
+  returnOutboundTransfer: stripeMethod40({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/outbound_transfers/{outbound_transfer}/return"
+  })
+});
+
+// node_modules/stripe/esm/resources/Treasury/OutboundTransfers.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod41 = StripeResource.method;
+var OutboundTransfers2 = StripeResource.extend({
+  create: stripeMethod41({
+    method: "POST",
+    fullPath: "/v1/treasury/outbound_transfers"
+  }),
+  retrieve: stripeMethod41({
+    method: "GET",
+    fullPath: "/v1/treasury/outbound_transfers/{outbound_transfer}"
+  }),
+  list: stripeMethod41({
+    method: "GET",
+    fullPath: "/v1/treasury/outbound_transfers",
+    methodType: "list"
+  }),
+  cancel: stripeMethod41({
+    method: "POST",
+    fullPath: "/v1/treasury/outbound_transfers/{outbound_transfer}/cancel"
+  })
+});
+
+// node_modules/stripe/esm/resources/Issuing/PersonalizationDesigns.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod42 = StripeResource.method;
+var PersonalizationDesigns = StripeResource.extend({
+  create: stripeMethod42({
+    method: "POST",
+    fullPath: "/v1/issuing/personalization_designs"
+  }),
+  retrieve: stripeMethod42({
+    method: "GET",
+    fullPath: "/v1/issuing/personalization_designs/{personalization_design}"
+  }),
+  update: stripeMethod42({
+    method: "POST",
+    fullPath: "/v1/issuing/personalization_designs/{personalization_design}"
+  }),
+  list: stripeMethod42({
+    method: "GET",
+    fullPath: "/v1/issuing/personalization_designs",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Issuing/PersonalizationDesigns.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod43 = StripeResource.method;
+var PersonalizationDesigns2 = StripeResource.extend({
+  activate: stripeMethod43({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/personalization_designs/{personalization_design}/activate"
+  }),
+  deactivate: stripeMethod43({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/personalization_designs/{personalization_design}/deactivate"
+  }),
+  reject: stripeMethod43({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/personalization_designs/{personalization_design}/reject"
+  })
+});
+
+// node_modules/stripe/esm/resources/Issuing/PhysicalBundles.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod44 = StripeResource.method;
+var PhysicalBundles = StripeResource.extend({
+  retrieve: stripeMethod44({
+    method: "GET",
+    fullPath: "/v1/issuing/physical_bundles/{physical_bundle}"
+  }),
+  list: stripeMethod44({
+    method: "GET",
+    fullPath: "/v1/issuing/physical_bundles",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Climate/Products.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod45 = StripeResource.method;
+var Products = StripeResource.extend({
+  retrieve: stripeMethod45({
+    method: "GET",
+    fullPath: "/v1/climate/products/{product}"
+  }),
+  list: stripeMethod45({
+    method: "GET",
+    fullPath: "/v1/climate/products",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Terminal/Readers.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod46 = StripeResource.method;
+var Readers = StripeResource.extend({
+  create: stripeMethod46({ method: "POST", fullPath: "/v1/terminal/readers" }),
+  retrieve: stripeMethod46({
+    method: "GET",
+    fullPath: "/v1/terminal/readers/{reader}"
+  }),
+  update: stripeMethod46({
+    method: "POST",
+    fullPath: "/v1/terminal/readers/{reader}"
+  }),
+  list: stripeMethod46({
+    method: "GET",
+    fullPath: "/v1/terminal/readers",
+    methodType: "list"
+  }),
+  del: stripeMethod46({
+    method: "DELETE",
+    fullPath: "/v1/terminal/readers/{reader}"
+  }),
+  cancelAction: stripeMethod46({
+    method: "POST",
+    fullPath: "/v1/terminal/readers/{reader}/cancel_action"
+  }),
+  collectInputs: stripeMethod46({
+    method: "POST",
+    fullPath: "/v1/terminal/readers/{reader}/collect_inputs"
+  }),
+  collectPaymentMethod: stripeMethod46({
+    method: "POST",
+    fullPath: "/v1/terminal/readers/{reader}/collect_payment_method"
+  }),
+  confirmPaymentIntent: stripeMethod46({
+    method: "POST",
+    fullPath: "/v1/terminal/readers/{reader}/confirm_payment_intent"
+  }),
+  processPaymentIntent: stripeMethod46({
+    method: "POST",
+    fullPath: "/v1/terminal/readers/{reader}/process_payment_intent"
+  }),
+  processSetupIntent: stripeMethod46({
+    method: "POST",
+    fullPath: "/v1/terminal/readers/{reader}/process_setup_intent"
+  }),
+  refundPayment: stripeMethod46({
+    method: "POST",
+    fullPath: "/v1/terminal/readers/{reader}/refund_payment"
+  }),
+  setReaderDisplay: stripeMethod46({
+    method: "POST",
+    fullPath: "/v1/terminal/readers/{reader}/set_reader_display"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Terminal/Readers.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod47 = StripeResource.method;
+var Readers2 = StripeResource.extend({
+  presentPaymentMethod: stripeMethod47({
+    method: "POST",
+    fullPath: "/v1/test_helpers/terminal/readers/{reader}/present_payment_method"
+  }),
+  succeedInputCollection: stripeMethod47({
+    method: "POST",
+    fullPath: "/v1/test_helpers/terminal/readers/{reader}/succeed_input_collection"
+  }),
+  timeoutInputCollection: stripeMethod47({
+    method: "POST",
+    fullPath: "/v1/test_helpers/terminal/readers/{reader}/timeout_input_collection"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Treasury/ReceivedCredits.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod48 = StripeResource.method;
+var ReceivedCredits = StripeResource.extend({
+  create: stripeMethod48({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/received_credits"
+  })
+});
+
+// node_modules/stripe/esm/resources/Treasury/ReceivedCredits.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod49 = StripeResource.method;
+var ReceivedCredits2 = StripeResource.extend({
+  retrieve: stripeMethod49({
+    method: "GET",
+    fullPath: "/v1/treasury/received_credits/{id}"
+  }),
+  list: stripeMethod49({
+    method: "GET",
+    fullPath: "/v1/treasury/received_credits",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Treasury/ReceivedDebits.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod50 = StripeResource.method;
+var ReceivedDebits = StripeResource.extend({
+  create: stripeMethod50({
+    method: "POST",
+    fullPath: "/v1/test_helpers/treasury/received_debits"
+  })
+});
+
+// node_modules/stripe/esm/resources/Treasury/ReceivedDebits.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod51 = StripeResource.method;
+var ReceivedDebits2 = StripeResource.extend({
+  retrieve: stripeMethod51({
+    method: "GET",
+    fullPath: "/v1/treasury/received_debits/{id}"
+  }),
+  list: stripeMethod51({
+    method: "GET",
+    fullPath: "/v1/treasury/received_debits",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Refunds.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod52 = StripeResource.method;
+var Refunds = StripeResource.extend({
+  expire: stripeMethod52({
+    method: "POST",
+    fullPath: "/v1/test_helpers/refunds/{refund}/expire"
+  })
+});
+
+// node_modules/stripe/esm/resources/Tax/Registrations.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod53 = StripeResource.method;
+var Registrations = StripeResource.extend({
+  create: stripeMethod53({ method: "POST", fullPath: "/v1/tax/registrations" }),
+  retrieve: stripeMethod53({
+    method: "GET",
+    fullPath: "/v1/tax/registrations/{id}"
+  }),
+  update: stripeMethod53({
+    method: "POST",
+    fullPath: "/v1/tax/registrations/{id}"
+  }),
+  list: stripeMethod53({
+    method: "GET",
+    fullPath: "/v1/tax/registrations",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Reporting/ReportRuns.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod54 = StripeResource.method;
+var ReportRuns = StripeResource.extend({
+  create: stripeMethod54({ method: "POST", fullPath: "/v1/reporting/report_runs" }),
+  retrieve: stripeMethod54({
+    method: "GET",
+    fullPath: "/v1/reporting/report_runs/{report_run}"
+  }),
+  list: stripeMethod54({
+    method: "GET",
+    fullPath: "/v1/reporting/report_runs",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Reporting/ReportTypes.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod55 = StripeResource.method;
+var ReportTypes = StripeResource.extend({
+  retrieve: stripeMethod55({
+    method: "GET",
+    fullPath: "/v1/reporting/report_types/{report_type}"
+  }),
+  list: stripeMethod55({
+    method: "GET",
+    fullPath: "/v1/reporting/report_types",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Forwarding/Requests.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod56 = StripeResource.method;
+var Requests = StripeResource.extend({
+  create: stripeMethod56({ method: "POST", fullPath: "/v1/forwarding/requests" }),
+  retrieve: stripeMethod56({
+    method: "GET",
+    fullPath: "/v1/forwarding/requests/{id}"
+  }),
+  list: stripeMethod56({
+    method: "GET",
+    fullPath: "/v1/forwarding/requests",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Sigma/ScheduledQueryRuns.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod57 = StripeResource.method;
+var ScheduledQueryRuns = StripeResource.extend({
+  retrieve: stripeMethod57({
+    method: "GET",
+    fullPath: "/v1/sigma/scheduled_query_runs/{scheduled_query_run}"
+  }),
+  list: stripeMethod57({
+    method: "GET",
+    fullPath: "/v1/sigma/scheduled_query_runs",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Apps/Secrets.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod58 = StripeResource.method;
+var Secrets = StripeResource.extend({
+  create: stripeMethod58({ method: "POST", fullPath: "/v1/apps/secrets" }),
+  list: stripeMethod58({
+    method: "GET",
+    fullPath: "/v1/apps/secrets",
+    methodType: "list"
+  }),
+  deleteWhere: stripeMethod58({
+    method: "POST",
+    fullPath: "/v1/apps/secrets/delete"
+  }),
+  find: stripeMethod58({ method: "GET", fullPath: "/v1/apps/secrets/find" })
+});
+
+// node_modules/stripe/esm/resources/BillingPortal/Sessions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod59 = StripeResource.method;
+var Sessions = StripeResource.extend({
+  create: stripeMethod59({
+    method: "POST",
+    fullPath: "/v1/billing_portal/sessions"
+  })
+});
+
+// node_modules/stripe/esm/resources/Checkout/Sessions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod60 = StripeResource.method;
+var Sessions2 = StripeResource.extend({
+  create: stripeMethod60({ method: "POST", fullPath: "/v1/checkout/sessions" }),
+  retrieve: stripeMethod60({
+    method: "GET",
+    fullPath: "/v1/checkout/sessions/{session}"
+  }),
+  update: stripeMethod60({
+    method: "POST",
+    fullPath: "/v1/checkout/sessions/{session}"
+  }),
+  list: stripeMethod60({
+    method: "GET",
+    fullPath: "/v1/checkout/sessions",
+    methodType: "list"
+  }),
+  expire: stripeMethod60({
+    method: "POST",
+    fullPath: "/v1/checkout/sessions/{session}/expire"
+  }),
+  listLineItems: stripeMethod60({
+    method: "GET",
+    fullPath: "/v1/checkout/sessions/{session}/line_items",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/FinancialConnections/Sessions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod61 = StripeResource.method;
+var Sessions3 = StripeResource.extend({
+  create: stripeMethod61({
+    method: "POST",
+    fullPath: "/v1/financial_connections/sessions"
+  }),
+  retrieve: stripeMethod61({
+    method: "GET",
+    fullPath: "/v1/financial_connections/sessions/{session}"
+  })
+});
+
+// node_modules/stripe/esm/resources/Tax/Settings.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod62 = StripeResource.method;
+var Settings = StripeResource.extend({
+  retrieve: stripeMethod62({ method: "GET", fullPath: "/v1/tax/settings" }),
+  update: stripeMethod62({ method: "POST", fullPath: "/v1/tax/settings" })
+});
+
+// node_modules/stripe/esm/resources/Climate/Suppliers.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod63 = StripeResource.method;
+var Suppliers = StripeResource.extend({
+  retrieve: stripeMethod63({
+    method: "GET",
+    fullPath: "/v1/climate/suppliers/{supplier}"
+  }),
+  list: stripeMethod63({
+    method: "GET",
+    fullPath: "/v1/climate/suppliers",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/TestClocks.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod64 = StripeResource.method;
+var TestClocks = StripeResource.extend({
+  create: stripeMethod64({
+    method: "POST",
+    fullPath: "/v1/test_helpers/test_clocks"
+  }),
+  retrieve: stripeMethod64({
+    method: "GET",
+    fullPath: "/v1/test_helpers/test_clocks/{test_clock}"
+  }),
+  list: stripeMethod64({
+    method: "GET",
+    fullPath: "/v1/test_helpers/test_clocks",
+    methodType: "list"
+  }),
+  del: stripeMethod64({
+    method: "DELETE",
+    fullPath: "/v1/test_helpers/test_clocks/{test_clock}"
+  }),
+  advance: stripeMethod64({
+    method: "POST",
+    fullPath: "/v1/test_helpers/test_clocks/{test_clock}/advance"
+  })
+});
+
+// node_modules/stripe/esm/resources/Issuing/Tokens.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod65 = StripeResource.method;
+var Tokens = StripeResource.extend({
+  retrieve: stripeMethod65({
+    method: "GET",
+    fullPath: "/v1/issuing/tokens/{token}"
+  }),
+  update: stripeMethod65({
+    method: "POST",
+    fullPath: "/v1/issuing/tokens/{token}"
+  }),
+  list: stripeMethod65({
+    method: "GET",
+    fullPath: "/v1/issuing/tokens",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Treasury/TransactionEntries.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod66 = StripeResource.method;
+var TransactionEntries = StripeResource.extend({
+  retrieve: stripeMethod66({
+    method: "GET",
+    fullPath: "/v1/treasury/transaction_entries/{id}"
+  }),
+  list: stripeMethod66({
+    method: "GET",
+    fullPath: "/v1/treasury/transaction_entries",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/FinancialConnections/Transactions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod67 = StripeResource.method;
+var Transactions = StripeResource.extend({
+  retrieve: stripeMethod67({
+    method: "GET",
+    fullPath: "/v1/financial_connections/transactions/{transaction}"
+  }),
+  list: stripeMethod67({
+    method: "GET",
+    fullPath: "/v1/financial_connections/transactions",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Issuing/Transactions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod68 = StripeResource.method;
+var Transactions2 = StripeResource.extend({
+  retrieve: stripeMethod68({
+    method: "GET",
+    fullPath: "/v1/issuing/transactions/{transaction}"
+  }),
+  update: stripeMethod68({
+    method: "POST",
+    fullPath: "/v1/issuing/transactions/{transaction}"
+  }),
+  list: stripeMethod68({
+    method: "GET",
+    fullPath: "/v1/issuing/transactions",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Tax/Transactions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod69 = StripeResource.method;
+var Transactions3 = StripeResource.extend({
+  retrieve: stripeMethod69({
+    method: "GET",
+    fullPath: "/v1/tax/transactions/{transaction}"
+  }),
+  createFromCalculation: stripeMethod69({
+    method: "POST",
+    fullPath: "/v1/tax/transactions/create_from_calculation"
+  }),
+  createReversal: stripeMethod69({
+    method: "POST",
+    fullPath: "/v1/tax/transactions/create_reversal"
+  }),
+  listLineItems: stripeMethod69({
+    method: "GET",
+    fullPath: "/v1/tax/transactions/{transaction}/line_items",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/TestHelpers/Issuing/Transactions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod70 = StripeResource.method;
+var Transactions4 = StripeResource.extend({
+  createForceCapture: stripeMethod70({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/transactions/create_force_capture"
+  }),
+  createUnlinkedRefund: stripeMethod70({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/transactions/create_unlinked_refund"
+  }),
+  refund: stripeMethod70({
+    method: "POST",
+    fullPath: "/v1/test_helpers/issuing/transactions/{transaction}/refund"
+  })
+});
+
+// node_modules/stripe/esm/resources/Treasury/Transactions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod71 = StripeResource.method;
+var Transactions5 = StripeResource.extend({
+  retrieve: stripeMethod71({
+    method: "GET",
+    fullPath: "/v1/treasury/transactions/{id}"
+  }),
+  list: stripeMethod71({
+    method: "GET",
+    fullPath: "/v1/treasury/transactions",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Radar/ValueListItems.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod72 = StripeResource.method;
+var ValueListItems = StripeResource.extend({
+  create: stripeMethod72({
+    method: "POST",
+    fullPath: "/v1/radar/value_list_items"
+  }),
+  retrieve: stripeMethod72({
+    method: "GET",
+    fullPath: "/v1/radar/value_list_items/{item}"
+  }),
+  list: stripeMethod72({
+    method: "GET",
+    fullPath: "/v1/radar/value_list_items",
+    methodType: "list"
+  }),
+  del: stripeMethod72({
+    method: "DELETE",
+    fullPath: "/v1/radar/value_list_items/{item}"
+  })
+});
+
+// node_modules/stripe/esm/resources/Radar/ValueLists.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod73 = StripeResource.method;
+var ValueLists = StripeResource.extend({
+  create: stripeMethod73({ method: "POST", fullPath: "/v1/radar/value_lists" }),
+  retrieve: stripeMethod73({
+    method: "GET",
+    fullPath: "/v1/radar/value_lists/{value_list}"
+  }),
+  update: stripeMethod73({
+    method: "POST",
+    fullPath: "/v1/radar/value_lists/{value_list}"
+  }),
+  list: stripeMethod73({
+    method: "GET",
+    fullPath: "/v1/radar/value_lists",
+    methodType: "list"
+  }),
+  del: stripeMethod73({
+    method: "DELETE",
+    fullPath: "/v1/radar/value_lists/{value_list}"
+  })
+});
+
+// node_modules/stripe/esm/resources/Identity/VerificationReports.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod74 = StripeResource.method;
+var VerificationReports = StripeResource.extend({
+  retrieve: stripeMethod74({
+    method: "GET",
+    fullPath: "/v1/identity/verification_reports/{report}"
+  }),
+  list: stripeMethod74({
+    method: "GET",
+    fullPath: "/v1/identity/verification_reports",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Identity/VerificationSessions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod75 = StripeResource.method;
+var VerificationSessions = StripeResource.extend({
+  create: stripeMethod75({
+    method: "POST",
+    fullPath: "/v1/identity/verification_sessions"
+  }),
+  retrieve: stripeMethod75({
+    method: "GET",
+    fullPath: "/v1/identity/verification_sessions/{session}"
+  }),
+  update: stripeMethod75({
+    method: "POST",
+    fullPath: "/v1/identity/verification_sessions/{session}"
+  }),
+  list: stripeMethod75({
+    method: "GET",
+    fullPath: "/v1/identity/verification_sessions",
+    methodType: "list"
+  }),
+  cancel: stripeMethod75({
+    method: "POST",
+    fullPath: "/v1/identity/verification_sessions/{session}/cancel"
+  }),
+  redact: stripeMethod75({
+    method: "POST",
+    fullPath: "/v1/identity/verification_sessions/{session}/redact"
+  })
+});
+
+// node_modules/stripe/esm/resources/Accounts.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod76 = StripeResource.method;
+var Accounts2 = StripeResource.extend({
+  create: stripeMethod76({ method: "POST", fullPath: "/v1/accounts" }),
+  retrieve(id, ...args) {
+    if (typeof id === "string") {
+      return stripeMethod76({
+        method: "GET",
+        fullPath: "/v1/accounts/{id}"
+      }).apply(this, [id, ...args]);
+    } else {
+      if (id === null || id === void 0) {
+        [].shift.apply([id, ...args]);
+      }
+      return stripeMethod76({
+        method: "GET",
+        fullPath: "/v1/account"
+      }).apply(this, [id, ...args]);
+    }
+  },
+  update: stripeMethod76({ method: "POST", fullPath: "/v1/accounts/{account}" }),
+  list: stripeMethod76({
+    method: "GET",
+    fullPath: "/v1/accounts",
+    methodType: "list"
+  }),
+  del: stripeMethod76({ method: "DELETE", fullPath: "/v1/accounts/{account}" }),
+  createExternalAccount: stripeMethod76({
+    method: "POST",
+    fullPath: "/v1/accounts/{account}/external_accounts"
+  }),
+  createLoginLink: stripeMethod76({
+    method: "POST",
+    fullPath: "/v1/accounts/{account}/login_links"
+  }),
+  createPerson: stripeMethod76({
+    method: "POST",
+    fullPath: "/v1/accounts/{account}/persons"
+  }),
+  deleteExternalAccount: stripeMethod76({
+    method: "DELETE",
+    fullPath: "/v1/accounts/{account}/external_accounts/{id}"
+  }),
+  deletePerson: stripeMethod76({
+    method: "DELETE",
+    fullPath: "/v1/accounts/{account}/persons/{person}"
+  }),
+  listCapabilities: stripeMethod76({
+    method: "GET",
+    fullPath: "/v1/accounts/{account}/capabilities",
+    methodType: "list"
+  }),
+  listExternalAccounts: stripeMethod76({
+    method: "GET",
+    fullPath: "/v1/accounts/{account}/external_accounts",
+    methodType: "list"
+  }),
+  listPersons: stripeMethod76({
+    method: "GET",
+    fullPath: "/v1/accounts/{account}/persons",
+    methodType: "list"
+  }),
+  reject: stripeMethod76({
+    method: "POST",
+    fullPath: "/v1/accounts/{account}/reject"
+  }),
+  retrieveCurrent: stripeMethod76({ method: "GET", fullPath: "/v1/account" }),
+  retrieveCapability: stripeMethod76({
+    method: "GET",
+    fullPath: "/v1/accounts/{account}/capabilities/{capability}"
+  }),
+  retrieveExternalAccount: stripeMethod76({
+    method: "GET",
+    fullPath: "/v1/accounts/{account}/external_accounts/{id}"
+  }),
+  retrievePerson: stripeMethod76({
+    method: "GET",
+    fullPath: "/v1/accounts/{account}/persons/{person}"
+  }),
+  updateCapability: stripeMethod76({
+    method: "POST",
+    fullPath: "/v1/accounts/{account}/capabilities/{capability}"
+  }),
+  updateExternalAccount: stripeMethod76({
+    method: "POST",
+    fullPath: "/v1/accounts/{account}/external_accounts/{id}"
+  }),
+  updatePerson: stripeMethod76({
+    method: "POST",
+    fullPath: "/v1/accounts/{account}/persons/{person}"
+  })
+});
+
+// node_modules/stripe/esm/resources/AccountLinks.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod77 = StripeResource.method;
+var AccountLinks = StripeResource.extend({
+  create: stripeMethod77({ method: "POST", fullPath: "/v1/account_links" })
+});
+
+// node_modules/stripe/esm/resources/AccountSessions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod78 = StripeResource.method;
+var AccountSessions = StripeResource.extend({
+  create: stripeMethod78({ method: "POST", fullPath: "/v1/account_sessions" })
+});
+
+// node_modules/stripe/esm/resources/ApplePayDomains.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod79 = StripeResource.method;
+var ApplePayDomains = StripeResource.extend({
+  create: stripeMethod79({ method: "POST", fullPath: "/v1/apple_pay/domains" }),
+  retrieve: stripeMethod79({
+    method: "GET",
+    fullPath: "/v1/apple_pay/domains/{domain}"
+  }),
+  list: stripeMethod79({
+    method: "GET",
+    fullPath: "/v1/apple_pay/domains",
+    methodType: "list"
+  }),
+  del: stripeMethod79({
+    method: "DELETE",
+    fullPath: "/v1/apple_pay/domains/{domain}"
+  })
+});
+
+// node_modules/stripe/esm/resources/ApplicationFees.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod80 = StripeResource.method;
+var ApplicationFees = StripeResource.extend({
+  retrieve: stripeMethod80({
+    method: "GET",
+    fullPath: "/v1/application_fees/{id}"
+  }),
+  list: stripeMethod80({
+    method: "GET",
+    fullPath: "/v1/application_fees",
+    methodType: "list"
+  }),
+  createRefund: stripeMethod80({
+    method: "POST",
+    fullPath: "/v1/application_fees/{id}/refunds"
+  }),
+  listRefunds: stripeMethod80({
+    method: "GET",
+    fullPath: "/v1/application_fees/{id}/refunds",
+    methodType: "list"
+  }),
+  retrieveRefund: stripeMethod80({
+    method: "GET",
+    fullPath: "/v1/application_fees/{fee}/refunds/{id}"
+  }),
+  updateRefund: stripeMethod80({
+    method: "POST",
+    fullPath: "/v1/application_fees/{fee}/refunds/{id}"
+  })
+});
+
+// node_modules/stripe/esm/resources/Balance.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod81 = StripeResource.method;
+var Balance = StripeResource.extend({
+  retrieve: stripeMethod81({ method: "GET", fullPath: "/v1/balance" })
+});
+
+// node_modules/stripe/esm/resources/BalanceTransactions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod82 = StripeResource.method;
+var BalanceTransactions = StripeResource.extend({
+  retrieve: stripeMethod82({
+    method: "GET",
+    fullPath: "/v1/balance_transactions/{id}"
+  }),
+  list: stripeMethod82({
+    method: "GET",
+    fullPath: "/v1/balance_transactions",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Charges.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod83 = StripeResource.method;
+var Charges = StripeResource.extend({
+  create: stripeMethod83({ method: "POST", fullPath: "/v1/charges" }),
+  retrieve: stripeMethod83({ method: "GET", fullPath: "/v1/charges/{charge}" }),
+  update: stripeMethod83({ method: "POST", fullPath: "/v1/charges/{charge}" }),
+  list: stripeMethod83({
+    method: "GET",
+    fullPath: "/v1/charges",
+    methodType: "list"
+  }),
+  capture: stripeMethod83({
+    method: "POST",
+    fullPath: "/v1/charges/{charge}/capture"
+  }),
+  search: stripeMethod83({
+    method: "GET",
+    fullPath: "/v1/charges/search",
+    methodType: "search"
+  })
+});
+
+// node_modules/stripe/esm/resources/ConfirmationTokens.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod84 = StripeResource.method;
+var ConfirmationTokens2 = StripeResource.extend({
+  retrieve: stripeMethod84({
+    method: "GET",
+    fullPath: "/v1/confirmation_tokens/{confirmation_token}"
+  })
+});
+
+// node_modules/stripe/esm/resources/CountrySpecs.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod85 = StripeResource.method;
+var CountrySpecs = StripeResource.extend({
+  retrieve: stripeMethod85({
+    method: "GET",
+    fullPath: "/v1/country_specs/{country}"
+  }),
+  list: stripeMethod85({
+    method: "GET",
+    fullPath: "/v1/country_specs",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Coupons.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod86 = StripeResource.method;
+var Coupons = StripeResource.extend({
+  create: stripeMethod86({ method: "POST", fullPath: "/v1/coupons" }),
+  retrieve: stripeMethod86({ method: "GET", fullPath: "/v1/coupons/{coupon}" }),
+  update: stripeMethod86({ method: "POST", fullPath: "/v1/coupons/{coupon}" }),
+  list: stripeMethod86({
+    method: "GET",
+    fullPath: "/v1/coupons",
+    methodType: "list"
+  }),
+  del: stripeMethod86({ method: "DELETE", fullPath: "/v1/coupons/{coupon}" })
+});
+
+// node_modules/stripe/esm/resources/CreditNotes.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod87 = StripeResource.method;
+var CreditNotes = StripeResource.extend({
+  create: stripeMethod87({ method: "POST", fullPath: "/v1/credit_notes" }),
+  retrieve: stripeMethod87({ method: "GET", fullPath: "/v1/credit_notes/{id}" }),
+  update: stripeMethod87({ method: "POST", fullPath: "/v1/credit_notes/{id}" }),
+  list: stripeMethod87({
+    method: "GET",
+    fullPath: "/v1/credit_notes",
+    methodType: "list"
+  }),
+  listLineItems: stripeMethod87({
+    method: "GET",
+    fullPath: "/v1/credit_notes/{credit_note}/lines",
+    methodType: "list"
+  }),
+  listPreviewLineItems: stripeMethod87({
+    method: "GET",
+    fullPath: "/v1/credit_notes/preview/lines",
+    methodType: "list"
+  }),
+  preview: stripeMethod87({ method: "GET", fullPath: "/v1/credit_notes/preview" }),
+  voidCreditNote: stripeMethod87({
+    method: "POST",
+    fullPath: "/v1/credit_notes/{id}/void"
+  })
+});
+
+// node_modules/stripe/esm/resources/CustomerSessions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod88 = StripeResource.method;
+var CustomerSessions = StripeResource.extend({
+  create: stripeMethod88({ method: "POST", fullPath: "/v1/customer_sessions" })
+});
+
+// node_modules/stripe/esm/resources/Customers.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod89 = StripeResource.method;
+var Customers2 = StripeResource.extend({
+  create: stripeMethod89({ method: "POST", fullPath: "/v1/customers" }),
+  retrieve: stripeMethod89({ method: "GET", fullPath: "/v1/customers/{customer}" }),
+  update: stripeMethod89({ method: "POST", fullPath: "/v1/customers/{customer}" }),
+  list: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers",
+    methodType: "list"
+  }),
+  del: stripeMethod89({ method: "DELETE", fullPath: "/v1/customers/{customer}" }),
+  createBalanceTransaction: stripeMethod89({
+    method: "POST",
+    fullPath: "/v1/customers/{customer}/balance_transactions"
+  }),
+  createFundingInstructions: stripeMethod89({
+    method: "POST",
+    fullPath: "/v1/customers/{customer}/funding_instructions"
+  }),
+  createSource: stripeMethod89({
+    method: "POST",
+    fullPath: "/v1/customers/{customer}/sources"
+  }),
+  createTaxId: stripeMethod89({
+    method: "POST",
+    fullPath: "/v1/customers/{customer}/tax_ids"
+  }),
+  deleteDiscount: stripeMethod89({
+    method: "DELETE",
+    fullPath: "/v1/customers/{customer}/discount"
+  }),
+  deleteSource: stripeMethod89({
+    method: "DELETE",
+    fullPath: "/v1/customers/{customer}/sources/{id}"
+  }),
+  deleteTaxId: stripeMethod89({
+    method: "DELETE",
+    fullPath: "/v1/customers/{customer}/tax_ids/{id}"
+  }),
+  listBalanceTransactions: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/{customer}/balance_transactions",
+    methodType: "list"
+  }),
+  listCashBalanceTransactions: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/{customer}/cash_balance_transactions",
+    methodType: "list"
+  }),
+  listPaymentMethods: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/{customer}/payment_methods",
+    methodType: "list"
+  }),
+  listSources: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/{customer}/sources",
+    methodType: "list"
+  }),
+  listTaxIds: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/{customer}/tax_ids",
+    methodType: "list"
+  }),
+  retrieveBalanceTransaction: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/{customer}/balance_transactions/{transaction}"
+  }),
+  retrieveCashBalance: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/{customer}/cash_balance"
+  }),
+  retrieveCashBalanceTransaction: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/{customer}/cash_balance_transactions/{transaction}"
+  }),
+  retrievePaymentMethod: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/{customer}/payment_methods/{payment_method}"
+  }),
+  retrieveSource: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/{customer}/sources/{id}"
+  }),
+  retrieveTaxId: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/{customer}/tax_ids/{id}"
+  }),
+  search: stripeMethod89({
+    method: "GET",
+    fullPath: "/v1/customers/search",
+    methodType: "search"
+  }),
+  updateBalanceTransaction: stripeMethod89({
+    method: "POST",
+    fullPath: "/v1/customers/{customer}/balance_transactions/{transaction}"
+  }),
+  updateCashBalance: stripeMethod89({
+    method: "POST",
+    fullPath: "/v1/customers/{customer}/cash_balance"
+  }),
+  updateSource: stripeMethod89({
+    method: "POST",
+    fullPath: "/v1/customers/{customer}/sources/{id}"
+  }),
+  verifySource: stripeMethod89({
+    method: "POST",
+    fullPath: "/v1/customers/{customer}/sources/{id}/verify"
+  })
+});
+
+// node_modules/stripe/esm/resources/Disputes.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod90 = StripeResource.method;
+var Disputes2 = StripeResource.extend({
+  retrieve: stripeMethod90({ method: "GET", fullPath: "/v1/disputes/{dispute}" }),
+  update: stripeMethod90({ method: "POST", fullPath: "/v1/disputes/{dispute}" }),
+  list: stripeMethod90({
+    method: "GET",
+    fullPath: "/v1/disputes",
+    methodType: "list"
+  }),
+  close: stripeMethod90({
+    method: "POST",
+    fullPath: "/v1/disputes/{dispute}/close"
+  })
+});
+
+// node_modules/stripe/esm/resources/EphemeralKeys.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod91 = StripeResource.method;
+var EphemeralKeys = StripeResource.extend({
+  create: stripeMethod91({
+    method: "POST",
+    fullPath: "/v1/ephemeral_keys",
+    validator: /* @__PURE__ */ __name((data, options) => {
+      if (!options.headers || !options.headers["Stripe-Version"]) {
+        throw new Error("Passing apiVersion in a separate options hash is required to create an ephemeral key. See https://stripe.com/docs/api/versioning?lang=node");
+      }
+    }, "validator")
+  }),
+  del: stripeMethod91({ method: "DELETE", fullPath: "/v1/ephemeral_keys/{key}" })
+});
+
+// node_modules/stripe/esm/resources/Events.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod92 = StripeResource.method;
+var Events2 = StripeResource.extend({
+  retrieve: stripeMethod92({ method: "GET", fullPath: "/v1/events/{id}" }),
+  list: stripeMethod92({
+    method: "GET",
+    fullPath: "/v1/events",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/ExchangeRates.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod93 = StripeResource.method;
+var ExchangeRates = StripeResource.extend({
+  retrieve: stripeMethod93({
+    method: "GET",
+    fullPath: "/v1/exchange_rates/{rate_id}"
+  }),
+  list: stripeMethod93({
+    method: "GET",
+    fullPath: "/v1/exchange_rates",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/FileLinks.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod94 = StripeResource.method;
+var FileLinks = StripeResource.extend({
+  create: stripeMethod94({ method: "POST", fullPath: "/v1/file_links" }),
+  retrieve: stripeMethod94({ method: "GET", fullPath: "/v1/file_links/{link}" }),
+  update: stripeMethod94({ method: "POST", fullPath: "/v1/file_links/{link}" }),
+  list: stripeMethod94({
+    method: "GET",
+    fullPath: "/v1/file_links",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Files.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// node_modules/stripe/esm/multipart.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var multipartDataGenerator = /* @__PURE__ */ __name((method, data, headers) => {
+  const segno = (Math.round(Math.random() * 1e16) + Math.round(Math.random() * 1e16)).toString();
+  headers["Content-Type"] = `multipart/form-data; boundary=${segno}`;
+  const textEncoder = new TextEncoder();
+  let buffer = new Uint8Array(0);
+  const endBuffer = textEncoder.encode("\r\n");
+  function push(l) {
+    const prevBuffer = buffer;
+    const newBuffer = l instanceof Uint8Array ? l : new Uint8Array(textEncoder.encode(l));
+    buffer = new Uint8Array(prevBuffer.length + newBuffer.length + 2);
+    buffer.set(prevBuffer);
+    buffer.set(newBuffer, prevBuffer.length);
+    buffer.set(endBuffer, buffer.length - 2);
+  }
+  __name(push, "push");
+  function q(s) {
+    return `"${s.replace(/"|"/g, "%22").replace(/\r\n|\r|\n/g, " ")}"`;
+  }
+  __name(q, "q");
+  const flattenedData = flattenAndStringify(data);
+  for (const k in flattenedData) {
+    if (!Object.prototype.hasOwnProperty.call(flattenedData, k)) {
+      continue;
+    }
+    const v = flattenedData[k];
+    push(`--${segno}`);
+    if (Object.prototype.hasOwnProperty.call(v, "data")) {
+      const typedEntry = v;
+      push(`Content-Disposition: form-data; name=${q(k)}; filename=${q(typedEntry.name || "blob")}`);
+      push(`Content-Type: ${typedEntry.type || "application/octet-stream"}`);
+      push("");
+      push(typedEntry.data);
+    } else {
+      push(`Content-Disposition: form-data; name=${q(k)}`);
+      push("");
+      push(v);
+    }
+  }
+  push(`--${segno}--`);
+  return buffer;
+}, "multipartDataGenerator");
+function multipartRequestDataProcessor(method, data, headers, callback) {
+  data = data || {};
+  if (method !== "POST") {
+    return callback(null, queryStringifyRequestData(data));
+  }
+  this._stripe._platformFunctions.tryBufferData(data).then((bufferedData) => {
+    const buffer = multipartDataGenerator(method, bufferedData, headers);
+    return callback(null, buffer);
+  }).catch((err) => callback(err, null));
+}
+__name(multipartRequestDataProcessor, "multipartRequestDataProcessor");
+
+// node_modules/stripe/esm/resources/Files.js
+var stripeMethod95 = StripeResource.method;
+var Files = StripeResource.extend({
+  create: stripeMethod95({
+    method: "POST",
+    fullPath: "/v1/files",
+    headers: {
+      "Content-Type": "multipart/form-data"
+    },
+    host: "files.stripe.com"
+  }),
+  retrieve: stripeMethod95({ method: "GET", fullPath: "/v1/files/{file}" }),
+  list: stripeMethod95({
+    method: "GET",
+    fullPath: "/v1/files",
+    methodType: "list"
+  }),
+  requestDataProcessor: multipartRequestDataProcessor
+});
+
+// node_modules/stripe/esm/resources/InvoiceItems.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod96 = StripeResource.method;
+var InvoiceItems = StripeResource.extend({
+  create: stripeMethod96({ method: "POST", fullPath: "/v1/invoiceitems" }),
+  retrieve: stripeMethod96({
+    method: "GET",
+    fullPath: "/v1/invoiceitems/{invoiceitem}"
+  }),
+  update: stripeMethod96({
+    method: "POST",
+    fullPath: "/v1/invoiceitems/{invoiceitem}"
+  }),
+  list: stripeMethod96({
+    method: "GET",
+    fullPath: "/v1/invoiceitems",
+    methodType: "list"
+  }),
+  del: stripeMethod96({
+    method: "DELETE",
+    fullPath: "/v1/invoiceitems/{invoiceitem}"
+  })
+});
+
+// node_modules/stripe/esm/resources/InvoicePayments.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod97 = StripeResource.method;
+var InvoicePayments = StripeResource.extend({
+  retrieve: stripeMethod97({
+    method: "GET",
+    fullPath: "/v1/invoice_payments/{invoice_payment}"
+  }),
+  list: stripeMethod97({
+    method: "GET",
+    fullPath: "/v1/invoice_payments",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/InvoiceRenderingTemplates.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod98 = StripeResource.method;
+var InvoiceRenderingTemplates = StripeResource.extend({
+  retrieve: stripeMethod98({
+    method: "GET",
+    fullPath: "/v1/invoice_rendering_templates/{template}"
+  }),
+  list: stripeMethod98({
+    method: "GET",
+    fullPath: "/v1/invoice_rendering_templates",
+    methodType: "list"
+  }),
+  archive: stripeMethod98({
+    method: "POST",
+    fullPath: "/v1/invoice_rendering_templates/{template}/archive"
+  }),
+  unarchive: stripeMethod98({
+    method: "POST",
+    fullPath: "/v1/invoice_rendering_templates/{template}/unarchive"
+  })
+});
+
+// node_modules/stripe/esm/resources/Invoices.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod99 = StripeResource.method;
+var Invoices = StripeResource.extend({
+  create: stripeMethod99({ method: "POST", fullPath: "/v1/invoices" }),
+  retrieve: stripeMethod99({ method: "GET", fullPath: "/v1/invoices/{invoice}" }),
+  update: stripeMethod99({ method: "POST", fullPath: "/v1/invoices/{invoice}" }),
+  list: stripeMethod99({
+    method: "GET",
+    fullPath: "/v1/invoices",
+    methodType: "list"
+  }),
+  del: stripeMethod99({ method: "DELETE", fullPath: "/v1/invoices/{invoice}" }),
+  addLines: stripeMethod99({
+    method: "POST",
+    fullPath: "/v1/invoices/{invoice}/add_lines"
+  }),
+  attachPayment: stripeMethod99({
+    method: "POST",
+    fullPath: "/v1/invoices/{invoice}/attach_payment"
+  }),
+  createPreview: stripeMethod99({
+    method: "POST",
+    fullPath: "/v1/invoices/create_preview"
+  }),
+  finalizeInvoice: stripeMethod99({
+    method: "POST",
+    fullPath: "/v1/invoices/{invoice}/finalize"
+  }),
+  listLineItems: stripeMethod99({
+    method: "GET",
+    fullPath: "/v1/invoices/{invoice}/lines",
+    methodType: "list"
+  }),
+  markUncollectible: stripeMethod99({
+    method: "POST",
+    fullPath: "/v1/invoices/{invoice}/mark_uncollectible"
+  }),
+  pay: stripeMethod99({ method: "POST", fullPath: "/v1/invoices/{invoice}/pay" }),
+  removeLines: stripeMethod99({
+    method: "POST",
+    fullPath: "/v1/invoices/{invoice}/remove_lines"
+  }),
+  search: stripeMethod99({
+    method: "GET",
+    fullPath: "/v1/invoices/search",
+    methodType: "search"
+  }),
+  sendInvoice: stripeMethod99({
+    method: "POST",
+    fullPath: "/v1/invoices/{invoice}/send"
+  }),
+  updateLines: stripeMethod99({
+    method: "POST",
+    fullPath: "/v1/invoices/{invoice}/update_lines"
+  }),
+  updateLineItem: stripeMethod99({
+    method: "POST",
+    fullPath: "/v1/invoices/{invoice}/lines/{line_item_id}"
+  }),
+  voidInvoice: stripeMethod99({
+    method: "POST",
+    fullPath: "/v1/invoices/{invoice}/void"
+  })
+});
+
+// node_modules/stripe/esm/resources/Mandates.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod100 = StripeResource.method;
+var Mandates = StripeResource.extend({
+  retrieve: stripeMethod100({ method: "GET", fullPath: "/v1/mandates/{mandate}" })
+});
+
+// node_modules/stripe/esm/resources/OAuth.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod101 = StripeResource.method;
+var oAuthHost = "connect.stripe.com";
+var OAuth = StripeResource.extend({
+  basePath: "/",
+  authorizeUrl(params, options) {
+    params = params || {};
+    options = options || {};
+    let path = "oauth/authorize";
+    if (options.express) {
+      path = `express/${path}`;
+    }
+    if (!params.response_type) {
+      params.response_type = "code";
+    }
+    if (!params.client_id) {
+      params.client_id = this._stripe.getClientId();
+    }
+    if (!params.scope) {
+      params.scope = "read_write";
+    }
+    return `https://${oAuthHost}/${path}?${queryStringifyRequestData(params)}`;
+  },
+  token: stripeMethod101({
+    method: "POST",
+    path: "oauth/token",
+    host: oAuthHost
+  }),
+  deauthorize(spec, ...args) {
+    if (!spec.client_id) {
+      spec.client_id = this._stripe.getClientId();
+    }
+    return stripeMethod101({
+      method: "POST",
+      path: "oauth/deauthorize",
+      host: oAuthHost
+    }).apply(this, [spec, ...args]);
+  }
+});
+
+// node_modules/stripe/esm/resources/PaymentIntents.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod102 = StripeResource.method;
+var PaymentIntents = StripeResource.extend({
+  create: stripeMethod102({ method: "POST", fullPath: "/v1/payment_intents" }),
+  retrieve: stripeMethod102({
+    method: "GET",
+    fullPath: "/v1/payment_intents/{intent}"
+  }),
+  update: stripeMethod102({
+    method: "POST",
+    fullPath: "/v1/payment_intents/{intent}"
+  }),
+  list: stripeMethod102({
+    method: "GET",
+    fullPath: "/v1/payment_intents",
+    methodType: "list"
+  }),
+  applyCustomerBalance: stripeMethod102({
+    method: "POST",
+    fullPath: "/v1/payment_intents/{intent}/apply_customer_balance"
+  }),
+  cancel: stripeMethod102({
+    method: "POST",
+    fullPath: "/v1/payment_intents/{intent}/cancel"
+  }),
+  capture: stripeMethod102({
+    method: "POST",
+    fullPath: "/v1/payment_intents/{intent}/capture"
+  }),
+  confirm: stripeMethod102({
+    method: "POST",
+    fullPath: "/v1/payment_intents/{intent}/confirm"
+  }),
+  incrementAuthorization: stripeMethod102({
+    method: "POST",
+    fullPath: "/v1/payment_intents/{intent}/increment_authorization"
+  }),
+  search: stripeMethod102({
+    method: "GET",
+    fullPath: "/v1/payment_intents/search",
+    methodType: "search"
+  }),
+  verifyMicrodeposits: stripeMethod102({
+    method: "POST",
+    fullPath: "/v1/payment_intents/{intent}/verify_microdeposits"
+  })
+});
+
+// node_modules/stripe/esm/resources/PaymentLinks.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod103 = StripeResource.method;
+var PaymentLinks = StripeResource.extend({
+  create: stripeMethod103({ method: "POST", fullPath: "/v1/payment_links" }),
+  retrieve: stripeMethod103({
+    method: "GET",
+    fullPath: "/v1/payment_links/{payment_link}"
+  }),
+  update: stripeMethod103({
+    method: "POST",
+    fullPath: "/v1/payment_links/{payment_link}"
+  }),
+  list: stripeMethod103({
+    method: "GET",
+    fullPath: "/v1/payment_links",
+    methodType: "list"
+  }),
+  listLineItems: stripeMethod103({
+    method: "GET",
+    fullPath: "/v1/payment_links/{payment_link}/line_items",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/PaymentMethodConfigurations.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod104 = StripeResource.method;
+var PaymentMethodConfigurations = StripeResource.extend({
+  create: stripeMethod104({
+    method: "POST",
+    fullPath: "/v1/payment_method_configurations"
+  }),
+  retrieve: stripeMethod104({
+    method: "GET",
+    fullPath: "/v1/payment_method_configurations/{configuration}"
+  }),
+  update: stripeMethod104({
+    method: "POST",
+    fullPath: "/v1/payment_method_configurations/{configuration}"
+  }),
+  list: stripeMethod104({
+    method: "GET",
+    fullPath: "/v1/payment_method_configurations",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/PaymentMethodDomains.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod105 = StripeResource.method;
+var PaymentMethodDomains = StripeResource.extend({
+  create: stripeMethod105({
+    method: "POST",
+    fullPath: "/v1/payment_method_domains"
+  }),
+  retrieve: stripeMethod105({
+    method: "GET",
+    fullPath: "/v1/payment_method_domains/{payment_method_domain}"
+  }),
+  update: stripeMethod105({
+    method: "POST",
+    fullPath: "/v1/payment_method_domains/{payment_method_domain}"
+  }),
+  list: stripeMethod105({
+    method: "GET",
+    fullPath: "/v1/payment_method_domains",
+    methodType: "list"
+  }),
+  validate: stripeMethod105({
+    method: "POST",
+    fullPath: "/v1/payment_method_domains/{payment_method_domain}/validate"
+  })
+});
+
+// node_modules/stripe/esm/resources/PaymentMethods.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod106 = StripeResource.method;
+var PaymentMethods = StripeResource.extend({
+  create: stripeMethod106({ method: "POST", fullPath: "/v1/payment_methods" }),
+  retrieve: stripeMethod106({
+    method: "GET",
+    fullPath: "/v1/payment_methods/{payment_method}"
+  }),
+  update: stripeMethod106({
+    method: "POST",
+    fullPath: "/v1/payment_methods/{payment_method}"
+  }),
+  list: stripeMethod106({
+    method: "GET",
+    fullPath: "/v1/payment_methods",
+    methodType: "list"
+  }),
+  attach: stripeMethod106({
+    method: "POST",
+    fullPath: "/v1/payment_methods/{payment_method}/attach"
+  }),
+  detach: stripeMethod106({
+    method: "POST",
+    fullPath: "/v1/payment_methods/{payment_method}/detach"
+  })
+});
+
+// node_modules/stripe/esm/resources/Payouts.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod107 = StripeResource.method;
+var Payouts = StripeResource.extend({
+  create: stripeMethod107({ method: "POST", fullPath: "/v1/payouts" }),
+  retrieve: stripeMethod107({ method: "GET", fullPath: "/v1/payouts/{payout}" }),
+  update: stripeMethod107({ method: "POST", fullPath: "/v1/payouts/{payout}" }),
+  list: stripeMethod107({
+    method: "GET",
+    fullPath: "/v1/payouts",
+    methodType: "list"
+  }),
+  cancel: stripeMethod107({
+    method: "POST",
+    fullPath: "/v1/payouts/{payout}/cancel"
+  }),
+  reverse: stripeMethod107({
+    method: "POST",
+    fullPath: "/v1/payouts/{payout}/reverse"
+  })
+});
+
+// node_modules/stripe/esm/resources/Plans.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod108 = StripeResource.method;
+var Plans = StripeResource.extend({
+  create: stripeMethod108({ method: "POST", fullPath: "/v1/plans" }),
+  retrieve: stripeMethod108({ method: "GET", fullPath: "/v1/plans/{plan}" }),
+  update: stripeMethod108({ method: "POST", fullPath: "/v1/plans/{plan}" }),
+  list: stripeMethod108({
+    method: "GET",
+    fullPath: "/v1/plans",
+    methodType: "list"
+  }),
+  del: stripeMethod108({ method: "DELETE", fullPath: "/v1/plans/{plan}" })
+});
+
+// node_modules/stripe/esm/resources/Prices.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod109 = StripeResource.method;
+var Prices = StripeResource.extend({
+  create: stripeMethod109({ method: "POST", fullPath: "/v1/prices" }),
+  retrieve: stripeMethod109({ method: "GET", fullPath: "/v1/prices/{price}" }),
+  update: stripeMethod109({ method: "POST", fullPath: "/v1/prices/{price}" }),
+  list: stripeMethod109({
+    method: "GET",
+    fullPath: "/v1/prices",
+    methodType: "list"
+  }),
+  search: stripeMethod109({
+    method: "GET",
+    fullPath: "/v1/prices/search",
+    methodType: "search"
+  })
+});
+
+// node_modules/stripe/esm/resources/Products.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod110 = StripeResource.method;
+var Products2 = StripeResource.extend({
+  create: stripeMethod110({ method: "POST", fullPath: "/v1/products" }),
+  retrieve: stripeMethod110({ method: "GET", fullPath: "/v1/products/{id}" }),
+  update: stripeMethod110({ method: "POST", fullPath: "/v1/products/{id}" }),
+  list: stripeMethod110({
+    method: "GET",
+    fullPath: "/v1/products",
+    methodType: "list"
+  }),
+  del: stripeMethod110({ method: "DELETE", fullPath: "/v1/products/{id}" }),
+  createFeature: stripeMethod110({
+    method: "POST",
+    fullPath: "/v1/products/{product}/features"
+  }),
+  deleteFeature: stripeMethod110({
+    method: "DELETE",
+    fullPath: "/v1/products/{product}/features/{id}"
+  }),
+  listFeatures: stripeMethod110({
+    method: "GET",
+    fullPath: "/v1/products/{product}/features",
+    methodType: "list"
+  }),
+  retrieveFeature: stripeMethod110({
+    method: "GET",
+    fullPath: "/v1/products/{product}/features/{id}"
+  }),
+  search: stripeMethod110({
+    method: "GET",
+    fullPath: "/v1/products/search",
+    methodType: "search"
+  })
+});
+
+// node_modules/stripe/esm/resources/PromotionCodes.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod111 = StripeResource.method;
+var PromotionCodes = StripeResource.extend({
+  create: stripeMethod111({ method: "POST", fullPath: "/v1/promotion_codes" }),
+  retrieve: stripeMethod111({
+    method: "GET",
+    fullPath: "/v1/promotion_codes/{promotion_code}"
+  }),
+  update: stripeMethod111({
+    method: "POST",
+    fullPath: "/v1/promotion_codes/{promotion_code}"
+  }),
+  list: stripeMethod111({
+    method: "GET",
+    fullPath: "/v1/promotion_codes",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Quotes.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod112 = StripeResource.method;
+var Quotes = StripeResource.extend({
+  create: stripeMethod112({ method: "POST", fullPath: "/v1/quotes" }),
+  retrieve: stripeMethod112({ method: "GET", fullPath: "/v1/quotes/{quote}" }),
+  update: stripeMethod112({ method: "POST", fullPath: "/v1/quotes/{quote}" }),
+  list: stripeMethod112({
+    method: "GET",
+    fullPath: "/v1/quotes",
+    methodType: "list"
+  }),
+  accept: stripeMethod112({ method: "POST", fullPath: "/v1/quotes/{quote}/accept" }),
+  cancel: stripeMethod112({ method: "POST", fullPath: "/v1/quotes/{quote}/cancel" }),
+  finalizeQuote: stripeMethod112({
+    method: "POST",
+    fullPath: "/v1/quotes/{quote}/finalize"
+  }),
+  listComputedUpfrontLineItems: stripeMethod112({
+    method: "GET",
+    fullPath: "/v1/quotes/{quote}/computed_upfront_line_items",
+    methodType: "list"
+  }),
+  listLineItems: stripeMethod112({
+    method: "GET",
+    fullPath: "/v1/quotes/{quote}/line_items",
+    methodType: "list"
+  }),
+  pdf: stripeMethod112({
+    method: "GET",
+    fullPath: "/v1/quotes/{quote}/pdf",
+    host: "files.stripe.com",
+    streaming: true
+  })
+});
+
+// node_modules/stripe/esm/resources/Refunds.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod113 = StripeResource.method;
+var Refunds2 = StripeResource.extend({
+  create: stripeMethod113({ method: "POST", fullPath: "/v1/refunds" }),
+  retrieve: stripeMethod113({ method: "GET", fullPath: "/v1/refunds/{refund}" }),
+  update: stripeMethod113({ method: "POST", fullPath: "/v1/refunds/{refund}" }),
+  list: stripeMethod113({
+    method: "GET",
+    fullPath: "/v1/refunds",
+    methodType: "list"
+  }),
+  cancel: stripeMethod113({
+    method: "POST",
+    fullPath: "/v1/refunds/{refund}/cancel"
+  })
+});
+
+// node_modules/stripe/esm/resources/Reviews.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod114 = StripeResource.method;
+var Reviews = StripeResource.extend({
+  retrieve: stripeMethod114({ method: "GET", fullPath: "/v1/reviews/{review}" }),
+  list: stripeMethod114({
+    method: "GET",
+    fullPath: "/v1/reviews",
+    methodType: "list"
+  }),
+  approve: stripeMethod114({
+    method: "POST",
+    fullPath: "/v1/reviews/{review}/approve"
+  })
+});
+
+// node_modules/stripe/esm/resources/SetupAttempts.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod115 = StripeResource.method;
+var SetupAttempts = StripeResource.extend({
+  list: stripeMethod115({
+    method: "GET",
+    fullPath: "/v1/setup_attempts",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/SetupIntents.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod116 = StripeResource.method;
+var SetupIntents = StripeResource.extend({
+  create: stripeMethod116({ method: "POST", fullPath: "/v1/setup_intents" }),
+  retrieve: stripeMethod116({
+    method: "GET",
+    fullPath: "/v1/setup_intents/{intent}"
+  }),
+  update: stripeMethod116({
+    method: "POST",
+    fullPath: "/v1/setup_intents/{intent}"
+  }),
+  list: stripeMethod116({
+    method: "GET",
+    fullPath: "/v1/setup_intents",
+    methodType: "list"
+  }),
+  cancel: stripeMethod116({
+    method: "POST",
+    fullPath: "/v1/setup_intents/{intent}/cancel"
+  }),
+  confirm: stripeMethod116({
+    method: "POST",
+    fullPath: "/v1/setup_intents/{intent}/confirm"
+  }),
+  verifyMicrodeposits: stripeMethod116({
+    method: "POST",
+    fullPath: "/v1/setup_intents/{intent}/verify_microdeposits"
+  })
+});
+
+// node_modules/stripe/esm/resources/ShippingRates.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod117 = StripeResource.method;
+var ShippingRates = StripeResource.extend({
+  create: stripeMethod117({ method: "POST", fullPath: "/v1/shipping_rates" }),
+  retrieve: stripeMethod117({
+    method: "GET",
+    fullPath: "/v1/shipping_rates/{shipping_rate_token}"
+  }),
+  update: stripeMethod117({
+    method: "POST",
+    fullPath: "/v1/shipping_rates/{shipping_rate_token}"
+  }),
+  list: stripeMethod117({
+    method: "GET",
+    fullPath: "/v1/shipping_rates",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Sources.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod118 = StripeResource.method;
+var Sources = StripeResource.extend({
+  create: stripeMethod118({ method: "POST", fullPath: "/v1/sources" }),
+  retrieve: stripeMethod118({ method: "GET", fullPath: "/v1/sources/{source}" }),
+  update: stripeMethod118({ method: "POST", fullPath: "/v1/sources/{source}" }),
+  listSourceTransactions: stripeMethod118({
+    method: "GET",
+    fullPath: "/v1/sources/{source}/source_transactions",
+    methodType: "list"
+  }),
+  verify: stripeMethod118({
+    method: "POST",
+    fullPath: "/v1/sources/{source}/verify"
+  })
+});
+
+// node_modules/stripe/esm/resources/SubscriptionItems.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod119 = StripeResource.method;
+var SubscriptionItems = StripeResource.extend({
+  create: stripeMethod119({ method: "POST", fullPath: "/v1/subscription_items" }),
+  retrieve: stripeMethod119({
+    method: "GET",
+    fullPath: "/v1/subscription_items/{item}"
+  }),
+  update: stripeMethod119({
+    method: "POST",
+    fullPath: "/v1/subscription_items/{item}"
+  }),
+  list: stripeMethod119({
+    method: "GET",
+    fullPath: "/v1/subscription_items",
+    methodType: "list"
+  }),
+  del: stripeMethod119({
+    method: "DELETE",
+    fullPath: "/v1/subscription_items/{item}"
+  })
+});
+
+// node_modules/stripe/esm/resources/SubscriptionSchedules.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod120 = StripeResource.method;
+var SubscriptionSchedules = StripeResource.extend({
+  create: stripeMethod120({
+    method: "POST",
+    fullPath: "/v1/subscription_schedules"
+  }),
+  retrieve: stripeMethod120({
+    method: "GET",
+    fullPath: "/v1/subscription_schedules/{schedule}"
+  }),
+  update: stripeMethod120({
+    method: "POST",
+    fullPath: "/v1/subscription_schedules/{schedule}"
+  }),
+  list: stripeMethod120({
+    method: "GET",
+    fullPath: "/v1/subscription_schedules",
+    methodType: "list"
+  }),
+  cancel: stripeMethod120({
+    method: "POST",
+    fullPath: "/v1/subscription_schedules/{schedule}/cancel"
+  }),
+  release: stripeMethod120({
+    method: "POST",
+    fullPath: "/v1/subscription_schedules/{schedule}/release"
+  })
+});
+
+// node_modules/stripe/esm/resources/Subscriptions.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod121 = StripeResource.method;
+var Subscriptions = StripeResource.extend({
+  create: stripeMethod121({ method: "POST", fullPath: "/v1/subscriptions" }),
+  retrieve: stripeMethod121({
+    method: "GET",
+    fullPath: "/v1/subscriptions/{subscription_exposed_id}"
+  }),
+  update: stripeMethod121({
+    method: "POST",
+    fullPath: "/v1/subscriptions/{subscription_exposed_id}"
+  }),
+  list: stripeMethod121({
+    method: "GET",
+    fullPath: "/v1/subscriptions",
+    methodType: "list"
+  }),
+  cancel: stripeMethod121({
+    method: "DELETE",
+    fullPath: "/v1/subscriptions/{subscription_exposed_id}"
+  }),
+  deleteDiscount: stripeMethod121({
+    method: "DELETE",
+    fullPath: "/v1/subscriptions/{subscription_exposed_id}/discount"
+  }),
+  migrate: stripeMethod121({
+    method: "POST",
+    fullPath: "/v1/subscriptions/{subscription}/migrate"
+  }),
+  resume: stripeMethod121({
+    method: "POST",
+    fullPath: "/v1/subscriptions/{subscription}/resume"
+  }),
+  search: stripeMethod121({
+    method: "GET",
+    fullPath: "/v1/subscriptions/search",
+    methodType: "search"
+  })
+});
+
+// node_modules/stripe/esm/resources/TaxCodes.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod122 = StripeResource.method;
+var TaxCodes = StripeResource.extend({
+  retrieve: stripeMethod122({ method: "GET", fullPath: "/v1/tax_codes/{id}" }),
+  list: stripeMethod122({
+    method: "GET",
+    fullPath: "/v1/tax_codes",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/TaxIds.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod123 = StripeResource.method;
+var TaxIds = StripeResource.extend({
+  create: stripeMethod123({ method: "POST", fullPath: "/v1/tax_ids" }),
+  retrieve: stripeMethod123({ method: "GET", fullPath: "/v1/tax_ids/{id}" }),
+  list: stripeMethod123({
+    method: "GET",
+    fullPath: "/v1/tax_ids",
+    methodType: "list"
+  }),
+  del: stripeMethod123({ method: "DELETE", fullPath: "/v1/tax_ids/{id}" })
+});
+
+// node_modules/stripe/esm/resources/TaxRates.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod124 = StripeResource.method;
+var TaxRates = StripeResource.extend({
+  create: stripeMethod124({ method: "POST", fullPath: "/v1/tax_rates" }),
+  retrieve: stripeMethod124({ method: "GET", fullPath: "/v1/tax_rates/{tax_rate}" }),
+  update: stripeMethod124({ method: "POST", fullPath: "/v1/tax_rates/{tax_rate}" }),
+  list: stripeMethod124({
+    method: "GET",
+    fullPath: "/v1/tax_rates",
+    methodType: "list"
+  })
+});
+
+// node_modules/stripe/esm/resources/Tokens.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod125 = StripeResource.method;
+var Tokens2 = StripeResource.extend({
+  create: stripeMethod125({ method: "POST", fullPath: "/v1/tokens" }),
+  retrieve: stripeMethod125({ method: "GET", fullPath: "/v1/tokens/{token}" })
+});
+
+// node_modules/stripe/esm/resources/Topups.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod126 = StripeResource.method;
+var Topups = StripeResource.extend({
+  create: stripeMethod126({ method: "POST", fullPath: "/v1/topups" }),
+  retrieve: stripeMethod126({ method: "GET", fullPath: "/v1/topups/{topup}" }),
+  update: stripeMethod126({ method: "POST", fullPath: "/v1/topups/{topup}" }),
+  list: stripeMethod126({
+    method: "GET",
+    fullPath: "/v1/topups",
+    methodType: "list"
+  }),
+  cancel: stripeMethod126({ method: "POST", fullPath: "/v1/topups/{topup}/cancel" })
+});
+
+// node_modules/stripe/esm/resources/Transfers.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod127 = StripeResource.method;
+var Transfers = StripeResource.extend({
+  create: stripeMethod127({ method: "POST", fullPath: "/v1/transfers" }),
+  retrieve: stripeMethod127({ method: "GET", fullPath: "/v1/transfers/{transfer}" }),
+  update: stripeMethod127({ method: "POST", fullPath: "/v1/transfers/{transfer}" }),
+  list: stripeMethod127({
+    method: "GET",
+    fullPath: "/v1/transfers",
+    methodType: "list"
+  }),
+  createReversal: stripeMethod127({
+    method: "POST",
+    fullPath: "/v1/transfers/{id}/reversals"
+  }),
+  listReversals: stripeMethod127({
+    method: "GET",
+    fullPath: "/v1/transfers/{id}/reversals",
+    methodType: "list"
+  }),
+  retrieveReversal: stripeMethod127({
+    method: "GET",
+    fullPath: "/v1/transfers/{transfer}/reversals/{id}"
+  }),
+  updateReversal: stripeMethod127({
+    method: "POST",
+    fullPath: "/v1/transfers/{transfer}/reversals/{id}"
+  })
+});
+
+// node_modules/stripe/esm/resources/WebhookEndpoints.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var stripeMethod128 = StripeResource.method;
+var WebhookEndpoints = StripeResource.extend({
+  create: stripeMethod128({ method: "POST", fullPath: "/v1/webhook_endpoints" }),
+  retrieve: stripeMethod128({
+    method: "GET",
+    fullPath: "/v1/webhook_endpoints/{webhook_endpoint}"
+  }),
+  update: stripeMethod128({
+    method: "POST",
+    fullPath: "/v1/webhook_endpoints/{webhook_endpoint}"
+  }),
+  list: stripeMethod128({
+    method: "GET",
+    fullPath: "/v1/webhook_endpoints",
+    methodType: "list"
+  }),
+  del: stripeMethod128({
+    method: "DELETE",
+    fullPath: "/v1/webhook_endpoints/{webhook_endpoint}"
+  })
+});
+
+// node_modules/stripe/esm/resources.js
+var Apps = resourceNamespace("apps", { Secrets });
+var Billing = resourceNamespace("billing", {
+  Alerts,
+  CreditBalanceSummary,
+  CreditBalanceTransactions,
+  CreditGrants,
+  MeterEventAdjustments,
+  MeterEvents,
+  Meters
+});
+var BillingPortal = resourceNamespace("billingPortal", {
+  Configurations,
+  Sessions
+});
+var Checkout = resourceNamespace("checkout", {
+  Sessions: Sessions2
+});
+var Climate = resourceNamespace("climate", {
+  Orders,
+  Products,
+  Suppliers
+});
+var Entitlements = resourceNamespace("entitlements", {
+  ActiveEntitlements,
+  Features
+});
+var FinancialConnections = resourceNamespace("financialConnections", {
+  Accounts,
+  Sessions: Sessions3,
+  Transactions
+});
+var Forwarding = resourceNamespace("forwarding", {
+  Requests
+});
+var Identity = resourceNamespace("identity", {
+  VerificationReports,
+  VerificationSessions
+});
+var Issuing = resourceNamespace("issuing", {
+  Authorizations,
+  Cardholders,
+  Cards,
+  Disputes,
+  PersonalizationDesigns,
+  PhysicalBundles,
+  Tokens,
+  Transactions: Transactions2
+});
+var Radar = resourceNamespace("radar", {
+  EarlyFraudWarnings,
+  ValueListItems,
+  ValueLists
+});
+var Reporting = resourceNamespace("reporting", {
+  ReportRuns,
+  ReportTypes
+});
+var Sigma = resourceNamespace("sigma", {
+  ScheduledQueryRuns
+});
+var Tax = resourceNamespace("tax", {
+  Calculations,
+  Registrations,
+  Settings,
+  Transactions: Transactions3
+});
+var Terminal = resourceNamespace("terminal", {
+  Configurations: Configurations2,
+  ConnectionTokens,
+  Locations,
+  Readers
+});
+var TestHelpers = resourceNamespace("testHelpers", {
+  ConfirmationTokens,
+  Customers,
+  Refunds,
+  TestClocks,
+  Issuing: resourceNamespace("issuing", {
+    Authorizations: Authorizations2,
+    Cards: Cards2,
+    PersonalizationDesigns: PersonalizationDesigns2,
+    Transactions: Transactions4
+  }),
+  Terminal: resourceNamespace("terminal", {
+    Readers: Readers2
+  }),
+  Treasury: resourceNamespace("treasury", {
+    InboundTransfers,
+    OutboundPayments,
+    OutboundTransfers,
+    ReceivedCredits,
+    ReceivedDebits
+  })
+});
+var Treasury = resourceNamespace("treasury", {
+  CreditReversals,
+  DebitReversals,
+  FinancialAccounts,
+  InboundTransfers: InboundTransfers2,
+  OutboundPayments: OutboundPayments2,
+  OutboundTransfers: OutboundTransfers2,
+  ReceivedCredits: ReceivedCredits2,
+  ReceivedDebits: ReceivedDebits2,
+  TransactionEntries,
+  Transactions: Transactions5
+});
+var V2 = resourceNamespace("v2", {
+  Billing: resourceNamespace("billing", {
+    MeterEventAdjustments: MeterEventAdjustments2,
+    MeterEventSession,
+    MeterEventStream,
+    MeterEvents: MeterEvents2
+  }),
+  Core: resourceNamespace("core", {
+    EventDestinations,
+    Events
+  })
+});
+
+// node_modules/stripe/esm/stripe.core.js
+var DEFAULT_HOST = "api.stripe.com";
+var DEFAULT_PORT = "443";
+var DEFAULT_BASE_PATH = "/v1/";
+var DEFAULT_API_VERSION = ApiVersion;
+var DEFAULT_TIMEOUT = 8e4;
+var MAX_NETWORK_RETRY_DELAY_SEC = 5;
+var INITIAL_NETWORK_RETRY_DELAY_SEC = 0.5;
+var APP_INFO_PROPERTIES = ["name", "version", "url", "partner_id"];
+var ALLOWED_CONFIG_PROPERTIES = [
+  "authenticator",
+  "apiVersion",
+  "typescript",
+  "maxNetworkRetries",
+  "httpAgent",
+  "httpClient",
+  "timeout",
+  "host",
+  "port",
+  "protocol",
+  "telemetry",
+  "appInfo",
+  "stripeAccount",
+  "stripeContext"
+];
+var defaultRequestSenderFactory = /* @__PURE__ */ __name((stripe) => new RequestSender(stripe, StripeResource.MAX_BUFFERED_REQUEST_METRICS), "defaultRequestSenderFactory");
+function createStripe(platformFunctions, requestSender = defaultRequestSenderFactory) {
+  Stripe2.PACKAGE_VERSION = "18.5.0";
+  Stripe2.API_VERSION = ApiVersion;
+  Stripe2.USER_AGENT = Object.assign({ bindings_version: Stripe2.PACKAGE_VERSION, lang: "node", publisher: "stripe", uname: null, typescript: false }, determineProcessUserAgentProperties());
+  Stripe2.StripeResource = StripeResource;
+  Stripe2.resources = resources_exports;
+  Stripe2.HttpClient = HttpClient;
+  Stripe2.HttpClientResponse = HttpClientResponse;
+  Stripe2.CryptoProvider = CryptoProvider;
+  Stripe2.webhooks = createWebhooks(platformFunctions);
+  function Stripe2(key, config2 = {}) {
+    if (!(this instanceof Stripe2)) {
+      return new Stripe2(key, config2);
+    }
+    const props = this._getPropsFromConfig(config2);
+    this._platformFunctions = platformFunctions;
+    Object.defineProperty(this, "_emitter", {
+      value: this._platformFunctions.createEmitter(),
+      enumerable: false,
+      configurable: false,
+      writable: false
+    });
+    this.VERSION = Stripe2.PACKAGE_VERSION;
+    this.on = this._emitter.on.bind(this._emitter);
+    this.once = this._emitter.once.bind(this._emitter);
+    this.off = this._emitter.removeListener.bind(this._emitter);
+    const agent = props.httpAgent || null;
+    this._api = {
+      host: props.host || DEFAULT_HOST,
+      port: props.port || DEFAULT_PORT,
+      protocol: props.protocol || "https",
+      basePath: DEFAULT_BASE_PATH,
+      version: props.apiVersion || DEFAULT_API_VERSION,
+      timeout: validateInteger("timeout", props.timeout, DEFAULT_TIMEOUT),
+      maxNetworkRetries: validateInteger("maxNetworkRetries", props.maxNetworkRetries, 2),
+      agent,
+      httpClient: props.httpClient || (agent ? this._platformFunctions.createNodeHttpClient(agent) : this._platformFunctions.createDefaultHttpClient()),
+      dev: false,
+      stripeAccount: props.stripeAccount || null,
+      stripeContext: props.stripeContext || null
+    };
+    const typescript = props.typescript || false;
+    if (typescript !== Stripe2.USER_AGENT.typescript) {
+      Stripe2.USER_AGENT.typescript = typescript;
+    }
+    if (props.appInfo) {
+      this._setAppInfo(props.appInfo);
+    }
+    this._prepResources();
+    this._setAuthenticator(key, props.authenticator);
+    this.errors = Error_exports;
+    this.webhooks = Stripe2.webhooks;
+    this._prevRequestMetrics = [];
+    this._enableTelemetry = props.telemetry !== false;
+    this._requestSender = requestSender(this);
+    this.StripeResource = Stripe2.StripeResource;
+  }
+  __name(Stripe2, "Stripe");
+  Stripe2.errors = Error_exports;
+  Stripe2.createNodeHttpClient = platformFunctions.createNodeHttpClient;
+  Stripe2.createFetchHttpClient = platformFunctions.createFetchHttpClient;
+  Stripe2.createNodeCryptoProvider = platformFunctions.createNodeCryptoProvider;
+  Stripe2.createSubtleCryptoProvider = platformFunctions.createSubtleCryptoProvider;
+  Stripe2.prototype = {
+    // Properties are set in the constructor above
+    _appInfo: void 0,
+    on: null,
+    off: null,
+    once: null,
+    VERSION: null,
+    StripeResource: null,
+    webhooks: null,
+    errors: null,
+    _api: null,
+    _prevRequestMetrics: null,
+    _emitter: null,
+    _enableTelemetry: null,
+    _requestSender: null,
+    _platformFunctions: null,
+    rawRequest(method, path, params, options) {
+      return this._requestSender._rawRequest(method, path, params, options);
+    },
+    /**
+     * @private
+     */
+    _setAuthenticator(key, authenticator) {
+      if (key && authenticator) {
+        throw new Error("Can't specify both apiKey and authenticator");
+      }
+      if (!key && !authenticator) {
+        throw new Error("Neither apiKey nor config.authenticator provided");
+      }
+      this._authenticator = key ? createApiKeyAuthenticator(key) : authenticator;
+    },
+    /**
+     * @private
+     * This may be removed in the future.
+     */
+    _setAppInfo(info3) {
+      if (info3 && typeof info3 !== "object") {
+        throw new Error("AppInfo must be an object.");
+      }
+      if (info3 && !info3.name) {
+        throw new Error("AppInfo.name is required");
+      }
+      info3 = info3 || {};
+      this._appInfo = APP_INFO_PROPERTIES.reduce((accum, prop) => {
+        if (typeof info3[prop] == "string") {
+          accum = accum || {};
+          accum[prop] = info3[prop];
+        }
+        return accum;
+      }, {});
+    },
+    /**
+     * @private
+     * This may be removed in the future.
+     */
+    _setApiField(key, value) {
+      this._api[key] = value;
+    },
+    /**
+     * @private
+     * Please open or upvote an issue at github.com/stripe/stripe-node
+     * if you use this, detailing your use-case.
+     *
+     * It may be deprecated and removed in the future.
+     */
+    getApiField(key) {
+      return this._api[key];
+    },
+    setClientId(clientId) {
+      this._clientId = clientId;
+    },
+    getClientId() {
+      return this._clientId;
+    },
+    /**
+     * @private
+     * Please open or upvote an issue at github.com/stripe/stripe-node
+     * if you use this, detailing your use-case.
+     *
+     * It may be deprecated and removed in the future.
+     */
+    getConstant: /* @__PURE__ */ __name((c) => {
+      switch (c) {
+        case "DEFAULT_HOST":
+          return DEFAULT_HOST;
+        case "DEFAULT_PORT":
+          return DEFAULT_PORT;
+        case "DEFAULT_BASE_PATH":
+          return DEFAULT_BASE_PATH;
+        case "DEFAULT_API_VERSION":
+          return DEFAULT_API_VERSION;
+        case "DEFAULT_TIMEOUT":
+          return DEFAULT_TIMEOUT;
+        case "MAX_NETWORK_RETRY_DELAY_SEC":
+          return MAX_NETWORK_RETRY_DELAY_SEC;
+        case "INITIAL_NETWORK_RETRY_DELAY_SEC":
+          return INITIAL_NETWORK_RETRY_DELAY_SEC;
+      }
+      return Stripe2[c];
+    }, "getConstant"),
+    getMaxNetworkRetries() {
+      return this.getApiField("maxNetworkRetries");
+    },
+    /**
+     * @private
+     * This may be removed in the future.
+     */
+    _setApiNumberField(prop, n, defaultVal) {
+      const val = validateInteger(prop, n, defaultVal);
+      this._setApiField(prop, val);
+    },
+    getMaxNetworkRetryDelay() {
+      return MAX_NETWORK_RETRY_DELAY_SEC;
+    },
+    getInitialNetworkRetryDelay() {
+      return INITIAL_NETWORK_RETRY_DELAY_SEC;
+    },
+    /**
+     * @private
+     * Please open or upvote an issue at github.com/stripe/stripe-node
+     * if you use this, detailing your use-case.
+     *
+     * It may be deprecated and removed in the future.
+     *
+     * Gets a JSON version of a User-Agent and uses a cached version for a slight
+     * speed advantage.
+     */
+    getClientUserAgent(cb) {
+      return this.getClientUserAgentSeeded(Stripe2.USER_AGENT, cb);
+    },
+    /**
+     * @private
+     * Please open or upvote an issue at github.com/stripe/stripe-node
+     * if you use this, detailing your use-case.
+     *
+     * It may be deprecated and removed in the future.
+     *
+     * Gets a JSON version of a User-Agent by encoding a seeded object and
+     * fetching a uname from the system.
+     */
+    getClientUserAgentSeeded(seed, cb) {
+      this._platformFunctions.getUname().then((uname) => {
+        var _a;
+        const userAgent = {};
+        for (const field in seed) {
+          if (!Object.prototype.hasOwnProperty.call(seed, field)) {
+            continue;
+          }
+          userAgent[field] = encodeURIComponent((_a = seed[field]) !== null && _a !== void 0 ? _a : "null");
+        }
+        userAgent.uname = encodeURIComponent(uname || "UNKNOWN");
+        const client = this.getApiField("httpClient");
+        if (client) {
+          userAgent.httplib = encodeURIComponent(client.getClientName());
+        }
+        if (this._appInfo) {
+          userAgent.application = this._appInfo;
+        }
+        cb(JSON.stringify(userAgent));
+      });
+    },
+    /**
+     * @private
+     * Please open or upvote an issue at github.com/stripe/stripe-node
+     * if you use this, detailing your use-case.
+     *
+     * It may be deprecated and removed in the future.
+     */
+    getAppInfoAsString() {
+      if (!this._appInfo) {
+        return "";
+      }
+      let formatted = this._appInfo.name;
+      if (this._appInfo.version) {
+        formatted += `/${this._appInfo.version}`;
+      }
+      if (this._appInfo.url) {
+        formatted += ` (${this._appInfo.url})`;
+      }
+      return formatted;
+    },
+    getTelemetryEnabled() {
+      return this._enableTelemetry;
+    },
+    /**
+     * @private
+     * This may be removed in the future.
+     */
+    _prepResources() {
+      for (const name in resources_exports) {
+        if (!Object.prototype.hasOwnProperty.call(resources_exports, name)) {
+          continue;
+        }
+        this[pascalToCamelCase(name)] = new resources_exports[name](this);
+      }
+    },
+    /**
+     * @private
+     * This may be removed in the future.
+     */
+    _getPropsFromConfig(config2) {
+      if (!config2) {
+        return {};
+      }
+      const isString = typeof config2 === "string";
+      const isObject2 = config2 === Object(config2) && !Array.isArray(config2);
+      if (!isObject2 && !isString) {
+        throw new Error("Config must either be an object or a string");
+      }
+      if (isString) {
+        return {
+          apiVersion: config2
+        };
+      }
+      const values = Object.keys(config2).filter((value) => !ALLOWED_CONFIG_PROPERTIES.includes(value));
+      if (values.length > 0) {
+        throw new Error(`Config object may only contain the following: ${ALLOWED_CONFIG_PROPERTIES.join(", ")}`);
+      }
+      return config2;
+    },
+    parseThinEvent(payload, header, secret, tolerance, cryptoProvider, receivedAt) {
+      return this.webhooks.constructEvent(payload, header, secret, tolerance, cryptoProvider, receivedAt);
+    }
+  };
+  return Stripe2;
+}
+__name(createStripe, "createStripe");
+
+// node_modules/stripe/esm/stripe.esm.worker.js
+var Stripe = createStripe(new WebPlatformFunctions());
+var stripe_esm_worker_default = Stripe;
+
+// src/worker.js
+function getKVNamespace2(env2) {
+  console.log("Available env bindings:", Object.keys(env2));
+  const possibleBindings = [
+    "OPENSHOP-TEST3_KV",
+    "OPENSHOP_TEST3_KV",
+    "OPENSHOP_KV"
+  ];
+  for (const bindingName of possibleBindings) {
+    if (bindingName in env2 && env2[bindingName]) {
+      console.log(`Found KV namespace via direct access: ${bindingName}`);
+      const kvNamespace2 = env2[bindingName];
+      console.log("KV namespace object:", !!kvNamespace2, typeof kvNamespace2);
+      console.log("KV namespace has get method:", typeof kvNamespace2?.get);
+      return kvNamespace2;
+    }
+  }
+  const kvBindingName = Object.keys(env2).find(
+    (key) => key.endsWith("_KV") || key.endsWith("-KV") || key.includes("KV")
+  );
+  console.log("Found KV binding name via search:", kvBindingName);
+  if (kvBindingName) {
+    const kvNamespace2 = env2[kvBindingName];
+    console.log("KV namespace object via search:", !!kvNamespace2, typeof kvNamespace2);
+    if (kvNamespace2) {
+      return kvNamespace2;
+    }
+  }
+  const kvNamespace = Object.values(env2).find(
+    (binding2) => binding2 && typeof binding2.get === "function" && typeof binding2.put === "function"
+  );
+  console.log("Fallback KV namespace found:", !!kvNamespace);
+  if (!kvNamespace) {
+    console.error("No KV namespace found! Available bindings:", Object.keys(env2));
+    console.error("Environment values:", Object.values(env2).map((v) => typeof v));
+  }
+  return kvNamespace;
+}
+__name(getKVNamespace2, "getKVNamespace");
+var app = new Hono2();
+var THEME_COLOR_KEYS = ["primary", "secondary", "accent", "text", "background", "card"];
+var ALLOWED_FONT_IDS = new Set(FONT_OPTIONS.map((font) => font.id));
+function getCrypto() {
+  const cryptoObj = typeof globalThis !== "undefined" ? globalThis.crypto : null;
+  if (!cryptoObj) {
+    throw new Error("Web Crypto API is not available in this environment");
+  }
+  return cryptoObj;
+}
+__name(getCrypto, "getCrypto");
+function randomHex(bytes = 16) {
+  const cryptoObj = getCrypto();
+  if (typeof cryptoObj.getRandomValues !== "function") {
+    throw new Error("crypto.getRandomValues is not available");
+  }
+  const buffer = new Uint8Array(bytes);
+  cryptoObj.getRandomValues(buffer);
+  return Array.from(buffer, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+__name(randomHex, "randomHex");
+function generateSessionToken() {
+  const cryptoObj = getCrypto();
+  if (typeof cryptoObj.randomUUID === "function") {
+    return cryptoObj.randomUUID().replace(/-/g, "");
+  }
+  return randomHex(32);
+}
+__name(generateSessionToken, "generateSessionToken");
+function validateThemePayload(payload) {
+  if (!payload || typeof payload !== "object") {
+    return { valid: false, message: "Invalid theme payload" };
+  }
+  const colors = payload.colors;
+  if (!colors || typeof colors !== "object") {
+    return { valid: false, message: "Missing colors object" };
+  }
+  for (const key of THEME_COLOR_KEYS) {
+    const value = typeof colors[key] === "string" ? colors[key].trim() : "";
+    if (!HEX_COLOR_REGEX.test(value)) {
+      return { valid: false, message: `Invalid ${key} color` };
+    }
+  }
+  const fontCandidate = payload.typography?.fontId ?? payload.typography?.font ?? payload.fontId ?? payload.font;
+  if (fontCandidate && !ALLOWED_FONT_IDS.has(fontCandidate)) {
+    return { valid: false, message: "Invalid font selection" };
+  }
+  if (payload.corners) {
+    if (payload.corners.radiusMultiplier !== void 0) {
+      const parsed = Number(payload.corners.radiusMultiplier);
+      if (!Number.isFinite(parsed) || parsed < 0 || parsed > 4) {
+        return { valid: false, message: "Radius multiplier must be between 0 and 4" };
+      }
+    }
+    if (payload.corners.enabled !== void 0 && typeof payload.corners.enabled !== "boolean") {
+      return { valid: false, message: "Corners enabled must be a boolean" };
+    }
+  }
+  return { valid: true };
+}
+__name(validateThemePayload, "validateThemePayload");
+app.use("*", cors({
+  origin: ["*"],
+  // In production, restrict this to your domain
+  allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowHeaders: ["Content-Type", "X-Admin-Token"]
+}));
+app.get("/api/health", (c) => {
+  return c.json({ status: "healthy", timestamp: (/* @__PURE__ */ new Date()).toISOString() });
+});
+app.get("/api/image-proxy", async (c) => {
+  try {
+    const src = c.req.query("src");
+    if (!src) return c.json({ error: "Missing src" }, 400);
+    let targetUrl;
+    try {
+      const u = new URL(src);
+      const allowedHosts = [
+        "drive.google.com",
+        "drive.usercontent.google.com",
+        "lh3.googleusercontent.com"
+      ];
+      const isAllowed = allowedHosts.some((h) => u.hostname === h || u.hostname.endsWith("." + h));
+      if (!isAllowed) return c.json({ error: "Host not allowed" }, 400);
+      if (u.hostname.endsWith("drive.google.com")) {
+        const pathId = u.pathname.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        const queryId = u.searchParams.get("id");
+        const id = pathId && pathId[1] || queryId;
+        if (!id) return c.json({ error: "Missing Google Drive file id" }, 400);
+        targetUrl = `https://drive.usercontent.google.com/download?id=${id}&export=view`;
+      } else if (u.hostname.endsWith("drive.usercontent.google.com")) {
+        const id = u.searchParams.get("id");
+        if (!id) return c.json({ error: "Missing Google Drive file id" }, 400);
+        const newUrl = new URL("https://drive.usercontent.google.com/download");
+        newUrl.searchParams.set("id", id);
+        newUrl.searchParams.set("export", "view");
+        targetUrl = newUrl.toString();
+      } else {
+        targetUrl = u.toString();
+      }
+    } catch (_) {
+      return c.json({ error: "Invalid src url" }, 400);
+    }
+    const upstream = await fetch(targetUrl, {
+      redirect: "follow",
+      headers: {
+        // Emulate a standard browser fetch
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36",
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://drive.google.com/"
+      },
+      cf: { cacheEverything: true }
+    });
+    if (!upstream.ok) {
+      return c.json({ error: "Upstream error", status: upstream.status }, upstream.status);
+    }
+    const headers = new Headers();
+    const contentType = upstream.headers.get("content-type") || "image/jpeg";
+    headers.set("Content-Type", contentType);
+    headers.set("Cache-Control", "public, max-age=86400");
+    headers.set("Access-Control-Allow-Origin", "*");
+    headers.set("Cross-Origin-Resource-Policy", "cross-origin");
+    return new Response(upstream.body, { headers });
+  } catch (e) {
+    console.error("Image proxy error", e);
+    return c.json({ error: "Proxy failed" }, 500);
+  }
+});
+app.get("/api/products", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const products = await kv.getAllProducts();
+    const visible = products.filter((p) => !p.archived);
+    return c.json(visible);
+  } catch (error3) {
+    console.error("Error fetching products:", error3);
+    return c.json({ error: "Failed to fetch products" }, 500);
+  }
+});
+app.get("/api/products/:id", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const product = await kv.getProduct(c.req.param("id"));
+    if (!product) {
+      return c.json({ error: "Product not found" }, 404);
+    }
+    return c.json(product);
+  } catch (error3) {
+    console.error("Error fetching product:", error3);
+    return c.json({ error: "Failed to fetch product" }, 500);
+  }
+});
+app.get("/api/collections", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const collections = await kv.getAllCollections();
+    const visible = collections.filter((col) => !col.archived);
+    return c.json(visible);
+  } catch (error3) {
+    console.error("Error fetching collections:", error3);
+    return c.json({ error: "Failed to fetch collections" }, 500);
+  }
+});
+app.get("/api/collections/:id", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const collection = await kv.getCollection(c.req.param("id"));
+    if (!collection) {
+      return c.json({ error: "Collection not found" }, 404);
+    }
+    return c.json(collection);
+  } catch (error3) {
+    console.error("Error fetching collection:", error3);
+    return c.json({ error: "Failed to fetch collection" }, 500);
+  }
+});
+app.get("/api/collections/:id/products", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const products = await kv.getProductsByCollection(c.req.param("id"));
+    const collection = await kv.getCollection(c.req.param("id"));
+    const visible = collection && collection.archived ? [] : products.filter((p) => !p.archived);
+    return c.json(visible);
+  } catch (error3) {
+    console.error("Error fetching collection products:", error3);
+    return c.json({ error: "Failed to fetch collection products" }, 500);
+  }
+});
+app.get("/api/storefront/theme", async (c) => {
+  try {
+    const namespace = getKVNamespace2(c.env);
+    const kvTheme = namespace ? await namespace.get(THEME_KV_KEY) : null;
+    let storedTheme = null;
+    if (kvTheme) {
+      try {
+        storedTheme = JSON.parse(kvTheme);
+      } catch (parseError) {
+        console.error("Invalid theme JSON in KV, falling back to defaults:", parseError);
+      }
+    }
+    const resolvedTheme = resolveStorefrontTheme(storedTheme || DEFAULT_STORE_THEME);
+    return c.json(resolvedTheme);
+  } catch (error3) {
+    console.error("Error fetching storefront theme:", error3);
+    return c.json(resolveStorefrontTheme(DEFAULT_STORE_THEME), 200);
+  }
+});
+app.get("/api/store-settings", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const settings = await kv.namespace.get("store:settings");
+    const defaultSettings = {
+      logoType: "text",
+      logoText: "OpenShop",
+      logoImageUrl: "",
+      storeName: "OpenShop",
+      storeDescription: "Your amazing online store",
+      heroImageUrl: "",
+      heroTitle: "Welcome to OpenShop",
+      heroSubtitle: "Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.",
+      contactEmail: "contact@example.com",
+      // Business Address fields
+      businessName: "",
+      businessAddressLine1: "",
+      businessAddressLine2: "",
+      businessCity: "",
+      businessState: "",
+      businessPostalCode: "",
+      businessCountry: ""
+    };
+    if (settings) {
+      return c.json(JSON.parse(settings));
+    } else {
+      return c.json(defaultSettings);
+    }
+  } catch (error3) {
+    console.error("Error fetching store settings:", error3);
+    return c.json({ error: "Failed to fetch store settings" }, 500);
+  }
+});
+app.get("/api/contact-email", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const settings = await kv.namespace.get("store:settings");
+    if (settings) {
+      const parsedSettings = JSON.parse(settings);
+      return c.json({ email: parsedSettings.contactEmail || "contact@example.com" });
+    } else {
+      return c.json({ email: "contact@example.com" });
+    }
+  } catch (error3) {
+    console.error("Error fetching contact email:", error3);
+    return c.json({ email: "contact@example.com" });
+  }
+});
+app.post("/api/create-checkout-session", async (c) => {
+  try {
+    const { priceId } = await c.req.json();
+    if (!priceId) {
+      return c.json({ error: "Price ID is required" }, 400);
+    }
+    const stripe = new stripe_esm_worker_default(c.env.STRIPE_SECRET_KEY);
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [{ price: priceId, quantity: 1 }],
+      mode: "payment",
+      shipping_address_collection: {
+        allowed_countries: ["US", "CA", "GB", "AU", "DE", "FR", "IT", "ES", "NL", "BE", "AT", "CH", "SE", "NO", "DK", "FI", "IE", "PT", "PL", "CZ", "HU", "GR", "RO", "BG", "HR", "SI", "SK", "EE", "LV", "LT", "LU", "MT", "CY"]
+      },
+      billing_address_collection: "required",
+      success_url: `${c.env.SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${c.env.SITE_URL}/`
+    });
+    return c.json({ sessionId: session.id });
+  } catch (error3) {
+    console.error("Error creating checkout session:", error3);
+    return c.json({ error: "Failed to create checkout session" }, 500);
+  }
+});
+app.post("/api/create-cart-checkout-session", async (c) => {
+  try {
+    const { items } = await c.req.json();
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return c.json({ error: "Cart items are required" }, 400);
+    }
+    const stripe = new stripe_esm_worker_default(c.env.STRIPE_SECRET_KEY);
+    const lineItems = items.map((item) => {
+      const lineItem = {
+        price: item.stripePriceId,
+        quantity: item.quantity
+      };
+      const descriptionParts = [];
+      if (item.name) {
+        descriptionParts.push(item.name);
+      }
+      if (item.selectedVariant?.name) {
+        descriptionParts.push(item.selectedVariant.name);
+      }
+      if (item.selectedVariant2?.name) {
+        descriptionParts.push(item.selectedVariant2.name);
+      }
+      if (descriptionParts.length > 0) {
+        lineItem.description = descriptionParts.join(" - ");
+      }
+      return lineItem;
+    });
+    const metadata = {
+      order_type: "cart_checkout",
+      item_count: items.length.toString(),
+      total_quantity: items.reduce((sum, item) => sum + item.quantity, 0).toString()
+    };
+    items.forEach((item, index) => {
+      const itemName = item.name || `Item ${index + 1}`;
+      metadata[`item_${index}_name`] = itemName;
+      if (item.selectedVariant?.name) {
+        metadata[`item_${index}_variant1`] = item.selectedVariant.name;
+      }
+      if (item.selectedVariant2?.name) {
+        metadata[`item_${index}_variant2`] = item.selectedVariant2.name;
+      }
+    });
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      mode: "payment",
+      shipping_address_collection: {
+        allowed_countries: ["US", "CA", "GB", "AU", "DE", "FR", "IT", "ES", "NL", "BE", "AT", "CH", "SE", "NO", "DK", "FI", "IE", "PT", "PL", "CZ", "HU", "GR", "RO", "BG", "HR", "SI", "SK", "EE", "LV", "LT", "LU", "MT", "CY"]
+      },
+      billing_address_collection: "required",
+      success_url: `${c.env.SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${c.env.SITE_URL}/`,
+      metadata
+    });
+    return c.json({ sessionId: session.id });
+  } catch (error3) {
+    console.error("Error creating cart checkout session:", error3);
+    return c.json({ error: "Failed to create checkout session" }, 500);
+  }
+});
+app.get("/api/checkout-session/:sessionId", async (c) => {
+  try {
+    const sessionId = c.req.param("sessionId");
+    const stripe = new stripe_esm_worker_default(c.env.STRIPE_SECRET_KEY);
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    return c.json({
+      id: session.id,
+      amount_total: session.amount_total,
+      currency: session.currency,
+      customer_email: session.customer_details?.email,
+      payment_status: session.payment_status,
+      created: session.created
+    });
+  } catch (error3) {
+    console.error("Error fetching checkout session:", error3);
+    return c.json({ error: "Failed to fetch checkout session" }, 500);
+  }
+});
+app.use("/api/admin/*", async (c, next) => {
+  const unauthenticatedPaths = /* @__PURE__ */ new Set([
+    "/api/admin/login",
+    "/api/admin/drive/oauth/start",
+    "/api/admin/drive/oauth/callback"
+  ]);
+  if (unauthenticatedPaths.has(c.req.path)) {
+    return next();
+  }
+  try {
+    const authResult = await verifyAdminAuth(c.req, c.env);
+    if (!authResult.isValid) {
+      console.error("Auth failed:", authResult.error);
+      return c.json({ error: authResult.error }, authResult.status);
+    }
+    return next();
+  } catch (error3) {
+    console.error("Auth middleware error:", error3);
+    return c.json({ error: "Authentication middleware failed" }, 500);
+  }
+});
+app.post("/api/admin/ai/generate-image", async (c) => {
+  try {
+    const { prompt, inputs } = await c.req.json();
+    if (!prompt || typeof prompt !== "string") {
+      return c.json({ error: "Missing prompt" }, 400);
+    }
+    const parts = [];
+    parts.push({ text: prompt });
+    if (Array.isArray(inputs)) {
+      for (const item of inputs.slice(0, 4)) {
+        if (item && item.dataBase64 && item.mimeType) {
+          parts.push({
+            inline_data: {
+              mime_type: item.mimeType,
+              data: item.dataBase64
+            }
+          });
+        }
+      }
+    }
+    const apiKey = c.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return c.json({ error: "GEMINI_API_KEY not configured" }, 500);
+    }
+    const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent";
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "x-goog-api-key": apiKey,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [{ parts }]
+      })
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("Gemini API error", res.status, errText);
+      return c.json({ error: "Gemini API failed", details: errText }, res.status);
+    }
+    const data = await res.json();
+    const candidates = data?.candidates || [];
+    let foundBase64 = null;
+    let mime = "image/png";
+    for (const cand of candidates) {
+      const parts2 = cand?.content?.parts || [];
+      for (const p of parts2) {
+        const inlineA = p?.inlineData || p?.inline_data;
+        if (inlineA && inlineA.data) {
+          foundBase64 = inlineA.data;
+          mime = inlineA.mimeType || inlineA.mime_type || mime;
+          break;
+        }
+      }
+      if (foundBase64) break;
+    }
+    if (!foundBase64) {
+      return c.json({ error: "No image returned from Gemini" }, 502);
+    }
+    return c.json({ mimeType: mime, dataBase64: foundBase64 });
+  } catch (e) {
+    console.error("AI generation error", e);
+    return c.json({ error: "Generation failed" }, 500);
+  }
+});
+var DRIVE_TOKEN_KEY = "drive:oauth:tokens";
+var DRIVE_FOLDER_KV_PREFIX = "drive:folder";
+app.get("/api/admin/drive/status", async (c) => {
+  try {
+    const kv = getKVNamespace2(c.env);
+    const raw2 = await kv.get(DRIVE_TOKEN_KEY);
+    if (!raw2) return c.json({ connected: false });
+    const t = JSON.parse(raw2);
+    return c.json({ connected: !!t?.access_token });
+  } catch (_) {
+    return c.json({ connected: false });
+  }
+});
+app.post("/api/admin/drive/disconnect", async (c) => {
+  try {
+    const kv = getKVNamespace2(c.env);
+    if (!kv) {
+      return c.json({ error: "KV namespace not available" }, 500);
+    }
+    await kv.delete(DRIVE_TOKEN_KEY);
+    const keys = await kv.list({ prefix: DRIVE_FOLDER_KV_PREFIX });
+    for (const key of keys.keys) {
+      await kv.delete(key.name);
+    }
+    return c.json({ success: true });
+  } catch (error3) {
+    console.error("Error disconnecting Google Drive:", error3);
+    return c.json({ error: "Failed to disconnect Google Drive" }, 500);
+  }
+});
+app.get("/api/admin/drive/oauth/start", async (c) => {
+  try {
+    const clientId = c.env.GOOGLE_CLIENT_ID;
+    const origin = new URL(c.req.url).origin;
+    const redirectUri = `${origin}/api/admin/drive/oauth/callback`;
+    if (!clientId || !redirectUri) {
+      return c.json({ error: "Drive OAuth not configured" }, 500);
+    }
+    const params = new URLSearchParams();
+    params.set("response_type", "code");
+    params.set("client_id", clientId);
+    params.set("redirect_uri", redirectUri);
+    params.set("scope", "https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file");
+    params.set("access_type", "offline");
+    params.set("prompt", "consent");
+    params.set("include_granted_scopes", "true");
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    return c.redirect(url, 302);
+  } catch (e) {
+    console.error("Drive oauth start error", e);
+    return c.json({ error: "OAuth start failed" }, 500);
+  }
+});
+app.get("/api/admin/drive/oauth/callback", async (c) => {
+  try {
+    const code = c.req.query("code");
+    if (!code) return c.text("Missing code", 400);
+    const clientId = c.env.GOOGLE_CLIENT_ID;
+    const clientSecret = c.env.GOOGLE_CLIENT_SECRET;
+    const origin = new URL(c.req.url).origin;
+    const redirectUri = `${origin}/api/admin/drive/oauth/callback`;
+    if (!clientId || !clientSecret) {
+      return c.text("OAuth not configured", 500);
+    }
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: "authorization_code"
+      })
+    });
+    if (!tokenRes.ok) {
+      const t = await tokenRes.text();
+      console.error("Token exchange failed", t);
+      return c.text("Token exchange failed", 500);
+    }
+    const tokens = await tokenRes.json();
+    const now = Math.floor(Date.now() / 1e3);
+    const record = {
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token || null,
+      scope: tokens.scope,
+      token_type: tokens.token_type,
+      expiry: now + (tokens.expires_in || 3600) - 30
+    };
+    await getKVNamespace2(c.env).put(DRIVE_TOKEN_KEY, JSON.stringify(record));
+    return c.html(`<!doctype html><html><body><p>Google Drive connected. You can close this window.</p><script>setTimeout(()=>window.close(),500)<\/script></body></html>`);
+  } catch (e) {
+    console.error("Drive oauth callback error", e);
+    return c.text("OAuth callback failed", 500);
+  }
+});
+async function ensureDriveAccessToken(env2) {
+  const kv = getKVNamespace2(env2);
+  const raw2 = await kv.get(DRIVE_TOKEN_KEY);
+  if (!raw2) throw new Error("Drive not connected");
+  let tok = JSON.parse(raw2);
+  const now = Math.floor(Date.now() / 1e3);
+  if (tok.expiry && tok.expiry > now + 60) return tok;
+  if (!tok.refresh_token) return tok;
+  const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: env2.GOOGLE_CLIENT_ID,
+      client_secret: env2.GOOGLE_CLIENT_SECRET,
+      refresh_token: tok.refresh_token,
+      grant_type: "refresh_token"
+    })
+  });
+  if (!tokenRes.ok) {
+    let errText = "";
+    try {
+      errText = await tokenRes.text();
+    } catch (_) {
+    }
+    console.error("Drive token refresh failed", tokenRes.status, errText);
+    if (errText && /invalid_grant/i.test(errText)) {
+      try {
+        const cleared = { ...tok, access_token: "", refresh_token: null, expiry: 0 };
+        await kv.put(DRIVE_TOKEN_KEY, JSON.stringify(cleared));
+      } catch (_) {
+      }
+    }
+    throw new Error("Failed to refresh token");
+  }
+  const t = await tokenRes.json();
+  tok.access_token = t.access_token;
+  tok.expiry = Math.floor(Date.now() / 1e3) + (t.expires_in || 3600) - 30;
+  await kv.put(DRIVE_TOKEN_KEY, JSON.stringify(tok));
+  return tok;
+}
+__name(ensureDriveAccessToken, "ensureDriveAccessToken");
+async function ensureDriveRootFolder(env2, tok) {
+  const kv = getKVNamespace2(env2);
+  const desiredName = env2.DRIVE_ROOT_FOLDER && String(env2.DRIVE_ROOT_FOLDER).trim() || deriveDefaultFolderName(env2);
+  const kvKey = `${DRIVE_FOLDER_KV_PREFIX}:${desiredName}:id`;
+  const existing = await kv.get(kvKey);
+  if (existing) return { id: existing, name: desiredName };
+  const query = `mimeType='application/vnd.google-apps.folder' and name='${desiredName.replace(/'/g, "\\'")}' and 'root' in parents and trashed=false`;
+  const listUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name)`;
+  const foundRes = await fetch(listUrl, {
+    headers: { Authorization: `Bearer ${tok.access_token}` }
+  });
+  if (foundRes.ok) {
+    const j = await foundRes.json();
+    if (Array.isArray(j.files) && j.files.length > 0) {
+      const id = j.files[0].id;
+      await kv.put(kvKey, id);
+      return { id, name: desiredName };
+    }
+  }
+  const createRes = await fetch("https://www.googleapis.com/drive/v3/files", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${tok.access_token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: desiredName,
+      mimeType: "application/vnd.google-apps.folder"
+    })
+  });
+  if (!createRes.ok) {
+    const t = await createRes.text();
+    console.error("Failed to create Drive folder", t);
+    throw new Error("Failed to create Drive folder");
+  }
+  const created = await createRes.json();
+  const folderId = created.id;
+  await kv.put(kvKey, folderId);
+  return { id: folderId, name: desiredName };
+}
+__name(ensureDriveRootFolder, "ensureDriveRootFolder");
+function deriveDefaultFolderName(env2) {
+  try {
+    if (env2.SITE_URL) {
+      const u = new URL(env2.SITE_URL);
+      const sub = u.hostname.split(".")[0] || "openshop";
+      return sub.replace(/[-_]+/g, " ").trim();
+    }
+  } catch (_) {
+  }
+  return "OpenShop";
+}
+__name(deriveDefaultFolderName, "deriveDefaultFolderName");
+app.post("/api/admin/drive/upload", async (c) => {
+  try {
+    const { mimeType, dataBase64, filename } = await c.req.json();
+    if (!mimeType || !dataBase64) {
+      return c.json({ error: "Missing mimeType or dataBase64" }, 400);
+    }
+    let tok;
+    try {
+      tok = await ensureDriveAccessToken(c.env);
+    } catch (e) {
+      const msg = String(e && e.message ? e.message : e);
+      if (/Drive not connected/i.test(msg)) {
+        return c.json({ error: "Drive not connected. Please connect Google Drive in Admin." }, 502);
+      }
+      if (/Failed to refresh token/i.test(msg)) {
+        return c.json({ error: "Drive session expired. Please reconnect Google Drive." }, 502);
+      }
+      console.error("Drive token ensure error", e);
+      return c.json({ error: "Drive authentication failed" }, 502);
+    }
+    const folder = await ensureDriveRootFolder(c.env, tok);
+    const boundary = `openshop-${generateSessionToken()}`;
+    const metadata = { name: filename || "openshop-image", parents: [folder.id] };
+    const body = `--${boundary}\r
 Content-Type: application/json; charset=UTF-8\r
 \r
-${JSON.stringify(l)}\r
---${a}\r
-Content-Type: ${e}\r
+${JSON.stringify(metadata)}\r
+--${boundary}\r
+Content-Type: ${mimeType}\r
 Content-Transfer-Encoding: base64\r
 \r
-${r}\r
---${a}--`,d=await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",{method:"POST",headers:{Authorization:`Bearer ${s.access_token}`,"Content-Type":`multipart/related; boundary=${a}`},body:c});if(!d.ok){let g=await d.text();return console.error("Drive upload failed",g),t.json({error:"Drive upload failed",details:g},502)}let u=await d.json(),h=u.id;await fetch(`https://www.googleapis.com/drive/v3/files/${h}/permissions`,{method:"POST",headers:{Authorization:`Bearer ${s.access_token}`,"Content-Type":"application/json"},body:JSON.stringify({role:"reader",type:"anyone"})}).catch(()=>{});let f=`https://drive.usercontent.google.com/download?id=${h}&export=view`;return t.json({id:h,viewUrl:f,webViewLink:u.webViewLink,downloadUrl:f,folder:{id:i.id,name:i.name}})}catch(e){return console.error("Drive upload error",e),t.json({error:"Upload failed"},500)}});_.get("/api/admin/drive/picker-config",async t=>{try{let e=t.env.GOOGLE_API_KEY,r=t.env.GOOGLE_CLIENT_ID;if(!e||!r)return t.json({error:"Picker not configured"},500);let o=await Zr(t.env),s=Math.floor(Date.now()/1e3),i=Math.max(0,(o.expiry||s)-s);return t.json({apiKey:e,clientId:r,accessToken:o.access_token,expiresIn:i})}catch(e){let r=String(e&&e.message?e.message:e);return/Drive not connected/i.test(r)||/Failed to refresh token/i.test(r)?t.json({error:"Drive not connected"},502):(console.error("Picker config error",e),t.json({error:"Failed to load picker config"},500))}});_.post("/api/admin/drive/copy",async t=>{try{let e=await t.req.json().catch(()=>({})),r=Array.isArray(e.fileIds)&&e.fileIds.length>0?e.fileIds:e.fileId?[e.fileId]:[],o=e&&e.resourceKeys&&typeof e.resourceKeys=="object"?e.resourceKeys:{},s=e&&typeof e.resourceKey=="string"?e.resourceKey:"";if(r.length===0)return t.json({error:"Missing fileId(s)"},400);let i;try{i=await Zr(t.env)}catch(c){let d=String(c&&c.message?c.message:c);return/Drive not connected/i.test(d)?t.json({error:"Drive not connected. Please connect Google Drive in Admin."},502):/Failed to refresh token/i.test(d)?t.json({error:"Drive session expired. Please reconnect Google Drive."},502):(console.error("Drive token ensure error (copy)",c),t.json({error:"Drive authentication failed"},502))}let a=await Qi(t.env,i),l=[];for(let c of r){let d=o[c]||s||"",u=`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(c)}?fields=id,mimeType,shortcutDetails,targetId,resourceKey,webViewLink,driveId&supportsAllDrives=true${d?`&resourceKey=${encodeURIComponent(d)}`:""}`,h=await fetch(u,{headers:{Authorization:`Bearer ${i.access_token}`}});if(!h.ok){let S=await h.text().catch(()=>"");return console.error("Drive get file failed",c,S),t.json({error:"Drive file lookup failed",details:S},502)}let f=await h.json(),g=f&&f.mimeType==="application/vnd.google-apps.shortcut"&&f.shortcutDetails&&f.shortcutDetails.targetId?f.shortcutDetails.targetId:f&&f.id?f.id:c,p=f&&f.resourceKey?f.resourceKey:d,m=`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(g)}/copy?supportsAllDrives=true${p?`&resourceKey=${encodeURIComponent(p)}`:""}`,v=await fetch(m,{method:"POST",headers:{Authorization:`Bearer ${i.access_token}`,"Content-Type":"application/json"},body:JSON.stringify({parents:[a.id]})});if(!v.ok){let S=await v.text().catch(()=>"");return console.error("Drive copy failed",g,S),t.json({error:"Drive copy failed",details:S},502)}let y=await v.json(),T=y.id;await fetch(`https://www.googleapis.com/drive/v3/files/${T}/permissions?supportsAllDrives=true`,{method:"POST",headers:{Authorization:`Bearer ${i.access_token}`,"Content-Type":"application/json"},body:JSON.stringify({role:"reader",type:"anyone"})}).catch(()=>{});let P=`https://drive.usercontent.google.com/download?id=${T}&export=view`;l.push({id:T,viewUrl:P,webViewLink:y.webViewLink,downloadUrl:P,folder:{id:a.id,name:a.name}})}return Array.isArray(e.fileIds)?t.json({items:l}):t.json(l[0])}catch(e){return console.error("Drive copy error",e),t.json({error:"Copy failed"},500)}});_.post("/api/admin/login",async t=>{try{let{password:e}=await t.req.json(),r=t.env.ADMIN_PASSWORD||"admin123";if(e!==r)return t.json({error:"Invalid password"},401);let o=Yi(),s=await gr(o);return await x(t.env).put(`admin_token:${s}`,Date.now().toString(),{expirationTtl:86400}),t.json({token:o})}catch(e){return console.error("Admin login error:",e),t.json({error:"Login failed"},500)}});_.post("/api/admin/products",async t=>{try{let e=await t.req.json(),r=new C(x(t.env)),o=new B(t.env.STRIPE_SECRET_KEY),s=Array.isArray(e.images)?e.images:e.imageUrl?[e.imageUrl]:[],i={name:e.name,images:s.slice(0,8),type:"good",tax_code:"txcd_99999999"};e.description&&String(e.description).trim()!==""&&(i.description=String(e.description));let a=await o.products.create(i),l=Array.isArray(e.variants)?e.variants:[],c=Array.isArray(e.variants2)?e.variants2:[],d=null,u={};if(l.length===0&&c.length===0)d=await o.prices.create({unit_amount:Math.round(e.price*100),currency:e.currency,product:a.id,nickname:`${e.name} - Base`,metadata:{price_type:"base",product_name:e.name}});else{let g=[];if(l.length>0&&c.length>0)for(let p of l)for(let m of c){let v=`${e.name} - ${p.name} - ${m.name}`,y=p.hasCustomPrice&&p.price?p.price:m.hasCustomPrice&&m.price?m.price:e.price;g.push({name:v,price:y,variant1:p,variant2:m,description:v,variantCombo:`${p.id||p.name}-${m.id||m.name}`})}else if(l.length>0)for(let p of l){let m=`${e.name} - ${p.name}`,v=p.hasCustomPrice&&p.price?p.price:e.price;g.push({name:m,price:v,variant1:p,description:m,variantCombo:`${p.id||p.name}`})}else if(c.length>0)for(let p of c){let m=`${e.name} - ${p.name}`,v=p.hasCustomPrice&&p.price?p.price:e.price;g.push({name:m,price:v,variant2:p,description:m,variantCombo:`${p.id||p.name}`})}for(let p of g){let m=await o.prices.create({unit_amount:Math.round(p.price*100),currency:e.currency,product:a.id,nickname:p.name,metadata:{price_type:"variant_combo",product_name:e.name,variant1_name:p.variant1?.name||"",variant2_name:p.variant2?.name||"",variant1_id:p.variant1?.id||"",variant2_id:p.variant2?.id||"",variant1_style:e.variantStyle||"Variant",variant2_style:e.variantStyle2||"Variant",variant_combo:p.variantCombo}});p.variant1&&p.variant2?u[`${p.variant1.id}-${p.variant2.id}`]=m.id:p.variant1?u[p.variant1.id]=m.id:p.variant2&&(u[p.variant2.id]=m.id)}d=await o.prices.create({unit_amount:Math.round(e.price*100),currency:e.currency,product:a.id,nickname:`${e.name} - Base`,metadata:{price_type:"base",product_name:e.name}})}let h={...e,stripePriceId:d?.id||Object.values(u)[0]||"",stripeProductId:a.id,variantPrices:u,variants:l,variants2:c},f=await r.createProduct(h);return t.json(f,201)}catch(e){return console.error("Error creating product:",e),t.json({error:"Failed to create product"},500)}});_.post("/api/admin/collections",async t=>{try{console.log("Creating collection - starting");let e=await t.req.json();console.log("Collection data received:",e);let r=x(t.env);if(!r)return console.error("KV namespace not found in environment"),t.json({error:"KV namespace not configured"},500);console.log("KV namespace found");let o=new C(r);console.log("KVManager created");let s=await o.createCollection(e);return console.log("Collection saved:",s),t.json(s,201)}catch(e){return console.error("Error creating collection:",e),console.error("Error stack:",e.stack),t.json({error:"Failed to create collection",details:e.message,stack:e.stack},500)}});_.put("/api/admin/collections/:id",async t=>{try{let e=await t.req.json(),o=await new C(x(t.env)).updateCollection(t.req.param("id"),e);return t.json(o)}catch(e){return console.error("Error updating collection:",e),t.json({error:"Failed to update collection"},500)}});_.get("/api/admin/collections",async t=>{try{let r=await new C(x(t.env)).getAllCollections();return t.json(r)}catch(e){return console.error("Error listing admin collections:",e),t.json({error:"Failed to list collections"},500)}});_.delete("/api/admin/collections/:id",async t=>{try{let e=new C(x(t.env));return await e.getCollection(t.req.param("id"))?(await e.deleteCollection(t.req.param("id")),t.json({success:!0})):t.json({error:"Collection not found"},404)}catch(e){return console.error("Error deleting collection:",e),t.json({error:"Failed to delete collection"},500)}});_.put("/api/admin/products/:id",async t=>{try{let e=await t.req.json(),r=new C(x(t.env)),o=new B(t.env.STRIPE_SECRET_KEY),s=await r.getProduct(t.req.param("id"));if(!s)return t.json({error:"Product not found"},404);if(e.name||e.description!==void 0||e.images||e.imageUrl){let a=Array.isArray(e.images)?e.images:e.imageUrl?[e.imageUrl]:Array.isArray(s.images)?s.images:s.imageUrl?[s.imageUrl]:[],l={name:e.name||s.name,images:a.slice(0,8)};if(typeof e.description=="string"){let c=e.description.trim();c&&(l.description=c)}await o.products.update(s.stripeProductId,l)}if(typeof e.price<"u"&&e.price!==s.price){let a=typeof e.price=="number"?e.price:parseFloat(String(e.price)),l=await o.prices.create({unit_amount:Math.round(a*100),currency:e.currency||s.currency,product:s.stripeProductId});s.stripePriceId&&await o.prices.update(s.stripePriceId,{active:!1}),e.stripePriceId=l.id,e.price=a}if(Array.isArray(e.variants)){let a=e.variants,l=Array.isArray(s.variants)?s.variants:[],c=e.stripePriceId||s.stripePriceId,d=[];for(let u of a){let h=u.id?l.find(g=>g.id===u.id):void 0;if(!!u.hasCustomPrice&&typeof u.price=="number"&&u.price>0){let g=Math.round(u.price*100),p=h?.stripePriceId,m=!!h?.hasCustomPrice&&typeof h?.price=="number",v=m?Math.round(h.price*100):null;if(!p||!m||v!==g){let y=await o.prices.create({unit_amount:g,currency:e.currency||s.currency,product:s.stripeProductId});if(h?.stripePriceId&&m)try{await o.prices.update(h.stripePriceId,{active:!1})}catch{}p=y.id}d.push({...u,stripePriceId:p,hasCustomPrice:!0})}else{if(h?.stripePriceId&&h?.hasCustomPrice)try{await o.prices.update(h.stripePriceId,{active:!1})}catch{}d.push({...u,stripePriceId:c,hasCustomPrice:!1,price:void 0})}}e.variants=d}if(Array.isArray(e.variants2)){let a=e.variants2,l=Array.isArray(s.variants2)?s.variants2:[],c=e.stripePriceId||s.stripePriceId,d=[];for(let u of a){let h=u.id?l.find(g=>g.id===u.id):void 0;if(!!u.hasCustomPrice&&typeof u.price=="number"&&u.price>0){let g=Math.round(u.price*100),p=h?.stripePriceId,m=!!h?.hasCustomPrice&&typeof h?.price=="number",v=m?Math.round(h.price*100):null;if(!p||!m||v!==g){let y=await o.prices.create({unit_amount:g,currency:e.currency||s.currency,product:s.stripeProductId,nickname:`${e.name||s.name}${e.variantStyle2||s.variantStyle2?` - ${e.variantStyle2||s.variantStyle2}: ${u.name}`:` - ${u.name}`}`,metadata:{price_type:"variant_secondary",variant_id:u.id||"",variant_name:u.name||"",variant2_name:u.name||""}});if(h?.stripePriceId&&m)try{await o.prices.update(h.stripePriceId,{active:!1})}catch{}p=y.id}d.push({...u,stripePriceId:p,hasCustomPrice:!0})}else{if(h?.stripePriceId&&h?.hasCustomPrice)try{await o.prices.update(h.stripePriceId,{active:!1})}catch{}d.push({...u,stripePriceId:c,hasCustomPrice:!1,price:void 0})}}e.variants2=d}let i=await r.updateProduct(t.req.param("id"),e);return t.json(i)}catch(e){return console.error("Error updating product:",e),t.json({error:"Failed to update product"},500)}});_.get("/api/admin/products",async t=>{try{let r=await new C(x(t.env)).getAllProducts();return t.json(r)}catch(e){return console.error("Error listing admin products:",e),t.json({error:"Failed to list products"},500)}});_.delete("/api/admin/products/:id",async t=>{try{let e=new C(x(t.env)),r=new B(t.env.STRIPE_SECRET_KEY),o=await e.getProduct(t.req.param("id"));return o?(o.stripePriceId&&await r.prices.update(o.stripePriceId,{active:!1}),o.stripeProductId&&await r.products.update(o.stripeProductId,{active:!1}),await e.deleteProduct(t.req.param("id")),t.json({success:!0})):t.json({error:"Product not found"},404)}catch(e){return console.error("Error deleting product:",e),t.json({error:"Failed to delete product"},500)}});_.get("/api/admin/storefront/theme",async t=>{try{let e=x(t.env);if(!e)return t.json({error:"KV namespace unavailable"},500);let r=await e.get(Ce),o=null;if(r)try{o=JSON.parse(r)}catch(s){console.error("Invalid storefront theme JSON in KV:",s),o=null}return t.json(le(o||M))}catch(e){return console.error("Error fetching admin storefront theme:",e),t.json({error:"Failed to load storefront theme"},500)}});_.put("/api/admin/storefront/theme",async t=>{try{let e=await t.req.json(),r=Cc(e);if(!r.valid)return t.json({error:r.message},400);let o=x(t.env);if(!o)return t.json({error:"KV namespace unavailable"},500);let i={theme:mt(e),updatedAt:Date.now()};return await o.put(Ce,JSON.stringify(i)),t.json(le(i))}catch(e){return console.error("Error updating storefront theme:",e),t.json({error:"Failed to update storefront theme"},500)}});_.delete("/api/admin/storefront/theme",async t=>{try{let e=x(t.env);return e?(await e.delete(Ce),t.json(le(M))):t.json({error:"KV namespace unavailable"},500)}catch(e){return console.error("Error resetting storefront theme:",e),t.json({error:"Failed to reset storefront theme"},500)}});_.put("/api/admin/store-settings",async t=>{try{let e=await t.req.json(),r=new C(x(t.env));if(!e.logoType||!["text","image"].includes(e.logoType))return t.json({error:'Invalid logoType. Must be "text" or "image"'},400);let s={...{logoType:"text",logoText:"OpenShop",logoImageUrl:"",storeName:"OpenShop",storeDescription:"Your amazing online store",heroImageUrl:"",heroTitle:"Welcome to OpenShop",heroSubtitle:"Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.",contactEmail:"contact@example.com",businessName:"",businessAddressLine1:"",businessAddressLine2:"",businessCity:"",businessState:"",businessPostalCode:"",businessCountry:""},...e};return await r.namespace.put("store:settings",JSON.stringify(s)),t.json(s)}catch(e){return console.error("Error updating store settings:",e),t.json({error:"Failed to update store settings"},500)}});_.get("/api/admin/analytics",async t=>{try{let e=t.req.query("period")||"30d",r=new B(t.env.STRIPE_SECRET_KEY),o=new Date,i={"1d":1,"7d":7,"30d":30,"90d":90,"1y":365}[e]||30,a=new Date(o.getTime()-i*24*60*60*1e3),c=(await r.paymentIntents.list({created:{gte:Math.floor(a.getTime()/1e3)},limit:100})).data.filter(g=>g.status==="succeeded"),d=c.reduce((g,p)=>g+p.amount,0)/100,u=c.length,h=u>0?d/u:0,f=[];if(e==="1d"){let g={},p={};c.forEach(T=>{let P=new Date(T.created*1e3),S=new Date(P);S.setMinutes(0,0,0);let E=S.toISOString();g[E]=(g[E]||0)+1,p[E]=(p[E]||0)+T.amount/100});let m=new Date(o);m.setMinutes(0,0,0);let v=new Date(m.getTime()-23*60*60*1e3),y=new Date(v);for(;y<=m;){let T=new Date(y).toISOString();f.push({date:T,orders:g[T]||0,revenue:Math.round(((p[T]||0)+Number.EPSILON)*100)/100,formattedDate:new Date(y).toLocaleTimeString("en-US",{hour:"numeric"})}),y.setHours(y.getHours()+1)}}else{let g={},p={};c.forEach(v=>{let y=new Date(v.created*1e3).toISOString().split("T")[0];g[y]=(g[y]||0)+1,p[y]=(p[y]||0)+v.amount/100});let m=new Date(a);for(;m<=o;){let v=m.toISOString().split("T")[0];f.push({date:v,orders:g[v]||0,revenue:p[v]||0,formattedDate:m.toLocaleDateString("en-US",{month:"short",day:"numeric"})}),m.setDate(m.getDate()+1)}}return t.json({period:e,totalRevenue:Math.round(d*100)/100,totalOrders:u,averageOrderValue:Math.round(h*100)/100,chartData:f,recentOrders:[],dateRange:{start:a.toISOString(),end:o.toISOString()}})}catch(e){return console.error("Error fetching analytics:",e),t.json({error:"Failed to fetch analytics"},500)}});_.post("/api/admin/orders/:orderId/fulfill",async t=>{try{let e=t.req.param("orderId");if(!e)return t.json({error:"Order ID is required"},400);let r=x(t.env);if(!r)return t.json({error:"KV namespace not available"},500);let o=`order_fulfillment:${e}`,s={fulfilled:!0,fulfilledAt:new Date().toISOString(),fulfilledBy:"admin"};return await r.put(o,JSON.stringify(s)),t.json({success:!0,fulfillment:s})}catch(e){return console.error("Error marking order as fulfilled:",e),t.json({error:"Failed to mark order as fulfilled"},500)}});_.get("/api/admin/orders",async t=>{try{let e=new B(t.env.STRIPE_SECRET_KEY),r=Math.min(parseInt(t.req.query("limit")||"25",10),50),o=t.req.query("direction")||"next",s=t.req.query("cursor")||void 0,i=t.req.query("showFulfilled"),a=i==="true";console.log("Show fulfilled orders:",a,"Raw param:",i);let l={limit:r};s&&(o==="prev"?l.ending_before=s:l.starting_after=s);let c=await e.checkout.sessions.list({...l}),d=x(t.env),u=[];for(let m of c.data)if(m.payment_status==="paid"||m.status==="complete"||m.status==="completed"){let v=!0;if(d){let y=`order_fulfillment:${m.id}`,T=await d.get(y),P=T?JSON.parse(T):{fulfilled:!1};a?P.fulfilled||(v=!1):P.fulfilled&&(v=!1)}v&&u.push(m)}let h=u.reverse(),f=[];for(let m of h)try{let v=await e.checkout.sessions.listLineItems(m.id,{limit:100,expand:["data.price"]}),y=null;if(m.shipping_details)y=m.shipping_details;else if(m.payment_intent)try{let E=await e.paymentIntents.retrieve(m.payment_intent,{expand:["shipping"]});E.shipping&&(y={address:E.shipping.address,name:E.shipping.name})}catch(E){console.log("Error fetching payment intent shipping:",E.message)}let T=`order_fulfillment:${m.id}`,P=await d.get(T),S=P?JSON.parse(P):{fulfilled:!1,fulfilledAt:null,fulfilledBy:null};f.push({id:m.id,created:m.created,amount_total:m.amount_total,currency:m.currency,customer_email:m.customer_details?.email||m.customer_email||null,customer_name:m.customer_details?.name||null,shipping:y,payment_intent:m.payment_intent||null,billing:{name:m.customer_details?.name||null,email:m.customer_details?.email||null,address:m.customer_details?.address||null},fulfillment:S,items:v.data.map(E=>{let O=E.price?.nickname||"",b="Unknown Product",q="",D="";if(O.includes(" - ")){let j=O.split(" - ");b=j[0],j.length>=2&&(q=j[1]),j.length>=3&&(D=j[2])}else b=O;return{id:E.id,description:b,quantity:E.quantity,amount_total:E.amount_total,currency:E.currency,price_nickname:O,variant1_name:q||E.price?.metadata?.variant1_name||null,variant1_style:E.price?.metadata?.variant1_style||"Variant",variant2_name:D||E.price?.metadata?.variant2_name||null,variant2_style:E.price?.metadata?.variant2_style||"Variant"}})})}catch(v){console.error("Error fetching line items for session",m.id,v);let y={fulfilled:!1,fulfilledAt:null,fulfilledBy:null};if(d){let P=`order_fulfillment:${m.id}`,S=await d.get(P);y=S?JSON.parse(S):{fulfilled:!1,fulfilledAt:null,fulfilledBy:null}}let T=null;if(m.metadata){let P=[],S=[],E=[];Object.keys(m.metadata).forEach(O=>{O.startsWith("item_")&&O.endsWith("_name")&&P.push(m.metadata[O]),O.startsWith("item_")&&O.endsWith("_variant1")&&S.push(m.metadata[O]),O.startsWith("item_")&&O.endsWith("_variant2")&&E.push(m.metadata[O])}),P.length>0&&(T=P.map((O,b)=>({description:O,variant1_name:S[b]||null,variant1_style:"Variant",variant2_name:E[b]||null,variant2_style:"Variant"})))}f.push({id:m.id,created:m.created,amount_total:m.amount_total,currency:m.currency,customer_email:m.customer_details?.email||m.customer_email||null,customer_name:m.customer_details?.name||null,shipping:m.shipping_details||null,billing:{name:m.customer_details?.name||null,email:m.customer_details?.email||null,address:m.customer_details?.address||null},fulfillment:y,items:T||[]})}let g=h.length>0?h[0].id:null,p=h.length>0?h[h.length-1].id:null;return t.json({limit:r,orders:f,cursors:{next:g,prev:p},has_more:c.has_more})}catch(e){return console.error("Error fetching orders:",e),t.json({error:"Failed to fetch orders"},500)}});function kc(){let t=Ji(4);return`${Date.now().toString(36)}-${t}`}_.get("/api/admin/media",async t=>{try{let o=[...await new C(x(t.env)).getAllMediaItems()].sort((s,i)=>(i.createdAt||0)-(s.createdAt||0));return t.json(o)}catch(e){return console.error("Error listing media:",e),t.json({error:"Failed to list media"},500)}});_.post("/api/admin/media",async t=>{try{let e=await t.req.json(),r=e?.url;if(!r||typeof r!="string"||r.trim()==="")return t.json({error:"url is required"},400);let o=new C(x(t.env)),s={id:e.id||kc(),url:String(r),source:e.source||"link",filename:e.filename||"",mimeType:e.mimeType||"",driveFileId:e.driveFileId||"",createdAt:typeof e.createdAt=="number"?e.createdAt:Date.now()},i=await o.createMediaItem(s);return t.json(i,201)}catch(e){return console.error("Error creating media:",e),t.json({error:"Failed to create media"},500)}});_.delete("/api/admin/media/:id",async t=>{try{let e=t.req.param("id");return e?(await new C(x(t.env)).deleteMediaItem(e),t.json({success:!0})):t.json({error:"Missing id"},400)}catch(e){return console.error("Error deleting media:",e),t.json({error:"Failed to delete media"},500)}});_.get("*",async t=>{let r=new URL(t.req.url).pathname;if(r.startsWith("/api/"))return t.notFound();try{if(r!=="/"&&!r.startsWith("/admin")&&!r.startsWith("/collections")&&!r.startsWith("/products")&&!r.startsWith("/success")){let i=await t.env.ASSETS.fetch(t.req);if(i.ok)return i}let o=new Request(t.req.url.replace(r,"/index.html"),t.req),s=await t.env.ASSETS.fetch(o);if(s.ok)return s;throw new Error("index.html not found")}catch(o){return console.error("Error serving static asset:",o,"for path:",r),t.html(`
+${dataBase64}\r
+--${boundary}--`;
+    const uploadRes = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${tok.access_token}`,
+        "Content-Type": `multipart/related; boundary=${boundary}`
+      },
+      body
+    });
+    if (!uploadRes.ok) {
+      const t = await uploadRes.text();
+      console.error("Drive upload failed", t);
+      return c.json({ error: "Drive upload failed", details: t }, 502);
+    }
+    const file = await uploadRes.json();
+    const fileId = file.id;
+    await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${tok.access_token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ role: "reader", type: "anyone" })
+    }).catch(() => {
+    });
+    const viewUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=view`;
+    return c.json({ id: fileId, viewUrl, webViewLink: file.webViewLink, downloadUrl: viewUrl, folder: { id: folder.id, name: folder.name } });
+  } catch (e) {
+    console.error("Drive upload error", e);
+    return c.json({ error: "Upload failed" }, 500);
+  }
+});
+app.get("/api/admin/drive/picker-config", async (c) => {
+  try {
+    const apiKey = c.env.GOOGLE_API_KEY;
+    const clientId = c.env.GOOGLE_CLIENT_ID;
+    if (!apiKey || !clientId) {
+      return c.json({ error: "Picker not configured" }, 500);
+    }
+    const tok = await ensureDriveAccessToken(c.env);
+    const now = Math.floor(Date.now() / 1e3);
+    const expiresIn = Math.max(0, (tok.expiry || now) - now);
+    return c.json({ apiKey, clientId, accessToken: tok.access_token, expiresIn });
+  } catch (e) {
+    const msg = String(e && e.message ? e.message : e);
+    if (/Drive not connected/i.test(msg) || /Failed to refresh token/i.test(msg)) {
+      return c.json({ error: "Drive not connected" }, 502);
+    }
+    console.error("Picker config error", e);
+    return c.json({ error: "Failed to load picker config" }, 500);
+  }
+});
+app.post("/api/admin/drive/copy", async (c) => {
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const fileIds = Array.isArray(body.fileIds) && body.fileIds.length > 0 ? body.fileIds : body.fileId ? [body.fileId] : [];
+    const resourceKeyById = body && body.resourceKeys && typeof body.resourceKeys === "object" ? body.resourceKeys : {};
+    const singleResourceKey = body && typeof body.resourceKey === "string" ? body.resourceKey : "";
+    if (fileIds.length === 0) {
+      return c.json({ error: "Missing fileId(s)" }, 400);
+    }
+    let tok;
+    try {
+      tok = await ensureDriveAccessToken(c.env);
+    } catch (e) {
+      const msg = String(e && e.message ? e.message : e);
+      if (/Drive not connected/i.test(msg)) {
+        return c.json({ error: "Drive not connected. Please connect Google Drive in Admin." }, 502);
+      }
+      if (/Failed to refresh token/i.test(msg)) {
+        return c.json({ error: "Drive session expired. Please reconnect Google Drive." }, 502);
+      }
+      console.error("Drive token ensure error (copy)", e);
+      return c.json({ error: "Drive authentication failed" }, 502);
+    }
+    const folder = await ensureDriveRootFolder(c.env, tok);
+    const results = [];
+    for (const srcId of fileIds) {
+      const rk = resourceKeyById[srcId] || singleResourceKey || "";
+      const metaUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(srcId)}?fields=id,mimeType,shortcutDetails,targetId,resourceKey,webViewLink,driveId&supportsAllDrives=true${rk ? `&resourceKey=${encodeURIComponent(rk)}` : ""}`;
+      const metaRes = await fetch(metaUrl, { headers: { "Authorization": `Bearer ${tok.access_token}` } });
+      if (!metaRes.ok) {
+        const t = await metaRes.text().catch(() => "");
+        console.error("Drive get file failed", srcId, t);
+        return c.json({ error: "Drive file lookup failed", details: t }, 502);
+      }
+      const meta = await metaRes.json();
+      let effectiveId = meta && meta.mimeType === "application/vnd.google-apps.shortcut" && meta.shortcutDetails && meta.shortcutDetails.targetId ? meta.shortcutDetails.targetId : meta && meta.id ? meta.id : srcId;
+      const effectiveResourceKey = meta && meta.resourceKey ? meta.resourceKey : rk;
+      const copyEndpoint = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(effectiveId)}/copy?supportsAllDrives=true${effectiveResourceKey ? `&resourceKey=${encodeURIComponent(effectiveResourceKey)}` : ""}`;
+      const copyRes = await fetch(copyEndpoint, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${tok.access_token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ parents: [folder.id] })
+      });
+      if (!copyRes.ok) {
+        const t = await copyRes.text().catch(() => "");
+        console.error("Drive copy failed", effectiveId, t);
+        return c.json({ error: "Drive copy failed", details: t }, 502);
+      }
+      const copied = await copyRes.json();
+      const fileId = copied.id;
+      await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions?supportsAllDrives=true`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${tok.access_token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ role: "reader", type: "anyone" })
+      }).catch(() => {
+      });
+      const viewUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=view`;
+      results.push({ id: fileId, viewUrl, webViewLink: copied.webViewLink, downloadUrl: viewUrl, folder: { id: folder.id, name: folder.name } });
+    }
+    if (Array.isArray(body.fileIds)) {
+      return c.json({ items: results });
+    }
+    return c.json(results[0]);
+  } catch (e) {
+    console.error("Drive copy error", e);
+    return c.json({ error: "Copy failed" }, 500);
+  }
+});
+app.post("/api/admin/login", async (c) => {
+  try {
+    const { password } = await c.req.json();
+    const adminPassword = c.env.ADMIN_PASSWORD || "admin123";
+    if (password !== adminPassword) {
+      return c.json({ error: "Invalid password" }, 401);
+    }
+    const token = generateSessionToken();
+    const hashedToken = await hashToken(token);
+    await getKVNamespace2(c.env).put(`admin_token:${hashedToken}`, Date.now().toString(), {
+      expirationTtl: 86400
+      // 24 hours
+    });
+    return c.json({ token });
+  } catch (error3) {
+    console.error("Admin login error:", error3);
+    return c.json({ error: "Login failed" }, 500);
+  }
+});
+app.post("/api/admin/products", async (c) => {
+  try {
+    const productData = await c.req.json();
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const stripe = new stripe_esm_worker_default(c.env.STRIPE_SECRET_KEY);
+    const stripeImages = Array.isArray(productData.images) ? productData.images : productData.imageUrl ? [productData.imageUrl] : [];
+    const productParams = {
+      name: productData.name,
+      images: stripeImages.slice(0, 8),
+      type: "good",
+      tax_code: "txcd_99999999"
+      // Physical goods tax code
+    };
+    if (productData.description && String(productData.description).trim() !== "") {
+      productParams.description = String(productData.description);
+    }
+    const stripeProduct = await stripe.products.create(productParams);
+    const variants = Array.isArray(productData.variants) ? productData.variants : [];
+    const variants2 = Array.isArray(productData.variants2) ? productData.variants2 : [];
+    let basePrice = null;
+    const variantPrices = {};
+    if (variants.length === 0 && variants2.length === 0) {
+      basePrice = await stripe.prices.create({
+        unit_amount: Math.round(productData.price * 100),
+        currency: productData.currency,
+        product: stripeProduct.id,
+        nickname: `${productData.name} - Base`,
+        metadata: {
+          price_type: "base",
+          product_name: productData.name
+        }
+      });
+    } else {
+      const combinations = [];
+      if (variants.length > 0 && variants2.length > 0) {
+        for (const v1 of variants) {
+          for (const v2 of variants2) {
+            const comboName = `${productData.name} - ${v1.name} - ${v2.name}`;
+            const comboPrice = v1.hasCustomPrice && v1.price ? v1.price : v2.hasCustomPrice && v2.price ? v2.price : productData.price;
+            combinations.push({
+              name: comboName,
+              price: comboPrice,
+              variant1: v1,
+              variant2: v2,
+              description: comboName,
+              variantCombo: `${v1.id || v1.name}-${v2.id || v2.name}`
+            });
+          }
+        }
+      } else if (variants.length > 0) {
+        for (const v of variants) {
+          const comboName = `${productData.name} - ${v.name}`;
+          const comboPrice = v.hasCustomPrice && v.price ? v.price : productData.price;
+          combinations.push({
+            name: comboName,
+            price: comboPrice,
+            variant1: v,
+            description: comboName,
+            variantCombo: `${v.id || v.name}`
+          });
+        }
+      } else if (variants2.length > 0) {
+        for (const v of variants2) {
+          const comboName = `${productData.name} - ${v.name}`;
+          const comboPrice = v.hasCustomPrice && v.price ? v.price : productData.price;
+          combinations.push({
+            name: comboName,
+            price: comboPrice,
+            variant2: v,
+            description: comboName,
+            variantCombo: `${v.id || v.name}`
+          });
+        }
+      }
+      for (const combo of combinations) {
+        const stripePrice = await stripe.prices.create({
+          unit_amount: Math.round(combo.price * 100),
+          currency: productData.currency,
+          product: stripeProduct.id,
+          nickname: combo.name,
+          metadata: {
+            price_type: "variant_combo",
+            product_name: productData.name,
+            variant1_name: combo.variant1?.name || "",
+            variant2_name: combo.variant2?.name || "",
+            variant1_id: combo.variant1?.id || "",
+            variant2_id: combo.variant2?.id || "",
+            variant1_style: productData.variantStyle || "Variant",
+            variant2_style: productData.variantStyle2 || "Variant",
+            variant_combo: combo.variantCombo
+          }
+        });
+        if (combo.variant1 && combo.variant2) {
+          variantPrices[`${combo.variant1.id}-${combo.variant2.id}`] = stripePrice.id;
+        } else if (combo.variant1) {
+          variantPrices[combo.variant1.id] = stripePrice.id;
+        } else if (combo.variant2) {
+          variantPrices[combo.variant2.id] = stripePrice.id;
+        }
+      }
+      basePrice = await stripe.prices.create({
+        unit_amount: Math.round(productData.price * 100),
+        currency: productData.currency,
+        product: stripeProduct.id,
+        nickname: `${productData.name} - Base`,
+        metadata: {
+          price_type: "base",
+          product_name: productData.name
+        }
+      });
+    }
+    const product = {
+      ...productData,
+      stripePriceId: basePrice?.id || Object.values(variantPrices)[0] || "",
+      stripeProductId: stripeProduct.id,
+      variantPrices,
+      variants,
+      variants2
+    };
+    const savedProduct = await kv.createProduct(product);
+    return c.json(savedProduct, 201);
+  } catch (error3) {
+    console.error("Error creating product:", error3);
+    return c.json({ error: "Failed to create product" }, 500);
+  }
+});
+app.post("/api/admin/collections", async (c) => {
+  try {
+    console.log("Creating collection - starting");
+    const collectionData = await c.req.json();
+    console.log("Collection data received:", collectionData);
+    const kvNamespace = getKVNamespace2(c.env);
+    if (!kvNamespace) {
+      console.error("KV namespace not found in environment");
+      return c.json({ error: "KV namespace not configured" }, 500);
+    }
+    console.log("KV namespace found");
+    const kv = new KVManager(kvNamespace);
+    console.log("KVManager created");
+    const savedCollection = await kv.createCollection(collectionData);
+    console.log("Collection saved:", savedCollection);
+    return c.json(savedCollection, 201);
+  } catch (error3) {
+    console.error("Error creating collection:", error3);
+    console.error("Error stack:", error3.stack);
+    return c.json({
+      error: "Failed to create collection",
+      details: error3.message,
+      stack: error3.stack
+    }, 500);
+  }
+});
+app.put("/api/admin/collections/:id", async (c) => {
+  try {
+    const updates = await c.req.json();
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const updatedCollection = await kv.updateCollection(c.req.param("id"), updates);
+    return c.json(updatedCollection);
+  } catch (error3) {
+    console.error("Error updating collection:", error3);
+    return c.json({ error: "Failed to update collection" }, 500);
+  }
+});
+app.get("/api/admin/collections", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const collections = await kv.getAllCollections();
+    return c.json(collections);
+  } catch (error3) {
+    console.error("Error listing admin collections:", error3);
+    return c.json({ error: "Failed to list collections" }, 500);
+  }
+});
+app.delete("/api/admin/collections/:id", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const existingCollection = await kv.getCollection(c.req.param("id"));
+    if (!existingCollection) {
+      return c.json({ error: "Collection not found" }, 404);
+    }
+    await kv.deleteCollection(c.req.param("id"));
+    return c.json({ success: true });
+  } catch (error3) {
+    console.error("Error deleting collection:", error3);
+    return c.json({ error: "Failed to delete collection" }, 500);
+  }
+});
+app.put("/api/admin/products/:id", async (c) => {
+  try {
+    const updates = await c.req.json();
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const stripe = new stripe_esm_worker_default(c.env.STRIPE_SECRET_KEY);
+    const existingProduct = await kv.getProduct(c.req.param("id"));
+    if (!existingProduct) {
+      return c.json({ error: "Product not found" }, 404);
+    }
+    if (updates.name || updates.description !== void 0 || updates.images || updates.imageUrl) {
+      const stripeImages = Array.isArray(updates.images) ? updates.images : updates.imageUrl ? [updates.imageUrl] : Array.isArray(existingProduct.images) ? existingProduct.images : existingProduct.imageUrl ? [existingProduct.imageUrl] : [];
+      const updateParams = {
+        name: updates.name || existingProduct.name,
+        images: stripeImages.slice(0, 8)
+      };
+      if (typeof updates.description === "string") {
+        const trimmed = updates.description.trim();
+        if (trimmed) {
+          updateParams.description = trimmed;
+        }
+      }
+      await stripe.products.update(existingProduct.stripeProductId, updateParams);
+    }
+    if (typeof updates.price !== "undefined" && updates.price !== existingProduct.price) {
+      const numericPrice = typeof updates.price === "number" ? updates.price : parseFloat(String(updates.price));
+      const newPrice = await stripe.prices.create({
+        unit_amount: Math.round(numericPrice * 100),
+        currency: updates.currency || existingProduct.currency,
+        product: existingProduct.stripeProductId
+      });
+      if (existingProduct.stripePriceId) {
+        await stripe.prices.update(existingProduct.stripePriceId, {
+          active: false
+        });
+      }
+      updates.stripePriceId = newPrice.id;
+      updates.price = numericPrice;
+    }
+    if (Array.isArray(updates.variants)) {
+      const incomingVariants = updates.variants;
+      const existingVariants = Array.isArray(existingProduct.variants) ? existingProduct.variants : [];
+      const baseStripePriceId = updates.stripePriceId || existingProduct.stripePriceId;
+      const updatedVariants = [];
+      for (const v of incomingVariants) {
+        const prior = v.id ? existingVariants.find((ev) => ev.id === v.id) : void 0;
+        const wantsCustom = !!v.hasCustomPrice && typeof v.price === "number" && v.price > 0;
+        if (wantsCustom) {
+          const desiredUnitAmount = Math.round(v.price * 100);
+          let priceIdToUse = prior?.stripePriceId;
+          const priorWasCustom = !!prior?.hasCustomPrice && typeof prior?.price === "number";
+          const priorAmount = priorWasCustom ? Math.round(prior.price * 100) : null;
+          if (!priceIdToUse || !priorWasCustom || priorAmount !== desiredUnitAmount) {
+            const newVariantPrice = await stripe.prices.create({
+              unit_amount: desiredUnitAmount,
+              currency: updates.currency || existingProduct.currency,
+              product: existingProduct.stripeProductId
+            });
+            if (prior?.stripePriceId && priorWasCustom) {
+              try {
+                await stripe.prices.update(prior.stripePriceId, { active: false });
+              } catch (_) {
+              }
+            }
+            priceIdToUse = newVariantPrice.id;
+          }
+          updatedVariants.push({ ...v, stripePriceId: priceIdToUse, hasCustomPrice: true });
+        } else {
+          if (prior?.stripePriceId && prior?.hasCustomPrice) {
+            try {
+              await stripe.prices.update(prior.stripePriceId, { active: false });
+            } catch (_) {
+            }
+          }
+          updatedVariants.push({ ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: void 0 });
+        }
+      }
+      updates.variants = updatedVariants;
+    }
+    if (Array.isArray(updates.variants2)) {
+      const incomingVariants = updates.variants2;
+      const existingVariants = Array.isArray(existingProduct.variants2) ? existingProduct.variants2 : [];
+      const baseStripePriceId = updates.stripePriceId || existingProduct.stripePriceId;
+      const updatedVariants = [];
+      for (const v of incomingVariants) {
+        const prior = v.id ? existingVariants.find((ev) => ev.id === v.id) : void 0;
+        const wantsCustom = !!v.hasCustomPrice && typeof v.price === "number" && v.price > 0;
+        if (wantsCustom) {
+          const desiredUnitAmount = Math.round(v.price * 100);
+          let priceIdToUse = prior?.stripePriceId;
+          const priorWasCustom = !!prior?.hasCustomPrice && typeof prior?.price === "number";
+          const priorAmount = priorWasCustom ? Math.round(prior.price * 100) : null;
+          if (!priceIdToUse || !priorWasCustom || priorAmount !== desiredUnitAmount) {
+            const newVariantPrice = await stripe.prices.create({
+              unit_amount: desiredUnitAmount,
+              currency: updates.currency || existingProduct.currency,
+              product: existingProduct.stripeProductId,
+              nickname: `${updates.name || existingProduct.name}${updates.variantStyle2 || existingProduct.variantStyle2 ? ` - ${updates.variantStyle2 || existingProduct.variantStyle2}: ${v.name}` : ` - ${v.name}`}`,
+              metadata: {
+                price_type: "variant_secondary",
+                variant_id: v.id || "",
+                variant_name: v.name || "",
+                variant2_name: v.name || ""
+              }
+            });
+            if (prior?.stripePriceId && priorWasCustom) {
+              try {
+                await stripe.prices.update(prior.stripePriceId, { active: false });
+              } catch (_) {
+              }
+            }
+            priceIdToUse = newVariantPrice.id;
+          }
+          updatedVariants.push({ ...v, stripePriceId: priceIdToUse, hasCustomPrice: true });
+        } else {
+          if (prior?.stripePriceId && prior?.hasCustomPrice) {
+            try {
+              await stripe.prices.update(prior.stripePriceId, { active: false });
+            } catch (_) {
+            }
+          }
+          updatedVariants.push({ ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: void 0 });
+        }
+      }
+      updates.variants2 = updatedVariants;
+    }
+    const updatedProduct = await kv.updateProduct(c.req.param("id"), updates);
+    return c.json(updatedProduct);
+  } catch (error3) {
+    console.error("Error updating product:", error3);
+    return c.json({ error: "Failed to update product" }, 500);
+  }
+});
+app.get("/api/admin/products", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const products = await kv.getAllProducts();
+    return c.json(products);
+  } catch (error3) {
+    console.error("Error listing admin products:", error3);
+    return c.json({ error: "Failed to list products" }, 500);
+  }
+});
+app.delete("/api/admin/products/:id", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const stripe = new stripe_esm_worker_default(c.env.STRIPE_SECRET_KEY);
+    const existingProduct = await kv.getProduct(c.req.param("id"));
+    if (!existingProduct) {
+      return c.json({ error: "Product not found" }, 404);
+    }
+    if (existingProduct.stripePriceId) {
+      await stripe.prices.update(existingProduct.stripePriceId, {
+        active: false
+      });
+    }
+    if (existingProduct.stripeProductId) {
+      await stripe.products.update(existingProduct.stripeProductId, {
+        active: false
+      });
+    }
+    await kv.deleteProduct(c.req.param("id"));
+    return c.json({ success: true });
+  } catch (error3) {
+    console.error("Error deleting product:", error3);
+    return c.json({ error: "Failed to delete product" }, 500);
+  }
+});
+app.get("/api/admin/storefront/theme", async (c) => {
+  try {
+    const namespace = getKVNamespace2(c.env);
+    if (!namespace) {
+      return c.json({ error: "KV namespace unavailable" }, 500);
+    }
+    const stored = await namespace.get(THEME_KV_KEY);
+    let parsed = null;
+    if (stored) {
+      try {
+        parsed = JSON.parse(stored);
+      } catch (parseError) {
+        console.error("Invalid storefront theme JSON in KV:", parseError);
+        parsed = null;
+      }
+    }
+    return c.json(resolveStorefrontTheme(parsed || DEFAULT_STORE_THEME));
+  } catch (error3) {
+    console.error("Error fetching admin storefront theme:", error3);
+    return c.json({ error: "Failed to load storefront theme" }, 500);
+  }
+});
+app.put("/api/admin/storefront/theme", async (c) => {
+  try {
+    const payload = await c.req.json();
+    const validation = validateThemePayload(payload);
+    if (!validation.valid) {
+      return c.json({ error: validation.message }, 400);
+    }
+    const namespace = getKVNamespace2(c.env);
+    if (!namespace) {
+      return c.json({ error: "KV namespace unavailable" }, 500);
+    }
+    const sanitized = sanitizeThemeInput(payload);
+    const record = {
+      theme: sanitized,
+      updatedAt: Date.now()
+    };
+    await namespace.put(THEME_KV_KEY, JSON.stringify(record));
+    return c.json(resolveStorefrontTheme(record));
+  } catch (error3) {
+    console.error("Error updating storefront theme:", error3);
+    return c.json({ error: "Failed to update storefront theme" }, 500);
+  }
+});
+app.delete("/api/admin/storefront/theme", async (c) => {
+  try {
+    const namespace = getKVNamespace2(c.env);
+    if (!namespace) {
+      return c.json({ error: "KV namespace unavailable" }, 500);
+    }
+    await namespace.delete(THEME_KV_KEY);
+    return c.json(resolveStorefrontTheme(DEFAULT_STORE_THEME));
+  } catch (error3) {
+    console.error("Error resetting storefront theme:", error3);
+    return c.json({ error: "Failed to reset storefront theme" }, 500);
+  }
+});
+app.put("/api/admin/store-settings", async (c) => {
+  try {
+    const settings = await c.req.json();
+    const kv = new KVManager(getKVNamespace2(c.env));
+    if (!settings.logoType || !["text", "image"].includes(settings.logoType)) {
+      return c.json({ error: 'Invalid logoType. Must be "text" or "image"' }, 400);
+    }
+    const defaultSettings = {
+      logoType: "text",
+      logoText: "OpenShop",
+      logoImageUrl: "",
+      storeName: "OpenShop",
+      storeDescription: "Your amazing online store",
+      heroImageUrl: "",
+      heroTitle: "Welcome to OpenShop",
+      heroSubtitle: "Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.",
+      contactEmail: "contact@example.com",
+      // Business Address fields
+      businessName: "",
+      businessAddressLine1: "",
+      businessAddressLine2: "",
+      businessCity: "",
+      businessState: "",
+      businessPostalCode: "",
+      businessCountry: ""
+    };
+    const updatedSettings = { ...defaultSettings, ...settings };
+    await kv.namespace.put("store:settings", JSON.stringify(updatedSettings));
+    return c.json(updatedSettings);
+  } catch (error3) {
+    console.error("Error updating store settings:", error3);
+    return c.json({ error: "Failed to update store settings" }, 500);
+  }
+});
+app.get("/api/admin/analytics", async (c) => {
+  try {
+    const period = c.req.query("period") || "30d";
+    const stripe = new stripe_esm_worker_default(c.env.STRIPE_SECRET_KEY);
+    const now = /* @__PURE__ */ new Date();
+    const periodDays = { "1d": 1, "7d": 7, "30d": 30, "90d": 90, "1y": 365 };
+    const days = periodDays[period] || 30;
+    const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1e3);
+    const paymentIntents = await stripe.paymentIntents.list({
+      created: { gte: Math.floor(startDate.getTime() / 1e3) },
+      limit: 100
+    });
+    const successfulPayments = paymentIntents.data.filter((pi) => pi.status === "succeeded");
+    const totalRevenue = successfulPayments.reduce((sum, payment) => sum + payment.amount, 0) / 100;
+    const totalOrders = successfulPayments.length;
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    const chartData = [];
+    if (period === "1d") {
+      const hourlyOrders = {};
+      const hourlyRevenue = {};
+      successfulPayments.forEach((payment) => {
+        const d = new Date(payment.created * 1e3);
+        const bucket = new Date(d);
+        bucket.setMinutes(0, 0, 0);
+        const key = bucket.toISOString();
+        hourlyOrders[key] = (hourlyOrders[key] || 0) + 1;
+        hourlyRevenue[key] = (hourlyRevenue[key] || 0) + payment.amount / 100;
+      });
+      const cursor = new Date(now);
+      cursor.setMinutes(0, 0, 0);
+      const startHour = new Date(cursor.getTime() - 23 * 60 * 60 * 1e3);
+      const iter = new Date(startHour);
+      while (iter <= cursor) {
+        const key = new Date(iter).toISOString();
+        chartData.push({
+          date: key,
+          orders: hourlyOrders[key] || 0,
+          revenue: Math.round(((hourlyRevenue[key] || 0) + Number.EPSILON) * 100) / 100,
+          formattedDate: new Date(iter).toLocaleTimeString("en-US", { hour: "numeric" })
+        });
+        iter.setHours(iter.getHours() + 1);
+      }
+    } else {
+      const dailyData = {};
+      const revenueByDate = {};
+      successfulPayments.forEach((payment) => {
+        const date = new Date(payment.created * 1e3).toISOString().split("T")[0];
+        dailyData[date] = (dailyData[date] || 0) + 1;
+        revenueByDate[date] = (revenueByDate[date] || 0) + payment.amount / 100;
+      });
+      const currentDate = new Date(startDate);
+      while (currentDate <= now) {
+        const dateStr = currentDate.toISOString().split("T")[0];
+        chartData.push({
+          date: dateStr,
+          orders: dailyData[dateStr] || 0,
+          revenue: revenueByDate[dateStr] || 0,
+          formattedDate: currentDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+        });
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    }
+    return c.json({
+      period,
+      totalRevenue: Math.round(totalRevenue * 100) / 100,
+      totalOrders,
+      averageOrderValue: Math.round(averageOrderValue * 100) / 100,
+      chartData,
+      recentOrders: [],
+      // Simplified for this implementation
+      dateRange: {
+        start: startDate.toISOString(),
+        end: now.toISOString()
+      }
+    });
+  } catch (error3) {
+    console.error("Error fetching analytics:", error3);
+    return c.json({ error: "Failed to fetch analytics" }, 500);
+  }
+});
+app.post("/api/admin/orders/:orderId/fulfill", async (c) => {
+  try {
+    const orderId = c.req.param("orderId");
+    if (!orderId) {
+      return c.json({ error: "Order ID is required" }, 400);
+    }
+    const kvNamespace = getKVNamespace2(c.env);
+    if (!kvNamespace) {
+      return c.json({ error: "KV namespace not available" }, 500);
+    }
+    const fulfillmentKey = `order_fulfillment:${orderId}`;
+    const fulfillmentData = {
+      fulfilled: true,
+      fulfilledAt: (/* @__PURE__ */ new Date()).toISOString(),
+      fulfilledBy: "admin"
+      // Could be enhanced to track which admin user
+    };
+    await kvNamespace.put(fulfillmentKey, JSON.stringify(fulfillmentData));
+    return c.json({ success: true, fulfillment: fulfillmentData });
+  } catch (error3) {
+    console.error("Error marking order as fulfilled:", error3);
+    return c.json({ error: "Failed to mark order as fulfilled" }, 500);
+  }
+});
+app.get("/api/admin/orders", async (c) => {
+  try {
+    const stripe = new stripe_esm_worker_default(c.env.STRIPE_SECRET_KEY);
+    const limit = Math.min(parseInt(c.req.query("limit") || "25", 10), 50);
+    const direction = c.req.query("direction") || "next";
+    const cursor = c.req.query("cursor") || void 0;
+    const showFulfilledParam = c.req.query("showFulfilled");
+    const showFulfilled = showFulfilledParam === "true";
+    console.log("Show fulfilled orders:", showFulfilled, "Raw param:", showFulfilledParam);
+    const listParams = { limit };
+    if (cursor) {
+      if (direction === "prev") {
+        listParams.ending_before = cursor;
+      } else {
+        listParams.starting_after = cursor;
+      }
+    }
+    const sessions = await stripe.checkout.sessions.list({
+      ...listParams
+    });
+    const kvNamespace = getKVNamespace2(c.env);
+    let filteredSessions = [];
+    for (const s of sessions.data) {
+      if (s.payment_status === "paid" || s.status === "complete" || s.status === "completed") {
+        let includeSession = true;
+        if (kvNamespace) {
+          const fulfillmentKey = `order_fulfillment:${s.id}`;
+          const fulfillmentData = await kvNamespace.get(fulfillmentKey);
+          const fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false };
+          if (showFulfilled) {
+            if (!fulfillmentStatus.fulfilled) {
+              includeSession = false;
+            }
+          } else {
+            if (fulfillmentStatus.fulfilled) {
+              includeSession = false;
+            }
+          }
+        }
+        if (includeSession) {
+          filteredSessions.push(s);
+        }
+      }
+    }
+    const ordered = filteredSessions.reverse();
+    const orders = [];
+    for (const s of ordered) {
+      try {
+        const lineItems = await stripe.checkout.sessions.listLineItems(s.id, { limit: 100, expand: ["data.price"] });
+        let shippingDetails = null;
+        if (s.shipping_details) {
+          shippingDetails = s.shipping_details;
+        } else if (s.payment_intent) {
+          try {
+            const paymentIntent = await stripe.paymentIntents.retrieve(s.payment_intent, {
+              expand: ["shipping"]
+            });
+            if (paymentIntent.shipping) {
+              shippingDetails = {
+                address: paymentIntent.shipping.address,
+                name: paymentIntent.shipping.name
+              };
+            }
+          } catch (piError) {
+            console.log("Error fetching payment intent shipping:", piError.message);
+          }
+        }
+        const fulfillmentKey = `order_fulfillment:${s.id}`;
+        const fulfillmentData = await kvNamespace.get(fulfillmentKey);
+        const fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false, fulfilledAt: null, fulfilledBy: null };
+        orders.push({
+          id: s.id,
+          created: s.created,
+          amount_total: s.amount_total,
+          currency: s.currency,
+          customer_email: s.customer_details?.email || s.customer_email || null,
+          customer_name: s.customer_details?.name || null,
+          shipping: shippingDetails,
+          payment_intent: s.payment_intent || null,
+          // For debugging
+          billing: {
+            name: s.customer_details?.name || null,
+            email: s.customer_details?.email || null,
+            address: s.customer_details?.address || null
+          },
+          fulfillment: fulfillmentStatus,
+          items: lineItems.data.map((li) => {
+            const nickname = li.price?.nickname || "";
+            let productName = "Unknown Product";
+            let variant1Info = "";
+            let variant2Info = "";
+            if (nickname.includes(" - ")) {
+              const parts = nickname.split(" - ");
+              productName = parts[0];
+              if (parts.length >= 2) {
+                variant1Info = parts[1];
+              }
+              if (parts.length >= 3) {
+                variant2Info = parts[2];
+              }
+            } else {
+              productName = nickname;
+            }
+            return {
+              id: li.id,
+              description: productName,
+              quantity: li.quantity,
+              amount_total: li.amount_total,
+              currency: li.currency,
+              price_nickname: nickname,
+              variant1_name: variant1Info || li.price?.metadata?.variant1_name || null,
+              variant1_style: li.price?.metadata?.variant1_style || "Variant",
+              variant2_name: variant2Info || li.price?.metadata?.variant2_name || null,
+              variant2_style: li.price?.metadata?.variant2_style || "Variant"
+            };
+          })
+        });
+      } catch (e) {
+        console.error("Error fetching line items for session", s.id, e);
+        let fulfillmentStatus = { fulfilled: false, fulfilledAt: null, fulfilledBy: null };
+        if (kvNamespace) {
+          const fulfillmentKey = `order_fulfillment:${s.id}`;
+          const fulfillmentData = await kvNamespace.get(fulfillmentKey);
+          fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false, fulfilledAt: null, fulfilledBy: null };
+        }
+        let errorVariantInfo = null;
+        if (s.metadata) {
+          const itemNames = [];
+          const variants1 = [];
+          const variants2 = [];
+          Object.keys(s.metadata).forEach((key) => {
+            if (key.startsWith("item_") && key.endsWith("_name")) {
+              itemNames.push(s.metadata[key]);
+            }
+            if (key.startsWith("item_") && key.endsWith("_variant1")) {
+              variants1.push(s.metadata[key]);
+            }
+            if (key.startsWith("item_") && key.endsWith("_variant2")) {
+              variants2.push(s.metadata[key]);
+            }
+          });
+          if (itemNames.length > 0) {
+            errorVariantInfo = itemNames.map((name, index) => ({
+              description: name,
+              variant1_name: variants1[index] || null,
+              variant1_style: "Variant",
+              // Default fallback
+              variant2_name: variants2[index] || null,
+              variant2_style: "Variant"
+              // Default fallback
+            }));
+          }
+        }
+        orders.push({
+          id: s.id,
+          created: s.created,
+          amount_total: s.amount_total,
+          currency: s.currency,
+          customer_email: s.customer_details?.email || s.customer_email || null,
+          customer_name: s.customer_details?.name || null,
+          shipping: s.shipping_details || null,
+          billing: {
+            name: s.customer_details?.name || null,
+            email: s.customer_details?.email || null,
+            address: s.customer_details?.address || null
+          },
+          fulfillment: fulfillmentStatus,
+          items: errorVariantInfo || []
+        });
+      }
+    }
+    const nextCursor = ordered.length > 0 ? ordered[0].id : null;
+    const prevCursor = ordered.length > 0 ? ordered[ordered.length - 1].id : null;
+    return c.json({
+      limit,
+      orders,
+      cursors: { next: nextCursor, prev: prevCursor },
+      has_more: sessions.has_more
+    });
+  } catch (error3) {
+    console.error("Error fetching orders:", error3);
+    return c.json({ error: "Failed to fetch orders" }, 500);
+  }
+});
+function generateServerId() {
+  const rnd = randomHex(4);
+  const ts = Date.now().toString(36);
+  return `${ts}-${rnd}`;
+}
+__name(generateServerId, "generateServerId");
+app.get("/api/admin/media", async (c) => {
+  try {
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const items = await kv.getAllMediaItems();
+    const sorted = [...items].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    return c.json(sorted);
+  } catch (error3) {
+    console.error("Error listing media:", error3);
+    return c.json({ error: "Failed to list media" }, 500);
+  }
+});
+app.post("/api/admin/media", async (c) => {
+  try {
+    const body = await c.req.json();
+    const url = body?.url;
+    if (!url || typeof url !== "string" || url.trim() === "") {
+      return c.json({ error: "url is required" }, 400);
+    }
+    const kv = new KVManager(getKVNamespace2(c.env));
+    const item = {
+      id: body.id || generateServerId(),
+      url: String(url),
+      source: body.source || "link",
+      filename: body.filename || "",
+      mimeType: body.mimeType || "",
+      driveFileId: body.driveFileId || "",
+      createdAt: typeof body.createdAt === "number" ? body.createdAt : Date.now()
+    };
+    const saved = await kv.createMediaItem(item);
+    return c.json(saved, 201);
+  } catch (error3) {
+    console.error("Error creating media:", error3);
+    return c.json({ error: "Failed to create media" }, 500);
+  }
+});
+app.delete("/api/admin/media/:id", async (c) => {
+  try {
+    const id = c.req.param("id");
+    if (!id) return c.json({ error: "Missing id" }, 400);
+    const kv = new KVManager(getKVNamespace2(c.env));
+    await kv.deleteMediaItem(id);
+    return c.json({ success: true });
+  } catch (error3) {
+    console.error("Error deleting media:", error3);
+    return c.json({ error: "Failed to delete media" }, 500);
+  }
+});
+app.get("*", async (c) => {
+  const url = new URL(c.req.url);
+  const pathname = url.pathname;
+  if (pathname.startsWith("/api/")) {
+    return c.notFound();
+  }
+  try {
+    if (pathname !== "/" && !pathname.startsWith("/admin") && !pathname.startsWith("/collections") && !pathname.startsWith("/products") && !pathname.startsWith("/success")) {
+      const asset = await c.env.ASSETS.fetch(c.req);
+      if (asset.ok) {
+        return asset;
+      }
+    }
+    const indexRequest = new Request(c.req.url.replace(pathname, "/index.html"), c.req);
+    const indexAsset = await c.env.ASSETS.fetch(indexRequest);
+    if (indexAsset.ok) {
+      return indexAsset;
+    } else {
+      throw new Error("index.html not found");
+    }
+  } catch (error3) {
+    console.error("Error serving static asset:", error3, "for path:", pathname);
+    return c.html(`
       <!DOCTYPE html>
       <html lang="en">
         <head>
@@ -63,4 +13208,11 @@ ${r}\r
           </div>
         </body>
       </html>
-    `,500)}});var ay=_;export{ay as default};
+    `, 500);
+  }
+});
+var worker_default = app;
+export {
+  worker_default as default
+};
+//# sourceMappingURL=worker.js.map
