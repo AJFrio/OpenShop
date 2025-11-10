@@ -34,8 +34,95 @@ jobs:
       - name: Build frontend
         run: npm run build
       
-      - name: Build worker bundle
-        run: npm run build:worker
+      - name: Create minimal wrangler.toml for building
+        run: |
+          cat > wrangler.toml <<EOF
+          name = "openshop-build"
+          main = "src/worker.js"
+          compatibility_date = "2024-09-23"
+          compatibility_flags = ["nodejs_compat"]
+          
+          # Static assets (automatically creates ASSETS binding)
+          [assets]
+          directory = "dist"
+          binding = "ASSETS"
+          EOF
+      
+      - name: Build worker bundle with wrangler
+        run: |
+          # Wrangler builds the worker before deploying, so we can capture the build output
+          # even if deployment fails due to missing auth. We'll use --outdir to control output location.
+          set +e  # Don't exit on error - we want to capture the build even if deploy fails
+          
+          # Try to build with --dry-run first (may still require auth, but builds first)
+          npx wrangler deploy --dry-run --outdir .wrangler/build 2>&1 | tee wrangler-build.log || true
+          
+          # If --dry-run didn't work, try regular deploy with --outdir (builds before auth check)
+          if [ ! -f ".wrangler/build/worker.js" ]; then
+            echo "Trying regular deploy to capture build output..."
+            mkdir -p .wrangler/build
+            npx wrangler deploy --outdir .wrangler/build --name openshop-build-temp 2>&1 | tee wrangler-build.log || true
+          fi
+          
+          # Wrangler also builds to .wrangler/tmp/deploy-* by default
+          # Find the most recently created worker.js file
+          if [ ! -f ".wrangler/build/worker.js" ]; then
+            echo "Looking for worker.js in wrangler temp directories..."
+            # Use ls -t to sort by modification time (most recent first)
+            WORKER_FILE=$(find .wrangler/tmp -name "worker.js" -type f 2>/dev/null | xargs ls -t 2>/dev/null | head -n 1)
+            if [ -n "$WORKER_FILE" ] && [ -f "$WORKER_FILE" ]; then
+              echo "Found worker.js in temp directory: $WORKER_FILE"
+              cp "$WORKER_FILE" .wrangler/build/worker.js
+            fi
+          fi
+          
+          # Verify we have the built file
+          if [ ! -f ".wrangler/build/worker.js" ]; then
+            echo "Error: Could not find built worker.js file"
+            echo "Wrangler build log:"
+            cat wrangler-build.log || true
+            echo ""
+            echo "Listing .wrangler directory structure:"
+            find .wrangler -type f -name "*.js" | head -20 || true
+            exit 1
+          fi
+          
+          echo "✅ Found built worker.js"
+          ls -lh .wrangler/build/worker.js
+          
+          # Ensure dist directory exists
+          mkdir -p dist
+          
+          # Copy the built worker to dist/worker.bundle.js
+          cp .wrangler/build/worker.js dist/worker.bundle.js
+          
+          # Add build banner comment
+          VERSION=$(node -p "require('./package.json').version")
+          BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "// Worker Bundle - Built ${BUILD_DATE}" > dist/worker.bundle.js.tmp
+          echo "// Version: ${VERSION}" >> dist/worker.bundle.js.tmp
+          echo "// Built with wrangler (nodejs_compat enabled)" >> dist/worker.bundle.js.tmp
+          cat dist/worker.bundle.js >> dist/worker.bundle.js.tmp
+          mv dist/worker.bundle.js.tmp dist/worker.bundle.js
+          
+          echo "✅ Worker bundle created: dist/worker.bundle.js"
+          ls -lh dist/worker.bundle.js
+          
+          # Verify the built worker includes nodejs_compat polyfills (unenv)
+          echo ""
+          echo "Verifying worker.bundle.js includes nodejs_compat polyfills..."
+          if grep -q "unenv" dist/worker.bundle.js; then
+            echo "✅ Verified: worker.bundle.js includes unenv polyfills (nodejs_compat)"
+          else
+            echo "⚠️  Warning: worker.bundle.js may not include nodejs_compat polyfills"
+            echo "First 50 lines of worker.bundle.js:"
+            head -n 50 dist/worker.bundle.js
+          fi
+          
+          # Show file size for reference
+          echo ""
+          echo "Worker bundle size:"
+          du -h dist/worker.bundle.js
       
       - name: Commit worker bundle
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
