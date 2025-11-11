@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -31,23 +32,61 @@ jobs:
 
       - name: Build frontend assets
         run: npm run build
+        continue-on-error: false
 
       - name: Build worker bundle
         run: npm run build:worker
+        continue-on-error: false
 
       - name: Generate asset manifest
         run: node scripts/generate-asset-manifest.js
+
+      - name: List dist folder contents
+        run: |
+          echo "Contents of dist folder:"
+          ls -la dist/ || echo "dist folder does not exist"
+          echo ""
+          echo "Checking for specific files:"
+          [ -f dist/index.html ] && echo "✓ index.html exists" || echo "✗ index.html missing"
+          [ -f dist/asset-manifest.json ] && echo "✓ asset-manifest.json exists" || echo "✗ asset-manifest.json missing"
+          [ -d dist/assets ] && echo "✓ assets directory exists" || echo "✗ assets directory missing"
 
       - name: Commit built assets to repository
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          
+          # Ensure we're on the main branch and pull latest
+          git checkout main
+          git pull origin main || true
+          
           # Remove worker.bundle.js from dist before committing (it's handled separately)
           rm -f dist/worker.bundle.js
+          
+          # Check if dist folder has any files to commit
+          if [ -z "$(ls -A dist/ 2>/dev/null)" ]; then
+            echo "⚠️  dist folder is empty, nothing to commit"
+            exit 0
+          fi
+          
           # Force add dist folder even though it's in .gitignore
+          echo "Adding dist folder to git..."
           git add -f dist/
-          git diff --staged --quiet || git commit -m "chore: update built assets [skip ci]"
-          git push
+          
+          # Show what's staged
+          echo "Staged files:"
+          git status --short
+          
+          # Check if there are any changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            echo "Committing changes..."
+            git commit -m "chore: update built assets [skip ci]" || exit 1
+            echo "Pushing changes..."
+            git push origin main || exit 1
+            echo "✅ Successfully committed and pushed built assets"
+          fi
 
       - name: Upload manifest as artifact
         uses: actions/upload-artifact@v4
