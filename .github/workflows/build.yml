@@ -14,6 +14,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
       - name: Checkout code
@@ -33,6 +35,9 @@ jobs:
       
       - name: Build frontend
         run: npm run build
+      
+      - name: Generate asset manifest
+        run: node scripts/generate-asset-manifest.js
       
       - name: Create minimal wrangler.toml for building
         run: |
@@ -189,15 +194,36 @@ jobs:
           echo "Worker bundle size:"
           du -h dist/worker.bundle.js
       
-      - name: Commit worker bundle
+      - name: Commit built assets to repository
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B ${{ github.ref_name }}
+          
+          # List dist folder contents for debugging
+          echo "Contents of dist folder before commit:"
+          ls -la dist/ || echo "dist folder does not exist"
+          
+          # Add worker bundle
           git add -f dist/worker.bundle.js
-          git commit -m "Build: Update worker bundle [skip ci]" || exit 0
-          git push origin HEAD:${{ github.ref_name }}
+          
+          # Add frontend assets (excluding worker.bundle.js which is already added)
+          # Force add dist folder even though it's in .gitignore
+          git add -f dist/
+          
+          # Show what's staged
+          echo "Staged files:"
+          git status --short
+          
+          # Commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Build: Update assets and worker bundle [skip ci]" || exit 0
+            git push origin HEAD:${{ github.ref_name }}
+            echo "✅ Successfully committed and pushed built assets"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
