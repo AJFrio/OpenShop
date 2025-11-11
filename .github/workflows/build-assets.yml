@@ -11,10 +11,14 @@ on:
 jobs:
   build-assets:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,6 +37,17 @@ jobs:
 
       - name: Generate asset manifest
         run: node scripts/generate-asset-manifest.js
+
+      - name: Commit built assets to repository
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          # Remove worker.bundle.js from dist before committing (it's handled separately)
+          rm -f dist/worker.bundle.js
+          # Force add dist folder even though it's in .gitignore
+          git add -f dist/
+          git diff --staged --quiet || git commit -m "chore: update built assets [skip ci]"
+          git push
 
       - name: Upload manifest as artifact
         uses: actions/upload-artifact@v4
