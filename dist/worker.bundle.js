@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2025-11-11T20:25:55Z
+// Worker Bundle - Built 2025-11-11T23:03:42Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -13172,7 +13172,9 @@ app.get("*", async (c) => {
         return asset;
       }
     }
-    const indexRequest = new Request(c.req.url.replace(pathname, "/index.html"), c.req);
+    const indexUrl = new URL(c.req.url);
+    indexUrl.pathname = "/index.html";
+    const indexRequest = new Request(indexUrl, c.req);
     const indexAsset = await c.env.ASSETS.fetch(indexRequest);
     if (indexAsset.ok) {
       return indexAsset;
