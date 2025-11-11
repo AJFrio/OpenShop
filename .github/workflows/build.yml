@@ -223,6 +223,24 @@ jobs:
           cd dist
           tar -czf ../frontend-dist.tar.gz --exclude='worker.bundle.js' .
           cd ..
+          echo "✅ Created frontend-dist.tar.gz"
+          ls -lh frontend-dist.tar.gz
+      
+      - name: Create Release (if on main/master)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: frontend-dist.tar.gz
+          tag_name: latest
+          name: Latest Build
+          body: |
+            Latest build artifacts for OpenShop.
+            
+            - frontend-dist.tar.gz: Static assets for worker deployment (excludes worker.bundle.js)
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Upload Worker Bundle
         uses: actions/upload-artifact@v4
