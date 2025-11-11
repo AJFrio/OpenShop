@@ -1,6 +1,6 @@
-// Worker Bundle - Built 2025-11-10T22:45:33Z
+// Worker Bundle - Built 2025-11-10T23:22:59Z
 // Version: 0.0.0
-// Built with wrangler (nodejs_compat enabled)
+// Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -352,7 +352,16 @@ var init_noop = __esm({
 });
 
 // node_modules/unenv/dist/runtime/node/console.mjs
-import { Writable } from "node:stream";
+// node:stream polyfill - Writable class for unenv console polyfill
+var Writable = class {
+  constructor() {}
+  write() { return true; }
+  end() { return this; }
+  on() { return this; }
+  once() { return this; }
+  emit() { return false; }
+  removeListener() { return this; }
+};
 var _console, _ignoreErrors, _stderr, _stdout, log, info, trace, debug, table, error, warn, createTask, clear, count, countReset, dir, dirxml, group, groupEnd, groupCollapsed, profile, profileEnd, time, timeEnd, timeLog, timeStamp, Console, _times, _stdoutErrorHandler, _stderrErrorHandler;
 var init_console = __esm({
   "node_modules/unenv/dist/runtime/node/console.mjs"() {
@@ -589,7 +598,15 @@ var init_node_version = __esm({
 });
 
 // node_modules/unenv/dist/runtime/node/internal/process/process.mjs
-import { EventEmitter } from "node:events";
+// node:events polyfill - EventEmitter class for unenv
+var EventEmitter = class {
+  constructor() {}
+  on() { return this; }
+  once() { return this; }
+  emit() { return false; }
+  removeListener() { return this; }
+  addListener() { return this; }
+};
 var Process;
 var init_process = __esm({
   "node_modules/unenv/dist/runtime/node/internal/process/process.mjs"() {
