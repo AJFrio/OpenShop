@@ -1,0 +1,59 @@
+name: Build Assets and Generate Manifest
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  build-assets:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Build worker bundle
+        run: npm run build:worker
+
+      - name: Generate asset manifest
+        run: node scripts/generate-asset-manifest.js
+
+      - name: Upload manifest as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: asset-manifest
+          path: dist/asset-manifest.json
+          retention-days: 90
+
+      - name: Upload assets as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-assets
+          path: dist/
+          exclude: dist/worker.bundle.js
+          retention-days: 90
+
+      - name: Upload manifest to release (if release)
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/asset-manifest.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
