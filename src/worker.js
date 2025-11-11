@@ -1981,8 +1981,10 @@ app.get('*', async (c) => {
     }
     
     // For SPA routes (/admin, /collections, etc.) or root, serve index.html
-    const indexRequest = new Request(c.req.url.replace(pathname, '/index.html'), c.req)
-    const indexAsset = await c.env.ASSETS.fetch(indexRequest)
+    const indexUrl = new URL(c.req.url);
+    indexUrl.pathname = '/index.html';
+    const indexRequest = new Request(indexUrl, c.req);
+    const indexAsset = await c.env.ASSETS.fetch(indexRequest);
     
     if (indexAsset.ok) {
       return indexAsset
