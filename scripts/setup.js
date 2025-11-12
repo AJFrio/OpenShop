@@ -15,6 +15,25 @@ function question(prompt) {
   })
 }
 
+/**
+ * Parse command-line arguments into an object
+ */
+function parseArgs() {
+  const args = process.argv.slice(2)
+  const parsed = {}
+  
+  for (let i = 0; i < args.length; i++) {
+    if (args[i].startsWith('--')) {
+      const key = args[i].slice(2).replace(/-/g, '_')
+      const value = args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : true
+      parsed[key] = value
+      if (value !== true) i++ // Skip next arg if it was used as value
+    }
+  }
+  
+  return parsed
+}
+
 function execCommand(command, description) {
   console.log(`\n🔄 ${description}...`)
   try {
@@ -27,13 +46,27 @@ function execCommand(command, description) {
 }
 
 async function setup() {
-  console.log('🚀 OpenShop Setup Wizard')
-  console.log('========================\n')
+  // Parse command-line arguments
+  const args = parseArgs()
+  const useFlags = Object.keys(args).length > 0
+  
+  if (useFlags) {
+    console.log('🚀 OpenShop Setup (CLI Mode)')
+    console.log('============================\n')
+  } else {
+    console.log('🚀 OpenShop Setup Wizard')
+    console.log('========================\n')
+  }
 
   // Collect project configuration
-  console.log('📋 Project Configuration:\n')
+  let projectName
+  if (useFlags && args.site_name) {
+    projectName = args.site_name
+  } else {
+    if (!useFlags) console.log('📋 Project Configuration:\n')
+    projectName = await question('Project Name (e.g., my-store): ')
+  }
   
-  const projectName = await question('Project Name (e.g., my-store): ')
   if (!projectName || !projectName.trim()) {
     console.error('❌ Project name is required!')
     process.exit(1)
@@ -55,32 +88,57 @@ async function setup() {
   }
 
   // Collect required credentials
-  console.log('🔑 Required Credentials:\n')
+  let cloudflareApiToken, cloudflareAccountId, stripeSecretKey, stripePublishableKey
+  let googleClientId = '', googleClientSecret = '', googleApiKey = '', driveRootFolder = 'OpenShop'
+  let geminiApiKey = '', productLimit = '', adminPassword = 'admin123'
   
-  const cloudflareApiToken = await question('Cloudflare API Token: ')
-  const cloudflareAccountId = await question('Cloudflare Account ID: ')
+  if (useFlags) {
+    cloudflareApiToken = args.cloudflare_api_token
+    cloudflareAccountId = args.cloudflare_account_id
+    stripeSecretKey = args.stripe_secret_key
+    stripePublishableKey = args.stripe_publishable_key
+    adminPassword = args.password || 'admin123'
+    productLimit = args.product_limit || ''
+    googleClientId = args.google_client_id || ''
+    googleClientSecret = args.google_client_secret || ''
+    googleApiKey = args.google_api_key || ''
+    driveRootFolder = args.drive_root_folder || 'OpenShop'
+    geminiApiKey = args.gemini_api_key || ''
+    
+    // Validate required flags
+    if (!cloudflareApiToken || !cloudflareAccountId || !stripeSecretKey || !stripePublishableKey) {
+      console.error('❌ Missing required flags: --cloudflare-api-token, --cloudflare-account-id, --stripe-secret-key, --stripe-publishable-key are required')
+      process.exit(1)
+    }
+  } else {
+    console.log('🔑 Required Credentials:\n')
+    cloudflareApiToken = await question('Cloudflare API Token: ')
+    cloudflareAccountId = await question('Cloudflare Account ID: ')
+    
+    console.log('\n🔑 Stripe Configuration:\n')
+    stripeSecretKey = await question('Stripe Secret Key: ')
+    stripePublishableKey = await question('Stripe Publishable Key: ')
+    
+    console.log('\n🔑 Google OAuth & Drive (optional - press Enter to skip):\n')
+    googleClientId = await question('Google Client ID (optional): ') || ''
+    googleClientSecret = await question('Google Client Secret (optional): ') || ''
+    googleApiKey = await question('Google API Key (optional): ') || ''
+    driveRootFolder = await question('Drive Root Folder (default: OpenShop): ') || 'OpenShop'
+    
+    console.log('\n🔑 AI Configuration (optional - press Enter to skip):\n')
+    geminiApiKey = await question('Gemini API Key (optional): ') || ''
+    
+    console.log('\n🔑 Store Configuration:\n')
+    const productLimitInput = await question('Product Limit (optional - press Enter for unlimited): ') || ''
+    productLimit = productLimitInput.trim() ? productLimitInput.trim() : ''
+    
+    console.log('\n🔑 Admin Access:\n')
+    adminPassword = await question('Admin Password (default: admin123): ') || 'admin123'
+  }
   
-  console.log('\n🔑 Stripe Configuration:\n')
-  const stripeSecretKey = await question('Stripe Secret Key: ')
-  const stripePublishableKey = await question('Stripe Publishable Key: ')
-  
-  console.log('\n🔑 Google OAuth & Drive (optional - press Enter to skip):\n')
-  const googleClientId = await question('Google Client ID (optional): ') || ''
-  const googleClientSecret = await question('Google Client Secret (optional): ') || ''
-  const googleApiKey = await question('Google API Key (optional): ') || ''
-  const driveRootFolder = await question('Drive Root Folder (default: OpenShop): ') || 'OpenShop'
-  
-  console.log('\n🔑 AI Configuration (optional - press Enter to skip):\n')
-  const geminiApiKey = await question('Gemini API Key (optional): ') || ''
-  
-  console.log('\n🔑 Store Configuration:\n')
-  const productLimitInput = await question('Product Limit (optional - press Enter for unlimited): ') || ''
-  const productLimit = productLimitInput.trim() ? productLimitInput.trim() : ''
-  
-  console.log('\n🔑 Admin Access:\n')
-  const adminPassword = await question('Admin Password (default: admin123): ') || 'admin123'
-  
-  rl.close()
+  if (!useFlags) {
+    rl.close()
+  }
 
   // Install Wrangler CLI if not present
   try {
@@ -257,18 +315,44 @@ DRIVE_ROOT_FOLDER=${driveRootFolder}
   console.log(`🗃️ KV Namespace: ${kvNamespaceName}`)
   console.log(`⚡ Worker: ${sanitizedProjectName}`)
   console.log(`📋 Configuration saved: toml/${sanitizedProjectName}.toml`)
-  console.log('\n📝 Next steps:')
-  console.log('1. Visit your admin dashboard to add products and collections')
-  console.log(`2. Login with password: ${adminPassword}`)
-  console.log('3. Configure your Stripe account with webhooks (optional)')
-  console.log('4. Customize your storefront design')
-  console.log('\n💡 Use "npm run dev" for local development')
-  console.log(`💡 Use "npm run deploy ${sanitizedProjectName}" to deploy updates to this site`)
-  console.log(`💡 Use "npm run deploy" to see all sites and choose which to deploy`)
-  console.log(`\n🏪 To create another store, run "npm run setup" again with a different project name!`)
+  
+  // Output JSON result for container/automated use
+  if (useFlags) {
+    const result = {
+      success: true,
+      worker_id: sanitizedProjectName,
+      worker_name: sanitizedProjectName,
+      worker_url: workerUrl,
+      admin_url: `${workerUrl}/admin`,
+      kv_namespace: kvNamespaceName
+    }
+    console.log('\n' + JSON.stringify(result))
+  } else {
+    console.log('\n📝 Next steps:')
+    console.log('1. Visit your admin dashboard to add products and collections')
+    console.log(`2. Login with password: ${adminPassword}`)
+    console.log('3. Configure your Stripe account with webhooks (optional)')
+    console.log('4. Customize your storefront design')
+    console.log('\n💡 Use "npm run dev" for local development')
+    console.log(`💡 Use "npm run deploy ${sanitizedProjectName}" to deploy updates to this site`)
+    console.log(`💡 Use "npm run deploy" to see all sites and choose which to deploy`)
+    console.log(`\n🏪 To create another store, run "npm run setup" again with a different project name!`)
+  }
 }
 
 setup().catch(error => {
-  console.error('\n❌ Setup failed:', error.message)
+  const args = parseArgs()
+  const useFlags = Object.keys(args).length > 0
+  
+  if (useFlags) {
+    // Output error as JSON for container/automated use
+    const errorResult = {
+      success: false,
+      error: error.message
+    }
+    console.error('\n' + JSON.stringify(errorResult))
+  } else {
+    console.error('\n❌ Setup failed:', error.message)
+  }
   process.exit(1)
 })
