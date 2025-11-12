@@ -10,23 +10,29 @@ const router = new Hono()
 router.post('/create-checkout-session', asyncHandler(async (c) => {
   const { priceId } = await c.req.json()
   
-  // Validate priceId
-  if (!priceId || typeof priceId !== 'string' || priceId.trim().length === 0) {
+  // Validate and trim priceId
+  if (!priceId || typeof priceId !== 'string') {
+    throw new ValidationError('Valid price ID is required')
+  }
+  
+  const trimmedPriceId = priceId.trim()
+  
+  if (trimmedPriceId.length === 0) {
     throw new ValidationError('Valid price ID is required')
   }
   
   // Validate priceId format (Stripe price IDs start with price_)
-  if (!priceId.startsWith('price_')) {
+  if (!trimmedPriceId.startsWith('price_')) {
     throw new ValidationError('Invalid price ID format')
   }
   
   // Limit priceId length to prevent DoS
-  if (priceId.length > 255) {
+  if (trimmedPriceId.length > 255) {
     throw new ValidationError('Price ID is too long')
   }
 
   const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
-  const session = await stripeService.createCheckoutSession(priceId.trim())
+  const session = await stripeService.createCheckoutSession(trimmedPriceId)
   return c.json({ sessionId: session.id })
 }))
 
@@ -86,18 +92,25 @@ router.post('/create-cart-checkout-session', asyncHandler(async (c) => {
 router.get('/checkout-session/:sessionId', asyncHandler(async (c) => {
   const sessionId = c.req.param('sessionId')
   
+  // Validate and trim sessionId
+  if (!sessionId || typeof sessionId !== 'string') {
+    throw new ValidationError('Invalid session ID format')
+  }
+  
+  const trimmedSessionId = sessionId.trim()
+  
   // Validate sessionId format (Stripe session IDs start with cs_)
-  if (!sessionId || typeof sessionId !== 'string' || !sessionId.startsWith('cs_')) {
+  if (!trimmedSessionId.startsWith('cs_')) {
     throw new ValidationError('Invalid session ID format')
   }
   
   // Limit sessionId length to prevent DoS
-  if (sessionId.length > 255) {
+  if (trimmedSessionId.length > 255) {
     throw new ValidationError('Session ID is too long')
   }
   
   const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
-  const session = await stripeService.getCheckoutSession(sessionId.trim())
+  const session = await stripeService.getCheckoutSession(trimmedSessionId)
   return c.json(session)
 }))
 
