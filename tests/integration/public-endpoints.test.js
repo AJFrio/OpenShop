@@ -169,16 +169,17 @@ describe('Public Endpoints', () => {
       expect(data.length).toBe(0)
     })
 
-    it('should return empty array for non-existent collection', async () => {
-      // The service returns empty array when collection doesn't exist (not 404)
+    it('should return 404 for non-existent collection', async () => {
+      // The service should return 404 when collection doesn't exist
       const request = createTestRequest('/api/collections/non-existent-id-12345/products')
       const response = await executeRequest(app, request, env)
       const data = await parseJsonResponse(response)
 
-      // Current behavior: returns empty array instead of 404
-      expect(response.status).toBe(200)
-      expect(Array.isArray(data)).toBe(true)
-      expect(data.length).toBe(0)
+      // Should return 404 with error message
+      expect(response.status).toBe(404)
+      expect(data.error).toBeDefined()
+      expect(data.status).toBe(404)
+      expect(data.error).toContain('not found')
     })
   })
 

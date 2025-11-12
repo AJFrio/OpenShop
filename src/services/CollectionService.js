@@ -67,10 +67,14 @@ export class CollectionService {
    */
   async getProductsInCollection(collectionId) {
     const collection = await this.kv.getCollection(collectionId)
+    if (!collection) {
+      throw new NotFoundError('Collection not found')
+    }
+    
     const products = await this.kv.getProductsByCollection(collectionId)
     
     // If collection is archived, hide all products regardless of product flag
-    if (collection && collection.archived) {
+    if (collection.archived) {
       return []
     }
     

@@ -32,7 +32,9 @@ export class StoreSettingsService {
   async getSettings() {
     const settings = await this.kv.namespace.get(KV_KEYS.STORE_SETTINGS)
     if (settings) {
-      return JSON.parse(settings)
+      const parsed = JSON.parse(settings)
+      // Merge with defaults to ensure all fields are present
+      return { ...DEFAULT_SETTINGS, ...parsed }
     }
     return DEFAULT_SETTINGS
   }

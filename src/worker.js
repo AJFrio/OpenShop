@@ -43,9 +43,10 @@ app.use('*', async (c, next) => {
 })
 
 // CORS middleware (needs env for proper configuration)
-app.use('*', (c, next) => {
+// Note: We create it per-request since env is request-specific
+app.use('*', async (c, next) => {
   const corsMiddleware = createCorsMiddleware(c.env)
-  return corsMiddleware(c, next)
+  return await corsMiddleware(c, next)
 })
 
 // Admin authentication middleware
@@ -64,13 +65,13 @@ app.use('/api/admin/*', async (c, next) => {
     const authResult = await verifyAdminAuth(c.req, c.env)
     if (!authResult.isValid) {
       console.error('Auth failed:', authResult.error)
-      return c.json({ error: authResult.error }, authResult.status)
+      return c.json({ error: authResult.error, status: authResult.status }, authResult.status)
     }
 
     return next()
   } catch (error) {
     console.error('Auth middleware error:', error)
-    return c.json({ error: 'Authentication middleware failed' }, 500)
+    return c.json({ error: 'Authentication middleware failed', status: 500 }, 500)
   }
 })
 
