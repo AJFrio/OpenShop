@@ -27,3 +27,4 @@ wrangler.toml
 .wrangler
 /toml/
 !toml/*.example
+.env*
