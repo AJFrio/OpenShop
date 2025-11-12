@@ -16,7 +16,10 @@
     "deploy": "node scripts/deploy.js",
     "sites": "node scripts/list-sites.js",
     "worker:dev": "wrangler dev --local",
-    "wrangler:login": "wrangler auth login"
+    "wrangler:login": "wrangler auth login",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.1",
@@ -46,6 +49,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
     "vite": "^7.1.2",
+    "vitest": "^2.1.8",
     "wrangler": "^4.42.2"
   }
 }
