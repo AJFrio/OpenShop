@@ -1,0 +1,30 @@
+{
+  "assets/index-BBBHO-8r.js": {
+    "hash": "3afbd2ab8432e7eabd12606c81c7e5f9a58f6712d07c92e6cd2775bb8ffefae9",
+    "size": 747650
+  },
+  "assets/index-CKNEcXLx.css": {
+    "hash": "fb92075a0ea560b2e0d90720f826536e803edd3ac37bf91613e8b70530d4f869",
+    "size": 52373
+  },
+  "cart.png": {
+    "hash": "7f447e40edee2caa22d91ccab3420324a3ed86c61b1dc6fa3dd8a53fb2ea0c82",
+    "size": 45827
+  },
+  "index.html": {
+    "hash": "d86c731110449f74e139238be391756e8ac9dab4736ba78ab0812d9db081fc53",
+    "size": 455
+  },
+  "logo.png": {
+    "hash": "876df5d6c4960441007de433e054433e06c14d6233c331cb351dc5db02ab5f35",
+    "size": 648990
+  },
+  "logo.svg": {
+    "hash": "1e7acf9b67412ab2d260d9cd504d4f66bfc1f79b1c4dbcca2a1a68cd6e1f2af2",
+    "size": 760
+  },
+  "skinnylogo.png": {
+    "hash": "29380663a5375bc9ac63b26d91a3542ec9654cc55d68f20b151859832b80a991",
+    "size": 283578
+  }
+}
