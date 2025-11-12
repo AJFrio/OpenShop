@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execSync } from 'child_process'
-import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs'
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'fs'
 import { join } from 'path'
 import { createInterface } from 'readline'
 
@@ -25,6 +25,24 @@ function execCommand(command, description) {
     console.error(`❌ ${description} failed:`, error.message)
     process.exit(1)
   }
+}
+
+/**
+ * Parse command-line flags
+ */
+function parseFlags() {
+  const flags = {}
+  const args = process.argv.slice(2)
+  
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]
+    if (arg.startsWith('--')) {
+      const [key, value] = arg.substring(2).split('=')
+      flags[key.replace(/-/g, '_')] = value || args[++i]
+    }
+  }
+  
+  return flags
 }
 
 function getAvailableSites() {
@@ -62,59 +80,250 @@ function selectTomlFile(siteName) {
   return tomlContent
 }
 
+/**
+ * Generate TOML file dynamically from flags
+ */
+function generateTomlFromFlags(siteName, adminPassword, stripeSecretKey, stripePublishableKey, productLimit) {
+  const sanitizedProjectName = siteName.toLowerCase()
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+  
+  const workerUrl = `https://${sanitizedProjectName}.workers.dev`
+  
+  let wranglerConfig = `name = "${sanitizedProjectName}"
+main = "src/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# KV namespace will be added after initial deployment
+
+# Environment variables
+[vars]
+SITE_URL = "${workerUrl}"
+ADMIN_PASSWORD = "${adminPassword}"
+DRIVE_ROOT_FOLDER = "OpenShop"
+STRIPE_SECRET_KEY = "${stripeSecretKey}"
+
+# Static assets (automatically creates ASSETS binding)
+[assets]
+directory = "dist"
+binding = "ASSETS"
+
+# Observability
+[observability]
+enabled = true
+head_sampling_rate = 1
+`
+
+  if (productLimit) {
+    wranglerConfig = wranglerConfig.replace(
+      `STRIPE_SECRET_KEY = "${stripeSecretKey}"\n`,
+      `STRIPE_SECRET_KEY = "${stripeSecretKey}"\nPRODUCT_LIMIT = "${productLimit}"\n`
+    )
+  }
+
+  return { config: wranglerConfig, projectName: sanitizedProjectName }
+}
+
+/**
+ * Create KV namespace and update TOML
+ */
+function createKVNamespaceAndUpdateToml(projectName, wranglerConfig) {
+  // Create KV namespace with project name
+  console.log('\n🗃️ Creating KV namespace...')
+  const kvNamespaceName = `${projectName.toUpperCase()}_KV`
+  
+  let kvResult
+  try {
+    kvResult = execSync(`wrangler kv namespace create "${kvNamespaceName}"`, { encoding: 'utf8' })
+  } catch (error) {
+    // KV namespace might already exist, try to get existing one
+    console.log('⚠️  KV namespace creation failed, checking if it already exists...')
+    try {
+      const listResult = execSync(`wrangler kv namespace list`, { encoding: 'utf8' })
+      // Try to extract existing namespace ID
+      const lines = listResult.split('\n')
+      for (const line of lines) {
+        if (line.includes(kvNamespaceName)) {
+          const idMatch = line.match(/([a-f0-9]{32})/)
+          if (idMatch) {
+            kvResult = `id = "${idMatch[1]}"`
+            console.log(`✅ Using existing KV namespace: ${kvNamespaceName}`)
+            break
+          }
+        }
+      }
+      if (!kvResult || !kvResult.includes('id =')) {
+        throw new Error('Could not find existing KV namespace')
+      }
+    } catch (listError) {
+      throw new Error(`Failed to create or find KV namespace: ${error.message}`)
+    }
+  }
+  
+  // Extract KV namespace ID
+  let kvIdMatch = kvResult.match(/id = "([^"]+)"/) || 
+                  kvResult.match(/ID:\s*([a-f0-9-]+)/) ||
+                  kvResult.match(/"id":\s*"([^"]+)"/) ||
+                  kvResult.match(/([a-f0-9]{32})/)
+  
+  if (!kvIdMatch) {
+    throw new Error(`Failed to extract KV namespace ID from output: ${kvResult}`)
+  }
+  
+  const kvId = kvIdMatch[1]
+  console.log(`✅ KV namespace "${kvNamespaceName}" created/found with ID: ${kvId}`)
+
+  // Add KV namespace binding to wrangler.toml
+  const kvConfig = `
+# KV namespace binding
+[[kv_namespaces]]
+binding = "${kvNamespaceName}"
+id = "${kvId}"
+`
+
+  // Insert KV config
+  if (wranglerConfig.includes('# KV namespace will be added after initial deployment')) {
+    wranglerConfig = wranglerConfig.replace(
+      '# KV namespace will be added after initial deployment',
+      kvConfig.trim()
+    )
+  } else {
+    // Fallback: insert before # Environment variables
+    wranglerConfig = wranglerConfig.replace(
+      '# Environment variables',
+      `${kvConfig}\n# Environment variables`
+    )
+  }
+
+  return wranglerConfig
+}
+
 async function deploy() {
   console.log('🚀 OpenShop Deployment')
   console.log('======================\n')
 
-  // Get site name from command line argument or prompt
-  let siteName = process.argv[2]
+  // Parse command-line flags
+  const flags = parseFlags()
+  
+  // Check if we're in flag-based mode
+  const isFlagMode = flags.site_name && flags.admin_password && flags.stripe_secret_key && flags.stripe_publishable_key
 
-  if (!siteName) {
-    const sites = getAvailableSites()
+  let siteName, projectName, tomlContent
+
+  if (isFlagMode) {
+    // Flag-based deployment mode
+    rl.close()
     
-    if (sites.length === 0) {
-      console.error('❌ No sites found in toml/ directory')
-      console.log('💡 Run "npm run setup" to create a new site')
+    siteName = flags.site_name
+    const adminPassword = flags.admin_password
+    const stripeSecretKey = flags.stripe_secret_key
+    const stripePublishableKey = flags.stripe_publishable_key
+    const productLimit = flags.product_limit || ''
+
+    // Validate site name format
+    const siteNameRegex = /^[a-z0-9-]+$/
+    if (!siteNameRegex.test(siteName)) {
+      console.error('❌ Site name can only contain lowercase letters, numbers, and hyphens')
       process.exit(1)
     }
-    
-    console.log('📁 Available sites:')
-    sites.forEach((site, index) => {
-      console.log(`   ${index + 1}. ${site}`)
-    })
-    
-    const answer = await question('\n🎯 Which site do you want to deploy? (number or name): ')
-    rl.close()
-    
-    const siteIndex = parseInt(answer) - 1
-    if (!isNaN(siteIndex) && siteIndex >= 0 && siteIndex < sites.length) {
-      siteName = sites[siteIndex]
-    } else {
-      siteName = answer.trim()
+
+    console.log(`📋 Deploying site: ${siteName} (flag-based mode)\n`)
+
+    // Generate TOML configuration
+    const { config, projectName: generatedProjectName } = generateTomlFromFlags(
+      siteName,
+      adminPassword,
+      stripeSecretKey,
+      stripePublishableKey,
+      productLimit
+    )
+    projectName = generatedProjectName
+    tomlContent = config
+
+    // Write wrangler.toml
+    writeFileSync('wrangler.toml', tomlContent)
+    console.log('✅ Generated wrangler.toml from flags')
+
+    // Create .env file for build process
+    let envContent = `VITE_STRIPE_PUBLISHABLE_KEY=${stripePublishableKey}\n`
+    writeFileSync('.env', envContent)
+    console.log('✅ Created .env file for build')
+
+    // Build the project first
+    execCommand('npm run build', 'Building project')
+
+    // Deploy Worker (initial deployment without KV)
+    execCommand(`wrangler deploy`, `Deploying Worker "${projectName}" (initial)`)
+
+    // Create KV namespace and update TOML
+    tomlContent = createKVNamespaceAndUpdateToml(projectName, tomlContent)
+    writeFileSync('wrangler.toml', tomlContent)
+
+    // Redeploy with KV binding
+    execCommand(`wrangler deploy`, `Redeploying Worker "${projectName}" with KV binding`)
+
+    // Save configuration to toml directory
+    const tomlDir = 'toml'
+    if (!existsSync(tomlDir)) {
+      mkdirSync(tomlDir, { recursive: true })
     }
+    const tomlPath = join(tomlDir, `${siteName}.toml`)
+    writeFileSync(tomlPath, tomlContent)
+    console.log(`✅ Saved configuration to ${tomlPath}`)
+
   } else {
-    rl.close()
+    // Interactive mode (original behavior)
+    siteName = process.argv[2]
+
+    if (!siteName) {
+      const sites = getAvailableSites()
+      
+      if (sites.length === 0) {
+        console.error('❌ No sites found in toml/ directory')
+        console.log('💡 Run "npm run setup" to create a new site')
+        process.exit(1)
+      }
+      
+      console.log('📁 Available sites:')
+      sites.forEach((site, index) => {
+        console.log(`   ${index + 1}. ${site}`)
+      })
+      
+      const answer = await question('\n🎯 Which site do you want to deploy? (number or name): ')
+      rl.close()
+      
+      const siteIndex = parseInt(answer) - 1
+      if (!isNaN(siteIndex) && siteIndex >= 0 && siteIndex < sites.length) {
+        siteName = sites[siteIndex]
+      } else {
+        siteName = answer.trim()
+      }
+    } else {
+      rl.close()
+    }
+
+    // Select and load the toml file
+    tomlContent = selectTomlFile(siteName)
+
+    applySiteEnv(siteName)
+    
+    // Read project name from the selected toml
+    projectName = siteName
+    const nameMatch = tomlContent.match(/name = "([^"]+)"/)
+    if (nameMatch) {
+      projectName = nameMatch[1]
+    }
+    
+    console.log(`📋 Deploying project: ${projectName}\n`)
+
+    // Build the project
+    execCommand('npm run build', 'Building project')
+
+    // Deploy Cloudflare Worker
+    execCommand(`wrangler deploy`, `Deploying Cloudflare Worker (${projectName})`)
   }
-
-  // Select and load the toml file
-  const tomlContent = selectTomlFile(siteName)
-
-  applySiteEnv(siteName)
-  
-  // Read project name from the selected toml
-  let projectName = siteName
-  const nameMatch = tomlContent.match(/name = "([^"]+)"/)
-  if (nameMatch) {
-    projectName = nameMatch[1]
-  }
-  
-  console.log(`📋 Deploying project: ${projectName}\n`)
-
-  // Build the project
-  execCommand('npm run build', 'Building project')
-
-  // Deploy Cloudflare Worker
-  execCommand(`wrangler deploy`, `Deploying Cloudflare Worker (${projectName})`)
 
   console.log('\n🎉 Deployment completed successfully!')
   console.log(`\n💡 Your changes are now live at: https://${projectName}.workers.dev`)
