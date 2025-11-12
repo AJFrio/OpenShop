@@ -138,6 +138,37 @@ describe('StoreSettingsService', () => {
   })
 
   describe('getContactEmail', () => {
+    it('should include productLimit in default settings', async () => {
+      const result = await settingsService.getSettings()
+
+      expect(result).toHaveProperty('productLimit')
+      expect(result.productLimit).toBeNull()
+    })
+
+    it('should preserve productLimit when updating settings', async () => {
+      const settings = {
+        logoType: 'text',
+        storeName: 'Test Store',
+        productLimit: '10'
+      }
+
+      const result = await settingsService.updateSettings(settings)
+
+      expect(result.productLimit).toBe('10')
+    })
+
+    it('should allow null productLimit for unlimited', async () => {
+      const settings = {
+        logoType: 'text',
+        storeName: 'Test Store',
+        productLimit: null
+      }
+
+      const result = await settingsService.updateSettings(settings)
+
+      expect(result.productLimit).toBeNull()
+    })
+
     it('should return default contact email when no settings exist', async () => {
       const result = await settingsService.getContactEmail()
 

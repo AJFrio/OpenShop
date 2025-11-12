@@ -194,6 +194,7 @@ export function ProductWorkspace() {
   const [modalImage, setModalImage] = useState(null)
   const [variants1Enabled, setVariants1Enabled] = useState(false)
   const [variants2Enabled, setVariants2Enabled] = useState(false)
+  const [storeSettings, setStoreSettings] = useState(null)
 
   const collectionLookup = useMemo(() => {
     const map = new Map()
@@ -265,11 +266,26 @@ export function ProductWorkspace() {
     return productData
   }
 
+  const fetchStoreSettings = async () => {
+    try {
+      const settingsRes = await adminApiRequest('/api/admin/settings/store-settings')
+      if (settingsRes.ok) {
+        const settingsData = await settingsRes.json()
+        setStoreSettings(settingsData)
+      }
+    } catch (error) {
+      console.error('Error fetching store settings:', error)
+    }
+  }
+
   useEffect(() => {
     const load = async () => {
       try {
         setIsLoading(true)
-        await fetchProductsAndCollections()
+        await Promise.all([
+          fetchProductsAndCollections(),
+          fetchStoreSettings()
+        ])
       } catch (error) {
         console.error('Error loading products workspace:', error)
         setStatus({ type: 'error', message: 'Unable to load products. Please refresh.' })
@@ -491,6 +507,11 @@ export function ProductWorkspace() {
       })
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        if (errorData.error === 'Product limit reached') {
+          setStatus({ type: 'error', message: errorData.message || 'Product limit reached. Please delete products or upgrade your plan.' })
+          return
+        }
         throw new Error('Failed to save product')
       }
 
@@ -514,6 +535,11 @@ export function ProductWorkspace() {
       setVariants1Enabled(hasVariantGroup(nextDraft.variants, nextDraft.variantStyle))
       setVariants2Enabled(hasVariantGroup(nextDraft.variants2, nextDraft.variantStyle2))
       setStatus({ type: 'success', message: isNew ? 'Product created' : 'Product updated' })
+      
+      // Refresh store settings after creating a product to update limit status
+      if (isNew) {
+        await fetchStoreSettings()
+      }
     } catch (error) {
       console.error('Error saving product:', error)
       setStatus({ type: 'error', message: 'Unable to save product. Please try again.' })
@@ -538,11 +564,30 @@ export function ProductWorkspace() {
       setSelectedId(null)
       setIsCreating(false)
       setStatus({ type: 'success', message: 'Product deleted' })
+      
+      // Refresh store settings after deleting a product to update limit status
+      await fetchStoreSettings()
     } catch (error) {
       console.error('Error deleting product:', error)
       setStatus({ type: 'error', message: 'Unable to delete product. Please try again.' })
     }
   }
+
+  // Calculate if product limit is reached
+  const isProductLimitReached = useMemo(() => {
+    if (!storeSettings || !storeSettings.productLimit) {
+      return false // Unlimited if no limit set
+    }
+    
+    const limit = parseInt(storeSettings.productLimit, 10)
+    if (isNaN(limit) || limit <= 0) {
+      return false // Invalid limit, treat as unlimited
+    }
+    
+    // Count only active (non-archived) products
+    const activeProductCount = products.filter(p => !p.archived).length
+    return activeProductCount >= limit
+  }, [storeSettings, products])
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -557,10 +602,26 @@ export function ProductWorkspace() {
             <RefreshCcw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button type="button" onClick={startCreate}>
-            <Plus className="mr-2 h-4 w-4" />
-            New product
-          </Button>
+          <div className="relative group">
+            <Button 
+              type="button" 
+              onClick={startCreate}
+              disabled={isProductLimitReached}
+              className={isProductLimitReached ? 'opacity-50 cursor-not-allowed' : ''}
+              title={isProductLimitReached ? 'Product limit reached, delete products or upgrade plan' : ''}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              New product
+            </Button>
+            {isProductLimitReached && (
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                Product limit reached, delete products or upgrade plan
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                  <div className="border-4 border-transparent border-t-gray-900"></div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

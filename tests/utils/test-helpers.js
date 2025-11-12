@@ -52,6 +52,7 @@ export async function createTestApp() {
   const { createCorsMiddleware } = await import('../../src/middleware/cors.js')
   const { errorHandler } = await import('../../src/middleware/errorHandler.js')
   const { verifyAdminAuth } = await import('../../src/middleware/auth.js')
+  const { productLimitMiddleware } = await import('../../src/middleware/productLimit.js')
   
   const app = new Hono()
 
@@ -121,6 +122,9 @@ export async function createTestApp() {
       return c.json({ error: 'Authentication middleware failed', status: 500 }, 500)
     }
   })
+
+  // Product limit middleware (applied to admin routes, but only checks product creation)
+  app.use('/api/admin/*', productLimitMiddleware)
 
   // Register all routes
   registerRoutes(app)

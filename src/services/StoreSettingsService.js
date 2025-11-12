@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS = {
   businessState: '',
   businessPostalCode: '',
   businessCountry: '',
+  productLimit: null,
 }
 
 export class StoreSettingsService {

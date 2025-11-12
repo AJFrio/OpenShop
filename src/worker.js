@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { createCorsMiddleware } from './middleware/cors.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { verifyAdminAuth } from './middleware/auth.js'
+import { productLimitMiddleware } from './middleware/productLimit.js'
 import { registerRoutes } from './routes/index.js'
 
 const app = new Hono()
@@ -74,6 +75,9 @@ app.use('/api/admin/*', async (c, next) => {
     return c.json({ error: 'Authentication middleware failed', status: 500 }, 500)
   }
 })
+
+// Product limit middleware (applied to admin routes, but only checks product creation)
+app.use('/api/admin/*', productLimitMiddleware)
 
 // Register all routes
 registerRoutes(app)

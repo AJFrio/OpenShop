@@ -73,6 +73,10 @@ async function setup() {
   console.log('\n🔑 AI Configuration (optional - press Enter to skip):\n')
   const geminiApiKey = await question('Gemini API Key (optional): ') || ''
   
+  console.log('\n🔑 Store Configuration:\n')
+  const productLimitInput = await question('Product Limit (optional - press Enter for unlimited): ') || ''
+  const productLimit = productLimitInput.trim() ? productLimitInput.trim() : ''
+  
   console.log('\n🔑 Admin Access:\n')
   const adminPassword = await question('Admin Password (default: admin123): ') || 'admin123'
   
@@ -203,6 +207,7 @@ id = "${kvId}"
   if (googleClientSecret) varsSection += `GOOGLE_CLIENT_SECRET = "${googleClientSecret}"\n`
   if (googleApiKey) varsSection += `GOOGLE_API_KEY = "${googleApiKey}"\n`
   if (geminiApiKey) varsSection += `GEMINI_API_KEY = "${geminiApiKey}"\n`
+  if (productLimit) varsSection += `PRODUCT_LIMIT = "${productLimit}"\n`
   
   // Replace the entire SITE_URL line and add all variables
   wranglerConfig = wranglerConfig.replace(
@@ -237,6 +242,7 @@ DRIVE_ROOT_FOLDER=${driveRootFolder}
   if (googleClientSecret) envContent += `GOOGLE_CLIENT_SECRET=${googleClientSecret}\n`
   if (googleApiKey) envContent += `GOOGLE_API_KEY=${googleApiKey}\n`
   if (geminiApiKey) envContent += `GEMINI_API_KEY=${geminiApiKey}\n`
+  if (productLimit) envContent += `PRODUCT_LIMIT=${productLimit}\n`
   
   writeFileSync('.env', envContent)
   console.log('✅ Created .env file for local development')
