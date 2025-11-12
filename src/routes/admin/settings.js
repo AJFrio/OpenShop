@@ -37,6 +37,20 @@ router.delete('/storefront/theme', asyncHandler(async (c) => {
   return c.json(theme)
 }))
 
+// Get store settings
+router.get('/store-settings', asyncHandler(async (c) => {
+  const kvNamespace = getKVNamespace(c.env)
+  const settingsService = new StoreSettingsService(kvNamespace)
+  const settings = await settingsService.getSettings()
+  
+  // If productLimit is not in store settings, check environment variable
+  if ((settings.productLimit === null || settings.productLimit === undefined || settings.productLimit === '') && c.env.PRODUCT_LIMIT) {
+    settings.productLimit = c.env.PRODUCT_LIMIT
+  }
+  
+  return c.json(settings)
+}))
+
 // Update store settings
 router.put('/store-settings', asyncHandler(async (c) => {
   const settings = await c.req.json()
