@@ -223,6 +223,43 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Verify build artifacts
+        run: |
+          echo "🔍 Verifying build artifacts..."
+          
+          # Check worker bundle exists
+          if [ ! -f "dist/worker.bundle.js" ]; then
+            echo "❌ Error: dist/worker.bundle.js not found"
+            exit 1
+          fi
+          echo "✅ worker.bundle.js exists ($(du -h dist/worker.bundle.js | cut -f1))"
+          
+          # Check asset manifest exists
+          if [ ! -f "dist/asset-manifest.json" ]; then
+            echo "❌ Error: dist/asset-manifest.json not found"
+            exit 1
+          fi
+          echo "✅ asset-manifest.json exists"
+          
+          # Check key static assets
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ Error: dist/index.html not found"
+            exit 1
+          fi
+          echo "✅ index.html exists"
+          
+          # Count total files in dist (excluding worker.bundle.js)
+          ASSET_COUNT=$(find dist -type f ! -name "worker.bundle.js" | wc -l)
+          echo "✅ Found $ASSET_COUNT static asset files"
+          
+          # List asset manifest contents
+          echo ""
+          echo "Asset manifest contents:"
+          cat dist/asset-manifest.json | head -20
+          
+          echo ""
+          echo "✅ All build artifacts verified successfully"
+      
       - name: Create build metadata
         run: |
           VERSION=$(node -p "require('./package.json').version")
