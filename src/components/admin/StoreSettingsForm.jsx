@@ -4,6 +4,8 @@ import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Select } from '../ui/select'
 import { Switch } from '../ui/switch'
+import { Label } from '../ui/label'
+import { Skeleton } from '../ui/skeleton'
 import { adminApiRequest } from '../../lib/auth'
 import { normalizeImageUrl } from '../../lib/utils'
 import ImageUrlField from './ImageUrlField'
@@ -18,6 +20,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel
 } from '../ui/alert-dialog'
+import { Dialog, DialogContent } from '../ui/dialog'
 
 
 const COLOR_GROUPS = [
@@ -381,9 +384,10 @@ export function StoreSettingsForm() {
     return (
       <Card className="w-full max-w-2xl">
         <CardContent className="p-6">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
-            <span className="ml-2">Loading settings...</span>
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-10 w-1/2" />
           </div>
         </CardContent>
       </Card>
@@ -467,7 +471,7 @@ export function StoreSettingsForm() {
                     <div className="grid gap-4 md:grid-cols-2">
                       {group.fields.map((field) => (
                         <div key={field.key} className="space-y-2">
-                          <label className="block text-sm font-medium text-gray-700">{field.label}</label>
+                          <Label className="text-gray-700">{field.label}</Label>
                           <div className="flex items-center gap-3">
                             <input
                               type="color"
@@ -489,7 +493,7 @@ export function StoreSettingsForm() {
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Font Family</label>
+                    <Label className="text-gray-700">Font Family</Label>
                     <Select
                       value={themeState.typography.fontId}
                       onChange={(event) => handleThemeFontChange(event.target.value)}
@@ -508,7 +512,7 @@ export function StoreSettingsForm() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Rounded Corners</label>
+                        <Label className="text-gray-700">Rounded Corners</Label>
                         <p className="text-xs text-gray-500">Disable for sharp edges across storefront components.</p>
                       </div>
                       <Switch
@@ -518,7 +522,7 @@ export function StoreSettingsForm() {
                       />
                     </div>
                     <div className={themeState.corners.enabled ? '' : 'opacity-50'}>
-                      <label className="block text-sm font-medium text-gray-700">Radius Multiplier</label>
+                      <Label className="text-gray-700">Radius Multiplier</Label>
                       <Input
                         type="number"
                         min="0"
@@ -613,7 +617,7 @@ export function StoreSettingsForm() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Logo Type</label>
+                <Label className="mb-2">Logo Type</Label>
                 <Select
                   name="logoType"
                   value={settings.logoType}
@@ -626,7 +630,7 @@ export function StoreSettingsForm() {
 
               {settings.logoType === 'text' ? (
                 <div>
-                  <label className="block text-sm font-medium mb-2">Logo Text *</label>
+                  <Label className="mb-2">Logo Text *</Label>
                   <Input
                     name="logoText"
                     value={settings.logoText}
@@ -637,7 +641,7 @@ export function StoreSettingsForm() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium">Logo Image URL *</label>
+                  <Label className="block text-sm font-medium">Logo Image URL *</Label>
                   <ImageUrlField
                     value={settings.logoImageUrl}
                     onChange={(val) => setSettings(prev => ({ ...prev, logoImageUrl: val }))}
@@ -661,7 +665,7 @@ export function StoreSettingsForm() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Store Name</label>
+                <Label className="mb-2">Store Name</Label>
                 <Input
                   name="storeName"
                   value={settings.storeName}
@@ -671,7 +675,7 @@ export function StoreSettingsForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Store Description</label>
+                <Label className="mb-2">Store Description</Label>
                 <Input
                   name="storeDescription"
                   value={settings.storeDescription}
@@ -689,7 +693,7 @@ export function StoreSettingsForm() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Hero Image URL</label>
+                <Label className="mb-2">Hero Image URL</Label>
                 <ImageUrlField
                   value={settings.heroImageUrl}
                   onChange={(val) => setSettings(prev => ({ ...prev, heroImageUrl: val }))}
@@ -703,7 +707,7 @@ export function StoreSettingsForm() {
                 <p className="text-sm text-gray-500 mt-1">Large, wide image recommended (e.g. 1600x600).</p>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Hero Title (H1)</label>
+                <Label className="mb-2">Hero Title (H1)</Label>
                 <Input
                   name="heroTitle"
                   value={settings.heroTitle}
@@ -712,7 +716,7 @@ export function StoreSettingsForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Hero Subtitle (H2)</label>
+                <Label className="mb-2">Hero Subtitle (H2)</Label>
                 <Input
                   name="heroSubtitle"
                   value={settings.heroSubtitle}
@@ -746,7 +750,7 @@ export function StoreSettingsForm() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">About Hero Image URL</label>
+                <Label className="mb-2">About Hero Image URL</Label>
                 <ImageUrlField
                   value={settings.aboutHeroImageUrl}
                   onChange={(val) => setSettings(prev => ({ ...prev, aboutHeroImageUrl: val }))}
@@ -760,7 +764,7 @@ export function StoreSettingsForm() {
                 <p className="text-sm text-gray-500 mt-1">Large, wide image recommended for the About page hero section.</p>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">About Hero Title</label>
+                <Label className="mb-2">About Hero Title</Label>
                 <Input
                   name="aboutHeroTitle"
                   value={settings.aboutHeroTitle}
@@ -769,7 +773,7 @@ export function StoreSettingsForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">About Hero Subtitle</label>
+                <Label className="mb-2">About Hero Subtitle</Label>
                 <Input
                   name="aboutHeroSubtitle"
                   value={settings.aboutHeroSubtitle}
@@ -778,7 +782,7 @@ export function StoreSettingsForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">About Content</label>
+                <Label className="mb-2">About Content</Label>
                 <textarea
                   name="aboutContent"
                   value={settings.aboutContent}
@@ -829,7 +833,7 @@ export function StoreSettingsForm() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Contact Email</label>
+                <Label className="mb-2">Contact Email</Label>
                 <Input
                   type="email"
                   name="contactEmail"
@@ -849,7 +853,7 @@ export function StoreSettingsForm() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Business Name</label>
+                <Label className="mb-2">Business Name</Label>
                 <Input
                   name="businessName"
                   value={settings.businessName || ''}
@@ -859,7 +863,7 @@ export function StoreSettingsForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Address Line 1</label>
+                <Label className="mb-2">Address Line 1</Label>
                 <Input
                   name="businessAddressLine1"
                   value={settings.businessAddressLine1 || ''}
@@ -868,7 +872,7 @@ export function StoreSettingsForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Address Line 2</label>
+                <Label className="mb-2">Address Line 2</Label>
                 <Input
                   name="businessAddressLine2"
                   value={settings.businessAddressLine2 || ''}
@@ -879,7 +883,7 @@ export function StoreSettingsForm() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">City</label>
+                  <Label className="mb-2">City</Label>
                   <Input
                     name="businessCity"
                     value={settings.businessCity || ''}
@@ -888,7 +892,7 @@ export function StoreSettingsForm() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">State/Province</label>
+                  <Label className="mb-2">State/Province</Label>
                   <Input
                     name="businessState"
                     value={settings.businessState || ''}
@@ -900,7 +904,7 @@ export function StoreSettingsForm() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Postal Code</label>
+                  <Label className="mb-2">Postal Code</Label>
                   <Input
                     name="businessPostalCode"
                     value={settings.businessPostalCode || ''}
@@ -909,7 +913,7 @@ export function StoreSettingsForm() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Country</label>
+                  <Label className="mb-2">Country</Label>
                   <Input
                     name="businessCountry"
                     value={settings.businessCountry || ''}
@@ -924,16 +928,20 @@ export function StoreSettingsForm() {
       </CardContent>
     </Card>
     </div>
-    {modalImage && (
-      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
-        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
-          <img src={modalImage} alt="preview" className="w-full h-auto object-contain rounded" />
-          <div className="p-3 border-t text-center">
-            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-gray-600 hover:text-gray-700">Open original</a>
-          </div>
-        </div>
-      </div>
-    )}
+    <Dialog open={!!modalImage} onOpenChange={(open) => !open && setModalImage(null)}>
+      <DialogContent className="max-w-3xl p-0">
+        {modalImage && (
+          <>
+            <div className="p-4">
+              <img src={modalImage} alt="preview" className="w-full h-auto object-contain rounded" />
+            </div>
+            <div className="p-3 border-t text-center">
+              <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-gray-600 hover:text-gray-700">Open original</a>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
     <AlertDialog open={resetConfirmOpen} onOpenChange={setResetConfirmOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>

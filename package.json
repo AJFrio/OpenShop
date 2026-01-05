@@ -24,6 +24,11 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.1",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@stripe/stripe-js": "^7.9.0",
     "@tailwindcss/vite": "^4.1.13",
     "class-variance-authority": "^0.7.1",

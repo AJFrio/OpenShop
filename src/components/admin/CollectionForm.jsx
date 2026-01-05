@@ -15,7 +15,9 @@ import {
   AlertDialogFooter,
   AlertDialogAction
 } from '../ui/alert-dialog'
+import { Dialog, DialogContent } from '../ui/dialog'
 import { Switch } from '../ui/switch'
+import { Label } from '../ui/label'
 
 export function CollectionForm({ collection, onSave, onCancel }) {
   const [formData, setFormData] = useState({
@@ -120,8 +122,9 @@ export function CollectionForm({ collection, onSave, onCancel }) {
         <CardContent className="p-6">
           <form id="collection-form" onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2">Collection Name *</label>
+            <Label htmlFor="collection-name" className="mb-2">Collection Name *</Label>
             <Input
+              id="collection-name"
               name="name"
               value={formData.name}
               onChange={handleChange}
@@ -139,12 +142,13 @@ export function CollectionForm({ collection, onSave, onCancel }) {
               checked={!!formData.archived}
               onCheckedChange={(v) => setFormData(prev => ({ ...prev, archived: v }))}
             />
-            <label htmlFor="collection-archived" className="text-sm text-gray-700 select-none">Archived (hide from storefront)</label>
+            <Label htmlFor="collection-archived" className="text-sm text-gray-700 select-none">Archived (hide from storefront)</Label>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Description</label>
+            <Label htmlFor="collection-description" className="mb-2">Description</Label>
             <Textarea
+              id="collection-description"
               name="description"
               value={formData.description}
               onChange={handleChange}
@@ -154,7 +158,7 @@ export function CollectionForm({ collection, onSave, onCancel }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Hero Banner Image</label>
+            <Label className="mb-2">Hero Banner Image</Label>
             <ImageUrlField
               value={formData.heroImage}
               onChange={(val) => setFormData(prev => ({ ...prev, heroImage: val }))}
@@ -170,24 +174,20 @@ export function CollectionForm({ collection, onSave, onCancel }) {
       </CardContent>
     </Card>
     </div>
-    {modalImage && (
-      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
-        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-          <button
-            type="button"
-            className="absolute top-2 right-2 px-2 py-1 rounded border bg-white/90 hover:bg-white"
-            onClick={() => setModalImage(null)}
-            aria-label="Close"
-          >
-            ×
-          </button>
-          <img src={modalImage} alt="preview" className="w-full h-auto max-h-[80vh] object-contain rounded" />
-          <div className="p-3 border-t text-center">
-            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-gray-600 hover:text-gray-700">Open original</a>
-          </div>
-        </div>
-      </div>
-    )}
+    <Dialog open={!!modalImage} onOpenChange={(open) => !open && setModalImage(null)}>
+      <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+        {modalImage && (
+          <>
+            <div className="p-4">
+              <img src={modalImage} alt="preview" className="w-full h-auto max-h-[80vh] object-contain rounded" />
+            </div>
+            <div className="p-3 border-t text-center">
+              <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-gray-600 hover:text-gray-700">Open original</a>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
     <AlertDialog open={errorOpen} onOpenChange={setErrorOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>

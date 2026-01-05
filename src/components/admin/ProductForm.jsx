@@ -16,7 +16,9 @@ import {
   AlertDialogFooter,
   AlertDialogAction
 } from '../ui/alert-dialog'
+import { Dialog, DialogContent } from '../ui/dialog'
 import { Switch } from '../ui/switch'
+import { Label } from '../ui/label'
 import { adminApiRequest } from '../../lib/auth'
 
 export function ProductForm({ product, onSave, onCancel }) {
@@ -250,8 +252,9 @@ export function ProductForm({ product, onSave, onCancel }) {
         <CardContent className="p-6">
           <form id="product-form" onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2">Product Name *</label>
+            <Label htmlFor="name" className="mb-2">Product Name *</Label>
             <Input
+              id="name"
               name="name"
               value={formData.name}
               onChange={handleChange}
@@ -266,12 +269,13 @@ export function ProductForm({ product, onSave, onCancel }) {
               checked={!!formData.archived}
               onCheckedChange={(v) => setFormData(prev => ({ ...prev, archived: v }))}
             />
-            <label htmlFor="archived" className="text-sm text-gray-700 select-none">Archived (hide from storefront)</label>
+            <Label htmlFor="archived" className="text-sm text-gray-700 select-none">Archived (hide from storefront)</Label>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Tagline (short)</label>
+            <Label htmlFor="tagline" className="mb-2">Tagline (short)</Label>
             <Input
+              id="tagline"
               name="tagline"
               value={formData.tagline}
               onChange={handleChange}
@@ -280,8 +284,9 @@ export function ProductForm({ product, onSave, onCancel }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Description (detailed)</label>
+            <Label htmlFor="description" className="mb-2">Description (detailed)</Label>
             <Textarea
+              id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
@@ -292,8 +297,9 @@ export function ProductForm({ product, onSave, onCancel }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Price *</label>
+              <Label htmlFor="price" className="mb-2">Price *</Label>
               <Input
+                id="price"
                 name="price"
                 type="number"
                 step="0.01"
@@ -305,8 +311,9 @@ export function ProductForm({ product, onSave, onCancel }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Currency</label>
+              <Label htmlFor="currency" className="mb-2">Currency</Label>
               <Select
+                id="currency"
                 name="currency"
                 value={formData.currency}
                 onChange={handleChange}
@@ -320,7 +327,7 @@ export function ProductForm({ product, onSave, onCancel }) {
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium">Product Images</label>
+              <Label>Product Images</Label>
               <Button
                 type="button"
                 variant="outline"
@@ -352,8 +359,9 @@ export function ProductForm({ product, onSave, onCancel }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Collection</label>
+            <Label htmlFor="collectionId" className="mb-2">Collection</Label>
             <Select
+              id="collectionId"
               name="collectionId"
               value={formData.collectionId}
               onChange={handleChange}
@@ -371,14 +379,15 @@ export function ProductForm({ product, onSave, onCancel }) {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <Switch id="enableVariants1" checked={enableVariants1} onCheckedChange={setEnableVariants1} />
-              <label htmlFor="enableVariants1" className="text-sm text-gray-700 select-none">Enable Variant Group 1</label>
+              <Label htmlFor="enableVariants1" className="text-sm text-gray-700 select-none">Enable Variant Group 1</Label>
             </div>
             {enableVariants1 && (
               <>
                 <h3 className="text-lg font-medium text-gray-900">Variants</h3>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Variant Style (e.g., Color, Logo)</label>
+                  <Label htmlFor="variantStyle" className="mb-2">Variant Style (e.g., Color, Logo)</Label>
                   <Input
+                    id="variantStyle"
                     name="variantStyle"
                     value={formData.variantStyle || ''}
                     onChange={handleChange}
@@ -386,7 +395,7 @@ export function ProductForm({ product, onSave, onCancel }) {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium">Variant Picker</label>
+                  <Label>Variant Picker</Label>
                   <Button type="button" variant="outline" size="sm" onClick={addVariant}>Add Variant</Button>
                 </div>
                 <div className="grid grid-cols-12 gap-2 text-xs text-gray-600 px-1">
@@ -461,14 +470,15 @@ export function ProductForm({ product, onSave, onCancel }) {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <Switch id="enableVariants2" checked={enableVariants2} onCheckedChange={setEnableVariants2} />
-              <label htmlFor="enableVariants2" className="text-sm text-gray-700 select-none">Enable Variant Group 2</label>
+              <Label htmlFor="enableVariants2" className="text-sm text-gray-700 select-none">Enable Variant Group 2</Label>
             </div>
             {enableVariants2 && (
               <>
                 <h3 className="text-lg font-medium text-gray-900">Second Variant Group (optional)</h3>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Variant Style (e.g., Size)</label>
+                  <Label htmlFor="variantStyle2" className="mb-2">Variant Style (e.g., Size)</Label>
                   <Input
+                    id="variantStyle2"
                     name="variantStyle2"
                     value={formData.variantStyle2 || ''}
                     onChange={handleChange}
@@ -476,7 +486,7 @@ export function ProductForm({ product, onSave, onCancel }) {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium">Variant Picker</label>
+                  <Label>Variant Picker</Label>
                   <Button type="button" variant="outline" size="sm" onClick={addVariant2}>Add Variant</Button>
                 </div>
                 <div className="grid grid-cols-12 gap-2 text-xs text-gray-600 px-1">
@@ -550,24 +560,20 @@ export function ProductForm({ product, onSave, onCancel }) {
       </CardContent>
     </Card>
     </div>
-    {modalImage && (
-      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
-        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-          <button
-            type="button"
-            className="absolute top-2 right-2 px-2 py-1 rounded border bg-white/90 hover:bg-white"
-            onClick={() => setModalImage(null)}
-            aria-label="Close"
-          >
-            ×
-          </button>
-          <img src={modalImage} alt="preview" className="w-full h-auto max-h-[80vh] object-contain rounded" />
-          <div className="p-3 border-t text-center">
-            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-gray-600 hover:text-gray-700">Open original</a>
-          </div>
-        </div>
-      </div>
-    )}
+    <Dialog open={!!modalImage} onOpenChange={(open) => !open && setModalImage(null)}>
+      <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+        {modalImage && (
+          <>
+            <div className="p-4">
+              <img src={modalImage} alt="preview" className="w-full h-auto max-h-[80vh] object-contain rounded" />
+            </div>
+            <div className="p-3 border-t text-center">
+              <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-gray-600 hover:text-gray-700">Open original</a>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
     <AlertDialog open={errorOpen} onOpenChange={setErrorOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>

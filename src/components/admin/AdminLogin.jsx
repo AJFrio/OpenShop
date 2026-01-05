@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
+import { Label } from '../ui/label'
 import { adminLogin } from '../../lib/auth'
 
 export function AdminLogin({ onLoginSuccess }) {
@@ -37,8 +38,9 @@ export function AdminLogin({ onLoginSuccess }) {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
+              <Label htmlFor="password" className="mb-2">Password</Label>
               <Input
+                id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

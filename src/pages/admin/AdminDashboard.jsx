@@ -5,6 +5,10 @@ import { AdminLogin } from '../../components/admin/AdminLogin'
 import { Button } from '../../components/ui/button'
 import { Select } from '../../components/ui/select'
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../components/ui/dialog'
+import { Label } from '../../components/ui/label'
+import { Skeleton } from '../../components/ui/skeleton'
+import { Separator } from '../../components/ui/separator'
 import { CollectionForm } from '../../components/admin/CollectionForm'
 import { StoreSettingsForm } from '../../components/admin/StoreSettingsForm'
 import { ProductWorkspace } from '../../components/admin/ProductWorkspace'
@@ -12,7 +16,7 @@ import { RevenueChart, OrdersChart } from '../../components/admin/AnalyticsChart
 import { MetricCard, RecentOrdersCard } from '../../components/admin/AnalyticsCards'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
-import { Package, FolderOpen, Plus, Edit, Trash2, Home, Settings, DollarSign, ShoppingBag, BarChart3, Image as ImageIcon, X } from 'lucide-react'
+import { Package, FolderOpen, Plus, Edit, Trash2, Home, Settings, DollarSign, ShoppingBag, BarChart3, Image as ImageIcon } from 'lucide-react'
 import AddMediaModal from '../../components/admin/AddMediaModal'
 import { Switch } from '../../components/ui/switch'
 
@@ -61,7 +65,8 @@ function AdminSidebar({ onLogout }) {
       </nav>
       
       {/* Logout Button */}
-      <div className="p-4 border-t">
+      <Separator />
+      <div className="p-4">
         <Button 
           onClick={onLogout}
           variant="outline" 
@@ -154,9 +159,22 @@ function Dashboard() {
       </div>
 
       {analyticsLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
-          <span className="ml-2">Loading analytics...</span>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-8 w-32 mb-2" />
+                  <Skeleton className="h-3 w-20" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card><CardContent className="p-6"><Skeleton className="h-80" /></CardContent></Card>
+            <Card><CardContent className="p-6"><Skeleton className="h-80" /></CardContent></Card>
+          </div>
         </div>
       ) : analytics ? (
         <>
@@ -324,7 +342,7 @@ function CollectionsManager() {
 
       {/* Filters */}
       <div>
-        <label className="block text-sm font-medium mb-1">Filter by Archived</label>
+        <Label className="mb-1">Filter by Archived</Label>
         <Select value={archivedFilter} onChange={(e) => setArchivedFilter(e.target.value)}>
           <option value="all">All</option>
           <option value="active">Active</option>
@@ -355,7 +373,7 @@ function CollectionsManager() {
                     <p className="text-sm text-gray-600">{collection.description}</p>
                   </div>
                   <div className="flex space-x-2 items-center">
-                    <label className="flex items-center gap-3 text-sm text-gray-700">
+                    <Label className="flex items-center gap-3 text-sm text-gray-700">
                       <Switch
                         checked={!!collection.archived}
                         onCheckedChange={async (v) => {
@@ -368,7 +386,7 @@ function CollectionsManager() {
                         }}
                       />
                       Archived
-                    </label>
+                    </Label>
                     <Button
                       variant="outline"
                       size="sm"
@@ -460,7 +478,21 @@ function MediaLibrary() {
                 className="block w-full h-full"
                 title={m.filename || m.url}
               >
-                <img src={normalizeImageUrl(m.url)} alt={m.filename || 'media'} className="w-full h-28 object-cover" />
+                {m.url && normalizeImageUrl(m.url) ? (
+                  <img 
+                    src={normalizeImageUrl(m.url)} 
+                    alt={m.filename || 'media'} 
+                    className="w-full h-28 object-cover" 
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      const placeholder = e.target.parentElement.querySelector('.image-placeholder');
+                      if (placeholder) placeholder.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <div className={`w-full h-28 flex items-center justify-center bg-gray-100 image-placeholder ${m.url && normalizeImageUrl(m.url) ? 'hidden' : ''}`}>
+                  <ImageIcon className="w-8 h-8 text-gray-400" />
+                </div>
               </button>
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
                 <Button size="sm" variant="destructive" onClick={() => handleDelete(m.id)}>
@@ -472,24 +504,23 @@ function MediaLibrary() {
         </div>
       )}
 
-      {selected && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setSelected(null)}>
-          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative flex flex-col max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <button className="absolute top-3 right-3 p-2 rounded-full border bg-white/90 hover:bg-white" onClick={() => setSelected(null)} aria-label="Close">
-              <X className="w-5 h-5" />
-            </button>
-            <div className="flex-1 overflow-auto p-4">
+      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col p-0">
+          <div className="flex-1 overflow-auto p-4">
+            {selected && (
               <img src={normalizeImageUrl(selected.url)} alt={selected.filename || 'media'} className="block max-w-full max-h-full object-contain mx-auto" />
-            </div>
+            )}
+          </div>
+          {selected && (
             <div className="p-4 border-t space-y-2 flex-shrink-0">
               <p className="text-sm text-gray-700 break-all">{selected.filename || selected.url}</p>
               <div className="flex gap-4 items-center text-sm">
                 <a href={selected.url} target="_blank" rel="noreferrer" className="text-gray-600 hover:text-gray-700">Open original</a>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
 
       <AddMediaModal
         open={addOpen}
@@ -789,9 +820,16 @@ function FulfillmentManager() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
-          <span className="ml-2">Loading orders...</span>
+        <div className="space-y-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <Skeleton className="h-4 w-32 mb-2" />
+                <Skeleton className="h-3 w-48 mb-1" />
+                <Skeleton className="h-3 w-24" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       ) : error ? (
         <Card>
@@ -845,140 +883,132 @@ function FulfillmentManager() {
       )}
 
       {/* Order Details Modal */}
-      {isModalOpen && selectedOrder && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setIsModalOpen(false)}>
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6 border-b">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Order Details</h2>
-                  <p className="text-sm text-gray-600">Order #{selectedOrder.id.slice(-8)}</p>
-                </div>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0">
+          {selectedOrder && (
+            <>
+              <DialogHeader className="p-6 border-b">
+                <DialogTitle>Order Details</DialogTitle>
+                <DialogDescription>Order #{selectedOrder.id.slice(-8)}</DialogDescription>
+              </DialogHeader>
 
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Customer Info */}
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="font-medium">Name:</span> {selectedOrder.customer_name || 'Unknown'}</p>
-                    <p><span className="font-medium">Email:</span> {selectedOrder.customer_email || 'Not provided'}</p>
-                    <p><span className="font-medium">Order Date:</span> {new Date(selectedOrder.created * 1000).toLocaleString()}</p>
-                    <p><span className="font-medium">Total:</span> {formatCurrency((selectedOrder.amount_total || 0) / 100, selectedOrder.currency?.toUpperCase() || 'USD')}</p>
-                    {selectedOrder.fulfillment?.fulfilled && (
-                      <p className="text-green-600 font-medium">
-                        ✓ Fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
-                      </p>
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Customer Info */}
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
+                    <div className="space-y-2 text-sm">
+                      <p><span className="font-medium">Name:</span> {selectedOrder.customer_name || 'Unknown'}</p>
+                      <p><span className="font-medium">Email:</span> {selectedOrder.customer_email || 'Not provided'}</p>
+                      <p><span className="font-medium">Order Date:</span> {new Date(selectedOrder.created * 1000).toLocaleString()}</p>
+                      <p><span className="font-medium">Total:</span> {formatCurrency((selectedOrder.amount_total || 0) / 100, selectedOrder.currency?.toUpperCase() || 'USD')}</p>
+                      {selectedOrder.fulfillment?.fulfilled && (
+                        <p className="text-green-600 font-medium">
+                          ✓ Fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Shipping Info */}
+                  {selectedOrder.shipping ? (
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-3">Shipping Address</h3>
+                      <div className="text-sm space-y-1">
+                        {selectedOrder.shipping.name && (
+                          <p className="font-medium">{selectedOrder.shipping.name}</p>
+                        )}
+                        {selectedOrder.shipping.address && (
+                          <>
+                            <p>
+                              {selectedOrder.shipping.address.line1 || ''}
+                              {selectedOrder.shipping.address.line2 && (
+                                <span className="block">{selectedOrder.shipping.address.line2}</span>
+                              )}
+                            </p>
+                            <p>
+                              {selectedOrder.shipping.address.city && `${selectedOrder.shipping.address.city}, `}
+                              {selectedOrder.shipping.address.state && `${selectedOrder.shipping.address.state} `}
+                              {selectedOrder.shipping.address.postal_code || ''}
+                            </p>
+                            {selectedOrder.shipping.address.country && (
+                              <p className="font-medium">{selectedOrder.shipping.address.country}</p>
+                            )}
+                          </>
+                        )}
+                        {!selectedOrder.shipping.address && (
+                          <p className="text-gray-500 italic">No shipping address provided</p>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-3">Shipping Address</h3>
+                      <p className="text-gray-500 italic text-sm">No shipping information available</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Items */}
+                <div className="mt-6">
+                  <h3 className="font-semibold text-gray-900 mb-3">Items</h3>
+                  <div className="space-y-3">
+                    {selectedOrder.items.map(item => (
+                      <div key={item.id} className="flex justify-between items-start p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">{item.description}</p>
+                          {item.price_nickname && (
+                            <p className="text-sm text-gray-600">{item.price_nickname}</p>
+                          )}
+                          {(item.variant1_name || item.variant2_name) && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              {item.variant1_name && <div>{item.variant1_style || 'Variant'}: {item.variant1_name}</div>}
+                              {item.variant2_name && <div>{item.variant2_style || 'Variant'}: {item.variant2_name}</div>}
+                            </div>
+                          )}
+                          <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">{formatCurrency((item.amount_total || 0) / 100, item.currency?.toUpperCase() || 'USD')}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <DialogFooter className="p-6 border-t">
+                <div className="flex justify-between items-center w-full">
+                  {!selectedOrder.fulfillment?.fulfilled ? (
+                    <div className="text-sm text-gray-600">
+                      This order is ready for fulfillment
+                    </div>
+                  ) : (
+                    <div className="text-sm text-green-600 font-medium">
+                      ✓ Order fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                      Close
+                    </Button>
+                    {selectedOrder.shipping && (
+                      <Button variant="outline" onClick={() => printShippingLabel(selectedOrder)}>
+                        Print Label
+                      </Button>
+                    )}
+                    {!selectedOrder.fulfillment?.fulfilled && (
+                      <Button onClick={() => fulfillOrder(selectedOrder.id)}>
+                        Fulfill Order
+                      </Button>
                     )}
                   </div>
                 </div>
-
-                {/* Shipping Info */}
-                {selectedOrder.shipping ? (
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-3">Shipping Address</h3>
-                    <div className="text-sm space-y-1">
-                      {selectedOrder.shipping.name && (
-                        <p className="font-medium">{selectedOrder.shipping.name}</p>
-                      )}
-                      {selectedOrder.shipping.address && (
-                        <>
-                          <p>
-                            {selectedOrder.shipping.address.line1 || ''}
-                            {selectedOrder.shipping.address.line2 && (
-                              <span className="block">{selectedOrder.shipping.address.line2}</span>
-                            )}
-                          </p>
-                          <p>
-                            {selectedOrder.shipping.address.city && `${selectedOrder.shipping.address.city}, `}
-                            {selectedOrder.shipping.address.state && `${selectedOrder.shipping.address.state} `}
-                            {selectedOrder.shipping.address.postal_code || ''}
-                          </p>
-                          {selectedOrder.shipping.address.country && (
-                            <p className="font-medium">{selectedOrder.shipping.address.country}</p>
-                          )}
-                        </>
-                      )}
-                      {!selectedOrder.shipping.address && (
-                        <p className="text-gray-500 italic">No shipping address provided</p>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-3">Shipping Address</h3>
-                    <p className="text-gray-500 italic text-sm">No shipping information available</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Items */}
-              <div className="mt-6">
-                <h3 className="font-semibold text-gray-900 mb-3">Items</h3>
-                <div className="space-y-3">
-                  {selectedOrder.items.map(item => (
-                    <div key={item.id} className="flex justify-between items-start p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{item.description}</p>
-                        {item.price_nickname && (
-                          <p className="text-sm text-gray-600">{item.price_nickname}</p>
-                        )}
-                        {(item.variant1_name || item.variant2_name) && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            {item.variant1_name && <div>{item.variant1_style || 'Variant'}: {item.variant1_name}</div>}
-                            {item.variant2_name && <div>{item.variant2_style || 'Variant'}: {item.variant2_name}</div>}
-                          </div>
-                        )}
-                        <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">{formatCurrency((item.amount_total || 0) / 100, item.currency?.toUpperCase() || 'USD')}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 border-t flex justify-between items-center">
-              {!selectedOrder.fulfillment?.fulfilled ? (
-                <div className="text-sm text-gray-600">
-                  This order is ready for fulfillment
-                </div>
-              ) : (
-                <div className="text-sm text-green-600 font-medium">
-                  ✓ Order fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
-                </div>
-              )}
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-                  Close
-                </Button>
-                {selectedOrder.shipping && (
-                  <Button variant="outline" onClick={() => printShippingLabel(selectedOrder)}>
-                    Print Label
-                  </Button>
-                )}
-                {!selectedOrder.fulfillment?.fulfilled && (
-                  <Button onClick={() => fulfillOrder(selectedOrder.id)}>
-                    Fulfill Order
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -1015,7 +1045,11 @@ export function AdminDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+        <div className="space-y-4 w-full max-w-md p-6">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-32 w-full" />
+        </div>
       </div>
     )
   }

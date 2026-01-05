@@ -6,6 +6,10 @@ import { Select } from "../ui/select"
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
 import { Switch } from "../ui/switch"
+import { Label } from "../ui/label"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
+import { Badge } from "../ui/badge"
+import { Skeleton } from "../ui/skeleton"
 import { RefreshCcw, Plus, Save, Trash2, CheckCircle2, AlertTriangle, Package } from "lucide-react"
 import ImageUrlField from "./ImageUrlField"
 import VariantImageSelector from "./VariantImageSelector"
@@ -89,14 +93,14 @@ function VariantGroupEditor({
     <div className="space-y-3">
       <div className="flex items-center gap-3">
         <Switch id={id} checked={enabled} onCheckedChange={onToggle} />
-        <label htmlFor={id} className="text-sm text-gray-700 select-none">
+        <Label htmlFor={id} className="text-sm text-gray-700 select-none">
           {title}
-        </label>
+        </Label>
       </div>
       {enabled && (
         <>
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">Variant label</label>
+            <Label className="mb-2 text-gray-700">Variant label</Label>
             <Input
               value={variantStyle}
               onChange={(event) => onVariantStyleChange(event.target.value)}
@@ -635,9 +639,9 @@ export function ProductWorkspace() {
             <CardContent className="flex flex-1 flex-col gap-4 overflow-hidden">
               <div className="space-y-3">
                 <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase text-gray-500">
+                  <Label className="mb-2 text-xs font-semibold uppercase text-gray-500">
                     Search
-                  </label>
+                  </Label>
                   <Input
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
@@ -646,9 +650,9 @@ export function ProductWorkspace() {
                 </div>
                 <div className="grid grid-cols-1 gap-3">
                   <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase text-gray-500">
+                    <Label className="mb-2 text-xs font-semibold uppercase text-gray-500">
                       Collection
-                    </label>
+                    </Label>
                     <Select
                       value={collectionFilter}
                       onChange={(event) => setCollectionFilter(event.target.value)}
@@ -663,9 +667,9 @@ export function ProductWorkspace() {
                     </Select>
                   </div>
                   <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase text-gray-500">
+                    <Label className="mb-2 text-xs font-semibold uppercase text-gray-500">
                       Visibility
-                    </label>
+                    </Label>
                     <Select
                       value={archivedFilter}
                       onChange={(event) => setArchivedFilter(event.target.value)}
@@ -682,9 +686,9 @@ export function ProductWorkspace() {
                 {isLoading ? (
                   <div className="space-y-2">
                     {Array.from({ length: 4 }).map((_, index) => (
-                      <div
+                      <Skeleton
                         key={index}
-                        className="h-20 rounded-lg border border-dashed border-gray-200 bg-gray-50 animate-pulse"
+                        className="h-20 rounded-lg"
                       />
                     ))}
                   </div>
@@ -739,18 +743,18 @@ export function ProductWorkspace() {
                             </p>
                             <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500">
                               {collectionName ? (
-                                <span className="rounded-full bg-gray-100 px-2 py-0.5">
+                                <Badge variant="outline" className="bg-gray-100">
                                   {collectionName}
-                                </span>
+                                </Badge>
                               ) : (
-                                <span className="rounded-full bg-gray-100 px-2 py-0.5">
+                                <Badge variant="outline" className="bg-gray-100">
                                   No collection
-                                </span>
+                                </Badge>
                               )}
                               {product.archived && (
-                                <span className="rounded-full bg-gray-200 px-2 py-0.5 text-gray-700">
+                                <Badge variant="secondary" className="bg-gray-200 text-gray-700">
                                   Archived
-                                </span>
+                                </Badge>
                               )}
                             </div>
                           </div>
@@ -838,7 +842,7 @@ export function ProductWorkspace() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">Name</label>
+                      <Label className="mb-2 text-gray-700">Name</Label>
                       <Input
                         value={draft.name}
                         onChange={(event) => handleDraftChange('name', event.target.value)}
@@ -846,9 +850,9 @@ export function ProductWorkspace() {
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                      <Label className="mb-2 text-gray-700">
                         Tagline
-                      </label>
+                      </Label>
                       <Input
                         value={draft.tagline}
                         onChange={(event) => handleDraftChange('tagline', event.target.value)}
@@ -856,9 +860,9 @@ export function ProductWorkspace() {
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                      <Label className="mb-2 text-gray-700">
                         Description
-                      </label>
+                      </Label>
                       <Textarea
                         rows={5}
                         value={draft.description}
@@ -879,9 +883,9 @@ export function ProductWorkspace() {
                   <CardContent className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <Label className="mb-2 text-gray-700">
                           Price
-                        </label>
+                        </Label>
                         <Input
                           type="number"
                           min="0"
@@ -892,9 +896,9 @@ export function ProductWorkspace() {
                         />
                       </div>
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <Label className="mb-2 text-gray-700">
                           Currency
-                        </label>
+                        </Label>
                         <Select
                           value={draft.currency || 'usd'}
                           onChange={(event) => handleDraftChange('currency', event.target.value)}
@@ -931,9 +935,9 @@ export function ProductWorkspace() {
                   <CardContent className="space-y-4">
                     {(draft.images || []).map((image, index) => (
                       <div key={`image-${index}`} className="space-y-2">
-                        <label className="block text-xs font-semibold uppercase text-gray-500">
+                        <Label className="text-xs font-semibold uppercase text-gray-500">
                           Image {index + 1}
-                        </label>
+                        </Label>
                         <ImageUrlField
                           value={image}
                           onChange={(value) => handleImageChange(index, value)}
@@ -969,9 +973,9 @@ export function ProductWorkspace() {
                   </CardHeader>
                   <CardContent className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                      <Label className="mb-2 text-gray-700">
                         Collection
-                      </label>
+                      </Label>
                       <Select
                         value={draft.collectionId || ''}
                         onChange={(event) => handleDraftChange('collectionId', event.target.value)}
@@ -985,9 +989,9 @@ export function ProductWorkspace() {
                       </Select>
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                      <Label className="mb-2 text-gray-700">
                         Stripe price ID
-                      </label>
+                      </Label>
                       <Input
                         value={draft.stripePriceId || ''}
                         onChange={(event) => handleDraftChange('stripePriceId', event.target.value)}
@@ -1045,33 +1049,24 @@ export function ProductWorkspace() {
         </section>
       </div>
 
-      {modalImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6"
-          onClick={() => setModalImage(null)}
-        >
-          <div
-            className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-xl"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b px-4 py-2">
-              <span className="text-sm font-medium text-gray-700">Preview</span>
-              <button
-                type="button"
-                className="rounded-md border border-gray-200 px-2 py-1 text-sm text-gray-600 hover:bg-gray-100"
-                onClick={() => setModalImage(null)}
-              >
-                Close
-              </button>
-            </div>
-            <img
-              src={normalizeImageUrl(modalImage)}
-              alt="Preview"
-              className="h-full max-h-[80vh] w-full object-contain"
-            />
-          </div>
-        </div>
-      )}
+      <Dialog open={!!modalImage} onOpenChange={(open) => !open && setModalImage(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+          {modalImage && (
+            <>
+              <DialogHeader className="px-4 py-2 border-b">
+                <DialogTitle>Preview</DialogTitle>
+              </DialogHeader>
+              <div className="p-4">
+                <img
+                  src={normalizeImageUrl(modalImage)}
+                  alt="Preview"
+                  className="h-full max-h-[80vh] w-full object-contain"
+                />
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

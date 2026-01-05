@@ -1,4 +1,5 @@
 import { Card, CardContent } from '../ui/card'
+import { Badge } from '../ui/badge'
 import { formatCurrency } from '../../lib/utils'
 import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, BarChart3 } from 'lucide-react'
 
@@ -75,13 +76,13 @@ export function RecentOrdersCard({ orders }) {
                     <p className="text-sm font-medium text-gray-900">
                       {formatCurrency(order.amount, order.currency)}
                     </p>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    <Badge variant={order.status === 'paid' ? 'default' : 'secondary'} className={
                       order.status === 'paid' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
+                        ? 'bg-green-100 text-green-800 border-green-200' 
+                        : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                    }>
                       {order.status}
-                    </span>
+                    </Badge>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
                     {order.customerEmail}
