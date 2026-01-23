@@ -289,13 +289,18 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v1
         with:
-          files: frontend-dist.tar.gz
+          files: |
+            frontend-dist.tar.gz
+            dist/worker.bundle.js
+            build-info.json
           tag_name: latest
           name: Latest Build
           body: |
             Latest build artifacts for OpenShop.
             
             - frontend-dist.tar.gz: Static assets for worker deployment (excludes worker.bundle.js)
+            - worker.bundle.js: Bundled worker code ready for deployment
+            - build-info.json: Build metadata (version, commit hash, build date)
           draft: false
           prerelease: false
         env:
