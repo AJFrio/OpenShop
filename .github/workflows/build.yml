@@ -301,6 +301,7 @@ jobs:
           }
           
           // Copy each file with its sanitized name
+          const fileList = [];
           for (const file of manifest.files) {
             const sourcePath = path.join('dist', file.path.replace(/^\//, ''));
             const destPath = path.join(assetsDir, file.assetName);
@@ -313,34 +314,90 @@ jobs:
             
             // Copy file
             fs.copyFileSync(sourcePath, destPath);
+            fileList.push(destPath);
             console.log(`Copied: ${file.path} → ${file.assetName}`);
           }
           
+          // Write file list for release action
+          fs.writeFileSync('release-assets-list.txt', fileList.join('\n'), 'utf8');
           console.log(`✅ Prepared ${manifest.files.length} asset files`);
+          console.log(`✅ Created release-assets-list.txt with ${fileList.length} files`);
           ASSET_SCRIPT
           
           node /tmp/prepare-assets.js
       
+      - name: Verify release assets exist
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: |
+          echo "Verifying files exist before release creation..."
+          echo ""
+          echo "Checking assets-manifest.json:"
+          ls -lh assets-manifest.json || echo "❌ assets-manifest.json not found"
+          echo ""
+          echo "Checking dist/worker.bundle.js:"
+          ls -lh dist/worker.bundle.js || echo "❌ dist/worker.bundle.js not found"
+          echo ""
+          echo "Checking build-info.json:"
+          ls -lh build-info.json || echo "❌ build-info.json not found"
+          echo ""
+          echo "Checking release-assets directory:"
+          ls -lh release-assets/ | head -20 || echo "❌ release-assets directory not found"
+          echo ""
+          echo "Total files in release-assets: $(find release-assets -type f | wc -l)"
+          echo ""
+          echo "Sample asset files:"
+          find release-assets -type f | head -10
+      
       - name: Create Release (if on main/master)
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            assets-manifest.json
-            dist/worker.bundle.js
-            build-info.json
-            release-assets/**
-          tag_name: latest
-          name: Latest Build
-          body: |
-            Latest build artifacts for OpenShop.
+        run: |
+          # Build the files list dynamically
+          FILES="assets-manifest.json dist/worker.bundle.js build-info.json"
+          
+          # Add all asset files from the list
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              FILES="$FILES $file"
+            else
+              echo "⚠️  Warning: File not found: $file"
+            fi
+          done < release-assets-list.txt
+          
+          echo "Files to upload:"
+          echo "$FILES" | tr ' ' '\n' | wc -l
+          echo ""
+          echo "Sample files:"
+          echo "$FILES" | tr ' ' '\n' | head -10
+          
+          # Create release using gh CLI (more reliable for many files)
+          gh release create latest \
+            --title "Latest Build" \
+            --notes "Latest build artifacts for OpenShop.
             
             - assets-manifest.json: Manifest listing all asset files
-            - release-assets/*: Individual asset files (one per file in dist/)
+            - release-assets/asset-*: Individual asset files (one per file in dist/)
             - worker.bundle.js: Bundled worker code ready for deployment
-            - build-info.json: Build metadata (version, commit hash, build date)
-          draft: false
-          prerelease: false
+            - build-info.json: Build metadata (version, commit hash, build date)" \
+            --prerelease=false \
+            --latest \
+            $FILES || {
+            # If release already exists, delete and recreate
+            echo "Release 'latest' already exists, deleting and recreating..."
+            gh release delete latest --yes || true
+            gh release create latest \
+              --title "Latest Build" \
+              --notes "Latest build artifacts for OpenShop.
+              
+              - assets-manifest.json: Manifest listing all asset files
+              - release-assets/asset-*: Individual asset files (one per file in dist/)
+              - worker.bundle.js: Bundled worker code ready for deployment
+              - build-info.json: Build metadata (version, commit hash, build date)" \
+              --prerelease=false \
+              --latest \
+              $FILES
+          }
+          
+          echo "✅ Release created successfully"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -351,18 +408,18 @@ jobs:
           path: dist/worker.bundle.js
           retention-days: 30
       
-      - name: Upload Frontend
+      - name: Upload Assets Manifest
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-dist
-          path: dist/
+          name: assets-manifest
+          path: assets-manifest.json
           retention-days: 30
       
-      - name: Upload Frontend Compressed
+      - name: Upload Individual Assets
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-dist-tar
-          path: frontend-dist.tar.gz
+          name: release-assets
+          path: release-assets/
           retention-days: 30
       
       - name: Upload Build Info
