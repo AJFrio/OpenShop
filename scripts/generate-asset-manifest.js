@@ -46,7 +46,18 @@ async function calculateFileHash(filePath) {
 }
 
 /**
- * Generate asset manifest
+ * Sanitize path for GitHub release asset name
+ * GitHub asset names can't contain /, so we replace with -
+ */
+function sanitizeAssetName(path) {
+  // Ensure path starts with / for consistency
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  // Replace / with - and remove leading - if any
+  return `asset-${normalizedPath.replace(/\//g, '-').replace(/^-/, '')}`;
+}
+
+/**
+ * Generate asset manifest for GitHub release
  */
 async function generateManifest() {
   console.log('📝 Generating asset manifest...');
@@ -56,29 +67,50 @@ async function generateManifest() {
     const files = await getAllFiles(distDir);
     console.log(`Found ${files.length} files to process`);
 
-    const manifest = {};
+    const manifest = {
+      files: []
+    };
 
     for (const { fullPath, relativePath } of files) {
       try {
         const stats = await stat(fullPath);
         const hash = await calculateFileHash(fullPath);
         
-        manifest[relativePath] = {
-          hash,
+        // Normalize path to start with /
+        const normalizedPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
+        const assetName = sanitizeAssetName(relativePath);
+        
+        manifest.files.push({
+          path: normalizedPath,
+          assetName: assetName,
           size: stats.size,
-        };
+          hash: hash
+        });
 
-        console.log(`  ✓ ${relativePath} (${stats.size} bytes, hash: ${hash.substring(0, 8)}...)`);
+        console.log(`  ✓ ${relativePath} → ${assetName} (${stats.size} bytes)`);
       } catch (error) {
         console.error(`  ✗ Failed to process ${relativePath}:`, error);
       }
     }
 
-    const manifestPath = join(distDir, 'asset-manifest.json');
-    await writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+    // Write asset-manifest.json (for GitHub release)
+    const assetManifestPath = join(rootDir, 'assets-manifest.json');
+    await writeFile(assetManifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+    console.log(`✅ Assets manifest generated: ${assetManifestPath}`);
 
-    console.log(`✅ Manifest generated: ${manifestPath}`);
-    console.log(`   Total files: ${Object.keys(manifest).length}`);
+    // Also write asset-manifest.json in dist (for backwards compatibility)
+    const distManifestPath = join(distDir, 'asset-manifest.json');
+    const distManifest = {};
+    for (const file of manifest.files) {
+      distManifest[file.path] = {
+        hash: file.hash,
+        size: file.size,
+      };
+    }
+    await writeFile(distManifestPath, JSON.stringify(distManifest, null, 2), 'utf8');
+    console.log(`✅ Dist manifest generated: ${distManifestPath}`);
+    
+    console.log(`   Total files: ${manifest.files.length}`);
     
     return manifest;
   } catch (error) {

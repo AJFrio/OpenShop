@@ -35,6 +35,15 @@ jobs:
       - name: Generate asset manifest
         run: node scripts/generate-asset-manifest.js
       
+      - name: Verify assets manifest
+        run: |
+          if [ ! -f "assets-manifest.json" ]; then
+            echo "❌ Error: assets-manifest.json not found"
+            exit 1
+          fi
+          echo "✅ assets-manifest.json exists"
+          echo "Files in manifest: $(cat assets-manifest.json | jq '.files | length')"
+      
       - name: Create minimal wrangler.toml for building
         run: |
           cat > wrangler.toml <<EOF
@@ -276,29 +285,58 @@ jobs:
           EOF
           cat build-info.json
       
-      - name: Create compressed packages
+      - name: Prepare individual asset files for release
         run: |
-          # Create tarball of frontend (excluding worker.bundle.js if it exists)
-          cd dist
-          tar -czf ../frontend-dist.tar.gz --exclude='worker.bundle.js' .
-          cd ..
-          echo "✅ Created frontend-dist.tar.gz"
-          ls -lh frontend-dist.tar.gz
+          # Create a script to prepare asset files with sanitized names
+          # GitHub release asset names can't contain /, so we use asset- prefix and replace / with -
+          cat > /tmp/prepare-assets.js << 'ASSET_SCRIPT'
+          const fs = require('fs');
+          const path = require('path');
+          const manifest = JSON.parse(fs.readFileSync('assets-manifest.json', 'utf8'));
+          
+          // Create assets directory for renamed files
+          const assetsDir = 'release-assets';
+          if (!fs.existsSync(assetsDir)) {
+            fs.mkdirSync(assetsDir, { recursive: true });
+          }
+          
+          // Copy each file with its sanitized name
+          for (const file of manifest.files) {
+            const sourcePath = path.join('dist', file.path.replace(/^\//, ''));
+            const destPath = path.join(assetsDir, file.assetName);
+            
+            // Ensure destination directory exists
+            const destDir = path.dirname(destPath);
+            if (!fs.existsSync(destDir)) {
+              fs.mkdirSync(destDir, { recursive: true });
+            }
+            
+            // Copy file
+            fs.copyFileSync(sourcePath, destPath);
+            console.log(`Copied: ${file.path} → ${file.assetName}`);
+          }
+          
+          console.log(`✅ Prepared ${manifest.files.length} asset files`);
+          ASSET_SCRIPT
+          
+          node /tmp/prepare-assets.js
       
       - name: Create Release (if on main/master)
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            frontend-dist.tar.gz
+            assets-manifest.json
             dist/worker.bundle.js
             build-info.json
+            release-assets/**
           tag_name: latest
           name: Latest Build
           body: |
             Latest build artifacts for OpenShop.
             
-            - frontend-dist.tar.gz: Static assets for worker deployment (excludes worker.bundle.js)
+            - assets-manifest.json: Manifest listing all asset files
+            - release-assets/*: Individual asset files (one per file in dist/)
             - worker.bundle.js: Bundled worker code ready for deployment
             - build-info.json: Build metadata (version, commit hash, build date)
           draft: false
