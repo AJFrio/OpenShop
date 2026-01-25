@@ -351,26 +351,36 @@ jobs:
       - name: Create Release (if on main/master)
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         run: |
-          # Build the files list dynamically
-          FILES="assets-manifest.json dist/worker.bundle.js build-info.json"
+          # Create a file list for the release
+          echo "assets-manifest.json" > release-files-list.txt
+          echo "dist/worker.bundle.js" >> release-files-list.txt
+          echo "build-info.json" >> release-files-list.txt
           
           # Add all asset files from the list
           while IFS= read -r file; do
             if [ -f "$file" ]; then
-              FILES="$FILES $file"
+              echo "$file" >> release-files-list.txt
             else
               echo "⚠️  Warning: File not found: $file"
             fi
           done < release-assets-list.txt
           
-          echo "Files to upload:"
-          echo "$FILES" | tr ' ' '\n' | wc -l
+          FILE_COUNT=$(wc -l < release-files-list.txt)
+          echo "Total files to upload: $FILE_COUNT"
           echo ""
           echo "Sample files:"
-          echo "$FILES" | tr ' ' '\n' | head -10
+          head -10 release-files-list.txt
+          echo ""
           
-          # Create release using gh CLI (more reliable for many files)
-          gh release create latest \
+          # Delete existing release if it exists
+          if gh release view latest >/dev/null 2>&1; then
+            echo "Release 'latest' already exists, deleting..."
+            gh release delete latest --yes || true
+          fi
+          
+          # Create release using gh CLI with file list
+          # Use xargs to handle many files properly
+          cat release-files-list.txt | xargs gh release create latest \
             --title "Latest Build" \
             --notes "Latest build artifacts for OpenShop.
             
@@ -379,25 +389,14 @@ jobs:
             - worker.bundle.js: Bundled worker code ready for deployment
             - build-info.json: Build metadata (version, commit hash, build date)" \
             --prerelease=false \
-            --latest \
-            $FILES || {
-            # If release already exists, delete and recreate
-            echo "Release 'latest' already exists, deleting and recreating..."
-            gh release delete latest --yes || true
-            gh release create latest \
-              --title "Latest Build" \
-              --notes "Latest build artifacts for OpenShop.
-              
-              - assets-manifest.json: Manifest listing all asset files
-              - release-assets/asset-*: Individual asset files (one per file in dist/)
-              - worker.bundle.js: Bundled worker code ready for deployment
-              - build-info.json: Build metadata (version, commit hash, build date)" \
-              --prerelease=false \
-              --latest \
-              $FILES
-          }
+            --latest
           
-          echo "✅ Release created successfully"
+          echo "✅ Release created successfully with $FILE_COUNT files"
+          
+          # Verify release was created
+          echo ""
+          echo "Release assets:"
+          gh release view latest --json assets --jq '.assets[].name' | head -20
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
