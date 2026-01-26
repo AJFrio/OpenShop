@@ -15,42 +15,42 @@
 
 OpenShop is the fastest, most cost-effective way to launch an e-commerce store. Built entirely on Cloudflare's edge network, you get:
 
-- **⚡ Lightning Fast** - Sub-100ms response times worldwide
-- **💰 Completely Free** - Stays within Cloudflare's generous free tier (100k requests/day)
-- **🚀 One-Command Deploy** - Your store is live in under 5 minutes
-- **🔒 Enterprise Security** - Built-in DDoS protection, SSL, and secure authentication
-- **📱 Mobile-First** - Beautiful, responsive design that works everywhere
-- **🔄 Unlimited Stores** - Deploy as many stores as you want from one codebase
+- **Lightning Fast** - Sub-100ms response times worldwide
+- **Completely Free** - Stays within Cloudflare's generous free tier (100k requests/day)
+- **One-Command Deploy** - Your store is live in under 5 minutes
+- **Enterprise Security** - Built-in DDoS protection, SSL, and secure authentication
+- **Mobile-First** - Beautiful, responsive design that works everywhere
+- **Unlimited Stores** - Deploy as many stores as you want from one codebase
 
 Perfect for entrepreneurs, developers, and businesses who want a professional online store without the complexity or cost of traditional e-commerce platforms.
 
 ---
 
-## 🌟 Features
+## Features
 
 ### Core Functionality
-- **🛒 Complete E-commerce** - Products, collections, shopping cart, and Stripe checkout
-- **📦 Product Management** - Multiple images, variants, and rich descriptions
-- **📁 Collections** - Organize products with beautiful hero banners
-- **💳 Stripe Integration** - Automatic product sync and secure payment processing
-- **📊 Analytics Dashboard** - Real-time revenue and order insights
+- **Complete E-commerce** - Products, collections, shopping cart, and Stripe checkout
+- **Product Management** - Multiple images, variants, and rich descriptions
+- **Collections** - Organize products with beautiful hero banners
+- **Stripe Integration** - Automatic product sync and secure payment processing
+- **Analytics Dashboard** - Real-time revenue and order insights
 
 ### User Experience
-- **🛍️ Smart Shopping Cart** - Persistent cart with quantity management
-- **📱 Mobile Optimized** - Fully responsive with mobile-specific cart experience
-- **🧭 Intuitive Navigation** - Collection links with product preview dropdowns
-- **🎨 Beautiful UI** - Modern design with Tailwind CSS and ShadCN/UI
+- **Smart Shopping Cart** - Persistent cart with quantity management
+- **Mobile Optimized** - Fully responsive with mobile-specific cart experience
+- **Intuitive Navigation** - Collection links with product preview dropdowns
+- **Beautiful UI** - Modern design with Tailwind CSS and ShadCN/UI
 
 ### Advanced Features
-- **🖼️ Rich Media Support** - Multiple product images with carousel navigation
-- **🎨 Store Customization** - Dynamic logo management (text or image)
-- **🔒 Secure Admin System** - Token-based authentication with session management
-- **🧠 AI Image Generation** (Optional) - Generate product images with Gemini AI
-- **☁️ Google Drive Integration** (Optional) - Store and serve images from Google Drive
+- **Rich Media Support** - Multiple product images with carousel navigation
+- **Store Customization** - Dynamic logo management (text or image)
+- **Secure Admin System** - Token-based authentication with session management
+- **AI Image Generation** (Optional) - Generate product images with Gemini AI
+- **Google Drive Integration** (Optional) - Store and serve images from Google Drive
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -83,7 +83,7 @@ Perfect for entrepreneurs, developers, and businesses who want a professional on
 
    See [Configuration Guide](docs/CONFIGURATION.md) for detailed setup instructions.
 
-3. **🎉 Your Store is Live!**
+3. **Your Store is Live!**
    
    Access your store at: `https://your-project-name.username.workers.dev`
    
@@ -91,7 +91,7 @@ Perfect for entrepreneurs, developers, and businesses who want a professional on
 
 ---
 
-## 🔒 Admin Dashboard
+## Admin Dashboard
 
 Access your admin dashboard at `/admin` on your store URL.
 
@@ -113,7 +113,7 @@ For detailed admin documentation, see [Architecture Guide](docs/ARCHITECTURE.md)
 
 ---
 
-## 🏪 Multiple Store Support
+## Multiple Store Support
 
 Deploy unlimited stores from a single codebase, each with its own:
 - Worker deployment and subdomain
@@ -141,7 +141,7 @@ See [Deployment Guide](docs/DEPLOYMENT.md) for complete multi-site documentation
 
 ---
 
-## 🛠️ Development
+## Development
 
 ### Local Development
 
@@ -166,7 +166,7 @@ For detailed development instructions, see [Development Guide](DEVELOPMENT.md).
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 Complete documentation is available in the `docs/` directory:
 
@@ -183,7 +183,7 @@ Complete documentation is available in the `docs/` directory:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please follow these steps:
 
@@ -202,20 +202,20 @@ We welcome contributions! Please follow these steps:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🆘 Support & Community
+## Support & Community
 
 ### Getting Help
 
-- **📚 Documentation** - Complete guides in the `docs/` directory
-- **🐛 Bug Reports** - [GitHub Issues](https://github.com/ajfrio/openshop/issues)
-- **💡 Feature Requests** - [GitHub Discussions](https://github.com/ajfrio/openshop/discussions)
-- **💬 Community Chat** - [Discord Server](https://discord.gg/qAnDxHmEmS)
+- **Documentation** - Complete guides in the `docs/` directory
+- **Bug Reports** - [GitHub Issues](https://github.com/ajfrio/openshop/issues)
+- **Feature Requests** - [GitHub Discussions](https://github.com/ajfrio/openshop/discussions)
+- **Community Chat** - [Discord Server](https://discord.gg/qAnDxHmEmS)
 
 ### Resources
 
@@ -226,7 +226,7 @@ This project is licensed under the **GNU Affero General Public License v3.0 (AGP
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Special thanks to:
 
@@ -237,7 +237,7 @@ Special thanks to:
 
 ---
 
-## 🌟 Showcase
+## Showcase
 
 > **Built something awesome with OpenShop?** We'd love to feature your store! Open an issue with your store URL and a brief description.
 
@@ -245,8 +245,8 @@ Special thanks to:
 
 <div align="center">
 
-**Made with ❤️ for the open-source community**
+**Made for the open-source community**
 
-[⭐ Star this repo](https://github.com/ajfrio/openshop) • [🐛 Report Bug](https://github.com/ajfrio/openshop/issues) • [💡 Request Feature](https://github.com/ajfrio/openshop/discussions)
+[Star this repo](https://github.com/ajfrio/openshop) • [Report Bug](https://github.com/ajfrio/openshop/issues) • [Request Feature](https://github.com/ajfrio/openshop/discussions)
 
 </div>
