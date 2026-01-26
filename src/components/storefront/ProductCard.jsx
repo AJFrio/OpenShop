@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardFooter } from '../ui/card'
 import { Button } from '../ui/button'
@@ -7,7 +7,7 @@ import { redirectToCheckout } from '../../lib/stripe'
 import { useCart } from '../../contexts/CartContext'
 import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
 
-export function ProductCard({ product }) {
+export function ProductCard({ product, disableNavigation }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { addItem } = useCart()
   
@@ -16,6 +16,7 @@ export function ProductCard({ product }) {
                 .map(normalizeImageUrl)
   const hasMultipleImages = images.length > 1
   const handleBuyNow = async () => {
+    if (disableNavigation) return
     try {
       await redirectToCheckout(product.stripePriceId)
     } catch (error) {
@@ -33,12 +34,20 @@ export function ProductCard({ product }) {
   }
 
   const handleAddToCart = () => {
+    if (disableNavigation) return
     addItem(product)
+  }
+
+  const CardLink = ({ to, children, className }) => {
+    if (disableNavigation) {
+      return <div className={className}>{children}</div>
+    }
+    return <Link to={to} className={className}>{children}</Link>
   }
 
   return (
     <Card className="group overflow-hidden hover:shadow-xl transition-shadow duration-300 storefront-card storefront-radius">
-      <Link to={`/products/${product.id}`} className="block">
+      <CardLink to={`/products/${product.id}`} className="block">
       <div
         className="relative aspect-w-16 aspect-h-12 rounded-t-lg overflow-hidden"
         style={{ backgroundColor: 'var(--storefront-color-accent-soft)' }}
@@ -53,13 +62,13 @@ export function ProductCard({ product }) {
             {hasMultipleImages && (
               <>
                 <button
-                  onClick={prevImage}
+                  onClick={(e) => { e.preventDefault(); prevImage(); }}
                   className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-75 transition-all opacity-0 group-hover:opacity-100"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={nextImage}
+                  onClick={(e) => { e.preventDefault(); nextImage(); }}
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-75 transition-all opacity-0 group-hover:opacity-100"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -68,7 +77,7 @@ export function ProductCard({ product }) {
                   {images.map((_, index) => (
                     <button
                       key={index}
-                      onClick={() => setCurrentImageIndex(index)}
+                      onClick={(e) => { e.preventDefault(); setCurrentImageIndex(index); }}
                       className={`w-2 h-2 rounded-full transition-all ${
                         index === currentImageIndex ? 'bg-white' : 'bg-white bg-opacity-50'
                       }`}
@@ -89,14 +98,14 @@ export function ProductCard({ product }) {
           </div>
         )}
       </div>
-      </Link>
+      </CardLink>
       
       <CardContent className="p-4">
-        <Link to={`/products/${product.id}`} className="hover:text-slate-600">
+        <CardLink to={`/products/${product.id}`} className="hover:text-slate-600">
           <h3 className="text-lg font-semibold storefront-heading mb-2 line-clamp-2">
             {product.name}
           </h3>
-        </Link>
+        </CardLink>
         <p className="storefront-subtle text-sm mb-3 line-clamp-2">
           {product.tagline || product.description}
         </p>
@@ -113,6 +122,7 @@ export function ProductCard({ product }) {
             onClick={handleAddToCart}
             variant="outline"
             className="w-full"
+            disabled={disableNavigation}
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
             Add to Cart
@@ -120,7 +130,7 @@ export function ProductCard({ product }) {
           <Button 
             onClick={handleBuyNow}
             className="w-full"
-            disabled={!product.stripePriceId}
+            disabled={!product.stripePriceId || disableNavigation}
           >
             Buy Now
           </Button>

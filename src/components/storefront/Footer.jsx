@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react'
 
-export function Footer() {
+export function Footer({ previewSettings }) {
   const [contactEmail, setContactEmail] = useState('contact@example.com')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // If preview settings are provided, use them directly
+    if (previewSettings) {
+      setContactEmail(previewSettings.contactEmail || 'contact@example.com')
+      setLoading(false)
+      return
+    }
+
     fetchContactEmail()
-  }, [])
+  }, [previewSettings])
 
   const fetchContactEmail = async () => {
     try {

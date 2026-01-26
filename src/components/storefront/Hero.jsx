@@ -3,21 +3,27 @@ import { Link } from 'react-router-dom'
 import { normalizeImageUrl } from '../../lib/utils'
 import { Button } from '../ui/button'
 
-export function Hero() {
-  const [settings, setSettings] = useState({
+export function Hero({ previewSettings }) {
+  const [fetchedSettings, setFetchedSettings] = useState({
     heroImageUrl: '',
     heroTitle: 'Welcome to OpenShop',
     heroSubtitle: 'Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.'
   })
 
+  // Use previewSettings if provided, otherwise use fetched settings
+  const settings = previewSettings || fetchedSettings
+
   useEffect(() => {
+    // If we have preview settings, we don't need to fetch
+    if (previewSettings) return
+
     let isMounted = true
     async function fetchSettings() {
       try {
         const res = await fetch('/api/store-settings')
         if (res.ok) {
           const data = await res.json()
-          if (isMounted) setSettings(prev => ({
+          if (isMounted) setFetchedSettings(prev => ({
             ...prev,
             heroImageUrl: data.heroImageUrl || '',
             heroTitle: data.heroTitle || prev.heroTitle,
@@ -30,23 +36,23 @@ export function Hero() {
     }
     fetchSettings()
     return () => { isMounted = false }
-  }, [])
+  }, [previewSettings])
 
   return (
-    <section className="relative w-screen overflow-hidden storefront-hero">
+    <section className="relative w-full overflow-hidden storefront-hero">
       {settings.heroImageUrl ? (
         <img
           src={normalizeImageUrl(settings.heroImageUrl)}
           alt="Hero"
-          className="w-screen h-auto max-h-[90vh] object-contain block mx-auto"
+          className="w-full h-auto max-h-[90vh] object-contain block mx-auto"
         />
       ) : (
-        <div className="w-screen min-h-[320px] sm:min-h-[420px] lg:min-h-[560px]" />
+        <div className="w-full min-h-[320px] sm:min-h-[420px] lg:min-h-[560px]" style={{ backgroundColor: '#1e293b' }} />
       )}
 
       <div className="absolute inset-0 bg-black/35" aria-hidden />
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 text-center">
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 text-center text-white">
         <div className="max-w-4xl mx-auto space-y-6">
           <h1 className="text-4xl md:text-6xl font-bold">{settings.heroTitle}</h1>
           <p className="text-xl md:text-2xl max-w-3xl mx-auto">{settings.heroSubtitle}</p>

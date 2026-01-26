@@ -5,10 +5,10 @@ import { Button } from '../ui/button'
 import { useCart } from '../../contexts/CartContext'
 import { ShoppingCart } from 'lucide-react'
 
-export function Navbar() {
+export function Navbar({ previewSettings, disableNavigation }) {
   const [collections, setCollections] = useState([])
   const [collectionsWithProducts, setCollectionsWithProducts] = useState([])
-  const [storeSettings, setStoreSettings] = useState({
+  const [fetchedStoreSettings, setFetchedStoreSettings] = useState({
     logoType: 'text',
     logoText: 'OpenShop',
     logoImageUrl: ''
@@ -17,11 +17,15 @@ export function Navbar() {
   const [expandedCollections, setExpandedCollections] = useState(new Set())
   const { itemCount, toggleCart } = useCart()
 
+  const storeSettings = previewSettings || fetchedStoreSettings
+
   useEffect(() => {
     // Fetch collections, products, and store settings for navigation
     fetchCollectionsAndProducts()
-    fetchStoreSettings()
-  }, [])
+    if (!previewSettings) {
+      fetchStoreSettings()
+    }
+  }, [previewSettings])
 
   const fetchCollectionsAndProducts = async () => {
     try {
@@ -54,7 +58,7 @@ export function Navbar() {
       const response = await fetch('/api/store-settings')
       if (response.ok) {
         const data = await response.json()
-        setStoreSettings(data)
+        setFetchedStoreSettings(data)
       }
     } catch (error) {
       console.error('Error fetching store settings:', error)
@@ -71,12 +75,26 @@ export function Navbar() {
     setExpandedCollections(newExpanded)
   }
 
+  const NavLink = ({ to, className, children, onClick }) => {
+    if (disableNavigation) {
+      return (
+        <span
+          className={`${className} cursor-default`}
+          onClick={(e) => { e.preventDefault(); onClick && onClick(e); }}
+        >
+          {children}
+        </span>
+      )
+    }
+    return <Link to={to} className={className} onClick={onClick}>{children}</Link>
+  }
+
   return (
     <nav className="bg-white shadow-sm border-b relative z-50 storefront-nav">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
+          <NavLink to="/" className="flex-shrink-0">
             {storeSettings.logoType === 'image' && storeSettings.logoImageUrl ? (
               <img
                 src={storeSettings.logoImageUrl}
@@ -96,22 +114,22 @@ export function Navbar() {
             >
               {storeSettings.logoText || 'OpenShop'}
             </h1>
-          </Link>
+          </NavLink>
 
           {/* Navigation Links centered */}
           <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2">
             <div className="flex items-baseline space-x-6">
-              <Link
+              <NavLink
                 to="/"
                 className="storefront-heading hover:text-slate-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
               >
                 Home
-              </Link>
+              </NavLink>
               
               {/* Individual Collection Links with Product Dropdowns */}
               {collectionsWithProducts.map((collection) => (
                 <div key={collection.id} className="relative group">
-                  <Link
+                  <NavLink
                     to={`/collections/${collection.id}`}
                     className="storefront-heading hover:text-slate-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
                   >
@@ -121,7 +139,7 @@ export function Navbar() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     )}
-                  </Link>
+                  </NavLink>
                   
                   {/* Product Dropdown */}
                   {collection.products.length > 0 && (
@@ -132,7 +150,7 @@ export function Navbar() {
                         </div>
                         <div className="max-h-80 overflow-y-auto">
                           {collection.products.map((product) => (
-                            <Link
+                            <NavLink
                               key={product.id}
                               to={`/products/${product.id}`}
                               className="block px-4 py-3 hover:bg-slate-50 transition-colors duration-150"
@@ -178,11 +196,11 @@ export function Navbar() {
                                   </p>
                                 </div>
                               </div>
-                            </Link>
+                            </NavLink>
                           ))}
                         </div>
                         <div className="border-t px-4 py-2">
-                        <Link
+                        <NavLink
                           to={`/collections/${collection.id}`}
                           className="text-sm storefront-subtle hover:text-slate-700 font-medium"
                           >
@@ -201,8 +219,8 @@ export function Navbar() {
           <div className="flex items-center justify-end space-x-2">
             {/* Cart Button - Visible on all screen sizes */}
             <button
-              onClick={toggleCart}
-              className="relative p-2 storefront-heading hover:text-slate-600 transition-all duration-200 hover:scale-110"
+              onClick={disableNavigation ? (e) => e.preventDefault() : toggleCart}
+              className={`relative p-2 storefront-heading hover:text-slate-600 transition-all duration-200 hover:scale-110 ${disableNavigation ? 'cursor-default' : ''}`}
             >
               <ShoppingCart className="w-6 h-6 transition-transform duration-200" />
               {itemCount > 0 && (
@@ -235,13 +253,13 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t bg-white storefront-surface-inverse">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            <Link
+            <NavLink
               to="/"
               className="block px-3 py-2 text-base font-medium storefront-heading hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors duration-200"
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
-            </Link>
+            </NavLink>
             
             {collectionsWithProducts.map((collection) => (
               <div key={collection.id} className="space-y-1">
@@ -264,7 +282,7 @@ export function Navbar() {
                 {collection.products.length > 0 && expandedCollections.has(collection.id) && (
                     <div className="pl-6 space-y-1">
                       {collection.products.slice(0, 5).map((product) => (
-                        <Link
+                        <NavLink
                           key={product.id}
                           to={`/products/${product.id}`}
                           className="block px-3 py-2 text-sm storefront-subtle hover:bg-slate-50 rounded-md transition-colors duration-200"
@@ -297,23 +315,23 @@ export function Navbar() {
                             <p className="storefront-subtle font-semibold">${product.price}</p>
                           </div>
                         </div>
-                      </Link>
+                      </NavLink>
                     ))}
-                    <Link
+                    <NavLink
                       to={`/collections/${collection.id}`}
                       className="block px-3 py-2 text-sm storefront-subtle hover:text-slate-700 font-medium border-t border-slate-200 pt-2 mt-2"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       View Collection →
-                    </Link>
+                    </NavLink>
                     {collection.products.length > 5 && (
-                      <Link
+                      <NavLink
                         to={`/collections/${collection.id}`}
                         className="block px-3 py-2 text-sm storefront-subtle hover:text-slate-700 font-medium"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         View all {collection.products.length} products →
-                      </Link>
+                      </NavLink>
                     )}
                   </div>
                 )}
