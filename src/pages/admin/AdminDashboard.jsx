@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button'
 import { Select } from '../../components/ui/select'
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card'
 import { CollectionForm } from '../../components/admin/CollectionForm'
-import { StoreSettingsForm } from '../../components/admin/StoreSettingsForm'
+import { StoreSettingsEditor } from '../../components/admin/StoreSettingsEditor'
 import { ProductWorkspace } from '../../components/admin/ProductWorkspace'
 import { RevenueChart, OrdersChart } from '../../components/admin/AnalyticsCharts'
 import { MetricCard, RecentOrdersCard } from '../../components/admin/AnalyticsCards'
@@ -505,17 +505,7 @@ function MediaLibrary() {
 }
 
 function StoreSettingsManager() {
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Store Settings</h1>
-      </div>
-
-      <div className="flex justify-center">
-        <StoreSettingsForm />
-      </div>
-    </div>
-  )
+  return <StoreSettingsEditor />
 }
 
 function FulfillmentManager() {
