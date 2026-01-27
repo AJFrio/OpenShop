@@ -731,7 +731,7 @@ export function StoreSettingsEditor() {
       {/* Main Preview Area */}
       <div className="flex-1 bg-gray-200 overflow-y-auto flex justify-center p-8">
          <div
-           className="w-full max-w-7xl bg-white shadow-2xl min-h-screen storefront-surface flex flex-col scale-95 origin-top"
+           className="w-full max-w-7xl shadow-2xl min-h-screen storefront-surface flex flex-col scale-95 origin-top"
            style={previewStyles}
            data-storefront-theme="true"
          >

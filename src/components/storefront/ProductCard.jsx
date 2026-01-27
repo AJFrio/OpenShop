@@ -49,8 +49,12 @@ export function ProductCard({ product, disableNavigation }) {
     <Card className="group overflow-hidden hover:shadow-xl transition-shadow duration-300 storefront-card storefront-radius">
       <CardLink to={`/products/${product.id}`} className="block">
       <div
-        className="relative aspect-w-16 aspect-h-12 rounded-t-lg overflow-hidden"
-        style={{ backgroundColor: 'var(--storefront-color-accent-soft)' }}
+        className="relative aspect-w-16 aspect-h-12 overflow-hidden"
+        style={{ 
+          backgroundColor: 'var(--storefront-color-accent-soft)',
+          borderTopLeftRadius: 'var(--storefront-radius-lg)',
+          borderTopRightRadius: 'var(--storefront-radius-lg)'
+        }}
       >
         {images.length > 0 ? (
           <>
@@ -58,6 +62,10 @@ export function ProductCard({ product, disableNavigation }) {
               src={images[currentImageIndex]}
               alt={product.name}
               className="w-full h-48 object-cover"
+              style={{
+                borderTopLeftRadius: 'var(--storefront-radius-lg)',
+                borderTopRightRadius: 'var(--storefront-radius-lg)'
+              }}
             />
             {hasMultipleImages && (
               <>

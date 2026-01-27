@@ -44,7 +44,7 @@ export function Hero({ previewSettings }) {
         <img
           src={normalizeImageUrl(settings.heroImageUrl)}
           alt="Hero"
-          className="w-full h-auto max-h-[90vh] object-contain block mx-auto"
+          className="w-full h-[90vh] object-cover block"
         />
       ) : (
         <div className="w-full min-h-[320px] sm:min-h-[420px] lg:min-h-[560px]" style={{ backgroundColor: '#1e293b' }} />

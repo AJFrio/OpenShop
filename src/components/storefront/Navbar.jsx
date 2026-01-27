@@ -205,7 +205,7 @@ export function Navbar({ previewSettings, disableNavigation }) {
                           className="text-sm storefront-subtle hover:text-slate-700 font-medium"
                           >
                             View all {collection.name} →
-                          </Link>
+                          </NavLink>
                         </div>
                       </div>
                     </div>
