@@ -8,6 +8,7 @@ import storefrontRouter from './public/storefront.js'
 import checkoutRouter from './public/checkout.js'
 import imageProxyRouter from './public/imageProxy.js'
 import storeSettingsRouter, { contactEmailRouter } from './public/storeSettings.js'
+import imagesRouter from './public/images.js'
 
 // Admin routes
 import authRouter from './admin/auth.js'
@@ -15,7 +16,7 @@ import adminProductsRouter from './admin/products.js'
 import adminCollectionsRouter from './admin/collections.js'
 import analyticsRouter from './admin/analytics.js'
 import mediaRouter from './admin/media.js'
-import driveRouter from './admin/drive.js'
+import storageRouter from './admin/storage.js'
 import settingsRouter from './admin/settings.js'
 import aiRouter from './admin/ai.js'
 
@@ -37,6 +38,7 @@ export function registerRoutes(app) {
   app.route('/api/image-proxy', imageProxyRouter)
   app.route('/api/store-settings', storeSettingsRouter)
   app.route('/api/contact-email', contactEmailRouter)
+  app.route('/api/images', imagesRouter)
 
   // Admin API routes
   app.route('/api/admin', authRouter) // /api/admin/login
@@ -44,8 +46,7 @@ export function registerRoutes(app) {
   app.route('/api/admin/collections', adminCollectionsRouter)
   app.route('/api/admin/analytics', analyticsRouter)
   app.route('/api/admin/media', mediaRouter)
-  app.route('/api/admin/drive', driveRouter)
+  app.route('/api/admin/storage', storageRouter)
   app.route('/api/admin', settingsRouter) // /api/admin/storefront/theme, etc.
   app.route('/api/admin/ai', aiRouter)
 }
-

@@ -89,7 +89,6 @@ async function setup() {
 
   // Collect required credentials
   let cloudflareApiToken, cloudflareAccountId, stripeSecretKey, stripePublishableKey
-  let googleClientId = '', googleClientSecret = '', googleApiKey = '', driveRootFolder = 'OpenShop'
   let geminiApiKey = '', productLimit = '', adminPassword = 'admin123'
   
   if (useFlags) {
@@ -99,10 +98,6 @@ async function setup() {
     stripePublishableKey = args.stripe_publishable_key
     adminPassword = args.password || 'admin123'
     productLimit = args.product_limit || ''
-    googleClientId = args.google_client_id || ''
-    googleClientSecret = args.google_client_secret || ''
-    googleApiKey = args.google_api_key || ''
-    driveRootFolder = args.drive_root_folder || 'OpenShop'
     geminiApiKey = args.gemini_api_key || ''
     
     // Validate required flags
@@ -118,12 +113,6 @@ async function setup() {
     console.log('\n🔑 Stripe Configuration:\n')
     stripeSecretKey = await question('Stripe Secret Key: ')
     stripePublishableKey = await question('Stripe Publishable Key: ')
-    
-    console.log('\n🔑 Google OAuth & Drive (optional - press Enter to skip):\n')
-    googleClientId = await question('Google Client ID (optional): ') || ''
-    googleClientSecret = await question('Google Client Secret (optional): ') || ''
-    googleApiKey = await question('Google API Key (optional): ') || ''
-    driveRootFolder = await question('Drive Root Folder (default: OpenShop): ') || 'OpenShop'
     
     console.log('\n🔑 AI Configuration (optional - press Enter to skip):\n')
     geminiApiKey = await question('Gemini API Key (optional): ') || ''
@@ -170,6 +159,7 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 # KV namespace will be added after initial deployment
+# R2 bucket will be added after initial deployment
 
 # Environment variables
 [vars]
@@ -190,11 +180,21 @@ head_sampling_rate = 1
   
   let wranglerConfig = basicWranglerConfig
 
-  // Build and deploy Worker (initial deployment without KV)
+  // Build and deploy Worker (initial deployment without KV/R2)
   console.log('\n🔧 Building and deploying Cloudflare Worker...')
   execCommand('npm run build', 'Building project')
   execCommand(`wrangler deploy`, `Deploying Worker "${sanitizedProjectName}"`)
   console.log('✅ Worker deployed successfully')
+
+  // Create R2 bucket
+  console.log('\n🗃️ Creating R2 bucket...')
+  const bucketName = `${sanitizedProjectName}-assets`
+  try {
+    execSync(`wrangler r2 bucket create "${bucketName}"`, { stdio: 'ignore' })
+    console.log(`✅ Created R2 bucket: ${bucketName}`)
+  } catch (e) {
+    console.log(`⚠️  R2 bucket creation failed or already exists: ${bucketName}`)
+  }
 
   // Create KV namespace with project name
   console.log('\n🗃️ Creating KV namespace...')
@@ -216,8 +216,8 @@ head_sampling_rate = 1
   const kvId = kvIdMatch[1]
   console.log(`✅ KV namespace "${kvNamespaceName}" created with ID: ${kvId}`)
 
-  // Add KV namespace binding to wrangler.toml
-  console.log('\n📝 Adding KV namespace binding to wrangler.toml...')
+  // Add bindings to wrangler.toml
+  console.log('\n📝 Adding bindings to wrangler.toml...')
   wranglerConfig = readFileSync('wrangler.toml', 'utf8')
   
   const kvConfig = `
@@ -226,27 +226,48 @@ head_sampling_rate = 1
 binding = "${kvNamespaceName}"
 id = "${kvId}"
 `
+
+  const r2Config = `
+# R2 bucket binding
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "${bucketName}"
+`
   
-  // Insert KV config after compatibility_flags or before vars section
+  // Insert KV config
   if (wranglerConfig.includes('# KV namespace will be added after initial deployment')) {
     wranglerConfig = wranglerConfig.replace(
       '# KV namespace will be added after initial deployment',
       kvConfig.trim()
     )
   } else {
-    // Fallback: insert before # Environment variables
+    // Fallback
     wranglerConfig = wranglerConfig.replace(
       '# Environment variables',
       `${kvConfig}\n# Environment variables`
     )
   }
+
+  // Insert R2 config
+  if (wranglerConfig.includes('# R2 bucket will be added after initial deployment')) {
+    wranglerConfig = wranglerConfig.replace(
+      '# R2 bucket will be added after initial deployment',
+      r2Config.trim()
+    )
+  } else {
+    // Fallback
+    wranglerConfig = wranglerConfig.replace(
+      '# Environment variables',
+      `${r2Config}\n# Environment variables`
+    )
+  }
   
   writeFileSync('wrangler.toml', wranglerConfig)
-  console.log('✅ Updated wrangler.toml with KV namespace binding')
+  console.log('✅ Updated wrangler.toml with KV and R2 bindings')
 
-  // Redeploy Worker with KV binding
-  console.log('\n🔧 Redeploying Worker with KV namespace...')
-  execCommand(`wrangler deploy`, `Redeploying Worker "${sanitizedProjectName}" with KV binding`)
+  // Redeploy Worker with bindings
+  console.log('\n🔧 Redeploying Worker with KV and R2...')
+  execCommand(`wrangler deploy`, `Redeploying Worker "${sanitizedProjectName}" with bindings`)
 
   // Get the Worker URL with custom name
   const workerUrl = `https://${sanitizedProjectName}.workers.dev`
@@ -258,12 +279,8 @@ id = "${kvId}"
   // Build the complete vars section
   let varsSection = `SITE_URL = "${workerUrl}"\n`
   varsSection += `ADMIN_PASSWORD = "${adminPassword}"\n`
-  varsSection += `DRIVE_ROOT_FOLDER = "${driveRootFolder}"\n`
   varsSection += `STRIPE_SECRET_KEY = "${stripeSecretKey}"\n`
   
-  if (googleClientId) varsSection += `GOOGLE_CLIENT_ID = "${googleClientId}"\n`
-  if (googleClientSecret) varsSection += `GOOGLE_CLIENT_SECRET = "${googleClientSecret}"\n`
-  if (googleApiKey) varsSection += `GOOGLE_API_KEY = "${googleApiKey}"\n`
   if (geminiApiKey) varsSection += `GEMINI_API_KEY = "${geminiApiKey}"\n`
   if (productLimit) varsSection += `PRODUCT_LIMIT = "${productLimit}"\n`
   
@@ -294,11 +311,7 @@ STRIPE_SECRET_KEY=${stripeSecretKey}
 VITE_STRIPE_PUBLISHABLE_KEY=${stripePublishableKey}
 ADMIN_PASSWORD=${adminPassword}
 SITE_URL=${workerUrl}
-DRIVE_ROOT_FOLDER=${driveRootFolder}
 `
-  if (googleClientId) envContent += `GOOGLE_CLIENT_ID=${googleClientId}\n`
-  if (googleClientSecret) envContent += `GOOGLE_CLIENT_SECRET=${googleClientSecret}\n`
-  if (googleApiKey) envContent += `GOOGLE_API_KEY=${googleApiKey}\n`
   if (geminiApiKey) envContent += `GEMINI_API_KEY=${geminiApiKey}\n`
   if (productLimit) envContent += `PRODUCT_LIMIT=${productLimit}\n`
   
@@ -313,6 +326,7 @@ DRIVE_ROOT_FOLDER=${driveRootFolder}
   console.log(`\n📱 Your "${projectName}" store is now live at: ${workerUrl}`)
   console.log(`🔧 Admin dashboard: ${workerUrl}/admin`)
   console.log(`🗃️ KV Namespace: ${kvNamespaceName}`)
+  console.log(`🗃️ R2 Bucket: ${bucketName}`)
   console.log(`⚡ Worker: ${sanitizedProjectName}`)
   console.log(`📋 Configuration saved: toml/${sanitizedProjectName}.toml`)
   
@@ -324,7 +338,8 @@ DRIVE_ROOT_FOLDER=${driveRootFolder}
       worker_name: sanitizedProjectName,
       worker_url: workerUrl,
       admin_url: `${workerUrl}/admin`,
-      kv_namespace: kvNamespaceName
+      kv_namespace: kvNamespaceName,
+      r2_bucket: bucketName
     }
     console.log('\n' + JSON.stringify(result))
   } else {

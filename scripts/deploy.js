@@ -97,12 +97,12 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 # KV namespace will be added after initial deployment
+# R2 bucket will be added after initial deployment
 
 # Environment variables
 [vars]
 SITE_URL = "${workerUrl}"
 ADMIN_PASSWORD = "${adminPassword}"
-DRIVE_ROOT_FOLDER = "OpenShop"
 STRIPE_SECRET_KEY = "${stripeSecretKey}"
 
 # Static assets (automatically creates ASSETS binding)
@@ -200,6 +200,46 @@ id = "${kvId}"
   return wranglerConfig
 }
 
+/**
+ * Create R2 bucket and update TOML
+ */
+function createR2BucketAndUpdateToml(projectName, wranglerConfig) {
+  console.log('\n🗃️ Creating R2 bucket...')
+  const bucketName = `${projectName}-assets`
+
+  try {
+    execSync(`wrangler r2 bucket create "${bucketName}"`, { stdio: 'ignore' })
+    console.log(`✅ Created R2 bucket: ${bucketName}`)
+  } catch (e) {
+    console.log(`⚠️  R2 bucket creation failed or already exists: ${bucketName}`)
+  }
+
+  const r2Config = `
+# R2 bucket binding
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "${bucketName}"
+`
+
+  // Insert R2 config
+  if (wranglerConfig.includes('# R2 bucket will be added after initial deployment')) {
+    wranglerConfig = wranglerConfig.replace(
+      '# R2 bucket will be added after initial deployment',
+      r2Config.trim()
+    )
+  } else {
+    // Fallback
+    if (!wranglerConfig.includes('[[r2_buckets]]')) {
+      wranglerConfig = wranglerConfig.replace(
+        '# Environment variables',
+        `${r2Config}\n# Environment variables`
+      )
+    }
+  }
+
+  return wranglerConfig
+}
+
 async function deploy() {
   console.log('🚀 OpenShop Deployment')
   console.log('======================\n')
@@ -254,15 +294,19 @@ async function deploy() {
     // Build the project first
     execCommand('npm run build', 'Building project')
 
-    // Deploy Worker (initial deployment without KV)
+    // Deploy Worker (initial deployment without KV/R2)
     execCommand(`wrangler deploy`, `Deploying Worker "${projectName}" (initial)`)
 
     // Create KV namespace and update TOML
     tomlContent = createKVNamespaceAndUpdateToml(projectName, tomlContent)
+
+    // Create R2 bucket and update TOML
+    tomlContent = createR2BucketAndUpdateToml(projectName, tomlContent)
+
     writeFileSync('wrangler.toml', tomlContent)
 
-    // Redeploy with KV binding
-    execCommand(`wrangler deploy`, `Redeploying Worker "${projectName}" with KV binding`)
+    // Redeploy with bindings
+    execCommand(`wrangler deploy`, `Redeploying Worker "${projectName}" with bindings`)
 
     // Save configuration to toml directory
     const tomlDir = 'toml'
@@ -317,6 +361,20 @@ async function deploy() {
     }
     
     console.log(`📋 Deploying project: ${projectName}\n`)
+
+    // Check for R2 binding and add if missing (migration path)
+    if (!tomlContent.includes('[[r2_buckets]]')) {
+      console.log('ℹ️  R2 bucket configuration missing. Adding it now...')
+      tomlContent = createR2BucketAndUpdateToml(projectName, tomlContent)
+      writeFileSync('wrangler.toml', tomlContent)
+
+      // Update the saved TOML file
+      const tomlPath = join('toml', `${siteName}.toml`)
+      if (existsSync(tomlPath)) {
+        writeFileSync(tomlPath, tomlContent)
+        console.log(`✅ Updated stored configuration: ${tomlPath}`)
+      }
+    }
 
     // Build the project
     execCommand('npm run build', 'Building project')
