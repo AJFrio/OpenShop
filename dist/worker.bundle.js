@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-01-27T01:11:48Z
+// Worker Bundle - Built 2026-02-02T18:08:02Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -1169,188 +1169,6 @@ var init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process = __
   "node_modules/wrangler/_virtual_unenv_global_polyfill-@cloudflare-unenv-preset-node-process"() {
     init_process2();
     globalThis.process = process_default;
-  }
-});
-
-// src/config/constants.js
-function getCorsOrigins(env2) {
-  if (env2.CORS_ORIGINS) {
-    return env2.CORS_ORIGINS.split(",").map((origin) => origin.trim());
-  }
-  if (env2.SITE_URL) {
-    return [env2.SITE_URL];
-  }
-  return ["*"];
-}
-var CORS_ORIGINS, CORS_ALLOWED_METHODS, CORS_ALLOWED_HEADERS, SHIPPING_COUNTRIES, ALLOWED_DRIVE_HOSTS, ADMIN_TOKEN_TTL, ADMIN_TOKEN_TTL_MS, KV_KEYS, THEME_COLOR_KEYS, THEME_RADIUS_MULTIPLIER_MIN, THEME_RADIUS_MULTIPLIER_MAX;
-var init_constants = __esm({
-  "src/config/constants.js"() {
-    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
-    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
-    init_performance2();
-    __name(getCorsOrigins, "getCorsOrigins");
-    CORS_ORIGINS = ["*"];
-    CORS_ALLOWED_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"];
-    CORS_ALLOWED_HEADERS = ["Content-Type", "X-Admin-Token"];
-    SHIPPING_COUNTRIES = [
-      "US",
-      "CA",
-      "GB",
-      "AU",
-      "DE",
-      "FR",
-      "IT",
-      "ES",
-      "NL",
-      "BE",
-      "AT",
-      "CH",
-      "SE",
-      "NO",
-      "DK",
-      "FI",
-      "IE",
-      "PT",
-      "PL",
-      "CZ",
-      "HU",
-      "GR",
-      "RO",
-      "BG",
-      "HR",
-      "SI",
-      "SK",
-      "EE",
-      "LV",
-      "LT",
-      "LU",
-      "MT",
-      "CY"
-    ];
-    ALLOWED_DRIVE_HOSTS = [
-      "drive.google.com",
-      "drive.usercontent.google.com",
-      "lh3.googleusercontent.com"
-    ];
-    ADMIN_TOKEN_TTL = 86400;
-    ADMIN_TOKEN_TTL_MS = 864e5;
-    KV_KEYS = {
-      PRODUCTS_LIST: "products:all",
-      COLLECTIONS_LIST: "collections:all",
-      MEDIA_LIST: "media:all",
-      STORE_SETTINGS: "store:settings",
-      DRIVE_TOKEN: "drive:oauth:tokens",
-      DRIVE_FOLDER_PREFIX: "drive:folder",
-      ADMIN_TOKEN_PREFIX: "admin_token:"
-    };
-    THEME_COLOR_KEYS = ["primary", "secondary", "accent", "text", "background", "card"];
-    THEME_RADIUS_MULTIPLIER_MIN = 0;
-    THEME_RADIUS_MULTIPLIER_MAX = 4;
-  }
-});
-
-// src/config/env.js
-function validateEnv(env2) {
-  const required = ["STRIPE_SECRET_KEY", "SITE_URL"];
-  const missing = required.filter((key) => !env2[key]);
-  return {
-    valid: missing.length === 0,
-    missing
-  };
-}
-function getEnv(env2, key, defaultValue = void 0) {
-  return env2[key] ?? defaultValue;
-}
-var init_env = __esm({
-  "src/config/env.js"() {
-    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
-    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
-    init_performance2();
-    __name(validateEnv, "validateEnv");
-    __name(getEnv, "getEnv");
-  }
-});
-
-// src/config/index.js
-var config_exports = {};
-__export(config_exports, {
-  ADMIN_TOKEN_TTL: () => ADMIN_TOKEN_TTL,
-  ADMIN_TOKEN_TTL_MS: () => ADMIN_TOKEN_TTL_MS,
-  ALLOWED_DRIVE_HOSTS: () => ALLOWED_DRIVE_HOSTS,
-  CORS_ALLOWED_HEADERS: () => CORS_ALLOWED_HEADERS,
-  CORS_ALLOWED_METHODS: () => CORS_ALLOWED_METHODS,
-  CORS_ORIGINS: () => CORS_ORIGINS,
-  KV_KEYS: () => KV_KEYS,
-  SHIPPING_COUNTRIES: () => SHIPPING_COUNTRIES,
-  THEME_COLOR_KEYS: () => THEME_COLOR_KEYS,
-  THEME_RADIUS_MULTIPLIER_MAX: () => THEME_RADIUS_MULTIPLIER_MAX,
-  THEME_RADIUS_MULTIPLIER_MIN: () => THEME_RADIUS_MULTIPLIER_MIN,
-  getCorsOrigins: () => getCorsOrigins,
-  getEnv: () => getEnv,
-  validateEnv: () => validateEnv
-});
-var init_config = __esm({
-  "src/config/index.js"() {
-    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
-    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
-    init_performance2();
-    init_constants();
-    init_env();
-  }
-});
-
-// src/utils/kv.js
-var kv_exports = {};
-__export(kv_exports, {
-  getKVNamespace: () => getKVNamespace
-});
-function getKVNamespace(env2) {
-  if (!env2 || typeof env2 !== "object") {
-    console.error("getKVNamespace: Invalid environment object");
-    return null;
-  }
-  const possibleBindings = [
-    "OPENSHOP-TEST3_KV",
-    "OPENSHOP_TEST3_KV",
-    "OPENSHOP_KV"
-  ];
-  for (const bindingName of possibleBindings) {
-    if (bindingName in env2 && env2[bindingName]) {
-      const kvNamespace2 = env2[bindingName];
-      if (isKVNamespace(kvNamespace2)) {
-        console.log(`Found KV namespace via direct access: ${bindingName}`);
-        return kvNamespace2;
-      }
-    }
-  }
-  const kvBindingName = Object.keys(env2).find(
-    (key) => (key.endsWith("_KV") || key.endsWith("-KV") || key.includes("KV")) && isKVNamespace(env2[key])
-  );
-  if (kvBindingName) {
-    console.log(`Found KV namespace via search: ${kvBindingName}`);
-    return env2[kvBindingName];
-  }
-  const kvNamespace = Object.values(env2).find(
-    (binding2) => isKVNamespace(binding2)
-  );
-  if (kvNamespace) {
-    console.log("Found KV namespace via fallback");
-    return kvNamespace;
-  }
-  console.error("No KV namespace found! Available bindings:", Object.keys(env2));
-  console.error("Environment value types:", Object.values(env2).map((v) => typeof v));
-  return null;
-}
-function isKVNamespace(binding2) {
-  return binding2 && typeof binding2.get === "function" && typeof binding2.put === "function" && typeof binding2.delete === "function" && typeof binding2.list === "function";
-}
-var init_kv = __esm({
-  "src/utils/kv.js"() {
-    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
-    init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
-    init_performance2();
-    __name(getKVNamespace, "getKVNamespace");
-    __name(isKVNamespace, "isKVNamespace");
   }
 });
 
@@ -5308,20 +5126,20 @@ var SmartRouter = class {
     let i = 0;
     let res;
     for (; i < len; i++) {
-      const router15 = routers[i];
+      const router16 = routers[i];
       try {
         for (let i2 = 0, len2 = routes.length; i2 < len2; i2++) {
-          router15.add(...routes[i2]);
+          router16.add(...routes[i2]);
         }
-        res = router15.match(method, path);
+        res = router16.match(method, path);
       } catch (e) {
         if (e instanceof UnsupportedPathError) {
           continue;
         }
         throw e;
       }
-      this.match = router15.match.bind(router15);
-      this.#routers = [router15];
+      this.match = router16.match.bind(router16);
+      this.#routers = [router16];
       this.#routes = void 0;
       break;
     }
@@ -5647,8 +5465,88 @@ var cors = /* @__PURE__ */ __name((options) => {
   }, "cors2");
 }, "cors");
 
+// src/config/index.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// src/config/constants.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+function getCorsOrigins(env2) {
+  if (env2.CORS_ORIGINS) {
+    return env2.CORS_ORIGINS.split(",").map((origin) => origin.trim());
+  }
+  if (env2.SITE_URL) {
+    return [env2.SITE_URL];
+  }
+  return ["*"];
+}
+__name(getCorsOrigins, "getCorsOrigins");
+var CORS_ALLOWED_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"];
+var CORS_ALLOWED_HEADERS = ["Content-Type", "X-Admin-Token"];
+var SHIPPING_COUNTRIES = [
+  "US",
+  "CA",
+  "GB",
+  "AU",
+  "DE",
+  "FR",
+  "IT",
+  "ES",
+  "NL",
+  "BE",
+  "AT",
+  "CH",
+  "SE",
+  "NO",
+  "DK",
+  "FI",
+  "IE",
+  "PT",
+  "PL",
+  "CZ",
+  "HU",
+  "GR",
+  "RO",
+  "BG",
+  "HR",
+  "SI",
+  "SK",
+  "EE",
+  "LV",
+  "LT",
+  "LU",
+  "MT",
+  "CY"
+];
+var ALLOWED_DRIVE_HOSTS = [
+  "drive.google.com",
+  "drive.usercontent.google.com",
+  "lh3.googleusercontent.com"
+];
+var ADMIN_TOKEN_TTL = 86400;
+var ADMIN_TOKEN_TTL_MS = 864e5;
+var KV_KEYS = {
+  PRODUCTS_LIST: "products:all",
+  COLLECTIONS_LIST: "collections:all",
+  MEDIA_LIST: "media:all",
+  STORE_SETTINGS: "store:settings",
+  DRIVE_TOKEN: "drive:oauth:tokens",
+  DRIVE_FOLDER_PREFIX: "drive:folder",
+  ADMIN_TOKEN_PREFIX: "admin_token:"
+};
+var THEME_COLOR_KEYS = ["primary", "secondary", "accent", "text", "background", "card"];
+var THEME_RADIUS_MULTIPLIER_MIN = 0;
+var THEME_RADIUS_MULTIPLIER_MAX = 4;
+
+// src/config/env.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
 // src/middleware/cors.js
-init_config();
 function createCorsMiddleware(env2 = {}) {
   const origins = getCorsOrigins(env2);
   const originConfig = origins.length === 1 && origins[0] === "*" ? "*" : (origin) => {
@@ -5767,7 +5665,53 @@ __name(asyncHandler, "asyncHandler");
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-init_kv();
+
+// src/utils/kv.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+function getKVNamespace(env2) {
+  if (!env2 || typeof env2 !== "object") {
+    console.error("getKVNamespace: Invalid environment object");
+    return null;
+  }
+  const possibleBindings = [
+    "OPENSHOP-TEST3_KV",
+    "OPENSHOP_TEST3_KV",
+    "OPENSHOP_KV"
+  ];
+  for (const bindingName of possibleBindings) {
+    if (bindingName in env2 && env2[bindingName]) {
+      const kvNamespace2 = env2[bindingName];
+      if (isKVNamespace(kvNamespace2)) {
+        console.log(`Found KV namespace via direct access: ${bindingName}`);
+        return kvNamespace2;
+      }
+    }
+  }
+  const kvBindingName = Object.keys(env2).find(
+    (key) => (key.endsWith("_KV") || key.endsWith("-KV") || key.includes("KV")) && isKVNamespace(env2[key])
+  );
+  if (kvBindingName) {
+    console.log(`Found KV namespace via search: ${kvBindingName}`);
+    return env2[kvBindingName];
+  }
+  const kvNamespace = Object.values(env2).find(
+    (binding2) => isKVNamespace(binding2)
+  );
+  if (kvNamespace) {
+    console.log("Found KV namespace via fallback");
+    return kvNamespace;
+  }
+  console.error("No KV namespace found! Available bindings:", Object.keys(env2));
+  console.error("Environment value types:", Object.values(env2).map((v) => typeof v));
+  return null;
+}
+__name(getKVNamespace, "getKVNamespace");
+function isKVNamespace(binding2) {
+  return binding2 && typeof binding2.get === "function" && typeof binding2.put === "function" && typeof binding2.delete === "function" && typeof binding2.list === "function";
+}
+__name(isKVNamespace, "isKVNamespace");
 
 // src/utils/crypto.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -5869,7 +5813,6 @@ async function hashPasswordWithSalt(password, iterations = 1e5) {
 __name(hashPasswordWithSalt, "hashPasswordWithSalt");
 
 // src/middleware/auth.js
-init_config();
 async function verifyAdminAuth(request, env2) {
   let adminToken;
   try {
@@ -5936,7 +5879,6 @@ __name(verifyAdminAuth, "verifyAdminAuth");
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-init_kv();
 
 // src/services/StoreSettingsService.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -6101,7 +6043,6 @@ var KVManager = class {
 };
 
 // src/services/StoreSettingsService.js
-init_config();
 var DEFAULT_SETTINGS = {
   logoType: "text",
   logoText: "OpenShop",
@@ -6280,7 +6221,6 @@ init_performance2();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-init_kv();
 var router = new Hono2();
 router.get("/", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
@@ -6378,7 +6318,6 @@ var CollectionService = class {
 };
 
 // src/routes/public/collections.js
-init_kv();
 var router2 = new Hono2();
 router2.get("/", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
@@ -6409,7 +6348,6 @@ init_performance2();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-init_kv();
 
 // src/lib/theme.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -6721,7 +6659,6 @@ var ThemeService = class {
 };
 
 // src/routes/public/storefront.js
-init_kv();
 var router3 = new Hono2();
 router3.get("/theme", asyncHandler(async (c) => {
   const themeService = new ThemeService(c.env);
@@ -12273,7 +12210,6 @@ var Stripe = createStripe(new WebPlatformFunctions());
 var stripe_esm_worker_default = Stripe;
 
 // src/services/StripeService.js
-init_config();
 var StripeService = class {
   static {
     __name(this, "StripeService");
@@ -12529,7 +12465,6 @@ var checkout_default = router4;
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-init_config();
 var router5 = new Hono2();
 router5.get("/", asyncHandler(async (c) => {
   const src = c.req.query("src");
@@ -12596,7 +12531,6 @@ var imageProxy_default = router5;
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-init_kv();
 var router6 = new Hono2();
 router6.get("/", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
@@ -12613,14 +12547,96 @@ contactEmailRouter.get("/", asyncHandler(async (c) => {
   return c.json(email);
 }));
 
+// src/routes/public/images.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// src/services/R2Service.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var R2Service = class {
+  static {
+    __name(this, "R2Service");
+  }
+  constructor(env2) {
+    this.env = env2;
+    this.bucket = env2.IMAGES;
+  }
+  /**
+   * Upload file to R2
+   * @param {string} mimeType
+   * @param {string} dataBase64
+   * @param {string} filename
+   */
+  async uploadFile(mimeType, dataBase64, filename) {
+    if (!this.bucket) {
+      throw new Error("R2 bucket not configured");
+    }
+    const binaryString = atob(dataBase64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    const safeFilename = filename.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const key = `${Date.now()}-${generateSessionToken()}-${safeFilename}`;
+    await this.bucket.put(key, bytes.buffer, {
+      httpMetadata: {
+        contentType: mimeType
+      }
+    });
+    const viewUrl = `/api/images/${key}`;
+    return {
+      id: key,
+      viewUrl,
+      downloadUrl: viewUrl,
+      webViewLink: viewUrl,
+      folder: { id: "r2", name: "R2 Bucket" }
+    };
+  }
+  /**
+   * Get file from R2
+   * @param {string} key
+   */
+  async getFile(key) {
+    if (!this.bucket) {
+      throw new Error("R2 bucket not configured");
+    }
+    return await this.bucket.get(key);
+  }
+};
+
+// src/routes/public/images.js
+var router7 = new Hono2();
+router7.get("/:key", async (c) => {
+  const key = c.req.param("key");
+  const r2Service = new R2Service(c.env);
+  try {
+    const object = await r2Service.getFile(key);
+    if (!object) {
+      return c.notFound();
+    }
+    const headers = new Headers();
+    object.writeHttpMetadata(headers);
+    headers.set("etag", object.httpEtag);
+    headers.set("Cache-Control", "public, max-age=31536000, immutable");
+    return new Response(object.body, {
+      headers
+    });
+  } catch (e) {
+    console.error("Error fetching image:", e);
+    return c.notFound();
+  }
+});
+var images_default = router7;
+
 // src/routes/admin/auth.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-init_kv();
-init_config();
-var router7 = new Hono2();
-router7.post("/login", asyncHandler(async (c) => {
+var router8 = new Hono2();
+router8.post("/login", asyncHandler(async (c) => {
   const { password } = await c.req.json();
   if (!password || typeof password !== "string") {
     throw new ValidationError("Password is required");
@@ -12657,7 +12673,7 @@ router7.post("/login", asyncHandler(async (c) => {
   });
   return c.json({ token });
 }));
-var auth_default = router7;
+var auth_default = router8;
 
 // src/routes/admin/products.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -12886,15 +12902,14 @@ var ProductStripeService = class {
 };
 
 // src/routes/admin/products.js
-init_kv();
-var router8 = new Hono2();
-router8.get("/", asyncHandler(async (c) => {
+var router9 = new Hono2();
+router9.get("/", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
   const products = await productService.getAllProductsAdmin();
   return c.json(products);
 }));
-router8.post("/", asyncHandler(async (c) => {
+router9.post("/", asyncHandler(async (c) => {
   const productData = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
@@ -12912,13 +12927,13 @@ router8.post("/", asyncHandler(async (c) => {
   const savedProduct = await productService.createProduct(product);
   return c.json(savedProduct, 201);
 }));
-router8.get("/:id", asyncHandler(async (c) => {
+router9.get("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
   const product = await productService.getProduct(c.req.param("id"));
   return c.json(product);
 }));
-router8.put("/:id", asyncHandler(async (c) => {
+router9.put("/:id", asyncHandler(async (c) => {
   const updates = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
@@ -12956,7 +12971,7 @@ router8.put("/:id", asyncHandler(async (c) => {
   const updatedProduct = await productService.updateProduct(c.req.param("id"), updates);
   return c.json(updatedProduct);
 }));
-router8.delete("/:id", asyncHandler(async (c) => {
+router9.delete("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
   const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
@@ -12970,47 +12985,46 @@ router8.delete("/:id", asyncHandler(async (c) => {
   await productService.deleteProduct(c.req.param("id"));
   return c.json({ success: true });
 }));
-var products_default2 = router8;
+var products_default2 = router9;
 
 // src/routes/admin/collections.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-init_kv();
-var router9 = new Hono2();
-router9.get("/", asyncHandler(async (c) => {
+var router10 = new Hono2();
+router10.get("/", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
   const collections = await collectionService.getAllCollectionsAdmin();
   return c.json(collections);
 }));
-router9.post("/", asyncHandler(async (c) => {
+router10.post("/", asyncHandler(async (c) => {
   const collectionData = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
   const savedCollection = await collectionService.createCollection(collectionData);
   return c.json(savedCollection, 201);
 }));
-router9.get("/:id", asyncHandler(async (c) => {
+router10.get("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
   const collection = await collectionService.getCollection(c.req.param("id"));
   return c.json(collection);
 }));
-router9.put("/:id", asyncHandler(async (c) => {
+router10.put("/:id", asyncHandler(async (c) => {
   const updates = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
   const updatedCollection = await collectionService.updateCollection(c.req.param("id"), updates);
   return c.json(updatedCollection);
 }));
-router9.delete("/:id", asyncHandler(async (c) => {
+router10.delete("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
   await collectionService.deleteCollection(c.req.param("id"));
   return c.json({ success: true });
 }));
-var collections_default2 = router9;
+var collections_default2 = router10;
 
 // src/routes/admin/analytics.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -13248,16 +13262,15 @@ var AnalyticsService = class {
 };
 
 // src/routes/admin/analytics.js
-init_kv();
-var router10 = new Hono2();
-router10.get("/", asyncHandler(async (c) => {
+var router11 = new Hono2();
+router11.get("/", asyncHandler(async (c) => {
   const period = c.req.query("period") || "30d";
   const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
   const analyticsService = new AnalyticsService(stripeService);
   const analytics = await analyticsService.getAnalytics(period);
   return c.json(analytics);
 }));
-router10.get("/orders", asyncHandler(async (c) => {
+router11.get("/orders", asyncHandler(async (c) => {
   const limit = Math.min(parseInt(c.req.query("limit") || "25", 10), 50);
   const direction = c.req.query("direction") || "next";
   const cursor = c.req.query("cursor") || void 0;
@@ -13274,7 +13287,7 @@ router10.get("/orders", asyncHandler(async (c) => {
   });
   return c.json(orders);
 }));
-router10.post("/orders/:orderId/fulfill", asyncHandler(async (c) => {
+router11.post("/orders/:orderId/fulfill", asyncHandler(async (c) => {
   const orderId = c.req.param("orderId");
   const kvNamespace = getKVNamespace(c.env);
   if (!kvNamespace) {
@@ -13289,7 +13302,7 @@ router10.post("/orders/:orderId/fulfill", asyncHandler(async (c) => {
   await kvNamespace.put(fulfillmentKey, JSON.stringify(fulfillmentData));
   return c.json({ success: true, fulfillment: fulfillmentData });
 }));
-var analytics_default = router10;
+var analytics_default = router11;
 
 // src/routes/admin/media.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -13346,15 +13359,14 @@ var MediaService = class {
 };
 
 // src/routes/admin/media.js
-init_kv();
-var router11 = new Hono2();
-router11.get("/", asyncHandler(async (c) => {
+var router12 = new Hono2();
+router12.get("/", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const mediaService = new MediaService(kvNamespace);
   const items = await mediaService.getAllMediaItems();
   return c.json(items);
 }));
-router11.post("/", asyncHandler(async (c) => {
+router12.post("/", asyncHandler(async (c) => {
   const body = await c.req.json();
   const url = body?.url;
   if (!url || typeof url !== "string" || url.trim() === "") {
@@ -13365,7 +13377,7 @@ router11.post("/", asyncHandler(async (c) => {
   const saved = await mediaService.createMediaItem(body);
   return c.json(saved, 201);
 }));
-router11.delete("/:id", asyncHandler(async (c) => {
+router12.delete("/:id", asyncHandler(async (c) => {
   const id = c.req.param("id");
   if (!id) {
     throw new ValidationError("Missing id");
@@ -13375,410 +13387,33 @@ router11.delete("/:id", asyncHandler(async (c) => {
   await mediaService.deleteMediaItem(id);
   return c.json({ success: true });
 }));
-var media_default = router11;
+var media_default = router12;
 
-// src/routes/admin/drive.js
+// src/routes/admin/storage.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-
-// src/services/DriveService.js
-init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
-init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
-init_performance2();
-init_kv();
-init_config();
-var DRIVE_TOKEN_KEY = KV_KEYS.DRIVE_TOKEN;
-var DRIVE_FOLDER_KV_PREFIX = KV_KEYS.DRIVE_FOLDER_PREFIX;
-var DriveService = class {
-  static {
-    __name(this, "DriveService");
-  }
-  constructor(env2) {
-    this.env = env2;
-    this.kv = getKVNamespace(env2);
-  }
-  /**
-   * Get Drive connection status
-   */
-  async getConnectionStatus() {
-    try {
-      const raw2 = await this.kv.get(DRIVE_TOKEN_KEY);
-      if (!raw2) return { connected: false };
-      const t = JSON.parse(raw2);
-      return { connected: !!t?.access_token };
-    } catch (_) {
-      return { connected: false };
-    }
-  }
-  /**
-   * Disconnect Drive
-   */
-  async disconnect() {
-    if (!this.kv) {
-      throw new Error("KV namespace not available");
-    }
-    await this.kv.delete(DRIVE_TOKEN_KEY);
-    const keys = await this.kv.list({ prefix: DRIVE_FOLDER_KV_PREFIX });
-    for (const key of keys.keys) {
-      await this.kv.delete(key.name);
-    }
-  }
-  /**
-   * Ensure we have a valid access token
-   */
-  async ensureAccessToken() {
-    const raw2 = await this.kv.get(DRIVE_TOKEN_KEY);
-    if (!raw2) throw new Error("Drive not connected");
-    let tok = JSON.parse(raw2);
-    const now = Math.floor(Date.now() / 1e3);
-    if (tok.expiry && tok.expiry > now + 60) return tok;
-    if (!tok.refresh_token) return tok;
-    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: this.env.GOOGLE_CLIENT_ID,
-        client_secret: this.env.GOOGLE_CLIENT_SECRET,
-        refresh_token: tok.refresh_token,
-        grant_type: "refresh_token"
-      })
-    });
-    if (!tokenRes.ok) {
-      let errText = "";
-      try {
-        errText = await tokenRes.text();
-      } catch (_) {
-      }
-      console.error("Drive token refresh failed", tokenRes.status, errText);
-      if (errText && /invalid_grant/i.test(errText)) {
-        try {
-          const cleared = { ...tok, access_token: "", refresh_token: null, expiry: 0 };
-          await this.kv.put(DRIVE_TOKEN_KEY, JSON.stringify(cleared));
-        } catch (_) {
-        }
-      }
-      throw new Error("Failed to refresh token");
-    }
-    const t = await tokenRes.json();
-    tok.access_token = t.access_token;
-    tok.expiry = Math.floor(Date.now() / 1e3) + (t.expires_in || 3600) - 30;
-    await this.kv.put(DRIVE_TOKEN_KEY, JSON.stringify(tok));
-    return tok;
-  }
-  /**
-   * Ensure root folder exists
-   */
-  async ensureRootFolder(tok) {
-    const desiredName = this.env.DRIVE_ROOT_FOLDER && String(this.env.DRIVE_ROOT_FOLDER).trim() || this.deriveDefaultFolderName();
-    const kvKey = `${DRIVE_FOLDER_KV_PREFIX}:${desiredName}:id`;
-    const existing = await this.kv.get(kvKey);
-    if (existing) return { id: existing, name: desiredName };
-    const query = `mimeType='application/vnd.google-apps.folder' and name='${desiredName.replace(/'/g, "\\'")}' and 'root' in parents and trashed=false`;
-    const listUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name)`;
-    const foundRes = await fetch(listUrl, {
-      headers: { Authorization: `Bearer ${tok.access_token}` }
-    });
-    if (foundRes.ok) {
-      const j = await foundRes.json();
-      if (Array.isArray(j.files) && j.files.length > 0) {
-        const id = j.files[0].id;
-        await this.kv.put(kvKey, id);
-        return { id, name: desiredName };
-      }
-    }
-    const createRes = await fetch("https://www.googleapis.com/drive/v3/files", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${tok.access_token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: desiredName,
-        mimeType: "application/vnd.google-apps.folder"
-      })
-    });
-    if (!createRes.ok) {
-      const t = await createRes.text();
-      console.error("Failed to create Drive folder", t);
-      throw new Error("Failed to create Drive folder");
-    }
-    const created = await createRes.json();
-    const folderId = created.id;
-    await this.kv.put(kvKey, folderId);
-    return { id: folderId, name: desiredName };
-  }
-  /**
-   * Derive default folder name from site URL
-   */
-  deriveDefaultFolderName() {
-    try {
-      if (this.env.SITE_URL) {
-        const u = new URL(this.env.SITE_URL);
-        const sub = u.hostname.split(".")[0] || "openshop";
-        return sub.replace(/[-_]+/g, " ").trim();
-      }
-    } catch (_) {
-    }
-    return "OpenShop";
-  }
-  /**
-   * Upload file to Drive
-   */
-  async uploadFile(mimeType, dataBase64, filename) {
-    const tok = await this.ensureAccessToken();
-    const folder = await this.ensureRootFolder(tok);
-    const boundary = `openshop-${generateSessionToken()}`;
-    const metadata = { name: filename || "openshop-image", parents: [folder.id] };
-    const body = `--${boundary}\r
-Content-Type: application/json; charset=UTF-8\r
-\r
-${JSON.stringify(metadata)}\r
---${boundary}\r
-Content-Type: ${mimeType}\r
-Content-Transfer-Encoding: base64\r
-\r
-${dataBase64}\r
---${boundary}--`;
-    const uploadRes = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${tok.access_token}`,
-        "Content-Type": `multipart/related; boundary=${boundary}`
-      },
-      body
-    });
-    if (!uploadRes.ok) {
-      const t = await uploadRes.text();
-      console.error("Drive upload failed", t);
-      throw new Error(`Drive upload failed: ${t}`);
-    }
-    const file = await uploadRes.json();
-    const fileId = file.id;
-    await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${tok.access_token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ role: "reader", type: "anyone" })
-    }).catch(() => {
-    });
-    const viewUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=view`;
-    return { id: fileId, viewUrl, webViewLink: file.webViewLink, downloadUrl: viewUrl, folder: { id: folder.id, name: folder.name } };
-  }
-  /**
-   * Get picker configuration
-   */
-  async getPickerConfig() {
-    const apiKey = this.env.GOOGLE_API_KEY;
-    const clientId = this.env.GOOGLE_CLIENT_ID;
-    if (!apiKey || !clientId) {
-      throw new Error("Picker not configured");
-    }
-    const tok = await this.ensureAccessToken();
-    const now = Math.floor(Date.now() / 1e3);
-    const expiresIn = Math.max(0, (tok.expiry || now) - now);
-    return { apiKey, clientId, accessToken: tok.access_token, expiresIn };
-  }
-  /**
-   * Copy files to Drive folder
-   */
-  async copyFiles(fileIds, resourceKeys = {}) {
-    const tok = await this.ensureAccessToken();
-    const folder = await this.ensureRootFolder(tok);
-    const results = [];
-    for (const srcId of fileIds) {
-      const rk = resourceKeys[srcId] || "";
-      const metaUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(srcId)}?fields=id,mimeType,shortcutDetails,targetId,resourceKey,webViewLink,driveId&supportsAllDrives=true${rk ? `&resourceKey=${encodeURIComponent(rk)}` : ""}`;
-      const metaRes = await fetch(metaUrl, { headers: { "Authorization": `Bearer ${tok.access_token}` } });
-      if (!metaRes.ok) {
-        const t = await metaRes.text().catch(() => "");
-        console.error("Drive get file failed", srcId, t);
-        throw new Error(`Drive file lookup failed: ${t}`);
-      }
-      const meta = await metaRes.json();
-      let effectiveId = meta && meta.mimeType === "application/vnd.google-apps.shortcut" && meta.shortcutDetails && meta.shortcutDetails.targetId ? meta.shortcutDetails.targetId : meta && meta.id ? meta.id : srcId;
-      const effectiveResourceKey = meta && meta.resourceKey ? meta.resourceKey : rk;
-      const copyEndpoint = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(effectiveId)}/copy?supportsAllDrives=true${effectiveResourceKey ? `&resourceKey=${encodeURIComponent(effectiveResourceKey)}` : ""}`;
-      const copyRes = await fetch(copyEndpoint, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${tok.access_token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ parents: [folder.id] })
-      });
-      if (!copyRes.ok) {
-        const t = await copyRes.text().catch(() => "");
-        console.error("Drive copy failed", effectiveId, t);
-        throw new Error(`Drive copy failed: ${t}`);
-      }
-      const copied = await copyRes.json();
-      const fileId = copied.id;
-      await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions?supportsAllDrives=true`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${tok.access_token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ role: "reader", type: "anyone" })
-      }).catch(() => {
-      });
-      const viewUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=view`;
-      results.push({ id: fileId, viewUrl, webViewLink: copied.webViewLink, downloadUrl: viewUrl, folder: { id: folder.id, name: folder.name } });
-    }
-    return results;
-  }
-};
-
-// src/routes/admin/drive.js
-var router12 = new Hono2();
-router12.get("/status", asyncHandler(async (c) => {
-  const driveService = new DriveService(c.env);
-  const status = await driveService.getConnectionStatus();
-  return c.json(status);
-}));
-router12.post("/disconnect", asyncHandler(async (c) => {
-  const driveService = new DriveService(c.env);
-  await driveService.disconnect();
-  return c.json({ success: true });
-}));
-router12.get("/oauth/start", asyncHandler(async (c) => {
-  const clientId = c.env.GOOGLE_CLIENT_ID;
-  const origin = new URL(c.req.url).origin;
-  const redirectUri = `${origin}/api/admin/drive/oauth/callback`;
-  if (!clientId || !redirectUri) {
-    throw new Error("Drive OAuth not configured");
-  }
-  const params = new URLSearchParams();
-  params.set("response_type", "code");
-  params.set("client_id", clientId);
-  params.set("redirect_uri", redirectUri);
-  params.set("scope", "https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file");
-  params.set("access_type", "offline");
-  params.set("prompt", "consent");
-  params.set("include_granted_scopes", "true");
-  const url = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-  return c.redirect(url, 302);
-}));
-router12.get("/oauth/callback", asyncHandler(async (c) => {
-  const code = c.req.query("code");
-  if (!code) {
-    return c.text("Missing code", 400);
-  }
-  const clientId = c.env.GOOGLE_CLIENT_ID;
-  const clientSecret = c.env.GOOGLE_CLIENT_SECRET;
-  const origin = new URL(c.req.url).origin;
-  const redirectUri = `${origin}/api/admin/drive/oauth/callback`;
-  if (!clientId || !clientSecret) {
-    return c.text("OAuth not configured", 500);
-  }
-  const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      code,
-      client_id: clientId,
-      client_secret: clientSecret,
-      redirect_uri: redirectUri,
-      grant_type: "authorization_code"
-    })
-  });
-  if (!tokenRes.ok) {
-    const t = await tokenRes.text();
-    console.error("Token exchange failed", t);
-    return c.text("Token exchange failed", 500);
-  }
-  const tokens = await tokenRes.json();
-  const now = Math.floor(Date.now() / 1e3);
-  const record = {
-    access_token: tokens.access_token,
-    refresh_token: tokens.refresh_token || null,
-    scope: tokens.scope,
-    token_type: tokens.token_type,
-    expiry: now + (tokens.expires_in || 3600) - 30
-  };
-  const { getKVNamespace: getKVNamespace2 } = await Promise.resolve().then(() => (init_kv(), kv_exports));
-  const { KV_KEYS: KV_KEYS2 } = await Promise.resolve().then(() => (init_config(), config_exports));
-  const kv = getKVNamespace2(c.env);
-  if (kv) {
-    await kv.put(KV_KEYS2.DRIVE_TOKEN, JSON.stringify(record));
-  }
-  return c.html(`<!doctype html><html><body><p>Google Drive connected. You can close this window.</p><script>setTimeout(()=>window.close(),500)<\/script></body></html>`);
-}));
-router12.post("/upload", asyncHandler(async (c) => {
+var router13 = new Hono2();
+router13.post("/upload", asyncHandler(async (c) => {
   const { mimeType, dataBase64, filename } = await c.req.json();
   if (!mimeType || !dataBase64) {
     throw new ValidationError("Missing mimeType or dataBase64");
   }
-  const driveService = new DriveService(c.env);
-  try {
-    const result = await driveService.uploadFile(mimeType, dataBase64, filename);
-    return c.json(result);
-  } catch (e) {
-    const msg = String(e && e.message ? e.message : e);
-    if (/Drive not connected/i.test(msg)) {
-      return c.json({ error: "Drive not connected. Please connect Google Drive in Admin." }, 502);
-    }
-    if (/Failed to refresh token/i.test(msg)) {
-      return c.json({ error: "Drive session expired. Please reconnect Google Drive." }, 502);
-    }
-    throw e;
-  }
+  const r2Service = new R2Service(c.env);
+  const result = await r2Service.uploadFile(mimeType, dataBase64, filename || "image");
+  return c.json(result);
 }));
-router12.get("/picker-config", asyncHandler(async (c) => {
-  const driveService = new DriveService(c.env);
-  try {
-    const config2 = await driveService.getPickerConfig();
-    return c.json(config2);
-  } catch (e) {
-    const msg = String(e && e.message ? e.message : e);
-    if (/Drive not connected/i.test(msg) || /Failed to refresh token/i.test(msg)) {
-      return c.json({ error: "Drive not connected" }, 502);
-    }
-    throw e;
-  }
-}));
-router12.post("/copy", asyncHandler(async (c) => {
-  const body = await c.req.json().catch(() => ({}));
-  const fileIds = Array.isArray(body.fileIds) && body.fileIds.length > 0 ? body.fileIds : body.fileId ? [body.fileId] : [];
-  const resourceKeyById = body && body.resourceKeys && typeof body.resourceKeys === "object" ? body.resourceKeys : {};
-  const singleResourceKey = body && typeof body.resourceKey === "string" ? body.resourceKey : "";
-  if (fileIds.length === 0) {
-    throw new ValidationError("Missing fileId(s)");
-  }
-  const driveService = new DriveService(c.env);
-  try {
-    const results = await driveService.copyFiles(fileIds, resourceKeyById);
-    if (Array.isArray(body.fileIds)) {
-      return c.json({ items: results });
-    }
-    return c.json(results[0]);
-  } catch (e) {
-    const msg = String(e && e.message ? e.message : e);
-    if (/Drive not connected/i.test(msg)) {
-      return c.json({ error: "Drive not connected. Please connect Google Drive in Admin." }, 502);
-    }
-    if (/Failed to refresh token/i.test(msg)) {
-      return c.json({ error: "Drive session expired. Please reconnect Google Drive." }, 502);
-    }
-    throw e;
-  }
-}));
-var drive_default = router12;
+var storage_default = router13;
 
 // src/routes/admin/settings.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-init_kv();
 
 // src/middleware/validation.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-init_config();
 
 // src/utils/validation.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -13835,13 +13470,13 @@ function validateThemePayload(payload) {
 __name(validateThemePayload, "validateThemePayload");
 
 // src/routes/admin/settings.js
-var router13 = new Hono2();
-router13.get("/storefront/theme", asyncHandler(async (c) => {
+var router14 = new Hono2();
+router14.get("/storefront/theme", asyncHandler(async (c) => {
   const themeService = new ThemeService(c.env);
   const theme = await themeService.getTheme();
   return c.json(theme);
 }));
-router13.put("/storefront/theme", asyncHandler(async (c) => {
+router14.put("/storefront/theme", asyncHandler(async (c) => {
   const payload = await c.req.json();
   const validation = validateThemePayload(payload);
   if (!validation.valid) {
@@ -13851,12 +13486,12 @@ router13.put("/storefront/theme", asyncHandler(async (c) => {
   const theme = await themeService.updateTheme(payload);
   return c.json(theme);
 }));
-router13.delete("/storefront/theme", asyncHandler(async (c) => {
+router14.delete("/storefront/theme", asyncHandler(async (c) => {
   const themeService = new ThemeService(c.env);
   const theme = await themeService.resetTheme();
   return c.json(theme);
 }));
-router13.get("/store-settings", asyncHandler(async (c) => {
+router14.get("/store-settings", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const settingsService = new StoreSettingsService(kvNamespace);
   const settings = await settingsService.getSettings();
@@ -13865,21 +13500,21 @@ router13.get("/store-settings", asyncHandler(async (c) => {
   }
   return c.json(settings);
 }));
-router13.put("/store-settings", asyncHandler(async (c) => {
+router14.put("/store-settings", asyncHandler(async (c) => {
   const settings = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const settingsService = new StoreSettingsService(kvNamespace);
   const updatedSettings = await settingsService.updateSettings(settings);
   return c.json(updatedSettings);
 }));
-var settings_default = router13;
+var settings_default = router14;
 
 // src/routes/admin/ai.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-var router14 = new Hono2();
-router14.post("/generate-image", asyncHandler(async (c) => {
+var router15 = new Hono2();
+router15.post("/generate-image", asyncHandler(async (c) => {
   const { prompt, inputs } = await c.req.json();
   if (!prompt || typeof prompt !== "string") {
     throw new ValidationError("Missing prompt");
@@ -13939,7 +13574,7 @@ router14.post("/generate-image", asyncHandler(async (c) => {
   }
   return c.json({ mimeType: mime, dataBase64: foundBase64 });
 }));
-var ai_default = router14;
+var ai_default = router15;
 
 // src/routes/index.js
 function registerRoutes(app2) {
@@ -13953,12 +13588,13 @@ function registerRoutes(app2) {
   app2.route("/api/image-proxy", imageProxy_default);
   app2.route("/api/store-settings", storeSettings_default);
   app2.route("/api/contact-email", contactEmailRouter);
+  app2.route("/api/images", images_default);
   app2.route("/api/admin", auth_default);
   app2.route("/api/admin/products", products_default2);
   app2.route("/api/admin/collections", collections_default2);
   app2.route("/api/admin/analytics", analytics_default);
   app2.route("/api/admin/media", media_default);
-  app2.route("/api/admin/drive", drive_default);
+  app2.route("/api/admin/storage", storage_default);
   app2.route("/api/admin", settings_default);
   app2.route("/api/admin/ai", ai_default);
 }
