@@ -24,9 +24,8 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
   const [resultBase64, setResultBase64] = useState('')
   const [resultMime, setResultMime] = useState('image/png')
   const [isGenerating, setIsGenerating] = useState(false)
-  const [driveConnected, setDriveConnected] = useState(false)
   const [filename, setFilename] = useState('openshop-image.png')
-  const [isDriveCopying, setIsDriveCopying] = useState(false)
+
   // generate: reference images from media library (up to 3)
   const [refUrls, setRefUrls] = useState([]) // string[]
   const [isPickingRefs, setIsPickingRefs] = useState(false)
@@ -42,7 +41,6 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     setFiles([])
     setPrompt('')
     setResultBase64('')
-    checkDriveStatus()
   }, [open])
 
   useEffect(() => {
@@ -58,35 +56,8 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     }
   }, [files])
 
-  async function checkDriveStatus() {
-    try {
-      const res = await adminApiRequest('/api/admin/drive/status', { method: 'GET' })
-      const data = await res.json()
-      setDriveConnected(!!data.connected)
-    } catch (_) {
-      setDriveConnected(false)
-    }
-  }
-
-  async function handleDriveDisconnect() {
-    try {
-      const res = await adminApiRequest('/api/admin/drive/disconnect', { method: 'POST' })
-      if (res.ok) {
-        setDriveConnected(false)
-      } else {
-        throw new Error('Failed to disconnect')
-      }
-    } catch (e) {
-      setError(e.message || 'Failed to disconnect Google Drive')
-    }
-  }
-
-  async function uploadFileToDriveAndRecord() {
+  async function uploadFileAndRecord() {
     if (!files.length) return
-    if (!driveConnected) {
-      setError('Google Drive is not connected. Please connect first.')
-      return
-    }
     setUploading(true)
     setError('')
     try {
@@ -94,7 +65,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
       for (const f of files) {
         const dataUrl = await fileToDataUrl(f)
         const { mimeType, base64 } = parseDataUrl(dataUrl)
-        const uploadRes = await adminApiRequest('/api/admin/drive/upload', {
+        const uploadRes = await adminApiRequest('/api/admin/storage/upload', {
           method: 'POST',
           body: JSON.stringify({ mimeType, dataBase64: base64, filename: f.name || 'image.png' })
         })
@@ -105,10 +76,9 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
           method: 'POST',
           body: JSON.stringify({
             url: uploaded.viewUrl || uploaded.downloadUrl,
-            source: 'drive',
+            source: 'storage',
             filename: f.name || 'image',
             mimeType: mimeType,
-            driveFileId: uploaded.id,
           })
         })
         const saved = await mediaRes.json()
@@ -217,11 +187,11 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     }
   }
 
-  async function saveGeneratedToDriveAndRecord() {
+  async function saveGeneratedAndRecord() {
     if (!resultBase64) return
     setIsLoading(true)
     try {
-      const uploadRes = await adminApiRequest('/api/admin/drive/upload', {
+      const uploadRes = await adminApiRequest('/api/admin/storage/upload', {
         method: 'POST',
         body: JSON.stringify({ mimeType: resultMime, dataBase64: resultBase64, filename })
       })
@@ -231,10 +201,9 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
         method: 'POST',
         body: JSON.stringify({
           url: uploaded.viewUrl || uploaded.downloadUrl,
-          source: 'drive',
+          source: 'storage',
           filename: filename,
           mimeType: resultMime,
-          driveFileId: uploaded.id,
         })
       })
       const saved = await mediaRes.json()
@@ -327,117 +296,6 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     return { mimeType: match[1], base64: match[2] }
   }
 
-  // --- Google Picker integration (Drive tab) ---
-  function loadGoogleApis() {
-    return new Promise((resolve, reject) => {
-      if (window.google && window.google.picker) {
-        resolve()
-        return
-      }
-      function onPickerReady() {
-        try {
-          if (window.google && window.google.picker) resolve()
-          else reject(new Error('Picker failed to load'))
-        } catch (e) { reject(e) }
-      }
-      function ensurePickerLoaded() {
-        try {
-          // Load the picker module after gapi is ready
-          window.gapi.load('picker', { callback: onPickerReady })
-        } catch (e) {
-          reject(e)
-        }
-      }
-      if (!window.gapi) {
-        const s = document.createElement('script')
-        s.src = 'https://apis.google.com/js/api.js'
-        s.async = true
-        s.defer = true
-        s.onload = () => {
-          try { ensurePickerLoaded() } catch (e) { reject(e) }
-        }
-        s.onerror = () => reject(new Error('Failed to load Google API script'))
-        document.head.appendChild(s)
-      } else {
-        ensurePickerLoaded()
-      }
-    })
-  }
-
-  async function openDrivePicker() {
-    try {
-      setError('')
-      // Ensure picker library is available
-      await loadGoogleApis()
-      // Fetch picker configuration and access token
-      const cfgRes = await adminApiRequest('/api/admin/drive/picker-config', { method: 'GET' })
-      if (!cfgRes.ok) {
-        const err = await cfgRes.json().catch(() => ({}))
-        throw new Error(err.error || 'Failed to load Drive picker config')
-      }
-      const cfg = await cfgRes.json()
-      const googleObj = window.google
-      const view = new googleObj.picker.DocsView(googleObj.picker.ViewId.DOCS_IMAGES)
-      view.setIncludeFolders(false)
-
-      const builder = new googleObj.picker.PickerBuilder()
-        .addView(view)
-        .enableFeature(googleObj.picker.Feature.MULTISELECT_ENABLED)
-        .setOAuthToken(cfg.accessToken)
-        .setDeveloperKey(cfg.apiKey)
-        .setSize(window.innerWidth > 720 ? 720 : Math.min(600, window.innerWidth - 40), 520)
-        .setCallback(async (data) => {
-          if (data && data.action === googleObj.picker.Action.PICKED) {
-            try {
-              setIsDriveCopying(true)
-              const docs = Array.isArray(data.docs) ? data.docs : []
-              const createdItems = []
-              for (const d of docs) {
-                const id = d && d.id ? d.id : null
-                if (!id) continue
-                // Copy to OpenShop folder on server
-                // Provide resourceKey if returned by picker (for certain shared files)
-                const resourceKey = d.resourceKey || d.resource_key || (d["resourceKey"]) || ''
-                const copyRes = await adminApiRequest('/api/admin/drive/copy', {
-                  method: 'POST',
-                  body: JSON.stringify({ fileId: id, resourceKey })
-                })
-                const copied = await copyRes.json().catch(() => ({}))
-                if (!copyRes.ok) throw new Error(copied.error || 'Copy failed')
-                // Record in media library
-                const mediaRes = await adminApiRequest('/api/admin/media', {
-                  method: 'POST',
-                  body: JSON.stringify({
-                    url: copied.viewUrl || copied.downloadUrl,
-                    source: 'drive',
-                    filename: d.name || 'image',
-                    mimeType: d.mimeType || 'image/*',
-                    driveFileId: copied.id,
-                  })
-                })
-                const saved = await mediaRes.json().catch(() => ({}))
-                if (!mediaRes.ok) throw new Error(saved.error || 'Failed to save media')
-                createdItems.push(saved)
-              }
-              if (createdItems.length > 0) {
-                onCreated?.(createdItems)
-                onClose?.()
-              }
-            } catch (e) {
-              setError(e.message || 'Import failed')
-            } finally {
-              setIsDriveCopying(false)
-            }
-          }
-        })
-
-      const picker = builder.build()
-      picker.setVisible(true)
-    } catch (e) {
-      setError(e.message || 'Failed to open Google Drive picker')
-    }
-  }
-
   if (!open) return null
 
   return (
@@ -446,13 +304,13 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
         <div className="p-4 border-b flex items-center justify-between flex-shrink-0">
           <h3 className="text-lg font-semibold">Add media</h3>
           <div className="flex items-center gap-2">
-            {['upload', 'link', 'generate', 'drive'].map(tab => (
+            {['upload', 'link', 'generate'].map(tab => (
               <button
                 key={tab}
                 type="button"
                 className={`px-3 py-1.5 text-sm rounded border ${activeTab === tab ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
                 onClick={() => setActiveTab(tab)}
-              >{tab === 'drive' ? 'Google Drive' : (tab[0].toUpperCase() + tab.slice(1))}</button>
+              >{(tab[0].toUpperCase() + tab.slice(1))}</button>
             ))}
           </div>
         </div>
@@ -493,47 +351,10 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
                 </div>
               )}
               <div className="flex items-center justify-between">
-              {!driveConnected && (
-                <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
-                  Google Drive not connected
-                </div>
-              )}
               <div className="flex gap-2 ml-auto">
-                {!driveConnected && (
-                  <Button type="button" variant="outline" onClick={() => window.open('/api/admin/drive/oauth/start', '_blank', 'width=480,height=720')}>
-                    Connect Google Drive
-                  </Button>
-                )}
-                {driveConnected && (
-                  <Button type="button" variant="outline" onClick={handleDriveDisconnect}>
-                    Disconnect
-                  </Button>
-                )}
-                <Button type="button" onClick={uploadFileToDriveAndRecord} disabled={!files.length || uploading || !driveConnected}>{uploading ? `Uploading…` : `Upload ${files.length > 1 ? files.length + ' images' : 'image'}`}</Button>
+                <Button type="button" onClick={uploadFileAndRecord} disabled={!files.length || uploading}>{uploading ? `Uploading…` : `Upload ${files.length > 1 ? files.length + ' images' : 'image'}`}</Button>
               </div>
             </div>
-            </div>
-          )}
-          {activeTab === 'drive' && (
-            <div className="space-y-3">
-              {!driveConnected ? (
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">Google Drive not connected</div>
-                  <div className="flex gap-2 ml-auto">
-                    <Button type="button" variant="outline" onClick={() => window.open('/api/admin/drive/oauth/start', '_blank', 'width=480,height=720')}>
-                      Connect Google Drive
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600">Choose images from your Google Drive</div>
-                  <div className="flex gap-2 ml-auto">
-                    <Button type="button" variant="outline" onClick={handleDriveDisconnect}>Disconnect</Button>
-                    <Button type="button" onClick={openDrivePicker} disabled={isDriveCopying}>{isDriveCopying ? 'Importing…' : 'Choose from Drive'}</Button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
           {activeTab === 'link' && (
@@ -583,11 +404,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
                       <Input value={filename} onChange={(e) => setFilename(e.target.value)} />
                     </div>
                     <div className="flex gap-2 justify-end">
-                      {driveConnected ? (
-                        <Button type="button" onClick={saveGeneratedToDriveAndRecord} disabled={isLoading}>{isLoading ? 'Uploading…' : 'Save to Media'}</Button>
-                      ) : (
-                        <Button type="button" onClick={() => window.open('/api/admin/drive/oauth/start', '_blank', 'width=480,height=720')}>Connect Google Drive</Button>
-                      )}
+                      <Button type="button" onClick={saveGeneratedAndRecord} disabled={isLoading}>{isLoading ? 'Uploading…' : 'Save to Media'}</Button>
                     </div>
                   </div>
                 </div>
@@ -640,6 +457,3 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     </div>
   )
 }
-
-
-
