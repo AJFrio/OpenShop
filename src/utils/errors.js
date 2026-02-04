@@ -41,6 +41,16 @@ export class AuthenticationError extends APIError {
 }
 
 /**
+ * Rate limit error
+ */
+export class RateLimitError extends APIError {
+  constructor(message = 'Too many requests') {
+    super(message, 429)
+    this.name = 'RateLimitError'
+  }
+}
+
+/**
  * Authorization error
  */
 export class AuthorizationError extends APIError {

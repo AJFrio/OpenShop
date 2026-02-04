@@ -15,11 +15,11 @@ export function AdminLogin({ onLoginSuccess }) {
     setError('')
 
     try {
-      const success = await adminLogin(password)
-      if (success) {
+      const result = await adminLogin(password)
+      if (result.success) {
         onLoginSuccess()
       } else {
-        setError('Invalid password. Please try again.')
+        setError(result.error || 'Invalid password. Please try again.')
       }
     } catch (error) {
       setError('Login failed. Please try again.')

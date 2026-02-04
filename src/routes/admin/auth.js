@@ -5,7 +5,7 @@ import { hashToken, verifyPassword, hashPasswordWithSalt } from '../../utils/cry
 import { getKVNamespace } from '../../utils/kv.js'
 import { ADMIN_TOKEN_TTL, KV_KEYS } from '../../config/index.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
-import { ValidationError, AuthenticationError } from '../../utils/errors.js'
+import { ValidationError, AuthenticationError, RateLimitError } from '../../utils/errors.js'
 
 const router = new Hono()
 
@@ -26,7 +26,7 @@ router.post('/login', asyncHandler(async (c) => {
   const attemptCount = attempts ? parseInt(attempts, 10) : 0
   
   if (attemptCount >= 5) {
-    throw new AuthenticationError('Too many login attempts. Please try again later.')
+    throw new RateLimitError('Too many login attempts. Please try again later.')
   }
 
   // Get stored password hash or use default (will be hashed on first use)

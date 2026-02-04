@@ -95,12 +95,13 @@ export async function adminLogin(password) {
     if (response.ok) {
       const { token } = await response.json()
       setAdminToken(token)
-      return true
+      return { success: true }
     } else {
-      return false
+      const data = await response.json().catch(() => ({}))
+      return { success: false, error: data.error || 'Login failed' }
     }
   } catch (error) {
     console.error('Admin login error:', error)
-    return false
+    return { success: false, error: 'Network error' }
   }
 }

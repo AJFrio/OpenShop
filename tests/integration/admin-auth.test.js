@@ -133,7 +133,7 @@ describe('Admin Authentication', () => {
       const response = await executeRequest(app, request, env)
       const data = await parseJsonResponse(response)
 
-      expect(response.status).toBe(401)
+      expect(response.status).toBe(429)
       expect(data.error).toContain('Too many login attempts')
     })
 
