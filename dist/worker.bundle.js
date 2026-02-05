@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-02-02T18:08:02Z
+// Worker Bundle - Built 2026-02-05T22:02:55Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -12810,7 +12810,7 @@ var ProductStripeService = class {
     if (Array.isArray(updates.variants)) {
       const incomingVariants = updates.variants;
       const existingVariants = Array.isArray(existingProduct.variants) ? existingProduct.variants : [];
-      for (const v of incomingVariants) {
+      const results = await Promise.all(incomingVariants.map(async (v) => {
         const prior = v.id ? existingVariants.find((ev) => ev.id === v.id) : void 0;
         const wantsCustom = !!v.hasCustomPrice && typeof v.price === "number" && v.price > 0;
         if (wantsCustom) {
@@ -12838,7 +12838,7 @@ var ProductStripeService = class {
             }
             priceIdToUse = newVariantPrice.id;
           }
-          updatedVariants.push({ ...v, stripePriceId: priceIdToUse, hasCustomPrice: true });
+          return { ...v, stripePriceId: priceIdToUse, hasCustomPrice: true };
         } else {
           if (prior?.stripePriceId && prior?.hasCustomPrice) {
             try {
@@ -12846,14 +12846,15 @@ var ProductStripeService = class {
             } catch (_) {
             }
           }
-          updatedVariants.push({ ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: void 0 });
+          return { ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: void 0 };
         }
-      }
+      }));
+      updatedVariants.push(...results);
     }
     if (Array.isArray(updates.variants2)) {
       const incomingVariants = updates.variants2;
       const existingVariants = Array.isArray(existingProduct.variants2) ? existingProduct.variants2 : [];
-      for (const v of incomingVariants) {
+      const results = await Promise.all(incomingVariants.map(async (v) => {
         const prior = v.id ? existingVariants.find((ev) => ev.id === v.id) : void 0;
         const wantsCustom = !!v.hasCustomPrice && typeof v.price === "number" && v.price > 0;
         if (wantsCustom) {
@@ -12882,7 +12883,7 @@ var ProductStripeService = class {
             }
             priceIdToUse = newVariantPrice.id;
           }
-          updatedVariants2.push({ ...v, stripePriceId: priceIdToUse, hasCustomPrice: true });
+          return { ...v, stripePriceId: priceIdToUse, hasCustomPrice: true };
         } else {
           if (prior?.stripePriceId && prior?.hasCustomPrice) {
             try {
@@ -12890,9 +12891,10 @@ var ProductStripeService = class {
             } catch (_) {
             }
           }
-          updatedVariants2.push({ ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: void 0 });
+          return { ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: void 0 };
         }
-      }
+      }));
+      updatedVariants2.push(...results);
     }
     return {
       variants: updatedVariants.length > 0 ? updatedVariants : existingProduct.variants,
