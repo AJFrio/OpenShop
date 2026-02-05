@@ -153,7 +153,7 @@ export class ProductStripeService {
       const incomingVariants = updates.variants
       const existingVariants = Array.isArray(existingProduct.variants) ? existingProduct.variants : []
 
-      for (const v of incomingVariants) {
+      const results = await Promise.all(incomingVariants.map(async (v) => {
         const prior = v.id ? existingVariants.find(ev => ev.id === v.id) : undefined
         const wantsCustom = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
 
@@ -184,15 +184,16 @@ export class ProductStripeService {
             priceIdToUse = newVariantPrice.id
           }
 
-          updatedVariants.push({ ...v, stripePriceId: priceIdToUse, hasCustomPrice: true })
+          return { ...v, stripePriceId: priceIdToUse, hasCustomPrice: true }
         } else {
           // No custom price → point to base product price
           if (prior?.stripePriceId && prior?.hasCustomPrice) {
             try { await stripeService.archivePrice(prior.stripePriceId) } catch (_) {}
           }
-          updatedVariants.push({ ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: undefined })
+          return { ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: undefined }
         }
-      }
+      }))
+      updatedVariants.push(...results)
     }
 
     // Handle secondary variant group
@@ -200,7 +201,7 @@ export class ProductStripeService {
       const incomingVariants = updates.variants2
       const existingVariants = Array.isArray(existingProduct.variants2) ? existingProduct.variants2 : []
 
-      for (const v of incomingVariants) {
+      const results = await Promise.all(incomingVariants.map(async (v) => {
         const prior = v.id ? existingVariants.find(ev => ev.id === v.id) : undefined
         const wantsCustom = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
 
@@ -230,14 +231,15 @@ export class ProductStripeService {
             priceIdToUse = newVariantPrice.id
           }
 
-          updatedVariants2.push({ ...v, stripePriceId: priceIdToUse, hasCustomPrice: true })
+          return { ...v, stripePriceId: priceIdToUse, hasCustomPrice: true }
         } else {
           if (prior?.stripePriceId && prior?.hasCustomPrice) {
             try { await stripeService.archivePrice(prior.stripePriceId) } catch (_) {}
           }
-          updatedVariants2.push({ ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: undefined })
+          return { ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: undefined }
         }
-      }
+      }))
+      updatedVariants2.push(...results)
     }
 
     return {
