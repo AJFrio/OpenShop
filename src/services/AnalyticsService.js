@@ -143,26 +143,29 @@ export class AnalyticsService {
     const ordered = filteredSessions.reverse()
 
     // Fetch line items for each session
-    const orders = []
-    for (const s of ordered) {
+    const orders = await Promise.all(ordered.map(async (s) => {
       try {
-        const lineItems = await this.stripe.getCheckoutSessionLineItems(s.id)
+        const lineItemsPromise = this.stripe.getCheckoutSessionLineItems(s.id)
+        let paymentIntentPromise = Promise.resolve(null)
+
+        if (!s.shipping_details && s.payment_intent) {
+          paymentIntentPromise = this.stripe.getPaymentIntent(s.payment_intent)
+            .catch(piError => {
+              console.log('Error fetching payment intent shipping:', piError.message)
+              return null
+            })
+        }
+
+        const [lineItems, paymentIntent] = await Promise.all([lineItemsPromise, paymentIntentPromise])
 
         // Get shipping info
         let shippingDetails = null
         if (s.shipping_details) {
           shippingDetails = s.shipping_details
-        } else if (s.payment_intent) {
-          try {
-            const paymentIntent = await this.stripe.getPaymentIntent(s.payment_intent)
-            if (paymentIntent.shipping) {
-              shippingDetails = {
-                address: paymentIntent.shipping.address,
-                name: paymentIntent.shipping.name
-              }
-            }
-          } catch (piError) {
-            console.log('Error fetching payment intent shipping:', piError.message)
+        } else if (paymentIntent && paymentIntent.shipping) {
+          shippingDetails = {
+            address: paymentIntent.shipping.address,
+            name: paymentIntent.shipping.name
           }
         }
 
@@ -171,7 +174,7 @@ export class AnalyticsService {
         const fulfillmentData = options.kvNamespace ? await options.kvNamespace.get(fulfillmentKey) : null
         const fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false, fulfilledAt: null, fulfilledBy: null }
 
-        orders.push({
+        return {
           id: s.id,
           created: s.created,
           amount_total: s.amount_total,
@@ -218,7 +221,7 @@ export class AnalyticsService {
               variant2_style: li.price?.metadata?.variant2_style || 'Variant'
             }
           })
-        })
+        }
       } catch (e) {
         console.error('Error fetching line items for session', s.id, e)
         // Handle error case...
@@ -229,7 +232,7 @@ export class AnalyticsService {
           fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false, fulfilledAt: null, fulfilledBy: null }
         }
 
-        orders.push({
+        return {
           id: s.id,
           created: s.created,
           amount_total: s.amount_total,
@@ -244,9 +247,9 @@ export class AnalyticsService {
           },
           fulfillment: fulfillmentStatus,
           items: []
-        })
+        }
       }
-    }
+    }))
 
     // Cursors for next/prev paging
     const nextCursor = ordered.length > 0 ? ordered[0].id : null
