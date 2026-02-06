@@ -91,7 +91,7 @@ export class ProductStripeService {
       }
 
       // Create Stripe prices for each combination
-      for (const combo of combinations) {
+      await Promise.all(combinations.map(async (combo) => {
         const stripePrice = await this.stripe.createPrice({
           amount: combo.price,
           currency: productData.currency,
@@ -118,7 +118,7 @@ export class ProductStripeService {
         } else if (combo.variant2) {
           variantPrices[combo.variant2.id] = stripePrice.id
         }
-      }
+      }))
 
       // Also create base price for fallback
       basePrice = await this.stripe.createPrice({
