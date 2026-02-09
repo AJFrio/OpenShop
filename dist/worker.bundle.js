@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-02-09T20:25:17Z
+// Worker Bundle - Built 2026-02-09T22:19:13Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -5908,6 +5908,15 @@ var KVManager = class {
     const existingIds = productIds ? JSON.parse(productIds) : [];
     existingIds.push(product.id);
     await this.namespace.put("products:all", JSON.stringify(existingIds));
+    if (productData.collectionId) {
+      const collKey = `collection:products:${productData.collectionId}`;
+      const collProductIds = await this.namespace.get(collKey);
+      const existingCollIds = collProductIds ? JSON.parse(collProductIds) : [];
+      if (!existingCollIds.includes(productData.id)) {
+        existingCollIds.push(productData.id);
+        await this.namespace.put(collKey, JSON.stringify(existingCollIds));
+      }
+    }
     return productData;
   }
   async getProduct(id) {
@@ -5926,9 +5935,29 @@ var KVManager = class {
     };
     const key = `product:${id}`;
     await this.namespace.put(key, JSON.stringify(updated));
+    if (existing.collectionId !== updated.collectionId) {
+      if (existing.collectionId) {
+        const oldCollKey = `collection:products:${existing.collectionId}`;
+        const oldCollProductIds = await this.namespace.get(oldCollKey);
+        if (oldCollProductIds) {
+          const ids = JSON.parse(oldCollProductIds).filter((pid2) => pid2 !== id);
+          await this.namespace.put(oldCollKey, JSON.stringify(ids));
+        }
+      }
+      if (updated.collectionId) {
+        const newCollKey = `collection:products:${updated.collectionId}`;
+        const newCollProductIds = await this.namespace.get(newCollKey);
+        const ids = newCollProductIds ? JSON.parse(newCollProductIds) : [];
+        if (!ids.includes(id)) {
+          ids.push(id);
+          await this.namespace.put(newCollKey, JSON.stringify(ids));
+        }
+      }
+    }
     return updated;
   }
   async deleteProduct(id) {
+    const product = await this.getProduct(id);
     const key = `product:${id}`;
     await this.namespace.delete(key);
     const productIds = await this.namespace.get("products:all");
@@ -5936,6 +5965,14 @@ var KVManager = class {
       const existingIds = JSON.parse(productIds);
       const filtered = existingIds.filter((pid2) => pid2 !== id);
       await this.namespace.put("products:all", JSON.stringify(filtered));
+    }
+    if (product && product.collectionId) {
+      const collKey = `collection:products:${product.collectionId}`;
+      const collProductIds = await this.namespace.get(collKey);
+      if (collProductIds) {
+        const ids = JSON.parse(collProductIds).filter((pid2) => pid2 !== id);
+        await this.namespace.put(collKey, JSON.stringify(ids));
+      }
     }
   }
   async getAllProducts() {
@@ -5979,6 +6016,7 @@ var KVManager = class {
       const filtered = existingIds.filter((cid) => cid !== id);
       await this.namespace.put("collections:all", JSON.stringify(filtered));
     }
+    await this.namespace.delete(`collection:products:${id}`);
   }
   async getAllCollections() {
     const collectionIds = await this.namespace.get("collections:all");
@@ -5990,8 +6028,14 @@ var KVManager = class {
     return collections.filter(Boolean);
   }
   async getProductsByCollection(collectionId) {
-    const allProducts = await this.getAllProducts();
-    return allProducts.filter((product) => product.collectionId === collectionId);
+    const collKey = `collection:products:${collectionId}`;
+    const productIds = await this.namespace.get(collKey);
+    if (!productIds) return [];
+    const ids = JSON.parse(productIds);
+    const products = await Promise.all(
+      ids.map((id) => this.getProduct(id))
+    );
+    return products.filter(Boolean);
   }
   // Media operations
   async createMediaItem(item) {
