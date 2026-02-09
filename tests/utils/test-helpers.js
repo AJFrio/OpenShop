@@ -369,6 +369,17 @@ export async function setupProductInKV(kv, product) {
     existingIds.push(product.id)
     await kv.put('products:all', JSON.stringify(existingIds))
   }
+
+  // Update collection index if present
+  if (product.collectionId) {
+    const collKey = `collection:products:${product.collectionId}`
+    const collProductIds = await kv.get(collKey)
+    const existingCollIds = collProductIds ? JSON.parse(collProductIds) : []
+    if (!existingCollIds.includes(product.id)) {
+      existingCollIds.push(product.id)
+      await kv.put(collKey, JSON.stringify(existingCollIds))
+    }
+  }
 }
 
 /**
