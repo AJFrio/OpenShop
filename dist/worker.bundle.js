@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-02-06T07:05:32Z
+// Worker Bundle - Built 2026-02-09T20:25:17Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -12757,7 +12757,7 @@ var ProductStripeService = class {
           });
         }
       }
-      for (const combo of combinations) {
+      await Promise.all(combinations.map(async (combo) => {
         const stripePrice = await this.stripe.createPrice({
           amount: combo.price,
           currency: productData.currency,
@@ -12782,7 +12782,7 @@ var ProductStripeService = class {
         } else if (combo.variant2) {
           variantPrices[combo.variant2.id] = stripePrice.id;
         }
-      }
+      }));
       basePrice = await this.stripe.createPrice({
         amount: productData.price,
         currency: productData.currency,
@@ -13041,15 +13041,30 @@ var AnalyticsService = class {
   static {
     __name(this, "AnalyticsService");
   }
-  constructor(stripeService) {
+  constructor(stripeService, kv = null) {
     this.stripe = stripeService;
+    this.kv = kv;
   }
   /**
    * Get analytics data for a period
    */
   async getAnalytics(period = "30d") {
     const periodDays = { "1d": 1, "7d": 7, "30d": 30, "90d": 90, "1y": 365 };
-    const days = periodDays[period] || 30;
+    if (!periodDays[period]) {
+      period = "30d";
+    }
+    if (this.kv) {
+      const cacheKey = `analytics:${period}`;
+      const cached = await this.kv.get(cacheKey);
+      if (cached) {
+        try {
+          return JSON.parse(cached);
+        } catch (e) {
+          console.error("Error parsing cached analytics", e);
+        }
+      }
+    }
+    const days = periodDays[period];
     const now = /* @__PURE__ */ new Date();
     const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1e3);
     const paymentIntents = await this.stripe.listPaymentIntents(startDate);
@@ -13103,7 +13118,7 @@ var AnalyticsService = class {
         currentDate.setDate(currentDate.getDate() + 1);
       }
     }
-    return {
+    const result = {
       period,
       totalRevenue: Math.round(totalRevenue * 100) / 100,
       totalOrders,
@@ -13115,6 +13130,11 @@ var AnalyticsService = class {
         end: now.toISOString()
       }
     };
+    if (this.kv) {
+      const cacheKey = `analytics:${period}`;
+      await this.kv.put(cacheKey, JSON.stringify(result), { expirationTtl: 300 });
+    }
+    return result;
   }
   /**
    * Get orders with fulfillment status
@@ -13268,7 +13288,8 @@ var router11 = new Hono2();
 router11.get("/", asyncHandler(async (c) => {
   const period = c.req.query("period") || "30d";
   const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
-  const analyticsService = new AnalyticsService(stripeService);
+  const kvNamespace = getKVNamespace(c.env);
+  const analyticsService = new AnalyticsService(stripeService, kvNamespace);
   const analytics = await analyticsService.getAnalytics(period);
   return c.json(analytics);
 }));
