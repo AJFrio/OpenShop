@@ -11,7 +11,8 @@ const router = new Hono()
 router.get('/', asyncHandler(async (c) => {
   const period = c.req.query('period') || '30d'
   const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
-  const analyticsService = new AnalyticsService(stripeService)
+  const kvNamespace = getKVNamespace(c.env)
+  const analyticsService = new AnalyticsService(stripeService, kvNamespace)
   const analytics = await analyticsService.getAnalytics(period)
   return c.json(analytics)
 }))

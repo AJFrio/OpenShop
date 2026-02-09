@@ -2,8 +2,9 @@
 import { StripeService } from './StripeService.js'
 
 export class AnalyticsService {
-  constructor(stripeService) {
+  constructor(stripeService, kv = null) {
     this.stripe = stripeService
+    this.kv = kv
   }
 
   /**
@@ -11,7 +12,26 @@ export class AnalyticsService {
    */
   async getAnalytics(period = '30d') {
     const periodDays = { '1d': 1, '7d': 7, '30d': 30, '90d': 90, '1y': 365 }
-    const days = periodDays[period] || 30
+
+    // Sanitize period to prevent cache poisoning
+    if (!periodDays[period]) {
+      period = '30d'
+    }
+
+    // Check cache
+    if (this.kv) {
+      const cacheKey = `analytics:${period}`
+      const cached = await this.kv.get(cacheKey)
+      if (cached) {
+        try {
+          return JSON.parse(cached)
+        } catch (e) {
+          console.error('Error parsing cached analytics', e)
+        }
+      }
+    }
+
+    const days = periodDays[period]
     const now = new Date()
     const startDate = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000))
 
@@ -76,7 +96,7 @@ export class AnalyticsService {
       }
     }
 
-    return {
+    const result = {
       period,
       totalRevenue: Math.round(totalRevenue * 100) / 100,
       totalOrders,
@@ -88,6 +108,15 @@ export class AnalyticsService {
         end: now.toISOString()
       }
     }
+
+    // Cache result
+    if (this.kv) {
+      const cacheKey = `analytics:${period}`
+      // Cache for 5 minutes
+      await this.kv.put(cacheKey, JSON.stringify(result), { expirationTtl: 300 })
+    }
+
+    return result
   }
 
   /**
