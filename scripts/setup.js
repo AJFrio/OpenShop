@@ -87,9 +87,33 @@ async function setup() {
     console.log('✅ Created toml/ directory\n')
   }
 
+  // Install Wrangler CLI if not present
+  try {
+    execSync('wrangler --version', { stdio: 'ignore' })
+  } catch {
+    console.log('\n📦 Installing dependencies (including Wrangler CLI)...')
+    execCommand('npm install', 'Installing dependencies')
+  }
+
   // Collect required credentials
   let cloudflareApiToken, cloudflareAccountId, stripeSecretKey, stripePublishableKey
   let geminiApiKey = '', productLimit = '', adminPassword = 'admin123'
+
+  // Check if Wrangler is authenticated
+  let isWranglerAuthenticated = false
+  try {
+    const whoamiOutput = execSync('wrangler whoami', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+    isWranglerAuthenticated = true
+    console.log('✅ Wrangler is already authenticated')
+
+    const accountIdMatch = whoamiOutput.match(/([a-f0-9]{32})/)
+    if (accountIdMatch && accountIdMatch[1]) {
+      cloudflareAccountId = accountIdMatch[1]
+      console.log(`✅ Using Cloudflare Account ID: ${cloudflareAccountId}`)
+    }
+  } catch (e) {
+    // Not authenticated
+  }
   
   if (useFlags) {
     cloudflareApiToken = args.cloudflare_api_token
@@ -101,16 +125,22 @@ async function setup() {
     geminiApiKey = args.gemini_api_key || ''
     
     // Validate required flags
-    if (!cloudflareApiToken || !cloudflareAccountId || !stripeSecretKey || !stripePublishableKey) {
-      console.error('❌ Missing required flags: --cloudflare-api-token, --cloudflare-account-id, --stripe-secret-key, --stripe-publishable-key are required')
+    const isCloudflareAuthMissing = !cloudflareApiToken || !cloudflareAccountId
+    if ((isCloudflareAuthMissing && !isWranglerAuthenticated) || !stripeSecretKey || !stripePublishableKey) {
+      console.error('❌ Missing required flags: --stripe-secret-key and --stripe-publishable-key are required.')
+      console.error('   If not logged in with Wrangler, --cloudflare-api-token and --cloudflare-account-id are also required.')
       process.exit(1)
     }
   } else {
-    console.log('🔑 Required Credentials:\n')
-    cloudflareApiToken = await question('Cloudflare API Token: ')
-    cloudflareAccountId = await question('Cloudflare Account ID: ')
+    if (!isWranglerAuthenticated) {
+      console.log('🔑 Required Credentials:\n')
+      cloudflareApiToken = await question('Cloudflare API Token: ')
+      cloudflareAccountId = await question('Cloudflare Account ID: ')
+    } else {
+      console.log('✅ Using existing Wrangler authentication\n')
+    }
     
-    console.log('\n🔑 Stripe Configuration:\n')
+    console.log('🔑 Stripe Configuration:\n')
     stripeSecretKey = await question('Stripe Secret Key: ')
     stripePublishableKey = await question('Stripe Publishable Key: ')
     
@@ -129,26 +159,26 @@ async function setup() {
     rl.close()
   }
 
-  // Install Wrangler CLI if not present
-  try {
-    execSync('wrangler --version', { stdio: 'ignore' })
-  } catch {
-    console.log('\n📦 Installing Wrangler CLI...')
-    execCommand('npm install -g wrangler', 'Installing Wrangler CLI')
+  // Set up Cloudflare authentication
+  if (cloudflareApiToken) {
+    console.log('\n🔐 Setting up Cloudflare authentication...')
+    process.env.CLOUDFLARE_API_TOKEN = cloudflareApiToken
+    process.env.CLOUDFLARE_ACCOUNT_ID = cloudflareAccountId
+    console.log('✅ Using API Token authentication (skipping OAuth login)')
+  } else {
+    console.log('\n🔐 Using existing Wrangler authentication...')
   }
 
-  // Set up Cloudflare authentication
-  console.log('\n🔐 Setting up Cloudflare authentication...')
-  process.env.CLOUDFLARE_API_TOKEN = cloudflareApiToken
-  process.env.CLOUDFLARE_ACCOUNT_ID = cloudflareAccountId
-  console.log('✅ Using API Token authentication (skipping OAuth login)')
-  
   // Verify Wrangler can access account
   try {
     execSync('wrangler whoami', { stdio: 'ignore' })
     console.log('✅ Cloudflare authentication verified')
   } catch (error) {
-    console.log('⚠️  Authentication check failed, but continuing with API token...')
+    console.log('⚠️  Authentication check failed.')
+    if (!cloudflareApiToken) {
+      console.error('❌ You must be logged in with Wrangler or provide a Cloudflare API Token.')
+      process.exit(1)
+    }
   }
 
   // Create a basic template for wrangler.toml in root
@@ -305,9 +335,11 @@ bucket_name = "${bucketName}"
   // Create .env file for local development
   console.log('\n📝 Creating .env files for local development...')
   let envContent = `# Local development environment
-CLOUDFLARE_API_TOKEN=${cloudflareApiToken}
-CLOUDFLARE_ACCOUNT_ID=${cloudflareAccountId}
-STRIPE_SECRET_KEY=${stripeSecretKey}
+`
+  if (cloudflareApiToken) envContent += `CLOUDFLARE_API_TOKEN=${cloudflareApiToken}\n`
+  if (cloudflareAccountId) envContent += `CLOUDFLARE_ACCOUNT_ID=${cloudflareAccountId}\n`
+
+  envContent += `STRIPE_SECRET_KEY=${stripeSecretKey}
 VITE_STRIPE_PUBLISHABLE_KEY=${stripePublishableKey}
 ADMIN_PASSWORD=${adminPassword}
 SITE_URL=${workerUrl}
