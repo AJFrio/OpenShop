@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Card, CardContent } from '../ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { adminLogin } from '../../lib/auth'
@@ -21,7 +21,7 @@ export function AdminLogin({ onLoginSuccess }) {
       } else {
         setError('Invalid password. Please try again.')
       }
-    } catch (error) {
+    } catch {
       setError('Login failed. Please try again.')
     } finally {
       setLoading(false)
@@ -31,6 +31,9 @@ export function AdminLogin({ onLoginSuccess }) {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>OpenShop Admin Login</CardTitle>
+        </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
