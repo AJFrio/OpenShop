@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card"
 import { Button } from "../ui/button"
@@ -89,14 +88,14 @@ function VariantGroupEditor({
     <div className="space-y-3">
       <div className="flex items-center gap-3">
         <Switch id={id} checked={enabled} onCheckedChange={onToggle} />
-        <label htmlFor={id} className="text-sm text-gray-700 select-none">
+        <label htmlFor={id} className="text-sm text-[var(--admin-text-secondary)] select-none">
           {title}
         </label>
       </div>
       {enabled && (
         <>
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">Variant label</label>
+            <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">Variant label</label>
             <Input
               value={variantStyle}
               onChange={(event) => onVariantStyleChange(event.target.value)}
@@ -104,20 +103,20 @@ function VariantGroupEditor({
             />
           </div>
           <div className="flex items-center justify-between">
-            <label className="block text-sm font-medium text-gray-700">Variant options</label>
+            <label className="block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">Variant options</label>
             <Button type="button" variant="outline" size="sm" onClick={onAddVariant}>
               <Plus className="mr-2 h-4 w-4" />
               Add option
             </Button>
           </div>
-          <div className="grid grid-cols-12 gap-2 text-xs text-gray-600 px-1">
+          <div className="grid grid-cols-12 gap-2 text-xs text-[var(--admin-text-muted)] px-1">
             <div className="col-span-3">Option name</div>
             <div className="col-span-3">Selector image</div>
             <div className="col-span-3">Display image</div>
             <div className="col-span-3">Price & actions</div>
           </div>
           {items.length === 0 ? (
-            <p className="text-sm text-gray-500">No options added.</p>
+            <p className="text-sm text-[var(--admin-text-muted)]">No options added.</p>
           ) : (
             <div className="space-y-2">
               {items.map((variant, index) => (
@@ -164,7 +163,7 @@ function VariantGroupEditor({
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="px-2 text-red-600 border-red-300 hover:bg-red-50"
+                      className="px-2 text-[var(--admin-error)] border-[var(--admin-error)] hover:bg-[var(--admin-error-bg)]"
                       onClick={() => onVariantRemove(index)}
                     >
                       X
@@ -589,16 +588,16 @@ export function ProductWorkspace() {
     return activeProductCount >= limit
   }, [storeSettings, products])
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-          <p className="text-sm text-gray-600">
+          <h1 className="text-2xl font-bold text-[var(--admin-text-primary)]">Products</h1>
+          <p className="text-xs text-[var(--admin-text-secondary)]">
             Browse the catalog on the left, then edit details in the workspace on the right.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="outline" onClick={handleRefresh} disabled={isLoading}>
+          <Button type="button" variant="outline" onClick={handleRefresh} disabled={isLoading} size="sm">
             <RefreshCcw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
@@ -609,15 +608,16 @@ export function ProductWorkspace() {
               disabled={isProductLimitReached}
               className={isProductLimitReached ? 'opacity-50 cursor-not-allowed' : ''}
               title={isProductLimitReached ? 'Product limit reached, delete products or upgrade plan' : ''}
+              size="sm"
             >
               <Plus className="mr-2 h-4 w-4" />
               New product
             </Button>
             {isProductLimitReached && (
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-[var(--admin-bg-elevated)] text-[var(--admin-text-primary)] text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 border border-[var(--admin-border-primary)]">
                 Product limit reached, delete products or upgrade plan
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                  <div className="border-4 border-transparent border-t-gray-900"></div>
+                  <div className="border-4 border-transparent border-t-[var(--admin-bg-elevated)]"></div>
                 </div>
               </div>
             )}
@@ -625,17 +625,17 @@ export function ProductWorkspace() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 xl:flex-row">
-        <aside className="xl:w-80 xl:flex-shrink-0">
-          <Card className="flex h-full max-h-[calc(100vh-220px)] flex-col xl:max-h-[calc(100vh-200px)]">
+      <div className="flex flex-col gap-5 xl:flex-row">
+        <aside className="xl:w-72 xl:flex-shrink-0">
+          <Card className="flex h-full max-h-[calc(100vh-220px)] flex-col xl:max-h-[calc(100vh-180px)]">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Catalog</CardTitle>
-              <p className="text-sm text-gray-600">Use filters to locate a product quickly.</p>
+              <CardTitle className="text-base">Catalog</CardTitle>
+              <p className="text-xs text-[var(--admin-text-secondary)]">Use filters to locate a product quickly.</p>
             </CardHeader>
             <CardContent className="flex flex-1 flex-col gap-4 overflow-hidden">
               <div className="space-y-3">
                 <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase text-gray-500">
+                  <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">
                     Search
                   </label>
                   <Input
@@ -646,7 +646,7 @@ export function ProductWorkspace() {
                 </div>
                 <div className="grid grid-cols-1 gap-3">
                   <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase text-gray-500">
+                    <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">
                       Collection
                     </label>
                     <Select
@@ -663,7 +663,7 @@ export function ProductWorkspace() {
                     </Select>
                   </div>
                   <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase text-gray-500">
+                    <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">
                       Visibility
                     </label>
                     <Select
@@ -684,12 +684,12 @@ export function ProductWorkspace() {
                     {Array.from({ length: 4 }).map((_, index) => (
                       <div
                         key={index}
-                        className="h-20 rounded-lg border border-dashed border-gray-200 bg-gray-50 animate-pulse"
+                        className="h-20 rounded-lg border border-dashed border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] animate-pulse"
                       />
                     ))}
                   </div>
                 ) : filteredProducts.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-600">
+                  <div className="rounded-lg border border-dashed border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] p-6 text-center text-xs text-[var(--admin-text-muted)]">
                     No products match your filters.
                   </div>
                 ) : (
@@ -707,10 +707,10 @@ export function ProductWorkspace() {
                         key={product.id}
                         type="button"
                         onClick={() => handleSelectProduct(product.id)}
-                        className={`w-full rounded-lg border bg-white p-3 text-left transition ${
+                        className={`w-full rounded-lg border p-3 text-left transition-all duration-200 ${
                           isActive
-                            ? 'border-purple-500 bg-purple-50 shadow-sm'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-[var(--admin-accent)] bg-[var(--admin-accent)]/10 shadow-[var(--admin-shadow)]'
+                            : 'border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] hover:border-[var(--admin-border-secondary)]'
                         }`}
                       >
                         <div className="flex gap-3">
@@ -721,34 +721,34 @@ export function ProductWorkspace() {
                               className="h-12 w-12 flex-shrink-0 rounded-md object-cover"
                             />
                           ) : (
-                            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-gray-200">
-                              <Package className="h-6 w-6 text-gray-400" />
+                            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-[var(--admin-bg-secondary)]">
+                              <Package className="h-6 w-6 text-[var(--admin-text-muted)]" />
                             </div>
                           )}
                           <div className="flex-1 space-y-1">
                             <div className="flex items-center justify-between gap-3">
-                              <span className="font-medium text-gray-900">
+                              <span className="font-medium text-[var(--admin-text-primary)] text-sm truncate">
                                 {product.name || 'Untitled product'}
                               </span>
-                              <span className="text-sm font-semibold text-gray-700">
+                              <span className="text-xs font-semibold text-[var(--admin-text-secondary)]">
                                 {formatCurrency(product.price, product.currency)}
                               </span>
                             </div>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-[var(--admin-text-muted)] truncate">
                               {product.tagline || product.description || 'No description provided.'}
                             </p>
-                            <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500">
+                            <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
                               {collectionName ? (
-                                <span className="rounded-full bg-gray-100 px-2 py-0.5">
+                                <span className="rounded-full bg-[var(--admin-bg-secondary)] px-2 py-0.5 text-[var(--admin-text-secondary)]">
                                   {collectionName}
                                 </span>
                               ) : (
-                                <span className="rounded-full bg-gray-100 px-2 py-0.5">
+                                <span className="rounded-full bg-[var(--admin-bg-secondary)] px-2 py-0.5 text-[var(--admin-text-muted)]">
                                   No collection
                                 </span>
                               )}
                               {product.archived && (
-                                <span className="rounded-full bg-gray-200 px-2 py-0.5 text-gray-700">
+                                <span className="rounded-full bg-[var(--admin-text-muted)]/20 px-2 py-0.5 text-[var(--admin-text-secondary)]">
                                   Archived
                                 </span>
                               )}
@@ -768,8 +768,8 @@ export function ProductWorkspace() {
             <div
               className={`mb-4 flex items-center gap-2 rounded-md border px-4 py-3 text-sm ${
                 status.type === 'success'
-                  ? 'border-green-200 bg-green-50 text-green-700'
-                  : 'border-amber-200 bg-amber-50 text-amber-700'
+                  ? 'border-[var(--admin-success)]/30 bg-[var(--admin-success-bg)] text-[var(--admin-success)]'
+                  : 'border-[var(--admin-warning)]/30 bg-[var(--admin-warning-bg)] text-[var(--admin-warning)]'
               }`}
             >
               {status.type === 'success' ? (
@@ -782,14 +782,14 @@ export function ProductWorkspace() {
           )}
 
           {draft ? (
-            <div className="space-y-6 pb-16">
-              <Card className="border border-gray-200">
-                <CardHeader className="gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-5 pb-16">
+              <Card className="border border-[var(--admin-border-primary)]">
+                <CardHeader className="gap-4 md:flex-row md:items-center md:justify-between py-4">
                   <div className="space-y-1">
-                    <CardTitle className="text-xl">
+                    <CardTitle className="text-lg">
                       {draft.name || (isCreating ? 'New product draft' : 'Untitled product')}
                     </CardTitle>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs text-[var(--admin-text-secondary)]">
                       {isCreating
                         ? 'Draft will be created once you save changes.'
                         : 'Changes are saved to the live product.'}
@@ -802,16 +802,17 @@ export function ProductWorkspace() {
                         variant="outline"
                         onClick={handleDelete}
                         disabled={isSaving}
-                        className="border-red-200 text-red-600 hover:bg-red-50"
+                        className="border-[var(--admin-error)] text-[var(--admin-error)] hover:bg-[var(--admin-error-bg)]"
+                        size="sm"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                       </Button>
                     )}
-                    <Button type="button" variant="outline" onClick={handleCancel} disabled={isSaving}>
+                    <Button type="button" variant="outline" onClick={handleCancel} disabled={isSaving} size="sm">
                       Discard
                     </Button>
-                    <Button type="button" onClick={handleSave} disabled={isSaving}>
+                    <Button type="button" onClick={handleSave} disabled={isSaving} size="sm">
                       {isSaving ? (
                         <>
                           <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />
@@ -828,17 +829,17 @@ export function ProductWorkspace() {
                 </CardHeader>
               </Card>
 
-              <div className="grid gap-6 xl:grid-cols-2">
+              <div className="grid gap-5 xl:grid-cols-2">
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Product overview</CardTitle>
-                    <p className="text-sm text-gray-600">
+                  <CardHeader className="py-4">
+                    <CardTitle className="text-base">Product overview</CardTitle>
+                    <p className="text-xs text-[var(--admin-text-secondary)]">
                       Headline content that introduces the product to customers.
                     </p>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">Name</label>
+                      <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">Name</label>
                       <Input
                         value={draft.name}
                         onChange={(event) => handleDraftChange('name', event.target.value)}
@@ -846,7 +847,7 @@ export function ProductWorkspace() {
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                      <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">
                         Tagline
                       </label>
                       <Input
@@ -856,7 +857,7 @@ export function ProductWorkspace() {
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                      <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">
                         Description
                       </label>
                       <Textarea
@@ -870,16 +871,16 @@ export function ProductWorkspace() {
                 </Card>
 
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Pricing & visibility</CardTitle>
-                    <p className="text-sm text-gray-600">
+                  <CardHeader className="py-4">
+                    <CardTitle className="text-base">Pricing & visibility</CardTitle>
+                    <p className="text-xs text-[var(--admin-text-secondary)]">
                       Control how the product is presented and whether it appears in the storefront.
                     </p>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">
                           Price
                         </label>
                         <Input
@@ -892,7 +893,7 @@ export function ProductWorkspace() {
                         />
                       </div>
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">
                           Currency
                         </label>
                         <Select
@@ -905,15 +906,15 @@ export function ProductWorkspace() {
                         </Select>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 rounded-md border border-gray-200 p-3">
+                    <div className="flex items-center gap-3 rounded-md border border-[var(--admin-border-primary)] p-3 bg-[var(--admin-bg-elevated)]">
                       <Switch
                         id="product-archived"
                         checked={!!draft.archived}
                         onCheckedChange={(checked) => handleDraftChange('archived', checked)}
                       />
                       <div>
-                        <p className="text-sm font-medium text-gray-800">Hide from storefront</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-sm font-medium text-[var(--admin-text-primary)]">Hide from storefront</p>
+                        <p className="text-xs text-[var(--admin-text-muted)]">
                           Archive products to remove them from the storefront without deleting.
                         </p>
                       </div>
@@ -922,16 +923,16 @@ export function ProductWorkspace() {
                 </Card>
 
                 <Card className="xl:col-span-2">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Media</CardTitle>
-                    <p className="text-sm text-gray-600">
+                  <CardHeader className="py-4">
+                    <CardTitle className="text-base">Media</CardTitle>
+                    <p className="text-xs text-[var(--admin-text-secondary)]">
                       Add high quality imagery to help customers evaluate the product.
                     </p>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {(draft.images || []).map((image, index) => (
                       <div key={`image-${index}`} className="space-y-2">
-                        <label className="block text-xs font-semibold uppercase text-gray-500">
+                        <label className="block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">
                           Image {index + 1}
                         </label>
                         <ImageUrlField
@@ -961,15 +962,15 @@ export function ProductWorkspace() {
                 </Card>
 
                 <Card className="xl:col-span-2">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Collections & metadata</CardTitle>
-                    <p className="text-sm text-gray-600">
+                  <CardHeader className="py-4">
+                    <CardTitle className="text-base">Collections & metadata</CardTitle>
+                    <p className="text-xs text-[var(--admin-text-secondary)]">
                       Organize products and connect payment identifiers.
                     </p>
                   </CardHeader>
                   <CardContent className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                      <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">
                         Collection
                       </label>
                       <Select
@@ -985,7 +986,7 @@ export function ProductWorkspace() {
                       </Select>
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                      <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">
                         Stripe price ID
                       </label>
                       <Input
@@ -998,9 +999,9 @@ export function ProductWorkspace() {
                 </Card>
 
                 <Card className="xl:col-span-2">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Variants</CardTitle>
-                    <p className="text-sm text-gray-600">
+                  <CardHeader className="py-4">
+                    <CardTitle className="text-base">Variants</CardTitle>
+                    <p className="text-xs text-[var(--admin-text-secondary)]">
                       Create option groups such as color or size with optional pricing overrides.
                     </p>
                   </CardHeader>
@@ -1038,7 +1039,7 @@ export function ProductWorkspace() {
               </div>
             </div>
           ) : (
-            <Card className="border border-dashed border-gray-300 bg-gray-50/60 p-12 text-center text-sm text-gray-600">
+            <Card className="border border-dashed border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)]/50 p-12 text-center text-sm text-[var(--admin-text-muted)]">
               Select a product from the catalog or create a new one to begin editing.
             </Card>
           )}
@@ -1047,18 +1048,18 @@ export function ProductWorkspace() {
 
       {modalImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6"
           onClick={() => setModalImage(null)}
         >
           <div
-            className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-xl"
+            className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-lg bg-[var(--admin-bg-card)] shadow-[var(--admin-shadow-xl)] border border-[var(--admin-border-primary)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b px-4 py-2">
-              <span className="text-sm font-medium text-gray-700">Preview</span>
+            <div className="flex items-center justify-between border-b border-[var(--admin-border-primary)] px-4 py-3">
+              <span className="text-sm font-medium text-[var(--admin-text-primary)]">Preview</span>
               <button
                 type="button"
-                className="rounded-md border border-gray-200 px-2 py-1 text-sm text-gray-600 hover:bg-gray-100"
+                className="rounded-md border border-[var(--admin-border-primary)] px-3 py-1.5 text-sm text-[var(--admin-text-secondary)] hover:bg-[var(--admin-bg-elevated)] transition-colors"
                 onClick={() => setModalImage(null)}
               >
                 Close

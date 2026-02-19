@@ -12,7 +12,10 @@ import { RevenueChart, OrdersChart } from '../../components/admin/AnalyticsChart
 import { MetricCard, RecentOrdersCard } from '../../components/admin/AnalyticsCards'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
-import { Package, FolderOpen, Plus, Edit, Trash2, Home, Settings, DollarSign, ShoppingBag, BarChart3, Image as ImageIcon, X } from 'lucide-react'
+import { 
+  Package, FolderOpen, Plus, Edit, Trash2, Home, Settings, 
+  DollarSign, ShoppingBag, BarChart3, Image as ImageIcon, X, LogOut 
+} from 'lucide-react'
 import AddMediaModal from '../../components/admin/AddMediaModal'
 import { Switch } from '../../components/ui/switch'
 
@@ -29,15 +32,15 @@ function AdminSidebar({ onLogout }) {
   ]
 
   return (
-    <div className="w-64 bg-white shadow-sm border-r min-h-screen">
-      <div className="p-6 border-b">
-        <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
-        <Link to="/" className="text-sm text-gray-600 hover:text-gray-900">
+    <div className="w-64 bg-[var(--admin-bg-secondary)] border-r border-[var(--admin-border-primary)] min-h-screen flex flex-col">
+      <div className="p-5 border-b border-[var(--admin-border-primary)]">
+        <h1 className="text-lg font-bold text-[var(--admin-text-primary)]">OpenShop Admin</h1>
+        <Link to="/" className="text-xs text-[var(--admin-text-secondary)] hover:text-[var(--admin-accent-light)] transition-colors mt-1 inline-block">
           ← Back to Store
         </Link>
       </div>
-      <nav className="p-4">
-        <ul className="space-y-2">
+      <nav className="flex-1 p-3">
+        <ul className="space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon
             const isActive = location.pathname === item.path
@@ -45,13 +48,13 @@ function AdminSidebar({ onLogout }) {
               <li key={item.path}>
                 <Link
                   to={item.path}
-                  className={`flex items-center space-x-3 px-4 py-2 rounded-md transition-colors ${
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-200 ${
                     isActive
-                      ? 'bg-gray-100 text-gray-700'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-[var(--admin-accent)]/15 text-[var(--admin-accent-light)] border-l-2 border-[var(--admin-accent)]'
+                      : 'text-[var(--admin-text-secondary)] hover:bg-[var(--admin-overlay-light)] hover:text-[var(--admin-text-primary)]'
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-4 h-4" />
                   <span>{item.label}</span>
                 </Link>
               </li>
@@ -61,12 +64,13 @@ function AdminSidebar({ onLogout }) {
       </nav>
       
       {/* Logout Button */}
-      <div className="p-4 border-t">
+      <div className="p-3 border-t border-[var(--admin-border-primary)]">
         <Button 
           onClick={onLogout}
           variant="outline" 
-          className="w-full text-red-600 border-red-200 hover:bg-red-50"
+          className="w-full border-[var(--admin-error)] text-[var(--admin-error)] hover:bg-[var(--admin-error-bg)] text-sm"
         >
+          <LogOut className="w-4 h-4 mr-2" />
           Logout
         </Button>
       </div>
@@ -127,25 +131,25 @@ function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 className="text-2xl font-bold text-[var(--admin-text-primary)]">Dashboard</h1>
         
         {/* Period Selector */}
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           {[
-            { value: '1d', label: '24 Hours' },
-            { value: '7d', label: '7 Days' },
-            { value: '30d', label: '30 Days' },
-            { value: '90d', label: '90 Days' },
-            { value: '1y', label: '1 Year' }
+            { value: '1d', label: '24H' },
+            { value: '7d', label: '7D' },
+            { value: '30d', label: '30D' },
+            { value: '90d', label: '90D' },
+            { value: '1y', label: '1Y' }
           ].map((period) => (
             <Button
               key={period.value}
               variant={selectedPeriod === period.value ? 'default' : 'outline'}
               size="sm"
               onClick={() => setSelectedPeriod(period.value)}
-              className="text-xs"
+              className="text-xs px-3"
             >
               {period.label}
             </Button>
@@ -155,13 +159,13 @@ function Dashboard() {
 
       {analyticsLoading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
-          <span className="ml-2">Loading analytics...</span>
+          <div className="admin-spinner"></div>
+          <span className="ml-3 text-[var(--admin-text-secondary)]">Loading analytics...</span>
         </div>
       ) : analytics ? (
         <>
           {/* Analytics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <MetricCard
               title="Total Revenue"
               value={analytics.totalRevenue}
@@ -189,38 +193,38 @@ function Dashboard() {
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <RevenueChart data={analytics.chartData} period={selectedPeriod} />
             <OrdersChart data={analytics.chartData} period={selectedPeriod} />
           </div>
 
           {/* Recent Orders and Products */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <RecentOrdersCard orders={analytics.recentOrders} />
             
             {/* Recent Products */}
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Recent Products</h3>
-                  <Package className="w-5 h-5 text-gray-400" />
+                  <h3 className="text-base font-semibold text-[var(--admin-text-primary)]">Recent Products</h3>
+                  <Package className="w-4 h-4 text-[var(--admin-text-muted)]" />
                 </div>
                 {stats.recentProducts.length === 0 ? (
                   <div className="text-center py-8">
-                    <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">No products created yet.</p>
+                    <Package className="w-12 h-12 text-[var(--admin-border-secondary)] mx-auto mb-3" />
+                    <p className="text-[var(--admin-text-muted)]">No products created yet.</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {stats.recentProducts.map((product) => (
-                      <div key={product.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div key={product.id} className="flex items-center justify-between p-3 bg-[var(--admin-bg-elevated)] rounded-lg border border-[var(--admin-border-primary)]">
                         <div>
-                          <h4 className="font-medium text-gray-900">{product.name}</h4>
-                          <p className="text-sm text-gray-600">{formatCurrency(product.price, product.currency)}</p>
+                          <h4 className="font-medium text-[var(--admin-text-primary)] text-sm">{product.name}</h4>
+                          <p className="text-xs text-[var(--admin-text-secondary)]">{formatCurrency(product.price, product.currency)}</p>
                         </div>
                         <Link to={`/admin/products/${product.id}/edit`}>
-                          <Button variant="outline" size="sm">
-                            <Edit className="w-4 h-4 mr-2" />
+                          <Button variant="outline" size="sm" className="h-8 text-xs">
+                            <Edit className="w-3.5 h-3.5 mr-1.5" />
                             Edit
                           </Button>
                         </Link>
@@ -235,9 +239,9 @@ function Dashboard() {
       ) : (
         <Card>
           <CardContent className="p-12 text-center">
-            <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Analytics Data</h3>
-            <p className="text-gray-600">Analytics data will appear here once you have orders.</p>
+            <BarChart3 className="w-12 h-12 text-[var(--admin-border-secondary)] mx-auto mb-4" />
+            <h3 className="text-base font-medium text-[var(--admin-text-primary)] mb-2">No Analytics Data</h3>
+            <p className="text-[var(--admin-text-secondary)] text-sm">Analytics data will appear here once you have orders.</p>
           </CardContent>
         </Card>
       )}
@@ -313,18 +317,18 @@ function CollectionsManager() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Collections</h1>
-        <Button onClick={() => setShowForm(true)}>
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 className="text-2xl font-bold text-[var(--admin-text-primary)]">Collections</h1>
+        <Button onClick={() => setShowForm(true)} size="sm">
           <Plus className="w-4 h-4 mr-2" />
           Add Collection
         </Button>
       </div>
 
       {/* Filters */}
-      <div>
-        <label className="block text-sm font-medium mb-1">Filter by Archived</label>
+      <div className="max-w-xs">
+        <label className="block text-xs font-semibold uppercase text-[var(--admin-text-secondary)] mb-2">Filter by Archived</label>
         <Select value={archivedFilter} onChange={(e) => setArchivedFilter(e.target.value)}>
           <option value="all">All</option>
           <option value="active">Active</option>
@@ -335,27 +339,27 @@ function CollectionsManager() {
       {collections.filter(c => archivedFilter === 'all' ? true : archivedFilter === 'archived' ? !!c.archived : !c.archived).length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <FolderOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No collections yet</h3>
-            <p className="text-gray-600 mb-6">Organize your products by creating collections.</p>
-            <Button onClick={() => setShowForm(true)}>
+            <FolderOpen className="w-12 h-12 text-[var(--admin-text-muted)] mx-auto mb-4" />
+            <h3 className="text-base font-medium text-[var(--admin-text-primary)] mb-2">No collections yet</h3>
+            <p className="text-[var(--admin-text-secondary)] text-sm mb-6">Organize your products by creating collections.</p>
+            <Button onClick={() => setShowForm(true)} size="sm">
               <Plus className="w-4 h-4 mr-2" />
               Add Collection
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-3">
           {collections.filter(c => archivedFilter === 'all' ? true : archivedFilter === 'archived' ? !!c.archived : !c.archived).map((collection) => (
-            <Card key={collection.id}>
-              <CardContent className="p-6">
+            <Card key={collection.id} className="hover:border-[var(--admin-border-secondary)] transition-colors">
+              <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">{collection.name}</h3>
-                    <p className="text-sm text-gray-600">{collection.description}</p>
+                    <h3 className="text-sm font-medium text-[var(--admin-text-primary)]">{collection.name}</h3>
+                    <p className="text-xs text-[var(--admin-text-secondary)]">{collection.description}</p>
                   </div>
-                  <div className="flex space-x-2 items-center">
-                    <label className="flex items-center gap-3 text-sm text-gray-700">
+                  <div className="flex items-center gap-2">
+                    <label className="flex items-center gap-2 text-xs text-[var(--admin-text-secondary)]">
                       <Switch
                         checked={!!collection.archived}
                         onCheckedChange={async (v) => {
@@ -372,6 +376,7 @@ function CollectionsManager() {
                     <Button
                       variant="outline"
                       size="sm"
+                      className="h-8 px-2.5"
                       onClick={() => {
                         setEditingCollection(collection)
                         setShowForm(true)
@@ -382,6 +387,7 @@ function CollectionsManager() {
                     <Button
                       variant="destructive"
                       size="sm"
+                      className="h-8 px-2.5"
                       onClick={() => handleDeleteCollection(collection.id)}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -431,12 +437,12 @@ function MediaLibrary() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Media</h1>
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 className="text-2xl font-bold text-[var(--admin-text-primary)]">Media</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={load}>Refresh</Button>
-          <Button onClick={() => setAddOpen(true)}>
+          <Button variant="outline" onClick={load} size="sm">Refresh</Button>
+          <Button onClick={() => setAddOpen(true)} size="sm">
             <Plus className="w-4 h-4 mr-2" />
             Add media
           </Button>
@@ -446,15 +452,15 @@ function MediaLibrary() {
       {media.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No media yet</h3>
-            <p className="text-gray-600">Use Add media to upload, link, or generate images.</p>
+            <ImageIcon className="w-12 h-12 text-[var(--admin-border-secondary)] mx-auto mb-4" />
+            <h3 className="text-base font-medium text-[var(--admin-text-primary)] mb-2">No media yet</h3>
+            <p className="text-[var(--admin-text-secondary)] text-sm">Use Add media to upload, link, or generate images.</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {media.map((m) => (
-            <div key={m.id} className="group relative rounded-lg overflow-hidden border hover:shadow-md transition">
+            <div key={m.id} className="group relative rounded-lg overflow-hidden border border-[var(--admin-border-primary)] hover:border-[var(--admin-border-secondary)] hover:shadow-[var(--admin-shadow)] transition-all">
               <button
                 onClick={() => setSelected(m)}
                 className="block w-full h-full"
@@ -462,8 +468,8 @@ function MediaLibrary() {
               >
                 <img src={normalizeImageUrl(m.url)} alt={m.filename || 'media'} className="w-full h-28 object-cover" />
               </button>
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
-                <Button size="sm" variant="destructive" onClick={() => handleDelete(m.id)}>
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button size="sm" variant="destructive" className="h-8 w-8 p-0" onClick={() => handleDelete(m.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -473,18 +479,18 @@ function MediaLibrary() {
       )}
 
       {selected && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setSelected(null)}>
-          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative flex flex-col max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <button className="absolute top-3 right-3 p-2 rounded-full border bg-white/90 hover:bg-white" onClick={() => setSelected(null)} aria-label="Close">
-              <X className="w-5 h-5" />
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setSelected(null)}>
+          <div className="bg-[var(--admin-bg-card)] rounded-lg shadow-[var(--admin-shadow-lg)] max-w-3xl w-full mx-4 relative flex flex-col max-h-[80vh] overflow-hidden border border-[var(--admin-border-primary)]" onClick={(e) => e.stopPropagation()}>
+            <button className="absolute top-3 right-3 p-2 rounded-full border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] hover:bg-[var(--admin-bg-secondary)] transition-colors" onClick={() => setSelected(null)} aria-label="Close">
+              <X className="w-5 h-5 text-[var(--admin-text-secondary)]" />
             </button>
             <div className="flex-1 overflow-auto p-4">
               <img src={normalizeImageUrl(selected.url)} alt={selected.filename || 'media'} className="block max-w-full max-h-full object-contain mx-auto" />
             </div>
-            <div className="p-4 border-t space-y-2 flex-shrink-0">
-              <p className="text-sm text-gray-700 break-all">{selected.filename || selected.url}</p>
+            <div className="p-4 border-t border-[var(--admin-border-primary)] space-y-2 flex-shrink-0">
+              <p className="text-sm text-[var(--admin-text-secondary)] break-all">{selected.filename || selected.url}</p>
               <div className="flex gap-4 items-center text-sm">
-                <a href={selected.url} target="_blank" rel="noreferrer" className="text-gray-600 hover:text-gray-700">Open original</a>
+                <a href={selected.url} target="_blank" rel="noreferrer" className="text-[var(--admin-accent-light)] hover:underline">Open original</a>
               </div>
             </div>
           </div>
@@ -760,63 +766,61 @@ function FulfillmentManager() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Fulfillment</h1>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Unfulfilled</span>
-            <Switch
-              checked={showFulfilled}
-              onCheckedChange={(checked) => {
-                setShowFulfilled(checked)
-                fetchOrders()
-              }}
-            />
-            <span className="text-sm text-gray-600">Fulfilled</span>
-          </div>
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 className="text-2xl font-bold text-[var(--admin-text-primary)]">Fulfillment</h1>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-[var(--admin-text-secondary)]">Unfulfilled</span>
+          <Switch
+            checked={showFulfilled}
+            onCheckedChange={(checked) => {
+              setShowFulfilled(checked)
+              fetchOrders()
+            }}
+          />
+          <span className="text-sm text-[var(--admin-text-secondary)]">Fulfilled</span>
         </div>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
-          <span className="ml-2">Loading orders...</span>
+          <div className="admin-spinner"></div>
+          <span className="ml-3 text-[var(--admin-text-secondary)]">Loading orders...</span>
         </div>
       ) : error ? (
         <Card>
-          <CardContent className="p-6 text-red-600">{error}</CardContent>
+          <CardContent className="p-6 text-[var(--admin-error)]">{error}</CardContent>
         </Card>
       ) : orders.length === 0 ? (
         <Card>
-          <CardContent className="p-12 text-center">No orders found.</CardContent>
+          <CardContent className="p-12 text-center text-[var(--admin-text-muted)]">No orders found.</CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
           {/* Top pager */}
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => fetchOrders('prev', cursorPrev)} disabled={!cursorPrev || loading}>Prev</Button>
-            <Button variant="outline" onClick={() => fetchOrders('next', cursorNext)} disabled={!cursorNext || loading}>Next</Button>
+            <Button variant="outline" onClick={() => fetchOrders('prev', cursorPrev)} disabled={!cursorPrev || loading} size="sm">Prev</Button>
+            <Button variant="outline" onClick={() => fetchOrders('next', cursorNext)} disabled={!cursorNext || loading} size="sm">Next</Button>
           </div>
 
-          <Card>
+          <Card className="overflow-hidden">
             <CardContent className="p-0">
-              <div className="divide-y">
+              <div className="divide-y divide-[var(--admin-border-primary)]">
                 {orders.map((order) => (
-                  <div key={order.id} className={`p-4 ${order.fulfillment?.fulfilled ? 'bg-green-50 border-l-4 border-green-400' : ''}`}>
+                  <div key={order.id} className={`p-4 ${order.fulfillment?.fulfilled ? 'bg-[var(--admin-success-bg)] border-l-4 border-l-[var(--admin-success)]' : ''}`}>
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="text-sm text-gray-600">{new Date(order.created * 1000).toLocaleString()}</span>
-                        <span className="text-gray-900 font-medium">{order.customer_name || 'Unknown Customer'}</span>
-                        <span className="text-gray-600 text-sm">{order.customer_email || ''}</span>
+                        <span className="text-xs text-[var(--admin-text-muted)]">{new Date(order.created * 1000).toLocaleString()}</span>
+                        <span className="text-[var(--admin-text-primary)] font-medium text-sm">{order.customer_name || 'Unknown Customer'}</span>
+                        <span className="text-[var(--admin-text-secondary)] text-xs">{order.customer_email || ''}</span>
                         {order.fulfillment?.fulfilled && (
-                          <span className="text-xs text-green-600 font-medium">✓ Fulfilled {order.fulfillment.fulfilledAt ? new Date(order.fulfillment.fulfilledAt).toLocaleDateString() : ''}</span>
+                          <span className="text-xs text-[var(--admin-success)] font-medium mt-1">✓ Fulfilled {order.fulfillment.fulfilledAt ? new Date(order.fulfillment.fulfilledAt).toLocaleDateString() : ''}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="text-right font-semibold">{formatCurrency((order.amount_total || 0) / 100, order.currency?.toUpperCase() || 'USD')}</div>
-                        <Button variant="outline" size="sm" onClick={() => openOrderModal(order)}>
-                          View Details
+                        <div className="text-right font-semibold text-[var(--admin-text-primary)] text-sm">{formatCurrency((order.amount_total || 0) / 100, order.currency?.toUpperCase() || 'USD')}</div>
+                        <Button variant="outline" size="sm" onClick={() => openOrderModal(order)} className="h-8">
+                          View
                         </Button>
                       </div>
                     </div>
@@ -828,45 +832,43 @@ function FulfillmentManager() {
 
           {/* Bottom pager */}
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => fetchOrders('prev', cursorPrev)} disabled={!cursorPrev || loading}>Prev</Button>
-            <Button variant="outline" onClick={() => fetchOrders('next', cursorNext)} disabled={!cursorNext || loading}>Next</Button>
+            <Button variant="outline" onClick={() => fetchOrders('prev', cursorPrev)} disabled={!cursorPrev || loading} size="sm">Prev</Button>
+            <Button variant="outline" onClick={() => fetchOrders('next', cursorNext)} disabled={!cursorNext || loading} size="sm">Next</Button>
           </div>
         </div>
       )}
 
       {/* Order Details Modal */}
       {isModalOpen && selectedOrder && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setIsModalOpen(false)}>
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6 border-b">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setIsModalOpen(false)}>
+          <div className="bg-[var(--admin-bg-card)] rounded-lg shadow-[var(--admin-shadow-lg)] w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden border border-[var(--admin-border-primary)]" onClick={(e) => e.stopPropagation()}>
+            <div className="p-5 border-b border-[var(--admin-border-primary)]">
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Order Details</h2>
-                  <p className="text-sm text-gray-600">Order #{selectedOrder.id.slice(-8)}</p>
+                  <h2 className="text-lg font-bold text-[var(--admin-text-primary)]">Order Details</h2>
+                  <p className="text-xs text-[var(--admin-text-muted)]">Order #{selectedOrder.id.slice(-8)}</p>
                 </div>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)] transition-colors"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <X className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="p-5 overflow-y-auto max-h-[calc(90vh-200px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Customer Info */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
+                  <h3 className="font-semibold text-[var(--admin-text-primary)] mb-3 text-sm">Customer Information</h3>
                   <div className="space-y-2 text-sm">
-                    <p><span className="font-medium">Name:</span> {selectedOrder.customer_name || 'Unknown'}</p>
-                    <p><span className="font-medium">Email:</span> {selectedOrder.customer_email || 'Not provided'}</p>
-                    <p><span className="font-medium">Order Date:</span> {new Date(selectedOrder.created * 1000).toLocaleString()}</p>
-                    <p><span className="font-medium">Total:</span> {formatCurrency((selectedOrder.amount_total || 0) / 100, selectedOrder.currency?.toUpperCase() || 'USD')}</p>
+                    <p className="text-[var(--admin-text-secondary)]"><span className="text-[var(--admin-text-muted)]">Name:</span> {selectedOrder.customer_name || 'Unknown'}</p>
+                    <p className="text-[var(--admin-text-secondary)]"><span className="text-[var(--admin-text-muted)]">Email:</span> {selectedOrder.customer_email || 'Not provided'}</p>
+                    <p className="text-[var(--admin-text-secondary)]"><span className="text-[var(--admin-text-muted)]">Order Date:</span> {new Date(selectedOrder.created * 1000).toLocaleString()}</p>
+                    <p className="text-[var(--admin-text-secondary)]"><span className="text-[var(--admin-text-muted)]">Total:</span> {formatCurrency((selectedOrder.amount_total || 0) / 100, selectedOrder.currency?.toUpperCase() || 'USD')}</p>
                     {selectedOrder.fulfillment?.fulfilled && (
-                      <p className="text-green-600 font-medium">
+                      <p className="text-[var(--admin-success)] font-medium text-sm">
                         ✓ Fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
                       </p>
                     )}
@@ -876,10 +878,10 @@ function FulfillmentManager() {
                 {/* Shipping Info */}
                 {selectedOrder.shipping ? (
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-3">Shipping Address</h3>
-                    <div className="text-sm space-y-1">
+                    <h3 className="font-semibold text-[var(--admin-text-primary)] mb-3 text-sm">Shipping Address</h3>
+                    <div className="text-sm space-y-1 text-[var(--admin-text-secondary)]">
                       {selectedOrder.shipping.name && (
-                        <p className="font-medium">{selectedOrder.shipping.name}</p>
+                        <p className="font-medium text-[var(--admin-text-primary)]">{selectedOrder.shipping.name}</p>
                       )}
                       {selectedOrder.shipping.address && (
                         <>
@@ -895,44 +897,44 @@ function FulfillmentManager() {
                             {selectedOrder.shipping.address.postal_code || ''}
                           </p>
                           {selectedOrder.shipping.address.country && (
-                            <p className="font-medium">{selectedOrder.shipping.address.country}</p>
+                            <p className="font-medium text-[var(--admin-text-primary)]">{selectedOrder.shipping.address.country}</p>
                           )}
                         </>
                       )}
                       {!selectedOrder.shipping.address && (
-                        <p className="text-gray-500 italic">No shipping address provided</p>
+                        <p className="text-[var(--admin-text-muted)] italic">No shipping address provided</p>
                       )}
                     </div>
                   </div>
                 ) : (
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-3">Shipping Address</h3>
-                    <p className="text-gray-500 italic text-sm">No shipping information available</p>
+                    <h3 className="font-semibold text-[var(--admin-text-primary)] mb-3 text-sm">Shipping Address</h3>
+                    <p className="text-[var(--admin-text-muted)] italic text-sm">No shipping information available</p>
                   </div>
                 )}
               </div>
 
               {/* Items */}
-              <div className="mt-6">
-                <h3 className="font-semibold text-gray-900 mb-3">Items</h3>
+              <div className="mt-5">
+                <h3 className="font-semibold text-[var(--admin-text-primary)] mb-3 text-sm">Items</h3>
                 <div className="space-y-3">
                   {selectedOrder.items.map(item => (
-                    <div key={item.id} className="flex justify-between items-start p-3 bg-gray-50 rounded-lg">
+                    <div key={item.id} className="flex justify-between items-start p-3 bg-[var(--admin-bg-elevated)] rounded-lg border border-[var(--admin-border-primary)]">
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">{item.description}</p>
+                        <p className="font-medium text-[var(--admin-text-primary)] text-sm">{item.description}</p>
                         {item.price_nickname && (
-                          <p className="text-sm text-gray-600">{item.price_nickname}</p>
+                          <p className="text-xs text-[var(--admin-text-secondary)]">{item.price_nickname}</p>
                         )}
                         {(item.variant1_name || item.variant2_name) && (
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-xs text-[var(--admin-text-muted)] mt-1">
                             {item.variant1_name && <div>{item.variant1_style || 'Variant'}: {item.variant1_name}</div>}
                             {item.variant2_name && <div>{item.variant2_style || 'Variant'}: {item.variant2_name}</div>}
                           </div>
                         )}
-                        <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                        <p className="text-xs text-[var(--admin-text-secondary)]">Quantity: {item.quantity}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium">{formatCurrency((item.amount_total || 0) / 100, item.currency?.toUpperCase() || 'USD')}</p>
+                        <p className="font-medium text-[var(--admin-text-primary)] text-sm">{formatCurrency((item.amount_total || 0) / 100, item.currency?.toUpperCase() || 'USD')}</p>
                       </div>
                     </div>
                   ))}
@@ -940,27 +942,27 @@ function FulfillmentManager() {
               </div>
             </div>
 
-            <div className="p-6 border-t flex justify-between items-center">
+            <div className="p-5 border-t border-[var(--admin-border-primary)] flex justify-between items-center">
               {!selectedOrder.fulfillment?.fulfilled ? (
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-[var(--admin-text-secondary)]">
                   This order is ready for fulfillment
                 </div>
               ) : (
-                <div className="text-sm text-green-600 font-medium">
+                <div className="text-sm text-[var(--admin-success)] font-medium">
                   ✓ Order fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
                 </div>
               )}
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                <Button variant="outline" onClick={() => setIsModalOpen(false)} size="sm">
                   Close
                 </Button>
                 {selectedOrder.shipping && (
-                  <Button variant="outline" onClick={() => printShippingLabel(selectedOrder)}>
+                  <Button variant="outline" onClick={() => printShippingLabel(selectedOrder)} size="sm">
                     Print Label
                   </Button>
                 )}
                 {!selectedOrder.fulfillment?.fulfilled && (
-                  <Button onClick={() => fulfillOrder(selectedOrder.id)}>
+                  <Button onClick={() => fulfillOrder(selectedOrder.id)} size="sm">
                     Fulfill Order
                   </Button>
                 )}
@@ -1004,8 +1006,8 @@ export function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+      <div className="min-h-screen bg-[var(--admin-bg-primary)] flex items-center justify-center">
+        <div className="admin-spinner"></div>
       </div>
     )
   }
@@ -1015,9 +1017,9 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-[var(--admin-bg-primary)] admin-container">
       <AdminSidebar onLogout={handleLogout} />
-      <div className="flex-1 p-4 overflow-auto">
+      <div className="flex-1 p-5 overflow-auto">
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/products" element={<ProductsManager />} />
