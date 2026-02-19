@@ -16,6 +16,25 @@ function question(prompt) {
 }
 
 /**
+ * Parse Wrangler whoami output to find available accounts
+ */
+function parseAccounts(output) {
+  const accounts = []
+  const lines = output.split('\n')
+  for (const line of lines) {
+    const match = line.match(/│\s*([^│]+)\s*│\s*([a-f0-9]{32})\s*│/)
+    if (match) {
+      const name = match[1].trim()
+      const id = match[2].trim()
+      if (id !== 'Account ID') {
+        accounts.push({ name, id })
+      }
+    }
+  }
+  return accounts
+}
+
+/**
  * Parse command-line arguments into an object
  */
 function parseArgs() {
@@ -101,15 +120,28 @@ async function setup() {
 
   // Check if Wrangler is authenticated
   let isWranglerAuthenticated = false
+  let availableAccounts = []
+
   try {
     const whoamiOutput = execSync('wrangler whoami', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
     isWranglerAuthenticated = true
     console.log('✅ Wrangler is already authenticated')
 
-    const accountIdMatch = whoamiOutput.match(/([a-f0-9]{32})/)
-    if (accountIdMatch && accountIdMatch[1]) {
-      cloudflareAccountId = accountIdMatch[1]
+    availableAccounts = parseAccounts(whoamiOutput)
+
+    // Fallback if table parsing failed but simple regex works
+    if (availableAccounts.length === 0) {
+      const accountIdMatch = whoamiOutput.match(/([a-f0-9]{32})/)
+      if (accountIdMatch && accountIdMatch[1]) {
+        availableAccounts.push({ name: 'Default Account', id: accountIdMatch[1] })
+      }
+    }
+
+    if (availableAccounts.length === 1) {
+      cloudflareAccountId = availableAccounts[0].id
       console.log(`✅ Using Cloudflare Account ID: ${cloudflareAccountId}`)
+    } else if (availableAccounts.length > 1) {
+      console.log(`✅ Found ${availableAccounts.length} available Cloudflare accounts`)
     }
   } catch (e) {
     // Not authenticated
@@ -138,6 +170,26 @@ async function setup() {
       cloudflareAccountId = await question('Cloudflare Account ID: ')
     } else {
       console.log('✅ Using existing Wrangler authentication\n')
+
+      if (availableAccounts.length > 1) {
+        console.log('📋 Select a Cloudflare account to use:')
+        availableAccounts.forEach((acc, index) => {
+          console.log(`  ${index + 1}. ${acc.name} (${acc.id})`)
+        })
+
+        let validSelection = false
+        while (!validSelection) {
+          const selection = await question(`\nEnter number (1-${availableAccounts.length}): `)
+          const index = parseInt(selection) - 1
+          if (index >= 0 && index < availableAccounts.length) {
+            cloudflareAccountId = availableAccounts[index].id
+            console.log(`✅ Selected account: ${availableAccounts[index].name}`)
+            validSelection = true
+          } else {
+            console.log('❌ Invalid selection, please try again.')
+          }
+        }
+      }
     }
     
     console.log('🔑 Stripe Configuration:\n')
@@ -167,6 +219,10 @@ async function setup() {
     console.log('✅ Using API Token authentication (skipping OAuth login)')
   } else {
     console.log('\n🔐 Using existing Wrangler authentication...')
+    if (cloudflareAccountId) {
+      process.env.CLOUDFLARE_ACCOUNT_ID = cloudflareAccountId
+      console.log(`✅ Set account context to ID: ${cloudflareAccountId}`)
+    }
   }
 
   // Verify Wrangler can access account
