@@ -427,14 +427,14 @@ export function StoreSettingsEditor() {
   return (
     <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
       {/* Sidebar Controls */}
-      <div className="w-80 border-r bg-white flex flex-col z-10 shadow-lg">
-        <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">Store Editor</h2>
-          <p className="text-xs text-gray-500">Real-time preview</p>
+      <div className="w-80 border-r border-[var(--admin-border-primary)] bg-[var(--admin-bg-secondary)] flex flex-col z-10 shadow-[var(--admin-shadow-lg)]">
+        <div className="p-4 border-b border-[var(--admin-border-primary)]">
+          <h2 className="text-lg font-semibold text-[var(--admin-text-primary)]">Store Editor</h2>
+          <p className="text-xs text-[var(--admin-text-muted)]">Real-time preview</p>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex overflow-x-auto border-b bg-gray-50 no-scrollbar">
+        <div className="flex overflow-x-auto border-b border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] no-scrollbar">
           {menuItems.map(item => {
              const Icon = item.icon
              return (
@@ -443,8 +443,8 @@ export function StoreSettingsEditor() {
                  onClick={() => setActiveSection(item.id)}
                  className={`flex-shrink-0 p-3 text-xs font-medium flex flex-col items-center gap-1 w-20 transition-colors border-b-2 ${
                    activeSection === item.id
-                     ? 'border-purple-600 text-purple-700 bg-white'
-                     : 'border-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                     ? 'border-[var(--admin-accent)] text-[var(--admin-accent-light)] bg-[var(--admin-bg-card)]'
+                     : 'border-transparent text-[var(--admin-text-secondary)] hover:bg-[var(--admin-overlay-light)] hover:text-[var(--admin-text-primary)]'
                  }`}
                >
                  <Icon className="w-4 h-4" />
@@ -459,7 +459,7 @@ export function StoreSettingsEditor() {
           {activeSection === 'theme' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
-                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Theme</h3>
+                <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] uppercase tracking-wide">Theme</h3>
                 <Button
                     variant="outline"
                     size="sm"
@@ -474,19 +474,19 @@ export function StoreSettingsEditor() {
               {COLOR_GROUPS.map((group) => (
                   <div key={group.title} className="space-y-3">
                     <div className="space-y-1">
-                      <h4 className="text-sm font-medium text-gray-900">{group.title}</h4>
-                      <p className="text-xs text-gray-500">{group.description}</p>
+                      <h4 className="text-sm font-medium text-[var(--admin-text-primary)]">{group.title}</h4>
+                      <p className="text-xs text-[var(--admin-text-muted)]">{group.description}</p>
                     </div>
                     <div className="grid gap-3">
                       {group.fields.map((field) => (
                         <div key={field.key} className="space-y-2">
-                          <label className="block text-xs font-medium text-gray-700">{field.label}</label>
+                          <label className="block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">{field.label}</label>
                           <div className="flex items-center gap-3">
                             <input
                               type="color"
                               value={themeState.colors[field.key]}
                               onChange={(event) => handleThemeColorChange(field.key, event.target.value)}
-                              className="h-8 w-12 rounded border border-gray-200 cursor-pointer"
+                              className="h-8 w-12 rounded border border-[var(--admin-border-primary)] cursor-pointer bg-transparent"
                             />
                             <Input
                               value={themeState.colors[field.key]}
@@ -501,9 +501,9 @@ export function StoreSettingsEditor() {
                   </div>
                 ))}
 
-                <div className="space-y-4 pt-4 border-t">
+                <div className="space-y-4 pt-4 border-t border-[var(--admin-border-primary)]">
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Typography</label>
+                    <label className="block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">Typography</label>
                     <Select
                       value={themeState.typography.fontId}
                       onChange={(event) => handleThemeFontChange(event.target.value)}
@@ -518,7 +518,7 @@ export function StoreSettingsEditor() {
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-3">
-                      <label className="block text-sm font-medium text-gray-700">Rounded Corners</label>
+                      <label className="block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">Rounded Corners</label>
                       <Switch
                         id="roundedCorners"
                         checked={themeState.corners.enabled}
@@ -526,7 +526,7 @@ export function StoreSettingsEditor() {
                       />
                     </div>
                     <div className={themeState.corners.enabled ? '' : 'opacity-50'}>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Radius Multiplier ({computedRadiusPx}px)</label>
+                      <label className="block text-xs font-semibold uppercase text-[var(--admin-text-secondary)] mb-1">Radius Multiplier ({computedRadiusPx}px)</label>
                       <Input
                         type="number"
                         min="0"
