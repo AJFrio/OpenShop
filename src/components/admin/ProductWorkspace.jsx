@@ -985,16 +985,6 @@ export function ProductWorkspace() {
                         ))}
                       </Select>
                     </div>
-                    <div>
-                      <label className="mb-2 block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">
-                        Stripe price ID
-                      </label>
-                      <Input
-                        value={draft.stripePriceId || ''}
-                        onChange={(event) => handleDraftChange('stripePriceId', event.target.value)}
-                        placeholder="price_123"
-                      />
-                    </div>
                   </CardContent>
                 </Card>
 
