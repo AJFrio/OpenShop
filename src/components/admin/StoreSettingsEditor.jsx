@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Select } from '../ui/select'
@@ -21,8 +20,9 @@ import {
 import { Navbar } from '../../components/storefront/Navbar'
 import { Hero } from '../../components/storefront/Hero'
 import { ProductCard } from '../../components/storefront/ProductCard'
+import { Carousel } from '../../components/storefront/Carousel'
 import { Footer } from '../../components/storefront/Footer'
-import { Paintbrush, Type, Layout, Image as ImageIcon, Info, MapPin, Mail } from 'lucide-react'
+import { Paintbrush, Type, Layout, Image as ImageIcon, Info, MapPin, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
 const MOCK_PRODUCTS = [
   {
@@ -55,6 +55,12 @@ const MOCK_PRODUCTS = [
     imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b91a91e?w=500&q=80',
     stripePriceId: 'price_mock'
   }
+]
+
+const MOCK_COLLECTIONS = [
+  { id: 'featured', name: 'Featured' },
+  { id: 'workspace', name: 'Workspace' },
+  { id: 'audio', name: 'Audio' },
 ]
 
 const COLOR_GROUPS = [
@@ -129,6 +135,8 @@ function sanitizeHexInput(value) {
 
 export function StoreSettingsEditor() {
   const [activeSection, setActiveSection] = useState('theme')
+  const [previewPage, setPreviewPage] = useState('home')
+  const [editorCollapsed, setEditorCollapsed] = useState(false)
   const [settings, setSettings] = useState({
     logoType: 'text',
     logoText: 'OpenShop',
@@ -151,7 +159,6 @@ export function StoreSettingsEditor() {
     businessPostalCode: '',
     businessCountry: ''
   })
-  const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [modalImage, setModalImage] = useState(null)
   const [savedOpen, setSavedOpen] = useState(false)
@@ -209,7 +216,6 @@ export function StoreSettingsEditor() {
 
   const fetchSettings = async () => {
     try {
-      setLoading(true)
       const response = await fetch('/api/store-settings')
       if (response.ok) {
         const data = await response.json()
@@ -225,8 +231,6 @@ export function StoreSettingsEditor() {
       }
     } catch (error) {
       console.error('Error fetching store settings:', error)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -425,53 +429,71 @@ export function StoreSettingsEditor() {
   ]
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
-      {/* Sidebar Controls */}
-      <div className="w-80 border-r border-[var(--admin-border-primary)] bg-[var(--admin-bg-secondary)] flex flex-col z-10 shadow-[var(--admin-shadow-lg)]">
-        <div className="p-4 border-b border-[var(--admin-border-primary)]">
-          <h2 className="text-lg font-semibold text-[var(--admin-text-primary)]">Store Editor</h2>
-          <p className="text-xs text-[var(--admin-text-muted)]">Real-time preview</p>
+    <div className="space-y-4">
+      <div className="rounded-xl border border-[var(--admin-border-primary)] bg-[var(--admin-bg-card)] p-4 shadow-sm">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-[var(--admin-text-primary)]">Store settings</h2>
+            <p className="text-xs text-[var(--admin-text-muted)]">Edit content on the left and compare with a storefront-accurate preview.</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] p-1">
+              <Button type="button" size="sm" variant={previewPage === 'home' ? 'default' : 'ghost'} onClick={() => setPreviewPage('home')} className="h-8 px-3 text-xs">
+                Homepage
+              </Button>
+              <Button type="button" size="sm" variant={previewPage === 'about' ? 'default' : 'ghost'} onClick={() => setPreviewPage('about')} className="h-8 px-3 text-xs">
+                About page
+              </Button>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setEditorCollapsed((prev) => !prev)}
+              className="h-8 px-3 text-xs"
+            >
+              {editorCollapsed ? <PanelLeftOpen className="mr-1.5 h-3.5 w-3.5" /> : <PanelLeftClose className="mr-1.5 h-3.5 w-3.5" />}
+              {editorCollapsed ? 'Show editor' : 'Collapse editor'}
+            </Button>
+          </div>
         </div>
+      </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex overflow-x-auto border-b border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] no-scrollbar">
-          {menuItems.map(item => {
-             const Icon = item.icon
-             return (
-               <button
-                 key={item.id}
-                 onClick={() => setActiveSection(item.id)}
-                 className={`flex-shrink-0 p-3 text-xs font-medium flex flex-col items-center gap-1 w-20 transition-colors border-b-2 ${
-                   activeSection === item.id
-                     ? 'border-[var(--admin-accent)] text-[var(--admin-accent-light)] bg-[var(--admin-bg-card)]'
-                     : 'border-transparent text-[var(--admin-text-secondary)] hover:bg-[var(--admin-overlay-light)] hover:text-[var(--admin-text-primary)]'
-                 }`}
-               >
-                 <Icon className="w-4 h-4" />
-                 <span className="truncate max-w-full">{item.label}</span>
-               </button>
-             )
-          })}
-        </div>
+      <div className={`grid gap-4 ${editorCollapsed ? "" : "xl:grid-cols-[360px_minmax(0,1fr)]"}`}>
+        {!editorCollapsed && (
+        <div className="rounded-xl border border-[var(--admin-border-primary)] bg-[var(--admin-bg-secondary)] p-4 shadow-sm space-y-4">
+          <div className="grid grid-cols-2 gap-2">
+            {menuItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveSection(item.id)}
+                  className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                    activeSection === item.id
+                      ? 'border-[var(--admin-accent)] bg-[var(--admin-accent)]/15 text-[var(--admin-accent-light)]'
+                      : 'border-[var(--admin-border-primary)] text-[var(--admin-text-secondary)] hover:bg-[var(--admin-overlay-light)] hover:text-[var(--admin-text-primary)]'
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span>{item.label}</span>
+                </button>
+              )
+            })}
+          </div>
 
-        {/* Form Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          {activeSection === 'theme' && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] uppercase tracking-wide">Theme</h3>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setResetConfirmOpen(true)}
-                    disabled={themeLoading}
-                    className="h-8 text-xs"
-                  >
+          <div className="space-y-4">
+            {activeSection === 'theme' && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] uppercase tracking-wide">Theme</h3>
+                  <Button variant="outline" size="sm" onClick={() => setResetConfirmOpen(true)} disabled={themeLoading} className="h-8 text-xs">
                     Reset
                   </Button>
-              </div>
+                </div>
 
-              {COLOR_GROUPS.map((group) => (
+                {COLOR_GROUPS.map((group) => (
                   <div key={group.title} className="space-y-3">
                     <div className="space-y-1">
                       <h4 className="text-sm font-medium text-[var(--admin-text-primary)]">{group.title}</h4>
@@ -504,26 +526,18 @@ export function StoreSettingsEditor() {
                 <div className="space-y-4 pt-4 border-t border-[var(--admin-border-primary)]">
                   <div className="space-y-2">
                     <label className="block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">Typography</label>
-                    <Select
-                      value={themeState.typography.fontId}
-                      onChange={(event) => handleThemeFontChange(event.target.value)}
-                    >
+                    <Select value={themeState.typography.fontId} onChange={(event) => handleThemeFontChange(event.target.value)}>
                       {FONT_OPTIONS.map((font) => (
-                        <option key={font.id} value={font.id}>
-                          {font.label}
-                        </option>
+                        <option key={font.id} value={font.id}>{font.label}</option>
                       ))}
                     </Select>
+                    <p className="text-xs text-[var(--admin-text-muted)]">Active font: {selectedFontOption.label}</p>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-3">
                       <label className="block text-xs font-semibold uppercase text-[var(--admin-text-secondary)]">Rounded Corners</label>
-                      <Switch
-                        id="roundedCorners"
-                        checked={themeState.corners.enabled}
-                        onCheckedChange={handleThemeCornerToggle}
-                      />
+                      <Switch id="roundedCorners" checked={themeState.corners.enabled} onCheckedChange={handleThemeCornerToggle} />
                     </div>
                     <div className={themeState.corners.enabled ? '' : 'opacity-50'}>
                       <label className="block text-xs font-semibold uppercase text-[var(--admin-text-secondary)] mb-1">Radius Multiplier ({computedRadiusPx}px)</label>
@@ -540,242 +554,214 @@ export function StoreSettingsEditor() {
                     </div>
                   </div>
                 </div>
-            </div>
-          )}
-
-          {activeSection === 'identity' && (
-            <div className="space-y-4">
-               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Brand Identity</h3>
-               <div>
-                <label className="block text-sm font-medium mb-2">Logo Type</label>
-                <Select
-                  name="logoType"
-                  value={settings.logoType}
-                  onChange={handleLogoTypeChange}
-                >
-                  <option value="text">Text Logo</option>
-                  <option value="image">Image Logo</option>
-                </Select>
               </div>
+            )}
 
-              {settings.logoType === 'text' ? (
+            {activeSection === 'identity' && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] uppercase tracking-wide">Brand Identity</h3>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Logo Text</label>
-                  <Input
-                    name="logoText"
-                    value={settings.logoText}
-                    onChange={handleChange}
-                    placeholder="Enter your store name"
-                  />
+                  <label className="block text-sm font-medium mb-2">Logo Type</label>
+                  <Select name="logoType" value={settings.logoType} onChange={handleLogoTypeChange}>
+                    <option value="text">Text Logo</option>
+                    <option value="image">Image Logo</option>
+                  </Select>
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium">Logo Image URL</label>
+
+                {settings.logoType === 'text' ? (
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Logo Text</label>
+                    <Input name="logoText" value={settings.logoText} onChange={handleChange} placeholder="Enter your store name" />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium">Logo Image URL</label>
+                    <ImageUrlField
+                      value={settings.logoImageUrl}
+                      onChange={(val) => setSettings((prev) => ({ ...prev, logoImageUrl: val }))}
+                      placeholder="https://example.com/logo.png"
+                      onPreview={(src) => setModalImage(src)}
+                      hideInput
+                    />
+                    {driveNotice && <p className="text-xs text-gray-700">{driveNotice}</p>}
+                    <p className="text-xs text-[var(--admin-text-muted)]">Recommended size: 200x50px</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeSection === 'info' && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] uppercase tracking-wide">Store Info</h3>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Store Name</label>
+                  <Input name="storeName" value={settings.storeName} onChange={handleChange} placeholder="Your Store Name" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Store Description</label>
+                  <Input name="storeDescription" value={settings.storeDescription} onChange={handleChange} placeholder="Brief description of your store" />
+                </div>
+              </div>
+            )}
+
+            {activeSection === 'hero' && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] uppercase tracking-wide">Homepage Hero</h3>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Hero Image URL</label>
                   <ImageUrlField
-                    value={settings.logoImageUrl}
-                    onChange={(val) => setSettings(prev => ({ ...prev, logoImageUrl: val }))}
-                    placeholder="https://example.com/logo.png"
+                    value={settings.heroImageUrl}
+                    onChange={(val) => setSettings((prev) => ({ ...prev, heroImageUrl: val }))}
+                    placeholder="https://example.com/hero.jpg"
                     onPreview={(src) => setModalImage(src)}
                     hideInput
                   />
-                  {driveNotice && (
-                    <p className="text-xs text-gray-700">{driveNotice}</p>
-                  )}
-                  <p className="text-xs text-gray-500">Recommended size: 200x50px</p>
                 </div>
-              )}
-            </div>
-          )}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Hero Title (H1)</label>
+                  <Input name="heroTitle" value={settings.heroTitle} onChange={handleChange} placeholder="Welcome" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Hero Subtitle (H2)</label>
+                  <Input name="heroSubtitle" value={settings.heroSubtitle} onChange={handleChange} placeholder="Subtitle" />
+                </div>
+              </div>
+            )}
 
-          {activeSection === 'info' && (
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Store Info</h3>
-              <div>
-                <label className="block text-sm font-medium mb-2">Store Name</label>
-                <Input
-                  name="storeName"
-                  value={settings.storeName}
-                  onChange={handleChange}
-                  placeholder="Your Store Name"
-                />
+            {activeSection === 'about' && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] uppercase tracking-wide">About Page</h3>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Hero Image URL</label>
+                  <ImageUrlField
+                    value={settings.aboutHeroImageUrl}
+                    onChange={(val) => setSettings((prev) => ({ ...prev, aboutHeroImageUrl: val }))}
+                    placeholder="https://example.com/about-hero.jpg"
+                    onPreview={(src) => setModalImage(src)}
+                    hideInput
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Hero Title</label>
+                  <Input name="aboutHeroTitle" value={settings.aboutHeroTitle} onChange={handleChange} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Hero Subtitle</label>
+                  <Input name="aboutHeroSubtitle" value={settings.aboutHeroSubtitle} onChange={handleChange} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Content</label>
+                  <textarea
+                    name="aboutContent"
+                    value={settings.aboutContent}
+                    onChange={handleChange}
+                    rows={8}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
+                  />
+                </div>
               </div>
+            )}
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Store Description</label>
-                <Input
-                  name="storeDescription"
-                  value={settings.storeDescription}
-                  onChange={handleChange}
-                  placeholder="Brief description of your store"
-                />
-              </div>
-            </div>
-          )}
-
-          {activeSection === 'hero' && (
-            <div className="space-y-4">
-               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Homepage Hero</h3>
-               <div>
-                <label className="block text-sm font-medium mb-2">Hero Image URL</label>
-                <ImageUrlField
-                  value={settings.heroImageUrl}
-                  onChange={(val) => setSettings(prev => ({ ...prev, heroImageUrl: val }))}
-                  placeholder="https://example.com/hero.jpg"
-                  onPreview={(src) => setModalImage(src)}
-                  hideInput
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Hero Title (H1)</label>
-                <Input
-                  name="heroTitle"
-                  value={settings.heroTitle}
-                  onChange={handleChange}
-                  placeholder="Welcome"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Hero Subtitle (H2)</label>
-                <Input
-                  name="heroSubtitle"
-                  value={settings.heroSubtitle}
-                  onChange={handleChange}
-                  placeholder="Subtitle"
-                />
-              </div>
-            </div>
-          )}
-
-          {activeSection === 'about' && (
-            <div className="space-y-4">
-               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">About Page</h3>
-               <div>
-                <label className="block text-sm font-medium mb-2">Hero Image URL</label>
-                <ImageUrlField
-                  value={settings.aboutHeroImageUrl}
-                  onChange={(val) => setSettings(prev => ({ ...prev, aboutHeroImageUrl: val }))}
-                  placeholder="https://example.com/about-hero.jpg"
-                  onPreview={(src) => setModalImage(src)}
-                  hideInput
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Hero Title</label>
-                <Input
-                  name="aboutHeroTitle"
-                  value={settings.aboutHeroTitle}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Hero Subtitle</label>
-                <Input
-                  name="aboutHeroSubtitle"
-                  value={settings.aboutHeroSubtitle}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Content</label>
-                <textarea
-                  name="aboutContent"
-                  value={settings.aboutContent}
-                  onChange={handleChange}
-                  rows={8}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
-                />
-              </div>
-            </div>
-          )}
-
-          {activeSection === 'contact' && (
-            <div className="space-y-4">
-               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Contact & Business</h3>
-               <div>
-                <label className="block text-sm font-medium mb-2">Contact Email</label>
-                <Input
-                  type="email"
-                  name="contactEmail"
-                  value={settings.contactEmail}
-                  onChange={handleChange}
-                  placeholder="contact@yourstore.com"
-                />
-              </div>
-              <div className="pt-4 border-t space-y-4">
-                 <h4 className="text-sm font-medium text-gray-900">Business Address</h4>
-                 <Input name="businessName" value={settings.businessName || ''} onChange={handleChange} placeholder="Business Name" />
-                 <Input name="businessAddressLine1" value={settings.businessAddressLine1 || ''} onChange={handleChange} placeholder="Address Line 1" />
-                 <Input name="businessAddressLine2" value={settings.businessAddressLine2 || ''} onChange={handleChange} placeholder="Address Line 2" />
-                 <div className="grid grid-cols-2 gap-2">
+            {activeSection === 'contact' && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] uppercase tracking-wide">Contact & Business</h3>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Contact Email</label>
+                  <Input type="email" name="contactEmail" value={settings.contactEmail} onChange={handleChange} placeholder="contact@yourstore.com" />
+                </div>
+                <div className="pt-4 border-t space-y-4">
+                  <h4 className="text-sm font-medium text-[var(--admin-text-primary)]">Business Address</h4>
+                  <Input name="businessName" value={settings.businessName || ''} onChange={handleChange} placeholder="Business Name" />
+                  <Input name="businessAddressLine1" value={settings.businessAddressLine1 || ''} onChange={handleChange} placeholder="Address Line 1" />
+                  <Input name="businessAddressLine2" value={settings.businessAddressLine2 || ''} onChange={handleChange} placeholder="Address Line 2" />
+                  <div className="grid grid-cols-2 gap-2">
                     <Input name="businessCity" value={settings.businessCity || ''} onChange={handleChange} placeholder="City" />
                     <Input name="businessState" value={settings.businessState || ''} onChange={handleChange} placeholder="State" />
-                 </div>
-                 <div className="grid grid-cols-2 gap-2">
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
                     <Input name="businessPostalCode" value={settings.businessPostalCode || ''} onChange={handleChange} placeholder="Zip Code" />
                     <Input name="businessCountry" value={settings.businessCountry || ''} onChange={handleChange} placeholder="Country" />
-                 </div>
+                  </div>
+                </div>
               </div>
+            )}
+          </div>
+
+          {(themeMessage || themeError) && (
+            <div className={`rounded-md px-3 py-2 text-xs ${themeError ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
+              {themeError || themeMessage}
             </div>
           )}
-        </div>
 
-        {/* Footer Actions */}
-        <div className="p-4 border-t bg-gray-50 flex items-center justify-between">
-           <span className="text-xs text-gray-500">{themeDirty ? 'Unsaved changes' : 'All saved'}</span>
-           <Button onClick={handleSubmit} disabled={saving || themeSaving}>
-             {saving || themeSaving ? 'Saving...' : 'Save Changes'}
-           </Button>
+          <div className="flex items-center justify-between border-t border-[var(--admin-border-primary)] pt-4">
+            <span className="text-xs text-[var(--admin-text-muted)]">{themeDirty ? 'Unsaved changes' : themeHasOverrides ? 'Custom theme saved' : 'Using default theme'}</span>
+            <Button onClick={handleSubmit} disabled={saving || themeSaving}>
+              {saving || themeSaving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
         </div>
-      </div>
+        )}
 
-      {/* Main Preview Area */}
-      <div className="flex-1 bg-gray-200 overflow-y-auto flex justify-center p-8">
-         <div
-           className="w-full max-w-7xl shadow-2xl min-h-screen storefront-surface flex flex-col scale-95 origin-top"
-           style={previewStyles}
-           data-storefront-theme="true"
-         >
-           {activeSection !== 'about' ? (
-             <>
-               <Navbar previewSettings={settings} disableNavigation={true} />
-               <Hero previewSettings={settings} />
-               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
-                  <h2 className="text-3xl font-bold storefront-heading mb-8 text-center">Featured Products</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {MOCK_PRODUCTS.map(product => (
-                      <ProductCard key={product.id} product={product} disableNavigation={true} />
-                    ))}
-                  </div>
-               </div>
-               <div className="flex-1" /> {/* Spacer */}
-               <Footer previewSettings={settings} />
-             </>
-           ) : (
-             <>
-               <Navbar previewSettings={settings} disableNavigation={true} />
-               <section className="relative w-full overflow-hidden storefront-hero">
-                  {settings.aboutHeroImageUrl ? (
-                    <img src={normalizeImageUrl(settings.aboutHeroImageUrl)} alt="About Hero" className="w-full h-64 object-cover" />
-                  ) : (
-                    <div className="w-full h-64 bg-slate-200" />
-                  )}
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                     <div className="text-center text-white px-4">
-                        <h1 className="text-4xl font-bold mb-2">{settings.aboutHeroTitle}</h1>
-                        <p className="text-xl opacity-90">{settings.aboutHeroSubtitle}</p>
-                     </div>
-                  </div>
-               </section>
-               <div className="max-w-4xl mx-auto px-4 py-16 text-lg space-y-6 storefront-heading w-full">
-                  {settings.aboutContent.split('\n').map((paragraph, i) => (
-                    paragraph.trim() && <p key={i}>{paragraph}</p>
-                  ))}
-               </div>
-               <div className="flex-1" />
-               <Footer previewSettings={settings} />
-             </>
-           )}
-         </div>
+        <div className="rounded-xl border border-[var(--admin-border-primary)] bg-[var(--admin-bg-card)] p-3 shadow-sm">
+          <div className="max-h-[calc(100vh-10rem)] overflow-auto rounded-lg border border-[var(--admin-border-primary)] bg-white">
+            <div style={previewStyles} data-storefront-theme="true" className="storefront-surface min-h-[900px]">
+              {previewPage === 'home' ? (
+                <>
+                  <Navbar previewSettings={settings} disableNavigation={true} />
+                  <Hero previewSettings={settings} />
+                  <section className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                    <h2 className="text-3xl font-bold storefront-heading mb-8 text-center">Featured Products</h2>
+                    <Carousel products={MOCK_PRODUCTS} />
+                  </section>
+                  <section className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="flex flex-wrap gap-4 justify-center">
+                      <Button variant="default">All Products</Button>
+                      {MOCK_COLLECTIONS.map((collection) => (
+                        <Button key={collection.id} variant="outline">{collection.name}</Button>
+                      ))}
+                    </div>
+                  </section>
+                  <section className="max-w-8xl mx-auto px-3 sm:px-4 lg:px-6 pb-16">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+                      {[...MOCK_PRODUCTS, ...MOCK_PRODUCTS].map((product, index) => (
+                        <ProductCard key={`${product.id}-${index}`} product={{ ...product, id: `${product.id}-${index}` }} disableNavigation={true} />
+                      ))}
+                    </div>
+                  </section>
+                  <Footer previewSettings={settings} />
+                </>
+              ) : (
+                <>
+                  <Navbar previewSettings={settings} disableNavigation={true} />
+                  <section className="relative w-screen overflow-hidden text-white">
+                    {settings.aboutHeroImageUrl ? (
+                      <img src={normalizeImageUrl(settings.aboutHeroImageUrl)} alt="About Hero" className="w-screen h-auto max-h-[90vh] object-contain block mx-auto" />
+                    ) : (
+                      <div className="w-screen min-h-[320px] sm:min-h-[420px] lg:min-h-[560px] bg-gradient-to-r from-slate-600 to-slate-700" />
+                    )}
+                    <div className="absolute inset-0 bg-black/40" aria-hidden />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 text-center">
+                      <div className="max-w-4xl mx-auto space-y-6">
+                        <h1 className="text-4xl md:text-6xl font-bold">{settings.aboutHeroTitle}</h1>
+                        <p className="text-xl md:text-2xl max-w-3xl mx-auto">{settings.aboutHeroSubtitle}</p>
+                      </div>
+                    </div>
+                  </section>
+                  <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                    <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
+                      <div className="prose prose-lg max-w-none">
+                        {(settings.aboutContent || '').split('\n\n').map((paragraph, index) => (
+                          <p key={index} className="mb-6 text-gray-700 leading-relaxed">{paragraph}</p>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                  <Footer previewSettings={settings} />
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Modals */}
