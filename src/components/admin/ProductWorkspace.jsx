@@ -178,6 +178,71 @@ function VariantGroupEditor({
     </div>
   )
 }
+
+function ProductListItem({ product, isActive, onSelect, collectionName }) {
+  const rawPreviewImage =
+    Array.isArray(product.images) && product.images.length > 0
+      ? product.images[0]
+      : product.imageUrl || ''
+
+  const previewImage = useMemo(() => normalizeImageUrl(rawPreviewImage), [rawPreviewImage])
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(product.id)}
+      className={`w-full rounded-lg border p-3 text-left transition-all duration-200 ${
+        isActive
+          ? 'border-[var(--admin-accent)] bg-[var(--admin-accent)]/10 shadow-[var(--admin-shadow)]'
+          : 'border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] hover:border-[var(--admin-border-secondary)]'
+      }`}
+    >
+      <div className="flex gap-3">
+        {previewImage ? (
+          <img
+            src={previewImage}
+            alt={product.name}
+            className="h-12 w-12 flex-shrink-0 rounded-md object-cover"
+          />
+        ) : (
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-[var(--admin-bg-secondary)]">
+            <Package className="h-6 w-6 text-[var(--admin-text-muted)]" />
+          </div>
+        )}
+        <div className="flex-1 space-y-1">
+          <div className="flex items-center justify-between gap-3">
+            <span className="font-medium text-[var(--admin-text-primary)] text-sm truncate">
+              {product.name || 'Untitled product'}
+            </span>
+            <span className="text-xs font-semibold text-[var(--admin-text-secondary)]">
+              {formatCurrency(product.price, product.currency)}
+            </span>
+          </div>
+          <p className="text-xs text-[var(--admin-text-muted)] truncate">
+            {product.tagline || product.description || 'No description provided.'}
+          </p>
+          <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+            {collectionName ? (
+              <span className="rounded-full bg-[var(--admin-bg-secondary)] px-2 py-0.5 text-[var(--admin-text-secondary)]">
+                {collectionName}
+              </span>
+            ) : (
+              <span className="rounded-full bg-[var(--admin-bg-secondary)] px-2 py-0.5 text-[var(--admin-text-muted)]">
+                No collection
+              </span>
+            )}
+            {product.archived && (
+              <span className="rounded-full bg-[var(--admin-text-muted)]/20 px-2 py-0.5 text-[var(--admin-text-secondary)]">
+                Archived
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </button>
+  )
+}
+
 export function ProductWorkspace() {
   const [products, setProducts] = useState([])
   const [collections, setCollections] = useState([])
@@ -694,68 +759,18 @@ export function ProductWorkspace() {
                   </div>
                 ) : (
                   filteredProducts.map((product) => {
-                    const previewImage =
-                      Array.isArray(product.images) && product.images.length > 0
-                        ? product.images[0]
-                        : product.imageUrl || ''
                     const isActive = !isCreating && selectedId === product.id
                     const collectionName = product.collectionId
                       ? collectionLookup.get(product.collectionId)
                       : null
                     return (
-                      <button
+                      <ProductListItem
                         key={product.id}
-                        type="button"
-                        onClick={() => handleSelectProduct(product.id)}
-                        className={`w-full rounded-lg border p-3 text-left transition-all duration-200 ${
-                          isActive
-                            ? 'border-[var(--admin-accent)] bg-[var(--admin-accent)]/10 shadow-[var(--admin-shadow)]'
-                            : 'border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] hover:border-[var(--admin-border-secondary)]'
-                        }`}
-                      >
-                        <div className="flex gap-3">
-                          {previewImage ? (
-                            <img
-                              src={normalizeImageUrl(previewImage)}
-                              alt={product.name}
-                              className="h-12 w-12 flex-shrink-0 rounded-md object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-[var(--admin-bg-secondary)]">
-                              <Package className="h-6 w-6 text-[var(--admin-text-muted)]" />
-                            </div>
-                          )}
-                          <div className="flex-1 space-y-1">
-                            <div className="flex items-center justify-between gap-3">
-                              <span className="font-medium text-[var(--admin-text-primary)] text-sm truncate">
-                                {product.name || 'Untitled product'}
-                              </span>
-                              <span className="text-xs font-semibold text-[var(--admin-text-secondary)]">
-                                {formatCurrency(product.price, product.currency)}
-                              </span>
-                            </div>
-                            <p className="text-xs text-[var(--admin-text-muted)] truncate">
-                              {product.tagline || product.description || 'No description provided.'}
-                            </p>
-                            <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-                              {collectionName ? (
-                                <span className="rounded-full bg-[var(--admin-bg-secondary)] px-2 py-0.5 text-[var(--admin-text-secondary)]">
-                                  {collectionName}
-                                </span>
-                              ) : (
-                                <span className="rounded-full bg-[var(--admin-bg-secondary)] px-2 py-0.5 text-[var(--admin-text-muted)]">
-                                  No collection
-                                </span>
-                              )}
-                              {product.archived && (
-                                <span className="rounded-full bg-[var(--admin-text-muted)]/20 px-2 py-0.5 text-[var(--admin-text-secondary)]">
-                                  Archived
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </button>
+                        product={product}
+                        isActive={isActive}
+                        collectionName={collectionName}
+                        onSelect={handleSelectProduct}
+                      />
                     )
                   })
                 )}
