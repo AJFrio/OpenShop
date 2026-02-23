@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-02-19T18:16:31Z
+// Worker Bundle - Built 2026-02-23T21:13:50Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -13198,26 +13198,36 @@ var AnalyticsService = class {
     }
     const sessions = await this.stripe.listCheckoutSessions(listParams);
     let filteredSessions = [];
-    for (const s of sessions.data) {
-      if (s.payment_status === "paid" || s.status === "complete" || s.status === "completed") {
-        let includeSession = true;
-        if (options.kvNamespace) {
-          const fulfillmentKey = `order_fulfillment:${s.id}`;
-          const fulfillmentData = await options.kvNamespace.get(fulfillmentKey);
-          const fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false };
-          if (showFulfilled) {
-            if (!fulfillmentStatus.fulfilled) {
-              includeSession = false;
-            }
-          } else {
-            if (fulfillmentStatus.fulfilled) {
-              includeSession = false;
-            }
+    const fulfillmentMap = /* @__PURE__ */ new Map();
+    const candidates = sessions.data.filter(
+      (s) => s.payment_status === "paid" || s.status === "complete" || s.status === "completed"
+    );
+    if (options.kvNamespace && candidates.length > 0) {
+      await Promise.all(candidates.map(async (s) => {
+        const fulfillmentKey = `order_fulfillment:${s.id}`;
+        const fulfillmentData = await options.kvNamespace.get(fulfillmentKey);
+        if (fulfillmentData) {
+          fulfillmentMap.set(s.id, fulfillmentData);
+        }
+      }));
+    }
+    for (const s of candidates) {
+      let includeSession = true;
+      if (options.kvNamespace) {
+        const fulfillmentData = fulfillmentMap.get(s.id);
+        const fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false };
+        if (showFulfilled) {
+          if (!fulfillmentStatus.fulfilled) {
+            includeSession = false;
+          }
+        } else {
+          if (fulfillmentStatus.fulfilled) {
+            includeSession = false;
           }
         }
-        if (includeSession) {
-          filteredSessions.push(s);
-        }
+      }
+      if (includeSession) {
+        filteredSessions.push(s);
       }
     }
     const ordered = filteredSessions.reverse();
@@ -13241,9 +13251,13 @@ var AnalyticsService = class {
             name: paymentIntent.shipping.name
           };
         }
-        const fulfillmentKey = `order_fulfillment:${s.id}`;
-        const fulfillmentData = options.kvNamespace ? await options.kvNamespace.get(fulfillmentKey) : null;
-        const fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false, fulfilledAt: null, fulfilledBy: null };
+        let fulfillmentStatus = { fulfilled: false, fulfilledAt: null, fulfilledBy: null };
+        if (options.kvNamespace) {
+          const fulfillmentData = fulfillmentMap.get(s.id);
+          if (fulfillmentData) {
+            fulfillmentStatus = JSON.parse(fulfillmentData);
+          }
+        }
         return {
           id: s.id,
           created: s.created,
@@ -13294,9 +13308,10 @@ var AnalyticsService = class {
         console.error("Error fetching line items for session", s.id, e);
         let fulfillmentStatus = { fulfilled: false, fulfilledAt: null, fulfilledBy: null };
         if (options.kvNamespace) {
-          const fulfillmentKey = `order_fulfillment:${s.id}`;
-          const fulfillmentData = await options.kvNamespace.get(fulfillmentKey);
-          fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false, fulfilledAt: null, fulfilledBy: null };
+          const fulfillmentData = fulfillmentMap.get(s.id);
+          if (fulfillmentData) {
+            fulfillmentStatus = JSON.parse(fulfillmentData);
+          }
         }
         return {
           id: s.id,
