@@ -4,11 +4,24 @@ import { Button } from '../ui/button'
 import { adminApiRequest } from '../../lib/auth'
 import { normalizeImageUrl } from '../../lib/utils'
 
-export default function MediaPickerModal({ open, onClose, onPick }) {
+/**
+ * MediaPickerModal
+ *
+ * Optimized to use useMemo for deriving the media library from products, collections,
+ * and store settings. This removes the need for internal data fetching and extra
+ * state update cycles, fulfilling the performance optimization goal.
+ */
+export default function MediaPickerModal({
+  open,
+  onClose,
+  onPick,
+  products = [],
+  collections = [],
+  settings = {},
+  isLoading = false,
+  error = ''
+}) {
   const [activeTab, setActiveTab] = useState('library') // 'library' | 'link' | 'generate'
-  const [library, setLibrary] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
   const [linkValue, setLinkValue] = useState('')
   const [prompt, setPrompt] = useState('')
   const [files, setFiles] = useState([])
@@ -20,66 +33,56 @@ export default function MediaPickerModal({ open, onClose, onPick }) {
   const [genError, setGenError] = useState('')
   const [filename, setFilename] = useState('openshop-image.png')
 
+  // Derived data: Collect all unique image URLs from products, collections, and settings
+  const library = useMemo(() => {
+    const urls = new Set()
+
+    // Products images, variant images, and legacy imageUrl
+    for (const p of (products || [])) {
+      if (p.imageUrl) urls.add(String(p.imageUrl))
+      if (Array.isArray(p.images)) {
+        for (const u of p.images) if (u) urls.add(String(u))
+      }
+      if (Array.isArray(p.variants)) {
+        for (const v of p.variants) {
+          if (v?.selectorImageUrl) urls.add(String(v.selectorImageUrl))
+          if (v?.displayImageUrl) urls.add(String(v.displayImageUrl))
+          if (v?.imageUrl) urls.add(String(v.imageUrl))
+        }
+      }
+      if (Array.isArray(p.variants2)) {
+        for (const v of p.variants2) {
+          if (v?.selectorImageUrl) urls.add(String(v.selectorImageUrl))
+          if (v?.displayImageUrl) urls.add(String(v.displayImageUrl))
+          if (v?.imageUrl) urls.add(String(v.imageUrl))
+        }
+      }
+    }
+
+    // Collections hero images
+    for (const c of (collections || [])) {
+      if (c?.heroImage) urls.add(String(c.heroImage))
+      if (c?.imageUrl) urls.add(String(c.imageUrl))
+    }
+
+    // Store settings images
+    if (settings?.logoImageUrl) urls.add(String(settings.logoImageUrl))
+    if (settings?.heroImageUrl) urls.add(String(settings.heroImageUrl))
+    if (settings?.aboutHeroImageUrl) urls.add(String(settings.aboutHeroImageUrl))
+
+    // Pre-normalize URLs to optimize rendering performance
+    return Array.from(urls).map(url => ({
+      original: url,
+      normalized: normalizeImageUrl(url)
+    }))
+  }, [products, collections, settings])
+
   useEffect(() => {
     if (!open) return
     setActiveTab('library')
-    setError('')
     setLinkValue('')
-    loadLibrary()
     checkDriveStatus()
   }, [open])
-
-  async function loadLibrary() {
-    try {
-      setIsLoading(true)
-      setError('')
-      const [prodRes, collRes, settingsRes] = await Promise.all([
-        fetch('/api/products'),
-        fetch('/api/collections'),
-        fetch('/api/store-settings')
-      ])
-      const [products, collections, settings] = await Promise.all([
-        prodRes.ok ? prodRes.json() : [],
-        collRes.ok ? collRes.json() : [],
-        settingsRes.ok ? settingsRes.json() : {}
-      ])
-      const urls = new Set()
-
-      // Products images and variant images
-      for (const p of (products || [])) {
-        if (Array.isArray(p.images)) {
-          for (const u of p.images) if (u) urls.add(String(u))
-        }
-        if (Array.isArray(p.variants)) {
-          for (const v of p.variants) {
-            if (v?.selectorImageUrl) urls.add(String(v.selectorImageUrl))
-            if (v?.displayImageUrl) urls.add(String(v.displayImageUrl))
-          }
-        }
-        if (Array.isArray(p.variants2)) {
-          for (const v of p.variants2) {
-            if (v?.selectorImageUrl) urls.add(String(v.selectorImageUrl))
-            if (v?.displayImageUrl) urls.add(String(v.displayImageUrl))
-          }
-        }
-      }
-
-      // Collections hero images
-      for (const c of (collections || [])) {
-        if (c?.heroImage) urls.add(String(c.heroImage))
-      }
-
-      // Store settings images
-      if (settings?.logoImageUrl) urls.add(String(settings.logoImageUrl))
-      if (settings?.heroImageUrl) urls.add(String(settings.heroImageUrl))
-
-      setLibrary(Array.from(urls))
-    } catch (e) {
-      setError('Failed to load media library')
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   function handlePick(url) {
     if (!onPick) return
@@ -110,15 +113,15 @@ export default function MediaPickerModal({ open, onClose, onPick }) {
     if (!library.length) return <p className="text-sm text-gray-500">No media found yet. Try Link or Generate.</p>
     return (
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-80 overflow-auto">
-        {library.map((url, i) => (
+        {library.map((item, i) => (
           <button
             key={i}
             type="button"
             className="aspect-square rounded border overflow-hidden bg-white hover:ring-2 hover:ring-gray-500"
-            title={url}
-            onClick={() => handlePick(url)}
+            title={item.original}
+            onClick={() => handlePick(item.original)}
           >
-            <img src={normalizeImageUrl(url)} alt="media" className="w-full h-full object-cover" />
+            <img src={item.normalized} alt="media" className="w-full h-full object-cover" loading="lazy" />
           </button>
         ))}
       </div>
@@ -344,5 +347,3 @@ function SlotPreview({ file, onClear }) {
     </div>
   )
 }
-
-
