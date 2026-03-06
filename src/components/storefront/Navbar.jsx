@@ -41,9 +41,17 @@ export function Navbar({ previewSettings, disableNavigation }) {
         setCollections(collectionsData)
 
         // Group products by collection
+        const productsByCollectionId = productsData.reduce((acc, product) => {
+          if (!acc[product.collectionId]) {
+            acc[product.collectionId] = []
+          }
+          acc[product.collectionId].push(product)
+          return acc
+        }, {})
+
         const collectionsWithProducts = collectionsData.map(collection => ({
           ...collection,
-          products: productsData.filter(product => product.collectionId === collection.id)
+          products: productsByCollectionId[collection.id] || []
         }))
         
         setCollectionsWithProducts(collectionsWithProducts)
