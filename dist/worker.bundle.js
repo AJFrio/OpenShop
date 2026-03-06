@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-03-04T23:43:00Z
+// Worker Bundle - Built 2026-03-06T00:36:26Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -12854,8 +12854,12 @@ var ProductStripeService = class {
     if (Array.isArray(updates.variants)) {
       const incomingVariants = updates.variants;
       const existingVariants = Array.isArray(existingProduct.variants) ? existingProduct.variants : [];
+      const existingVariantsMap = /* @__PURE__ */ new Map();
+      for (const ev of existingVariants) {
+        if (ev.id) existingVariantsMap.set(ev.id, ev);
+      }
       const results = await Promise.all(incomingVariants.map(async (v) => {
-        const prior = v.id ? existingVariants.find((ev) => ev.id === v.id) : void 0;
+        const prior = v.id ? existingVariantsMap.get(v.id) : void 0;
         const wantsCustom = !!v.hasCustomPrice && typeof v.price === "number" && v.price > 0;
         if (wantsCustom) {
           const desiredUnitAmount = Math.round(v.price * 100);
@@ -12898,8 +12902,12 @@ var ProductStripeService = class {
     if (Array.isArray(updates.variants2)) {
       const incomingVariants = updates.variants2;
       const existingVariants = Array.isArray(existingProduct.variants2) ? existingProduct.variants2 : [];
+      const existingVariantsMap = /* @__PURE__ */ new Map();
+      for (const ev of existingVariants) {
+        if (ev.id) existingVariantsMap.set(ev.id, ev);
+      }
       const results = await Promise.all(incomingVariants.map(async (v) => {
-        const prior = v.id ? existingVariants.find((ev) => ev.id === v.id) : void 0;
+        const prior = v.id ? existingVariantsMap.get(v.id) : void 0;
         const wantsCustom = !!v.hasCustomPrice && typeof v.price === "number" && v.price > 0;
         if (wantsCustom) {
           const desiredUnitAmount = Math.round(v.price * 100);
