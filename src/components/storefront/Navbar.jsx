@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { normalizeImageUrl } from '../../lib/utils'
 import { Link } from 'react-router-dom'
 import { Button } from '../ui/button'
@@ -7,7 +7,7 @@ import { ShoppingCart } from 'lucide-react'
 
 export function Navbar({ previewSettings, disableNavigation }) {
   const [collections, setCollections] = useState([])
-  const [collectionsWithProducts, setCollectionsWithProducts] = useState([])
+  const [products, setProducts] = useState([])
   const [fetchedStoreSettings, setFetchedStoreSettings] = useState({
     logoType: 'text',
     logoText: 'OpenShop',
@@ -18,6 +18,25 @@ export function Navbar({ previewSettings, disableNavigation }) {
   const { itemCount, toggleCart } = useCart()
 
   const storeSettings = previewSettings || fetchedStoreSettings
+
+  const collectionsWithProducts = useMemo(() => {
+    if (!collections.length) return [];
+
+    const productsByCollection = new Map();
+    for (const product of products) {
+      const collectionProducts = productsByCollection.get(product.collectionId);
+      if (collectionProducts) {
+        collectionProducts.push(product);
+      } else {
+        productsByCollection.set(product.collectionId, [product]);
+      }
+    }
+
+    return collections.map(collection => ({
+      ...collection,
+      products: productsByCollection.get(collection.id) || []
+    }));
+  }, [collections, products]);
 
   useEffect(() => {
     // Fetch collections, products, and store settings for navigation
@@ -39,14 +58,7 @@ export function Navbar({ previewSettings, disableNavigation }) {
         const productsData = await productsResponse.json()
         
         setCollections(collectionsData)
-
-        // Group products by collection
-        const collectionsWithProducts = collectionsData.map(collection => ({
-          ...collection,
-          products: productsData.filter(product => product.collectionId === collection.id)
-        }))
-        
-        setCollectionsWithProducts(collectionsWithProducts)
+        setProducts(productsData)
       }
     } catch (error) {
       console.error('Error fetching collections and products:', error)
