@@ -152,9 +152,13 @@ export class ProductStripeService {
     if (Array.isArray(updates.variants)) {
       const incomingVariants = updates.variants
       const existingVariants = Array.isArray(existingProduct.variants) ? existingProduct.variants : []
+      const existingVariantsMap = new Map()
+      for (const ev of existingVariants) {
+        if (ev.id) existingVariantsMap.set(ev.id, ev)
+      }
 
       const results = await Promise.all(incomingVariants.map(async (v) => {
-        const prior = v.id ? existingVariants.find(ev => ev.id === v.id) : undefined
+        const prior = v.id ? existingVariantsMap.get(v.id) : undefined
         const wantsCustom = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
 
         if (wantsCustom) {
@@ -200,9 +204,13 @@ export class ProductStripeService {
     if (Array.isArray(updates.variants2)) {
       const incomingVariants = updates.variants2
       const existingVariants = Array.isArray(existingProduct.variants2) ? existingProduct.variants2 : []
+      const existingVariantsMap = new Map()
+      for (const ev of existingVariants) {
+        if (ev.id) existingVariantsMap.set(ev.id, ev)
+      }
 
       const results = await Promise.all(incomingVariants.map(async (v) => {
-        const prior = v.id ? existingVariants.find(ev => ev.id === v.id) : undefined
+        const prior = v.id ? existingVariantsMap.get(v.id) : undefined
         const wantsCustom = !!v.hasCustomPrice && typeof v.price === 'number' && v.price > 0
 
         if (wantsCustom) {
