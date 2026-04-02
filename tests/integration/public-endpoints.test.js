@@ -195,6 +195,45 @@ describe('Public Endpoints', () => {
     })
   })
 
+  describe('GET /api/storefront/pages/:pageId', () => {
+    it('should return generated default homepage data when no page is published', async () => {
+      const request = createTestRequest('/api/storefront/pages/home')
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+
+      expect(response.status).toBe(200)
+      expect(data.pageId).toBe('home')
+      expect(data.meta.isDefault).toBe(true)
+      expect(Array.isArray(data.data.content)).toBe(true)
+      expect(data.data.content.some((item) => item.type === 'HeroBlock')).toBe(true)
+    })
+
+    it('should return stored page data when it exists', async () => {
+      const { KV_KEYS } = await import('../../src/config/index.js')
+      await kv.put(`${KV_KEYS.STOREFRONT_PAGE_PREFIX}about`, JSON.stringify({
+        data: {
+          content: [
+            { type: 'SiteHeader', props: {} },
+            { type: 'TextBlock', props: { title: 'Stored About', body: 'Published content.' } },
+            { type: 'SiteFooter', props: {} },
+          ],
+          root: { props: { title: 'About Page' } },
+          zones: {},
+        },
+        updatedAt: 123456,
+      }))
+
+      const request = createTestRequest('/api/storefront/pages/about')
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+
+      expect(response.status).toBe(200)
+      expect(data.pageId).toBe('about')
+      expect(data.meta.isDefault).toBe(false)
+      expect(data.data.content[1].props.title).toBe('Stored About')
+    })
+  })
+
   describe('GET /api/store-settings', () => {
     it('should return default settings when no settings exist', async () => {
       const request = createTestRequest('/api/store-settings')
@@ -282,5 +321,4 @@ describe('Public Endpoints', () => {
     })
   })
 })
-
 
