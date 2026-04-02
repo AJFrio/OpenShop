@@ -434,7 +434,7 @@ export function StoreSettingsEditor() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-[var(--admin-text-primary)]">Store settings</h2>
-            <p className="text-xs text-[var(--admin-text-muted)]">Edit content on the left and compare with a storefront-accurate preview.</p>
+            <p className="text-xs text-[var(--admin-text-muted)]">Global brand, theme, and business settings. Page layout and section composition now live in Website Builder.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="inline-flex rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] p-1">

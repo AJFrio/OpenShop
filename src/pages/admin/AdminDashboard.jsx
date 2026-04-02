@@ -7,13 +7,14 @@ import { Select } from '../../components/ui/select'
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card'
 import { CollectionForm } from '../../components/admin/CollectionForm'
 import { StoreSettingsEditor } from '../../components/admin/StoreSettingsEditor'
+import { StorefrontBuilder } from '../../components/admin/StorefrontBuilder'
 import { ProductWorkspace } from '../../components/admin/ProductWorkspace'
 import { RevenueChart, OrdersChart } from '../../components/admin/AnalyticsCharts'
 import { MetricCard, RecentOrdersCard } from '../../components/admin/AnalyticsCards'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
 import { 
-  Package, FolderOpen, Plus, Edit, Trash2, Home, Settings, 
+  Package, FolderOpen, Plus, Edit, Trash2, Home, Settings, PanelsTopLeft,
   DollarSign, ShoppingBag, BarChart3, Image as ImageIcon, X, LogOut 
 } from 'lucide-react'
 import AddMediaModal from '../../components/admin/AddMediaModal'
@@ -28,6 +29,7 @@ function AdminSidebar({ onLogout }) {
     { path: '/admin/collections', label: 'Collections', icon: FolderOpen },
     { path: '/admin/Fulfillment', label: 'Fulfillment', icon: ShoppingBag },
     { path: '/admin/media', label: 'Media', icon: ImageIcon },
+    { path: '/admin/website-builder', label: 'Website Builder', icon: PanelsTopLeft },
     { path: '/admin/store-settings', label: 'Store Settings', icon: Settings },
   ]
 
@@ -512,6 +514,10 @@ function MediaLibrary() {
 
 function StoreSettingsManager() {
   return <StoreSettingsEditor />
+}
+
+function WebsiteBuilderManager() {
+  return <StorefrontBuilder />
 }
 
 function FulfillmentManager() {
@@ -1026,6 +1032,7 @@ export function AdminDashboard() {
           <Route path="/collections" element={<CollectionsManager />} />
           <Route path="/Fulfillment" element={<FulfillmentManager />} />
           <Route path="/media" element={<MediaLibrary />} />
+          <Route path="/website-builder" element={<WebsiteBuilderManager />} />
           <Route path="/store-settings" element={<StoreSettingsManager />} />
         </Routes>
       </div>

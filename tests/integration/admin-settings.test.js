@@ -247,6 +247,85 @@ describe('Admin Settings Endpoints', () => {
       expect(response.status).toBe(401)
     })
   })
-})
 
+  describe('Storefront page builder endpoints', () => {
+    it('should return generated default page data for homepage', async () => {
+      const request = createTestRequest('/api/admin/storefront/pages/home', {
+        method: 'GET',
+        headers: createAdminHeaders(adminToken),
+      })
+
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+
+      expect(response.status).toBe(200)
+      expect(data.pageId).toBe('home')
+      expect(data.meta.isDefault).toBe(true)
+      expect(Array.isArray(data.data.content)).toBe(true)
+      expect(data.data.content.length).toBeGreaterThan(0)
+    })
+
+    it('should save and return storefront page data', async () => {
+      const pageData = {
+        content: [
+          { type: 'SiteHeader', props: {} },
+          { type: 'TextBlock', props: { title: 'Custom landing page', body: 'Built with Puck.' } },
+          { type: 'SiteFooter', props: {} },
+        ],
+        root: { props: { title: 'Homepage' } },
+        zones: {},
+      }
+
+      const request = createTestRequest('/api/admin/storefront/pages/home', {
+        method: 'PUT',
+        body: pageData,
+        headers: createAdminHeaders(adminToken),
+      })
+
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+
+      expect(response.status).toBe(200)
+      expect(data.pageId).toBe('home')
+      expect(data.meta.isDefault).toBe(false)
+      expect(data.data.content[1].props.title).toBe('Custom landing page')
+
+      const storedPage = await kv.get(`${KV_KEYS.STOREFRONT_PAGE_PREFIX}home`)
+      expect(storedPage).toBeTruthy()
+    })
+
+    it('should reset storefront page data back to defaults', async () => {
+      await kv.put(`${KV_KEYS.STOREFRONT_PAGE_PREFIX}about`, JSON.stringify({
+        data: {
+          content: [{ type: 'TextBlock', props: { title: 'Temporary about' } }],
+          root: { props: { title: 'About Page' } },
+          zones: {},
+        },
+        updatedAt: Date.now(),
+      }))
+
+      const request = createTestRequest('/api/admin/storefront/pages/about', {
+        method: 'DELETE',
+        headers: createAdminHeaders(adminToken),
+      })
+
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+
+      expect(response.status).toBe(200)
+      expect(data.pageId).toBe('about')
+      expect(data.meta.isDefault).toBe(true)
+      expect(await kv.get(`${KV_KEYS.STOREFRONT_PAGE_PREFIX}about`)).toBeNull()
+    })
+
+    it('should require authentication for page builder endpoints', async () => {
+      const request = createTestRequest('/api/admin/storefront/pages/home', {
+        method: 'GET',
+      })
+
+      const response = await executeRequest(app, request, env)
+      expect(response.status).toBe(401)
+    })
+  })
+})
 
