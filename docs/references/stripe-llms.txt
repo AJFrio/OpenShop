@@ -1,0 +1,11 @@
+# Stripe — agent reference pointers
+
+- Checkout Sessions: https://stripe.com/docs/api/checkout/sessions
+- Webhooks: https://stripe.com/docs/webhooks
+- Testing: https://stripe.com/docs/testing
+
+OpenShop-specific:
+
+- Server SDK usage: src/services/StripeService.js, ProductStripeService.js
+- Setup: docs/STRIPE.md
+- Never use secret key in src/components or src/pages

@@ -1,0 +1,11 @@
+# Hono — agent reference pointers
+
+- Hono docs: https://hono.dev/docs/
+- Routing: https://hono.dev/docs/api/routing
+- Context: https://hono.dev/docs/api/context
+
+OpenShop-specific:
+
+- App setup: src/worker.js
+- Route registration: src/routes/index.js
+- Middleware: src/middleware/
