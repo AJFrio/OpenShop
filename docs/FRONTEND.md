@@ -14,8 +14,9 @@ React 19 + Vite + Tailwind CSS 4 + ShadCN-style components under `src/components
 
 ```
 src/pages/storefront/   # Public shop pages
-src/pages/admin/        # Admin dashboard
+src/pages/admin/        # Admin shell (AdminDashboard, AdminLayout) + feature pages
 src/components/storefront/
+src/components/admin/store-settings/  # Shared store settings / theme form helpers
 src/components/admin/
 src/components/ui/      # Shared primitives (button, card, input, …)
 src/contexts/           # Cart, theme
