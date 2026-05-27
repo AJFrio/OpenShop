@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-05-27T22:03:13Z
+// Worker Bundle - Built 2026-05-27T22:50:56Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -5564,6 +5564,39 @@ function createCorsMiddleware(env2 = {}) {
   });
 }
 __name(createCorsMiddleware, "createCorsMiddleware");
+
+// src/middleware/securityHeaders.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+async function securityHeadersMiddleware(c, next) {
+  await next();
+  c.header("X-Content-Type-Options", "nosniff");
+  c.header("X-Frame-Options", "DENY");
+  c.header("X-XSS-Protection", "1; mode=block");
+  c.header("Referrer-Policy", "strict-origin-when-cross-origin");
+  c.header("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+    // Stripe requires unsafe-inline
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: https: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://api.stripe.com https://*.stripe.com https://oauth2.googleapis.com https://www.googleapis.com",
+    "frame-src https://js.stripe.com https://hooks.stripe.com",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests"
+  ].join("; ");
+  c.header("Content-Security-Policy", csp);
+  const url = new URL(c.req.url);
+  if (url.protocol === "https:") {
+    c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+  }
+}
+__name(securityHeadersMiddleware, "securityHeadersMiddleware");
 
 // src/middleware/errorHandler.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -13692,32 +13725,7 @@ __name(registerRoutes, "registerRoutes");
 
 // src/worker.js
 var app = new Hono2();
-app.use("*", async (c, next) => {
-  await next();
-  c.header("X-Content-Type-Options", "nosniff");
-  c.header("X-Frame-Options", "DENY");
-  c.header("X-XSS-Protection", "1; mode=block");
-  c.header("Referrer-Policy", "strict-origin-when-cross-origin");
-  c.header("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
-  const csp = [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https: blob:",
-    "font-src 'self' data:",
-    "connect-src 'self' https://api.stripe.com https://*.stripe.com https://oauth2.googleapis.com https://www.googleapis.com",
-    "frame-src https://js.stripe.com https://hooks.stripe.com",
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "upgrade-insecure-requests"
-  ].join("; ");
-  c.header("Content-Security-Policy", csp);
-  const url = new URL(c.req.url);
-  if (url.protocol === "https:") {
-    c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
-  }
-});
+app.use("*", securityHeadersMiddleware);
 app.use("*", async (c, next) => {
   const corsMiddleware = createCorsMiddleware(c.env);
   return await corsMiddleware(c, next);
