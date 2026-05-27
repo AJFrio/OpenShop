@@ -181,6 +181,8 @@ Complete documentation is available in the `docs/` directory:
 - **[Customization Guide](docs/CUSTOMIZATION.md)** - Frontend and backend customization
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
 - **[Testing Guide](docs/TESTING.md)** - Testing guidelines and examples
+- **[Engineering Harness](docs/HARNESS.md)** - Agent-first docs, validation, and CI
+- **[AGENTS.md](AGENTS.md)** - Short map for coding agents (start here for AI-assisted work)
 
 ---
 
@@ -197,9 +199,11 @@ We welcome contributions! Please follow these steps:
 ### Development Guidelines
 
 - Follow existing code style and patterns
+- Read [AGENTS.md](AGENTS.md) for repository navigation and layer rules
+- Run `npm run harness:validate` and `npm test -- --run` before submitting
 - Add tests for new functionality
 - Update documentation for any changes
-- Ensure all builds pass before submitting
+- Ensure lint and harness CI pass before submitting
 
 ---
 

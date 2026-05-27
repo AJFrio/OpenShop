@@ -1,0 +1,15 @@
+# Cloudflare Workers — agent reference pointers
+
+Official docs (prefer latest Workers + Assets + KV):
+
+- Workers overview: https://developers.cloudflare.com/workers/
+- Wrangler CLI: https://developers.cloudflare.com/workers/wrangler/
+- KV: https://developers.cloudflare.com/kv/
+- Workers Assets: https://developers.cloudflare.com/workers/static-assets/
+- nodejs_compat: https://developers.cloudflare.com/workers/runtime-apis/nodejs/
+
+OpenShop-specific:
+
+- Entry: src/worker.js
+- Config: wrangler.toml (per-site via npm run setup)
+- Local dev: npm run dev
