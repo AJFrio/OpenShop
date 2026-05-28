@@ -148,7 +148,7 @@ export function DashboardPage() {
                             {formatCurrency(product.price, product.currency)}
                           </p>
                         </div>
-                        <Link to={`/admin/products/${product.id}/edit`}>
+                        <Link to={`/admin/products/${product.id}`}>
                           <Button variant="outline" size="sm" className="h-8 text-xs">
                             <Edit className="w-3.5 h-3.5 mr-1.5" />
                             Edit

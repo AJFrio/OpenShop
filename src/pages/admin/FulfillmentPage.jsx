@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
-import { Switch } from '../../components/ui/switch'
 import { formatCurrency } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
 import { X } from 'lucide-react'
@@ -13,7 +12,7 @@ export function FulfillmentPage() {
   const [cursorNext, setCursorNext] = useState(null)
   const [cursorPrev, setCursorPrev] = useState(null)
   const [direction, setDirection] = useState('next')
-  const [showFulfilled, setShowFulfilled] = useState(false)
+  const [statusFilter, setStatusFilter] = useState('open')
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const limit = 25
@@ -26,7 +25,7 @@ export function FulfillmentPage() {
     setCursorNext(null)
     setCursorPrev(null)
     fetchOrders()
-  }, [showFulfilled])
+  }, [statusFilter])
 
   const fetchOrders = async (dir = 'next', cursor) => {
     try {
@@ -34,7 +33,7 @@ export function FulfillmentPage() {
       setError('')
       const params = new URLSearchParams({
         limit: String(limit),
-        showFulfilled: String(showFulfilled),
+        status: statusFilter,
       })
       if (cursor) params.set('cursor', cursor)
       if (dir) params.set('direction', dir)
@@ -262,16 +261,23 @@ export function FulfillmentPage() {
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-[var(--admin-text-primary)]">Fulfillment</h1>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-[var(--admin-text-secondary)]">Unfulfilled</span>
-          <Switch
-            checked={showFulfilled}
-            onCheckedChange={(checked) => {
-              setShowFulfilled(checked)
-              fetchOrders()
-            }}
-          />
-          <span className="text-sm text-[var(--admin-text-secondary)]">Fulfilled</span>
+        <div className="inline-flex rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] p-1">
+          {[
+            { value: 'open', label: 'Open' },
+            { value: 'fulfilled', label: 'Fulfilled' },
+            { value: 'all', label: 'All' },
+          ].map((item) => (
+            <Button
+              key={item.value}
+              type="button"
+              size="sm"
+              variant={statusFilter === item.value ? 'default' : 'ghost'}
+              className="h-8 px-3 text-xs"
+              onClick={() => setStatusFilter(item.value)}
+            >
+              {item.label}
+            </Button>
+          ))}
         </div>
       </div>
 

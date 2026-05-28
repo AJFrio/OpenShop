@@ -55,7 +55,9 @@ export function AdminDashboard() {
       <Route element={<AdminLayout onLogout={handleLogout} />}>
         <Route index element={<DashboardPage />} />
         <Route path="products" element={<ProductsPage />} />
+        <Route path="products/:productId" element={<ProductsPage />} />
         <Route path="collections" element={<CollectionsPage />} />
+        <Route path="fulfillment" element={<FulfillmentPage />} />
         <Route path="Fulfillment" element={<FulfillmentPage />} />
         <Route path="media" element={<MediaLibraryPage />} />
         <Route path="store-settings" element={<StoreSettingsPage />} />

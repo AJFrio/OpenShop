@@ -6,12 +6,23 @@ import { CollectionForm } from '../../components/admin/CollectionForm'
 import { adminApiRequest } from '../../lib/auth'
 import { FolderOpen, Plus, Edit, Trash2 } from 'lucide-react'
 import { Switch } from '../../components/ui/switch'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '../../components/ui/alert-dialog'
 
 export function CollectionsPage() {
   const [collections, setCollections] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingCollection, setEditingCollection] = useState(null)
   const [archivedFilter, setArchivedFilter] = useState('all')
+  const [collectionToDelete, setCollectionToDelete] = useState(null)
 
   useEffect(() => {
     fetchCollections()
@@ -40,8 +51,6 @@ export function CollectionsPage() {
   }
 
   const handleDeleteCollection = async (collectionId) => {
-    if (!confirm('Are you sure you want to delete this collection?')) return
-
     try {
       const response = await adminApiRequest(`/api/admin/collections/${collectionId}`, {
         method: 'DELETE',
@@ -49,6 +58,7 @@ export function CollectionsPage() {
 
       if (response.ok) {
         setCollections(collections.filter((c) => c.id !== collectionId))
+        setCollectionToDelete(null)
       }
     } catch (error) {
       console.error('Error deleting collection:', error)
@@ -152,7 +162,7 @@ export function CollectionsPage() {
                       variant="destructive"
                       size="sm"
                       className="h-8 px-2.5"
-                      onClick={() => handleDeleteCollection(collection.id)}
+                    onClick={() => setCollectionToDelete(collection)}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -163,6 +173,26 @@ export function CollectionsPage() {
           ))}
         </div>
       )}
+
+      <AlertDialog open={!!collectionToDelete} onOpenChange={(open) => !open && setCollectionToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete collection?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {collectionToDelete?.name || 'This collection'} will be removed from admin and storefront organization. Products in it will remain in the catalog.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => handleDeleteCollection(collectionToDelete.id)}
+            >
+              Delete collection
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

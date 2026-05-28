@@ -1,4 +1,5 @@
 import * as React from "react"
+import { cn } from "../../lib/utils"
 
 // Minimal shadcn-style AlertDialog for this project (no portals for simplicity)
 
@@ -27,13 +28,18 @@ export function AlertDialogTrigger({ asChild = false, children }) {
     : <button {...props}>{children}</button>
 }
 
-export function AlertDialogContent({ children }) {
+export function AlertDialogContent({ children, className }) {
   const { open, setOpen } = React.useContext(AlertDialogContext)
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
-      <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setOpen(false)} />
+      <div
+        className={cn(
+          "relative w-full max-w-md mx-4 rounded-lg border border-[var(--admin-border-primary)] bg-[var(--admin-bg-card)] text-[var(--admin-text-primary)] shadow-[var(--admin-shadow-lg)]",
+          className
+        )}
+      >
         {children}
       </div>
     </div>
@@ -45,23 +51,27 @@ export function AlertDialogHeader({ children }) {
 }
 
 export function AlertDialogTitle({ children }) {
-  return <h2 className="text-lg font-semibold text-gray-900">{children}</h2>
+  return <h2 className="text-lg font-semibold text-[var(--admin-text-primary)]">{children}</h2>
 }
 
 export function AlertDialogDescription({ children }) {
-  return <p className="mt-2 text-sm text-gray-600">{children}</p>
+  return <p className="mt-2 text-sm text-[var(--admin-text-secondary)]">{children}</p>
 }
 
 export function AlertDialogFooter({ children }) {
   return <div className="p-6 pt-2 flex justify-end gap-2">{children}</div>
 }
 
-export function AlertDialogCancel({ children, onClick }) {
+export function AlertDialogCancel({ children, onClick, disabled, className }) {
   const { setOpen } = React.useContext(AlertDialogContext)
   return (
     <button
       type="button"
-      className="px-4 py-2 rounded border hover:bg-gray-50"
+      disabled={disabled}
+      className={cn(
+        "px-4 py-2 rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] text-sm text-[var(--admin-text-primary)] hover:bg-[var(--admin-bg-card)] disabled:pointer-events-none disabled:opacity-50",
+        className
+      )}
       onClick={(e) => { onClick?.(e); setOpen(false) }}
     >
       {children}
@@ -69,13 +79,23 @@ export function AlertDialogCancel({ children, onClick }) {
   )
 }
 
-export function AlertDialogAction({ children, onClick }) {
+export function AlertDialogAction({ children, onClick, disabled, variant = 'default', className }) {
   const { setOpen } = React.useContext(AlertDialogContext)
   return (
     <button
       type="button"
-      className="px-4 py-2 rounded bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700"
-      onClick={(e) => { onClick?.(e); setOpen(false) }}
+      disabled={disabled}
+      className={cn(
+        "px-4 py-2 rounded-md text-sm font-medium disabled:pointer-events-none disabled:opacity-50",
+        variant === 'destructive'
+          ? "border border-[var(--admin-error)] bg-transparent text-[var(--admin-error)] hover:bg-[var(--admin-error-bg)]"
+          : "bg-[var(--admin-accent)] text-white hover:bg-[var(--admin-accent-hover)]",
+        className
+      )}
+      onClick={(e) => {
+        const result = onClick?.(e)
+        if (result !== false) setOpen(false)
+      }}
     >
       {children}
     </button>

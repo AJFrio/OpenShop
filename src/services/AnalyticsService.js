@@ -127,6 +127,7 @@ export class AnalyticsService {
     const direction = options.direction || 'next'
     const cursor = options.cursor
     const showFulfilled = options.showFulfilled === true
+    const fulfillmentFilter = options.fulfillmentStatus || (showFulfilled ? 'fulfilled' : 'open')
 
     const listParams = { limit }
     if (cursor) {
@@ -165,7 +166,9 @@ export class AnalyticsService {
         const fulfillmentData = fulfillmentMap.get(s.id)
         const fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false }
 
-        if (showFulfilled) {
+        if (fulfillmentFilter === 'all') {
+          includeSession = true
+        } else if (fulfillmentFilter === 'fulfilled') {
           if (!fulfillmentStatus.fulfilled) {
             includeSession = false
           }
