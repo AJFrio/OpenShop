@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-05-27T22:50:56Z
+// Worker Bundle - Built 2026-05-28T20:24:26Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -13229,6 +13229,7 @@ var AnalyticsService = class {
     const direction = options.direction || "next";
     const cursor = options.cursor;
     const showFulfilled = options.showFulfilled === true;
+    const fulfillmentFilter = options.fulfillmentStatus || (showFulfilled ? "fulfilled" : "open");
     const listParams = { limit };
     if (cursor) {
       if (direction === "prev") {
@@ -13257,7 +13258,9 @@ var AnalyticsService = class {
       if (options.kvNamespace) {
         const fulfillmentData = fulfillmentMap.get(s.id);
         const fulfillmentStatus = fulfillmentData ? JSON.parse(fulfillmentData) : { fulfilled: false };
-        if (showFulfilled) {
+        if (fulfillmentFilter === "all") {
+          includeSession = true;
+        } else if (fulfillmentFilter === "fulfilled") {
           if (!fulfillmentStatus.fulfilled) {
             includeSession = false;
           }
@@ -13398,6 +13401,7 @@ router11.get("/orders", asyncHandler(async (c) => {
   const direction = c.req.query("direction") || "next";
   const cursor = c.req.query("cursor") || void 0;
   const showFulfilled = c.req.query("showFulfilled") === "true";
+  const fulfillmentStatus = c.req.query("status") || (showFulfilled ? "fulfilled" : "open");
   const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
   const analyticsService = new AnalyticsService(stripeService);
   const kvNamespace = getKVNamespace(c.env);
@@ -13406,6 +13410,7 @@ router11.get("/orders", asyncHandler(async (c) => {
     direction,
     cursor,
     showFulfilled,
+    fulfillmentStatus,
     kvNamespace
   });
   return c.json(orders);
