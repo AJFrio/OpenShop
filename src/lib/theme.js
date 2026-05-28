@@ -50,7 +50,7 @@ const DEFAULT_STORE_THEME = {
     fontId: 'inter',
   },
   corners: {
-    enabled: true,
+    enabled: false,
     radiusMultiplier: 1,
   },
 }
