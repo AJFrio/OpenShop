@@ -370,7 +370,7 @@ export function ProductWorkspace() {
 
   const fetchStoreSettings = async () => {
     try {
-      const settingsRes = await adminApiRequest('/api/admin/settings/store-settings')
+      const settingsRes = await adminApiRequest('/api/admin/store-settings')
       if (settingsRes.ok) {
         const settingsData = await settingsRes.json()
         setStoreSettings(settingsData)

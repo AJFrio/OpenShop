@@ -37,7 +37,7 @@ export function FulfillmentPage() {
       })
       if (cursor) params.set('cursor', cursor)
       if (dir) params.set('direction', dir)
-      const res = await adminApiRequest(`/api/admin/orders?${params.toString()}`)
+      const res = await adminApiRequest(`/api/admin/analytics/orders?${params.toString()}`)
       if (!res.ok) throw new Error('Failed to fetch orders')
       const data = await res.json()
       setOrders(data.orders || [])
@@ -53,7 +53,7 @@ export function FulfillmentPage() {
 
   const fulfillOrder = async (orderId) => {
     try {
-      const res = await adminApiRequest(`/api/admin/orders/${orderId}/fulfill`, {
+      const res = await adminApiRequest(`/api/admin/analytics/orders/${orderId}/fulfill`, {
         method: 'POST',
       })
       if (!res.ok) throw new Error('Failed to fulfill order')

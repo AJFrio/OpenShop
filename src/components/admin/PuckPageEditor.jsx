@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Puck } from '@puckeditor/core'
-import '@puckeditor/core/puck.css'
+import '@puckeditor/core/no-external.css'
 import { adminApiRequest } from '../../lib/auth'
 import { createPageBuilderConfig } from '../storefront/page-builder/config'
 
