@@ -68,6 +68,10 @@ export const adminAPI = {
       update: (data) => apiClient.put(API_ENDPOINTS.admin.settings.theme.update, data),
       reset: () => apiClient.delete(API_ENDPOINTS.admin.settings.theme.reset)
     },
+    pages: {
+      get: (slug) => apiClient.get(API_ENDPOINTS.admin.settings.pages.get(slug)),
+      update: (slug, data) => apiClient.put(API_ENDPOINTS.admin.settings.pages.update(slug), data)
+    },
     store: {
       update: (data) => apiClient.put(API_ENDPOINTS.admin.settings.store.update, data)
     }

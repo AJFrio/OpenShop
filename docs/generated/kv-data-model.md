@@ -18,6 +18,7 @@
 | `collection:{id}` | Collection document |
 | `collection:products:{collectionId}` | JSON array of product IDs in collection |
 | `media:{id}` | Media metadata record |
+| `storefront:page:{slug}` | Puck page-builder document for `home` or `about` |
 
 ## Product shape (typical)
 
@@ -57,6 +58,30 @@
   "driveFileId": "string",
   "createdAt": 0,
   "updatedAt": 0
+}
+```
+
+## Storefront page shape
+
+```json
+{
+  "slug": "home",
+  "version": 1,
+  "updatedAt": "2026-05-28T00:00:00.000Z",
+  "data": {
+    "content": [
+      {
+        "type": "HeroSection",
+        "props": {
+          "id": "home-hero",
+          "title": "Welcome to OpenShop"
+        }
+      }
+    ],
+    "root": {
+      "props": {}
+    }
+  }
 }
 ```
 

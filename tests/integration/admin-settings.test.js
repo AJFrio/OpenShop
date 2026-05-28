@@ -1,6 +1,6 @@
 // Integration tests for admin settings endpoints
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createTestApp, createTestRequest, executeRequest, parseJsonResponse, createAdminToken, createAdminHeaders, createTestStoreSettings } from '../utils/test-helpers.js'
+import { createTestApp, createTestRequest, executeRequest, parseJsonResponse, createAdminToken, createAdminHeaders } from '../utils/test-helpers.js'
 import { createMockEnv, createMockKV } from '../setup.js'
 import { KV_KEYS } from '../../src/config/index.js'
 
@@ -92,8 +92,6 @@ describe('Admin Settings Endpoints', () => {
       })
 
       const response = await executeRequest(app, request, env)
-      const data = await parseJsonResponse(response)
-
       // May return 400 or 200 depending on validation implementation
       expect([200, 400]).toContain(response.status)
     })
@@ -177,8 +175,6 @@ describe('Admin Settings Endpoints', () => {
       })
 
       const response = await executeRequest(app, request, env)
-      const data = await parseJsonResponse(response)
-
       expect(response.status).toBe(500) // Service throws error for invalid logoType
     })
 
@@ -245,6 +241,95 @@ describe('Admin Settings Endpoints', () => {
 
       const response = await executeRequest(app, request, env)
       expect(response.status).toBe(401)
+    })
+  })
+
+  describe('GET /api/admin/storefront/pages/:slug', () => {
+    it('should return default page content', async () => {
+      const request = createTestRequest('/api/admin/storefront/pages/home', {
+        method: 'GET',
+        headers: createAdminHeaders(adminToken)
+      })
+
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+
+      expect(response.status).toBe(200)
+      expect(data.slug).toBe('home')
+      expect(Array.isArray(data.data.content)).toBe(true)
+    })
+
+    it('should require authentication', async () => {
+      const request = createTestRequest('/api/admin/storefront/pages/home')
+
+      const response = await executeRequest(app, request, env)
+
+      expect(response.status).toBe(401)
+    })
+
+    it('should reject invalid slugs', async () => {
+      const request = createTestRequest('/api/admin/storefront/pages/checkout', {
+        method: 'GET',
+        headers: createAdminHeaders(adminToken)
+      })
+
+      const response = await executeRequest(app, request, env)
+
+      expect(response.status).toBe(400)
+    })
+  })
+
+  describe('PUT /api/admin/storefront/pages/:slug', () => {
+    it('should publish valid page content', async () => {
+      const request = createTestRequest('/api/admin/storefront/pages/about', {
+        method: 'PUT',
+        body: {
+          data: {
+            content: [
+              {
+                type: 'RichTextSection',
+                props: {
+                  id: 'about-content',
+                  heading: 'About',
+                  body: 'Updated content'
+                }
+              }
+            ],
+            root: { props: {} }
+          }
+        },
+        headers: createAdminHeaders(adminToken)
+      })
+
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+
+      expect(response.status).toBe(200)
+      expect(data.slug).toBe('about')
+      expect(data.updatedAt).toBeTruthy()
+      expect(data.data.content[0].props.body).toBe('Updated content')
+    })
+
+    it('should reject unsupported components', async () => {
+      const request = createTestRequest('/api/admin/storefront/pages/home', {
+        method: 'PUT',
+        body: {
+          data: {
+            content: [
+              {
+                type: 'ScriptBlock',
+                props: { id: 'x' }
+              }
+            ],
+            root: { props: {} }
+          }
+        },
+        headers: createAdminHeaders(adminToken)
+      })
+
+      const response = await executeRequest(app, request, env)
+
+      expect(response.status).toBe(400)
     })
   })
 })

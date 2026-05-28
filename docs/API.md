@@ -14,6 +14,7 @@ These endpoints are publicly accessible and require no authentication.
 | `/api/collections/:id` | `GET` | Get single collection | None |
 | `/api/collections/:id/products` | `GET` | Get products in collection | None |
 | `/api/store-settings` | `GET` | Get store configuration | None |
+| `/api/storefront/pages/:slug` | `GET` | Get Puck page-builder content for `home` or `about` | None |
 
 ## Checkout Endpoints
 
@@ -35,6 +36,7 @@ These endpoints require admin authentication via the `X-Admin-Token` header.
 | `/api/admin/products` | `POST` | Create product | Admin Token |
 | `/api/admin/products/:id` | `PUT, DELETE` | Update/delete product | Admin Token |
 | `/api/admin/store-settings` | `PUT` | Update store settings | Admin Token |
+| `/api/admin/storefront/pages/:slug` | `GET, PUT` | Load or publish Puck page-builder content for `home` or `about` | Admin Token |
 | `/api/analytics` | `GET` | Revenue and order analytics | Admin Token |
 | `/api/admin/ai/generate-image` | `POST` | Generate image via Gemini | Admin Token |
 | `/api/admin/drive/status` | `GET` | Google Drive connection status | Admin Token |

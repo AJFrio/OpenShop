@@ -16,6 +16,7 @@ Storefront browse, cart, Stripe checkout, and admin CRUD for products and collec
 - Login at `/admin` with password → token.
 - CRUD products (images, variants, archive) and collections (hero image).
 - Store settings: branding, theme-related fields.
+- Website editor: Home and About page content use Puck JSON stored in KV; products, collections, cart, checkout, navigation, and footer remain code-owned storefront behavior.
 - Analytics: revenue/orders from Stripe (admin-only).
 
 ## Out of scope

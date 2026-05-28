@@ -47,6 +47,7 @@ export const KV_KEYS = {
   COLLECTIONS_LIST: 'collections:all',
   MEDIA_LIST: 'media:all',
   STORE_SETTINGS: 'store:settings',
+  STOREFRONT_PAGE_PREFIX: 'storefront:page:',
   DRIVE_TOKEN: 'drive:oauth:tokens',
   DRIVE_FOLDER_PREFIX: 'drive:folder',
   ADMIN_TOKEN_PREFIX: 'admin_token:',

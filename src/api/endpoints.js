@@ -12,7 +12,8 @@ export const API_ENDPOINTS = {
     products: (id) => `/api/collections/${id}/products`
   },
   storefront: {
-    theme: '/api/storefront/theme'
+    theme: '/api/storefront/theme',
+    page: (slug) => `/api/storefront/pages/${slug}`
   },
   storeSettings: {
     get: '/api/store-settings',
@@ -72,6 +73,10 @@ export const API_ENDPOINTS = {
         get: '/api/admin/storefront/theme',
         update: '/api/admin/storefront/theme',
         reset: '/api/admin/storefront/theme'
+      },
+      pages: {
+        get: (slug) => `/api/admin/storefront/pages/${slug}`,
+        update: (slug) => `/api/admin/storefront/pages/${slug}`
       },
       store: {
         update: '/api/admin/store-settings'
