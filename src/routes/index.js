@@ -9,6 +9,7 @@ import checkoutRouter from './public/checkout.js'
 import imageProxyRouter from './public/imageProxy.js'
 import storeSettingsRouter, { contactEmailRouter } from './public/storeSettings.js'
 import imagesRouter from './public/images.js'
+import pagesRouter from './public/pages.js'
 
 // Admin routes
 import authRouter from './admin/auth.js'
@@ -39,6 +40,7 @@ export function registerRoutes(app) {
   app.route('/api/store-settings', storeSettingsRouter)
   app.route('/api/contact-email', contactEmailRouter)
   app.route('/api/images', imagesRouter)
+  app.route('/api/storefront/pages', pagesRouter)
 
   // Admin API routes
   app.route('/api/admin', authRouter) // /api/admin/login

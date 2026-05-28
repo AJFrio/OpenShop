@@ -75,7 +75,7 @@ export async function createTestApp() {
       "img-src 'self' data: https: blob:",
       "font-src 'self' data:",
       "connect-src 'self' https://api.stripe.com https://*.stripe.com https://oauth2.googleapis.com https://www.googleapis.com",
-      "frame-src https://js.stripe.com https://hooks.stripe.com",
+      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -143,11 +143,9 @@ export function createTestRequest(url, options = {}) {
     method = 'GET',
     body = null,
     headers = {},
-    params = {}
   } = options
 
   const fullUrl = url.startsWith('http') ? url : `https://test.workers.dev${url}`
-  const urlObj = new URL(fullUrl)
 
   // Create headers object
   const headersObj = new Headers(headers)

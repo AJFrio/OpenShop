@@ -1,6 +1,6 @@
 // Integration tests for public API endpoints
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { createTestApp, createTestRequest, executeRequest, parseJsonResponse, setupTestEnvironment, createTestProduct, createTestCollection, createTestStoreSettings, setupProductInKV, setupCollectionInKV } from '../utils/test-helpers.js'
+import { createTestApp, createTestRequest, executeRequest, parseJsonResponse, createTestProduct, createTestCollection, createTestStoreSettings, setupProductInKV, setupCollectionInKV } from '../utils/test-helpers.js'
 import { createMockEnv, createMockKV } from '../setup.js'
 
 describe('Public Endpoints', () => {
@@ -218,6 +218,27 @@ describe('Public Endpoints', () => {
 
       expect(response.status).toBe(200)
       expect(data.storeName).toBe('Custom Store')
+    })
+  })
+
+  describe('GET /api/storefront/pages/:slug', () => {
+    it('should return default public home page content', async () => {
+      const request = createTestRequest('/api/storefront/pages/home')
+
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+
+      expect(response.status).toBe(200)
+      expect(data.slug).toBe('home')
+      expect(Array.isArray(data.data.content)).toBe(true)
+    })
+
+    it('should reject invalid public page slugs', async () => {
+      const request = createTestRequest('/api/storefront/pages/checkout')
+
+      const response = await executeRequest(app, request, env)
+
+      expect(response.status).toBe(400)
     })
   })
 

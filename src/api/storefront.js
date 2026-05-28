@@ -7,6 +7,7 @@ export const storefrontAPI = {
    * Get storefront theme
    */
   getTheme: () => apiClient.get(API_ENDPOINTS.storefront.theme),
+  getPage: (slug) => apiClient.get(API_ENDPOINTS.storefront.page(slug)),
 
   /**
    * Get store settings

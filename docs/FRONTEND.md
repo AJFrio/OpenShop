@@ -16,6 +16,7 @@ React 19 + Vite + Tailwind CSS 4 + ShadCN-style components under `src/components
 src/pages/storefront/   # Public shop pages
 src/pages/admin/        # Admin shell (AdminDashboard, AdminLayout) + feature pages
 src/components/storefront/
+src/components/storefront/page-builder/  # Puck config + render-only storefront blocks
 src/components/admin/store-settings/  # Shared store settings / theme form helpers
 src/components/admin/
 src/components/ui/      # Shared primitives (button, card, input, …)
@@ -29,6 +30,7 @@ src/api/                # Fetch wrappers for public/admin APIs
 - **Images:** Use `normalizeImageUrl` from `src/lib/utils.js` for consistent CDN/proxy URLs.
 - **Admin auth:** `adminApiRequest` attaches `X-Admin-Token` from session storage.
 - **Cart:** `CartContext` persists to `localStorage`.
+- **Page builder:** Home/About content is stored as Puck JSON from `/api/storefront/pages/:slug`; `Navbar`, `Footer`, product pages, collection pages, cart, and checkout remain outside Puck.
 
 ## Routing
 
