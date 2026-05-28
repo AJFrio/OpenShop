@@ -1,18 +1,62 @@
 {
-  "/assets/index-mjt9oek4.js": {
-    "hash": "fd93dd7acefa56ab18872bb60b8f3fd56ed6d1617d7f649f17177f61c7fee9ba",
-    "size": 759582
+  "/assets/Editor-EPSED64A-w2-0mv8K.js": {
+    "hash": "4deba52bfd43198887a63ee38b58a1a1b542f009b231c6c4cc7cde246189a361",
+    "size": 2287
   },
-  "/assets/index-s1dnhP4l.css": {
-    "hash": "e7d5a6577c520846f95b776a065cbc38a070a89b7d767d0ecddfded351ef00e4",
-    "size": 65794
+  "/assets/PuckPageEditor-3duaJnFZ.js": {
+    "hash": "01801a59c25356230d652f43a324489990883c1103e72d4ee8fd9b15de57c126",
+    "size": 4067
+  },
+  "/assets/PuckPageEditor-BaafuJxY.css": {
+    "hash": "b670e4f7c7b4e1b58aec977ad02bd1e77b79e7eb6049a2f23344eebb0c8fb209",
+    "size": 59875
+  },
+  "/assets/Render-CU35UAWV-Dn5wMWK8.js": {
+    "hash": "09f6482719b17d0653bf4e9c247d7f2a4b13ec614b6ecc7fb5e7fee7cfb8cb33",
+    "size": 1706
+  },
+  "/assets/chunk-2CNEFIQP-C1YQ5Y6u.js": {
+    "hash": "22190e0f48bc0fba7bd8c6c6af1f1c2df9657b0c6d0c235892f7ba4ce9570f72",
+    "size": 58422
+  },
+  "/assets/full-N67EAB2Q-B_iEVaF2.js": {
+    "hash": "372befd72dc330e436a68d2a9f1ad335f9cd92e629f089c19d518aa55e636b0e",
+    "size": 2138
+  },
+  "/assets/index-DFlvbuCu.js": {
+    "hash": "bbce702b4d2a1e4f54295215a99f6ccc692f1685542efb4916aca53c80d6bc8c",
+    "size": 14586
+  },
+  "/assets/index-IIJh-4Bn.js": {
+    "hash": "ecdf32d6a50beaa7d6c70fc9a20d2575c1d9147526c7e6cb33996b2a2ed0656b",
+    "size": 1164948
+  },
+  "/assets/index-minhF0Aa.js": {
+    "hash": "80a600ce710f390fa831c5bcb445baa09e993594cdf705dc30b03d01f9c62a16",
+    "size": 277762
+  },
+  "/assets/index-t50fmPOd.css": {
+    "hash": "1f8dc6f019cf3f6fa8f464647ddeec0a7a1f4dbfee5418e7a45637c3d6167436",
+    "size": 65522
+  },
+  "/assets/loaded-F37CNCVG-veZsEfo0.js": {
+    "hash": "e92ff34b13a69a2092d5819671179d2b19c38efe10106c0cb197961af4327f7e",
+    "size": 677
+  },
+  "/assets/loaded-H325ZSK5-CdU44dKF.js": {
+    "hash": "d4ffebc48e090afb5147fe494032a2d744b0278968b4c3570ea924d13d85e656",
+    "size": 630
+  },
+  "/assets/loaded-MIY725CK-OIDbEZXG.js": {
+    "hash": "aad569a1779c43fb2cb2f11b9e0cf3342208ee6d8e7f0092d11c1e0bd69fccfa",
+    "size": 702
   },
   "/cart.png": {
     "hash": "7f447e40edee2caa22d91ccab3420324a3ed86c61b1dc6fa3dd8a53fb2ea0c82",
     "size": 45827
   },
   "/index.html": {
-    "hash": "11e78d6efc6ab82d7b3fdf78e49e72994c815f5ea242a70bbb365f1f69e3e696",
+    "hash": "866b4f882da6b6235c1225e0324b4d0fea4cebe84e26411693ee4744671a5869",
     "size": 455
   },
   "/logo.png": {

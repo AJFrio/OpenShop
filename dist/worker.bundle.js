@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-05-28T20:24:26Z
+// Worker Bundle - Built 2026-05-28T20:59:53Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -5126,20 +5126,20 @@ var SmartRouter = class {
     let i = 0;
     let res;
     for (; i < len; i++) {
-      const router16 = routers[i];
+      const router17 = routers[i];
       try {
         for (let i2 = 0, len2 = routes.length; i2 < len2; i2++) {
-          router16.add(...routes[i2]);
+          router17.add(...routes[i2]);
         }
-        res = router16.match(method, path);
+        res = router17.match(method, path);
       } catch (e) {
         if (e instanceof UnsupportedPathError) {
           continue;
         }
         throw e;
       }
-      this.match = router16.match.bind(router16);
-      this.#routers = [router16];
+      this.match = router17.match.bind(router17);
+      this.#routers = [router17];
       this.#routes = void 0;
       break;
     }
@@ -5533,6 +5533,7 @@ var KV_KEYS = {
   COLLECTIONS_LIST: "collections:all",
   MEDIA_LIST: "media:all",
   STORE_SETTINGS: "store:settings",
+  STOREFRONT_PAGE_PREFIX: "storefront:page:",
   DRIVE_TOKEN: "drive:oauth:tokens",
   DRIVE_FOLDER_PREFIX: "drive:folder",
   ADMIN_TOKEN_PREFIX: "admin_token:"
@@ -5584,7 +5585,7 @@ async function securityHeadersMiddleware(c, next) {
     "img-src 'self' data: https: blob:",
     "font-src 'self' data:",
     "connect-src 'self' https://api.stripe.com https://*.stripe.com https://oauth2.googleapis.com https://www.googleapis.com",
-    "frame-src https://js.stripe.com https://hooks.stripe.com",
+    "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -12708,12 +12709,325 @@ router7.get("/:key", async (c) => {
 });
 var images_default = router7;
 
+// src/routes/public/pages.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// src/services/PageContentService.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+
+// src/lib/pageContent.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var PAGE_VERSION = 1;
+var MAX_PAGE_BYTES = 5e4;
+var MAX_TEXT_LENGTH = 5e3;
+var ALLOWED_PAGE_SLUGS = ["home", "about"];
+var PAGE_COMPONENT_PROPS = {
+  HeroSection: {
+    title: "string",
+    subtitle: "string",
+    imageUrl: "url",
+    primaryLabel: "string",
+    primaryPath: "url",
+    secondaryLabel: "string",
+    secondaryPath: "url"
+  },
+  FeaturedProducts: {
+    heading: "string",
+    maxItems: "number"
+  },
+  ProductGrid: {
+    heading: "string",
+    showCollectionFilter: "boolean"
+  },
+  RichTextSection: {
+    heading: "string",
+    body: "string"
+  },
+  ImageTextSection: {
+    imageUrl: "url",
+    heading: "string",
+    body: "string",
+    imageAlign: "enum:left,right"
+  }
+};
+var ALLOWED_PAGE_COMPONENTS = Object.keys(PAGE_COMPONENT_PROPS);
+function getPageContentKey(slug) {
+  assertPageSlug(slug);
+  return `storefront:page:${slug}`;
+}
+__name(getPageContentKey, "getPageContentKey");
+function assertPageSlug(slug) {
+  if (!ALLOWED_PAGE_SLUGS.includes(slug)) {
+    throw new Error(`Invalid page slug: ${slug}`);
+  }
+}
+__name(assertPageSlug, "assertPageSlug");
+function createDefaultPageRecord(slug, settings = {}) {
+  assertPageSlug(slug);
+  const data = slug === "about" ? createDefaultAboutData(settings) : createDefaultHomeData(settings);
+  return {
+    slug,
+    version: PAGE_VERSION,
+    updatedAt: null,
+    data
+  };
+}
+__name(createDefaultPageRecord, "createDefaultPageRecord");
+function createPageRecord(slug, data, now = /* @__PURE__ */ new Date()) {
+  assertPageSlug(slug);
+  const sanitizedData = validatePageData(data);
+  return {
+    slug,
+    version: PAGE_VERSION,
+    updatedAt: now.toISOString(),
+    data: sanitizedData
+  };
+}
+__name(createPageRecord, "createPageRecord");
+function validatePageRecord(record) {
+  if (!record || typeof record !== "object") {
+    throw new Error("Invalid page record");
+  }
+  assertPageSlug(record.slug);
+  return {
+    slug: record.slug,
+    version: PAGE_VERSION,
+    updatedAt: typeof record.updatedAt === "string" ? record.updatedAt : null,
+    data: validatePageData(record.data)
+  };
+}
+__name(validatePageRecord, "validatePageRecord");
+function validatePageData(data) {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Page data must be an object");
+  }
+  const serialized = JSON.stringify(data);
+  if (serialized.length > MAX_PAGE_BYTES) {
+    throw new Error("Page data is too large");
+  }
+  if (!Array.isArray(data.content)) {
+    throw new Error("Page data must include a content array");
+  }
+  if (!data.root || typeof data.root !== "object" || Array.isArray(data.root)) {
+    throw new Error("Page data must include a root object");
+  }
+  return {
+    content: data.content.map(validateContentItem),
+    root: {
+      ...data.root,
+      props: sanitizePlainObject(data.root.props || {})
+    }
+  };
+}
+__name(validatePageData, "validatePageData");
+function validateContentItem(item) {
+  if (!item || typeof item !== "object" || Array.isArray(item)) {
+    throw new Error("Page content entries must be objects");
+  }
+  if (!ALLOWED_PAGE_COMPONENTS.includes(item.type)) {
+    throw new Error(`Unsupported page component: ${item.type}`);
+  }
+  return {
+    type: item.type,
+    props: sanitizeProps(item.type, item.props || {})
+  };
+}
+__name(validateContentItem, "validateContentItem");
+function sanitizeProps(type, props) {
+  if (!props || typeof props !== "object" || Array.isArray(props)) {
+    throw new Error(`${type} props must be an object`);
+  }
+  const schema = PAGE_COMPONENT_PROPS[type];
+  const sanitized = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (key === "id") {
+      sanitized.id = sanitizeString(value, 128);
+      continue;
+    }
+    const expectedType = schema[key];
+    if (!expectedType) continue;
+    sanitized[key] = sanitizeValue(key, value, expectedType);
+  }
+  return sanitized;
+}
+__name(sanitizeProps, "sanitizeProps");
+function sanitizeValue(key, value, expectedType) {
+  if (expectedType === "string") {
+    return sanitizeString(value, MAX_TEXT_LENGTH);
+  }
+  if (expectedType === "url") {
+    const text = sanitizeString(value, 1e3);
+    if (!text) return "";
+    if (isSafeUrl(text)) return text;
+    throw new Error(`${key} must be an http, https, or relative URL`);
+  }
+  if (expectedType === "number") {
+    const numberValue = Number(value);
+    if (!Number.isFinite(numberValue)) {
+      throw new Error(`${key} must be a number`);
+    }
+    return Math.max(0, Math.min(Math.round(numberValue), 24));
+  }
+  if (expectedType === "boolean") {
+    if (value === true || value === "true") return true;
+    if (value === false || value === "false") return false;
+    throw new Error(`${key} must be true or false`);
+  }
+  if (expectedType.startsWith("enum:")) {
+    const options = expectedType.replace("enum:", "").split(",");
+    const text = sanitizeString(value, 100);
+    if (!options.includes(text)) {
+      throw new Error(`${key} must be one of: ${options.join(", ")}`);
+    }
+    return text;
+  }
+  throw new Error(`Unsupported field type for ${key}`);
+}
+__name(sanitizeValue, "sanitizeValue");
+function sanitizeString(value, maxLength) {
+  if (value === void 0 || value === null) return "";
+  if (typeof value !== "string") {
+    throw new Error("Expected a string value");
+  }
+  return value.slice(0, maxLength);
+}
+__name(sanitizeString, "sanitizeString");
+function sanitizePlainObject(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return JSON.parse(JSON.stringify(value));
+}
+__name(sanitizePlainObject, "sanitizePlainObject");
+function isSafeUrl(value) {
+  if (value.startsWith("#")) return true;
+  if (value.startsWith("/") && !value.startsWith("//")) return true;
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+__name(isSafeUrl, "isSafeUrl");
+function createDefaultHomeData(settings) {
+  return {
+    content: [
+      {
+        type: "HeroSection",
+        props: {
+          id: "home-hero",
+          title: settings.heroTitle || "Welcome to OpenShop",
+          subtitle: settings.heroSubtitle || "Discover amazing products at unbeatable prices. Built on Cloudflare for lightning-fast performance.",
+          imageUrl: settings.heroImageUrl || "",
+          primaryLabel: "Shop Now",
+          primaryPath: "#products",
+          secondaryLabel: "Learn More",
+          secondaryPath: "/about"
+        }
+      },
+      {
+        type: "FeaturedProducts",
+        props: {
+          id: "featured-products",
+          heading: "Featured Products",
+          maxItems: 3
+        }
+      },
+      {
+        type: "ProductGrid",
+        props: {
+          id: "product-grid",
+          heading: "All Products",
+          showCollectionFilter: true
+        }
+      }
+    ],
+    root: { props: {} }
+  };
+}
+__name(createDefaultHomeData, "createDefaultHomeData");
+function createDefaultAboutData(settings) {
+  return {
+    content: [
+      {
+        type: "HeroSection",
+        props: {
+          id: "about-hero",
+          title: settings.aboutHeroTitle || "About Us",
+          subtitle: settings.aboutHeroSubtitle || "Learn more about our story and mission",
+          imageUrl: settings.aboutHeroImageUrl || "",
+          primaryLabel: "",
+          primaryPath: "",
+          secondaryLabel: "",
+          secondaryPath: ""
+        }
+      },
+      {
+        type: "RichTextSection",
+        props: {
+          id: "about-content",
+          heading: "",
+          body: settings.aboutContent || "Welcome to our store! We are passionate about providing high-quality products and exceptional customer service. Our journey began with a simple idea: to make great products accessible to everyone.\n\nWe believe in quality, sustainability, and building lasting relationships with our customers. Every product in our catalog is carefully selected to meet our high standards.\n\nThank you for choosing us for your shopping needs!"
+        }
+      }
+    ],
+    root: { props: {} }
+  };
+}
+__name(createDefaultAboutData, "createDefaultAboutData");
+
+// src/services/PageContentService.js
+var PageContentService = class {
+  static {
+    __name(this, "PageContentService");
+  }
+  constructor(kvNamespace) {
+    this.kv = kvNamespace;
+    this.settingsService = new StoreSettingsService(kvNamespace);
+  }
+  async getPage(slug) {
+    const key = getPageContentKey(slug);
+    const raw2 = await this.kv.get(key);
+    if (raw2) {
+      return validatePageRecord(JSON.parse(raw2));
+    }
+    const settings = await this.settingsService.getSettings();
+    return createDefaultPageRecord(slug, settings);
+  }
+  async updatePage(slug, data) {
+    const key = getPageContentKey(slug);
+    const record = createPageRecord(slug, data);
+    await this.kv.put(key, JSON.stringify(record));
+    return record;
+  }
+};
+
+// src/routes/public/pages.js
+var router8 = new Hono2();
+router8.get("/:slug", asyncHandler(async (c) => {
+  const slug = c.req.param("slug");
+  const kvNamespace = getKVNamespace(c.env);
+  const service = new PageContentService(kvNamespace);
+  try {
+    const page = await service.getPage(slug);
+    return c.json(page);
+  } catch (error3) {
+    throw new ValidationError(error3.message);
+  }
+}));
+var pages_default = router8;
+
 // src/routes/admin/auth.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-var router8 = new Hono2();
-router8.post("/login", asyncHandler(async (c) => {
+var router9 = new Hono2();
+router9.post("/login", asyncHandler(async (c) => {
   const { password } = await c.req.json();
   if (!password || typeof password !== "string") {
     throw new ValidationError("Password is required");
@@ -12750,7 +13064,7 @@ router8.post("/login", asyncHandler(async (c) => {
   });
   return c.json({ token });
 }));
-var auth_default = router8;
+var auth_default = router9;
 
 // src/routes/admin/products.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -12989,14 +13303,14 @@ var ProductStripeService = class {
 };
 
 // src/routes/admin/products.js
-var router9 = new Hono2();
-router9.get("/", asyncHandler(async (c) => {
+var router10 = new Hono2();
+router10.get("/", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
   const products = await productService.getAllProductsAdmin();
   return c.json(products);
 }));
-router9.post("/", asyncHandler(async (c) => {
+router10.post("/", asyncHandler(async (c) => {
   const productData = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
@@ -13014,13 +13328,13 @@ router9.post("/", asyncHandler(async (c) => {
   const savedProduct = await productService.createProduct(product);
   return c.json(savedProduct, 201);
 }));
-router9.get("/:id", asyncHandler(async (c) => {
+router10.get("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
   const product = await productService.getProduct(c.req.param("id"));
   return c.json(product);
 }));
-router9.put("/:id", asyncHandler(async (c) => {
+router10.put("/:id", asyncHandler(async (c) => {
   const updates = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
@@ -13058,7 +13372,7 @@ router9.put("/:id", asyncHandler(async (c) => {
   const updatedProduct = await productService.updateProduct(c.req.param("id"), updates);
   return c.json(updatedProduct);
 }));
-router9.delete("/:id", asyncHandler(async (c) => {
+router10.delete("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
   const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
@@ -13072,46 +13386,46 @@ router9.delete("/:id", asyncHandler(async (c) => {
   await productService.deleteProduct(c.req.param("id"));
   return c.json({ success: true });
 }));
-var products_default2 = router9;
+var products_default2 = router10;
 
 // src/routes/admin/collections.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-var router10 = new Hono2();
-router10.get("/", asyncHandler(async (c) => {
+var router11 = new Hono2();
+router11.get("/", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
   const collections = await collectionService.getAllCollectionsAdmin();
   return c.json(collections);
 }));
-router10.post("/", asyncHandler(async (c) => {
+router11.post("/", asyncHandler(async (c) => {
   const collectionData = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
   const savedCollection = await collectionService.createCollection(collectionData);
   return c.json(savedCollection, 201);
 }));
-router10.get("/:id", asyncHandler(async (c) => {
+router11.get("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
   const collection = await collectionService.getCollection(c.req.param("id"));
   return c.json(collection);
 }));
-router10.put("/:id", asyncHandler(async (c) => {
+router11.put("/:id", asyncHandler(async (c) => {
   const updates = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
   const updatedCollection = await collectionService.updateCollection(c.req.param("id"), updates);
   return c.json(updatedCollection);
 }));
-router10.delete("/:id", asyncHandler(async (c) => {
+router11.delete("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
   await collectionService.deleteCollection(c.req.param("id"));
   return c.json({ success: true });
 }));
-var collections_default2 = router10;
+var collections_default2 = router11;
 
 // src/routes/admin/analytics.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -13387,8 +13701,8 @@ var AnalyticsService = class {
 };
 
 // src/routes/admin/analytics.js
-var router11 = new Hono2();
-router11.get("/", asyncHandler(async (c) => {
+var router12 = new Hono2();
+router12.get("/", asyncHandler(async (c) => {
   const period = c.req.query("period") || "30d";
   const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
   const kvNamespace = getKVNamespace(c.env);
@@ -13396,7 +13710,7 @@ router11.get("/", asyncHandler(async (c) => {
   const analytics = await analyticsService.getAnalytics(period);
   return c.json(analytics);
 }));
-router11.get("/orders", asyncHandler(async (c) => {
+router12.get("/orders", asyncHandler(async (c) => {
   const limit = Math.min(parseInt(c.req.query("limit") || "25", 10), 50);
   const direction = c.req.query("direction") || "next";
   const cursor = c.req.query("cursor") || void 0;
@@ -13415,7 +13729,7 @@ router11.get("/orders", asyncHandler(async (c) => {
   });
   return c.json(orders);
 }));
-router11.post("/orders/:orderId/fulfill", asyncHandler(async (c) => {
+router12.post("/orders/:orderId/fulfill", asyncHandler(async (c) => {
   const orderId = c.req.param("orderId");
   const kvNamespace = getKVNamespace(c.env);
   if (!kvNamespace) {
@@ -13430,7 +13744,7 @@ router11.post("/orders/:orderId/fulfill", asyncHandler(async (c) => {
   await kvNamespace.put(fulfillmentKey, JSON.stringify(fulfillmentData));
   return c.json({ success: true, fulfillment: fulfillmentData });
 }));
-var analytics_default = router11;
+var analytics_default = router12;
 
 // src/routes/admin/media.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -13487,14 +13801,14 @@ var MediaService = class {
 };
 
 // src/routes/admin/media.js
-var router12 = new Hono2();
-router12.get("/", asyncHandler(async (c) => {
+var router13 = new Hono2();
+router13.get("/", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const mediaService = new MediaService(kvNamespace);
   const items = await mediaService.getAllMediaItems();
   return c.json(items);
 }));
-router12.post("/", asyncHandler(async (c) => {
+router13.post("/", asyncHandler(async (c) => {
   const body = await c.req.json();
   const url = body?.url;
   if (!url || typeof url !== "string" || url.trim() === "") {
@@ -13505,7 +13819,7 @@ router12.post("/", asyncHandler(async (c) => {
   const saved = await mediaService.createMediaItem(body);
   return c.json(saved, 201);
 }));
-router12.delete("/:id", asyncHandler(async (c) => {
+router13.delete("/:id", asyncHandler(async (c) => {
   const id = c.req.param("id");
   if (!id) {
     throw new ValidationError("Missing id");
@@ -13515,14 +13829,14 @@ router12.delete("/:id", asyncHandler(async (c) => {
   await mediaService.deleteMediaItem(id);
   return c.json({ success: true });
 }));
-var media_default = router12;
+var media_default = router13;
 
 // src/routes/admin/storage.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-var router13 = new Hono2();
-router13.post("/upload", asyncHandler(async (c) => {
+var router14 = new Hono2();
+router14.post("/upload", asyncHandler(async (c) => {
   const { mimeType, dataBase64, filename } = await c.req.json();
   if (!mimeType || !dataBase64) {
     throw new ValidationError("Missing mimeType or dataBase64");
@@ -13531,7 +13845,7 @@ router13.post("/upload", asyncHandler(async (c) => {
   const result = await r2Service.uploadFile(mimeType, dataBase64, filename || "image");
   return c.json(result);
 }));
-var storage_default = router13;
+var storage_default = router14;
 
 // src/routes/admin/settings.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -13598,13 +13912,13 @@ function validateThemePayload(payload) {
 __name(validateThemePayload, "validateThemePayload");
 
 // src/routes/admin/settings.js
-var router14 = new Hono2();
-router14.get("/storefront/theme", asyncHandler(async (c) => {
+var router15 = new Hono2();
+router15.get("/storefront/theme", asyncHandler(async (c) => {
   const themeService = new ThemeService(c.env);
   const theme = await themeService.getTheme();
   return c.json(theme);
 }));
-router14.put("/storefront/theme", asyncHandler(async (c) => {
+router15.put("/storefront/theme", asyncHandler(async (c) => {
   const payload = await c.req.json();
   const validation = validateThemePayload(payload);
   if (!validation.valid) {
@@ -13614,12 +13928,12 @@ router14.put("/storefront/theme", asyncHandler(async (c) => {
   const theme = await themeService.updateTheme(payload);
   return c.json(theme);
 }));
-router14.delete("/storefront/theme", asyncHandler(async (c) => {
+router15.delete("/storefront/theme", asyncHandler(async (c) => {
   const themeService = new ThemeService(c.env);
   const theme = await themeService.resetTheme();
   return c.json(theme);
 }));
-router14.get("/store-settings", asyncHandler(async (c) => {
+router15.get("/store-settings", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const settingsService = new StoreSettingsService(kvNamespace);
   const settings = await settingsService.getSettings();
@@ -13628,21 +13942,44 @@ router14.get("/store-settings", asyncHandler(async (c) => {
   }
   return c.json(settings);
 }));
-router14.put("/store-settings", asyncHandler(async (c) => {
+router15.put("/store-settings", asyncHandler(async (c) => {
   const settings = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const settingsService = new StoreSettingsService(kvNamespace);
   const updatedSettings = await settingsService.updateSettings(settings);
   return c.json(updatedSettings);
 }));
-var settings_default = router14;
+router15.get("/storefront/pages/:slug", asyncHandler(async (c) => {
+  const slug = c.req.param("slug");
+  const kvNamespace = getKVNamespace(c.env);
+  const pageContentService = new PageContentService(kvNamespace);
+  try {
+    const page = await pageContentService.getPage(slug);
+    return c.json(page);
+  } catch (error3) {
+    throw new ValidationError(error3.message);
+  }
+}));
+router15.put("/storefront/pages/:slug", asyncHandler(async (c) => {
+  const slug = c.req.param("slug");
+  const payload = await c.req.json();
+  const kvNamespace = getKVNamespace(c.env);
+  const pageContentService = new PageContentService(kvNamespace);
+  try {
+    const page = await pageContentService.updatePage(slug, payload.data || payload);
+    return c.json(page);
+  } catch (error3) {
+    throw new ValidationError(error3.message);
+  }
+}));
+var settings_default = router15;
 
 // src/routes/admin/ai.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-var router15 = new Hono2();
-router15.post("/generate-image", asyncHandler(async (c) => {
+var router16 = new Hono2();
+router16.post("/generate-image", asyncHandler(async (c) => {
   const { prompt, inputs } = await c.req.json();
   if (!prompt || typeof prompt !== "string") {
     throw new ValidationError("Missing prompt");
@@ -13702,7 +14039,7 @@ router15.post("/generate-image", asyncHandler(async (c) => {
   }
   return c.json({ mimeType: mime, dataBase64: foundBase64 });
 }));
-var ai_default = router15;
+var ai_default = router16;
 
 // src/routes/index.js
 function registerRoutes(app2) {
@@ -13717,6 +14054,7 @@ function registerRoutes(app2) {
   app2.route("/api/store-settings", storeSettings_default);
   app2.route("/api/contact-email", contactEmailRouter);
   app2.route("/api/images", images_default);
+  app2.route("/api/storefront/pages", pages_default);
   app2.route("/api/admin", auth_default);
   app2.route("/api/admin/products", products_default2);
   app2.route("/api/admin/collections", collections_default2);
