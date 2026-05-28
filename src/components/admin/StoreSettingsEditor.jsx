@@ -95,6 +95,7 @@ export function StoreSettingsEditor() {
     businessPostalCode: '',
     businessCountry: ''
   })
+  const [settingsBaseline, setSettingsBaseline] = useState(null)
   const [saving, setSaving] = useState(false)
   const [modalImage, setModalImage] = useState(null)
   const [savedOpen, setSavedOpen] = useState(false)
@@ -114,6 +115,10 @@ export function StoreSettingsEditor() {
 
   const previewTheme = useMemo(() => resolveStorefrontTheme(themeState), [themeState])
   const previewStyles = useMemo(() => ({ ...previewTheme.cssVariables }), [previewTheme])
+  const settingsDirty = useMemo(
+    () => JSON.stringify(settings) !== JSON.stringify(settingsBaseline || settings),
+    [settings, settingsBaseline]
+  )
   const selectedFontOption = useMemo(
     () => FONT_OPTIONS.find((font) => font.id === themeState.typography.fontId) || FONT_OPTIONS[0],
     [themeState.typography.fontId]
@@ -155,15 +160,19 @@ export function StoreSettingsEditor() {
       const response = await fetch('/api/store-settings')
       if (response.ok) {
         const data = await response.json()
-        setSettings(prev => ({
-          ...prev,
-          ...data,
-          // Ensure about page fields have defaults if missing
-          aboutHeroImageUrl: data.aboutHeroImageUrl || '',
-          aboutHeroTitle: data.aboutHeroTitle || prev.aboutHeroTitle,
-          aboutHeroSubtitle: data.aboutHeroSubtitle || prev.aboutHeroSubtitle,
-          aboutContent: data.aboutContent || prev.aboutContent || ''
-        }))
+        setSettings(prev => {
+          const nextSettings = {
+            ...prev,
+            ...data,
+            // Ensure about page fields have defaults if missing
+            aboutHeroImageUrl: data.aboutHeroImageUrl || '',
+            aboutHeroTitle: data.aboutHeroTitle || prev.aboutHeroTitle,
+            aboutHeroSubtitle: data.aboutHeroSubtitle || prev.aboutHeroSubtitle,
+            aboutContent: data.aboutContent || prev.aboutContent || ''
+          }
+          setSettingsBaseline(nextSettings)
+          return nextSettings
+        })
       }
     } catch (error) {
       console.error('Error fetching store settings:', error)
@@ -341,6 +350,7 @@ export function StoreSettingsEditor() {
       if (response.ok) {
         const updatedSettings = await response.json()
         setSettings(updatedSettings)
+        setSettingsBaseline(updatedSettings)
         setSavedOpen(true)
       } else {
         const error = await response.json()
@@ -519,7 +529,7 @@ export function StoreSettingsEditor() {
                       onPreview={(src) => setModalImage(src)}
                       hideInput
                     />
-                    {driveNotice && <p className="text-xs text-gray-700">{driveNotice}</p>}
+                    {driveNotice && <p className="text-xs text-[var(--admin-text-secondary)]">{driveNotice}</p>}
                     <p className="text-xs text-[var(--admin-text-muted)]">Recommended size: 200x50px</p>
                   </div>
                 )}
@@ -592,7 +602,7 @@ export function StoreSettingsEditor() {
                     value={settings.aboutContent}
                     onChange={handleChange}
                     rows={8}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-[var(--admin-border-primary)] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)] focus:border-transparent text-sm bg-[var(--admin-bg-elevated)] text-[var(--admin-text-primary)]"
                   />
                 </div>
               </div>
@@ -624,15 +634,27 @@ export function StoreSettingsEditor() {
           </div>
 
           {(themeMessage || themeError) && (
-            <div className={`rounded-md px-3 py-2 text-xs ${themeError ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
+            <div className={`rounded-md px-3 py-2 text-xs ${themeError ? 'bg-[var(--admin-error-bg)] text-[var(--admin-error)]' : 'bg-[var(--admin-success-bg)] text-[var(--admin-success)]'}`}>
               {themeError || themeMessage}
             </div>
           )}
 
           <div className="flex items-center justify-between border-t border-[var(--admin-border-primary)] pt-4">
-            <span className="text-xs text-[var(--admin-text-muted)]">{themeDirty ? 'Unsaved changes' : themeHasOverrides ? 'Custom theme saved' : 'Using default theme'}</span>
-            <Button onClick={handleSubmit} disabled={saving || themeSaving}>
-              {saving || themeSaving ? 'Saving...' : 'Save Changes'}
+            <span className="text-xs text-[var(--admin-text-muted)]">
+              {settingsDirty || themeDirty
+                ? 'Unsaved changes'
+                : themeHasOverrides
+                  ? 'Custom theme saved'
+                  : 'Using default theme'}
+            </span>
+            <Button onClick={handleSubmit} disabled={saving || themeSaving || (!settingsDirty && !themeDirty)}>
+              {saving || themeSaving
+                ? 'Saving...'
+                : settingsDirty && themeDirty
+                  ? 'Save all changes'
+                  : themeDirty
+                    ? 'Save theme'
+                    : 'Save settings'}
             </Button>
           </div>
         </div>
@@ -703,10 +725,10 @@ export function StoreSettingsEditor() {
       {/* Modals */}
       {modalImage && (
       <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
-        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
+        <div className="bg-[var(--admin-bg-card)] rounded-lg shadow-xl max-w-3xl w-full mx-4 border border-[var(--admin-border-primary)]" onClick={(e) => e.stopPropagation()}>
           <img src={modalImage} alt="preview" className="w-full h-auto object-contain rounded" />
-          <div className="p-3 border-t text-center">
-            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-gray-600 hover:text-gray-700">Open original</a>
+          <div className="p-3 border-t border-[var(--admin-border-primary)] text-center">
+            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-[var(--admin-accent-light)] hover:underline">Open original</a>
           </div>
         </div>
       </div>

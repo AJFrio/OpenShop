@@ -8,13 +8,14 @@ import {
   ShoppingBag,
   Image as ImageIcon,
   LogOut,
+  Store,
 } from 'lucide-react'
 
 const menuItems = [
   { path: '/admin', label: 'Dashboard', icon: Home, end: true },
   { path: '/admin/products', label: 'Products', icon: Package },
   { path: '/admin/collections', label: 'Collections', icon: FolderOpen },
-  { path: '/admin/Fulfillment', label: 'Fulfillment', icon: ShoppingBag },
+  { path: '/admin/fulfillment', label: 'Fulfillment', icon: ShoppingBag },
   { path: '/admin/media', label: 'Media', icon: ImageIcon },
   { path: '/admin/store-settings', label: 'Store Settings', icon: Settings },
 ]
@@ -30,19 +31,20 @@ export function AdminLayout({ onLogout }) {
   const location = useLocation()
 
   return (
-    <div className="flex min-h-screen bg-[var(--admin-bg-primary)] admin-container">
-      <div className="w-64 bg-[var(--admin-bg-secondary)] border-r border-[var(--admin-border-primary)] min-h-screen flex flex-col">
+    <div className="flex min-h-screen flex-col bg-[var(--admin-bg-primary)] admin-container lg:flex-row">
+      <div className="bg-[var(--admin-bg-secondary)] border-b border-[var(--admin-border-primary)] lg:w-64 lg:min-h-screen lg:border-b-0 lg:border-r flex flex-col">
         <div className="p-5 border-b border-[var(--admin-border-primary)]">
           <h1 className="text-lg font-bold text-[var(--admin-text-primary)]">OpenShop Admin</h1>
           <Link
             to="/"
             className="text-xs text-[var(--admin-text-secondary)] hover:text-[var(--admin-accent-light)] transition-colors mt-1 inline-block"
           >
-            ← Back to Store
+            <Store className="mr-1 inline h-3.5 w-3.5" />
+            Back to Store
           </Link>
         </div>
         <nav className="flex-1 p-3">
-          <ul className="space-y-1">
+          <ul className="flex gap-1 overflow-x-auto lg:block lg:space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon
               const isActive = isNavActive(location.pathname, item)
@@ -50,7 +52,7 @@ export function AdminLayout({ onLogout }) {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-200 ${
+                    className={`flex whitespace-nowrap items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-200 ${
                       isActive
                         ? 'bg-[var(--admin-accent)]/15 text-[var(--admin-accent-light)] border-l-2 border-[var(--admin-accent)]'
                         : 'text-[var(--admin-text-secondary)] hover:bg-[var(--admin-overlay-light)] hover:text-[var(--admin-text-primary)]'
@@ -75,7 +77,7 @@ export function AdminLayout({ onLogout }) {
           </Button>
         </div>
       </div>
-      <div className="flex-1 p-5 overflow-auto">
+      <div className="flex-1 overflow-auto p-4 sm:p-5">
         <Outlet />
       </div>
     </div>

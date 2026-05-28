@@ -3,7 +3,7 @@ import { Card, CardContent } from '../ui/card'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
-import { generateId, normalizeImageUrl } from '../../lib/utils'
+import { generateId } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
 import ImageUrlField from './ImageUrlField'
 import { 
@@ -102,10 +102,10 @@ export function CollectionForm({ collection, onSave, onCancel }) {
   return (
     <>
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <div className="sticky top-0 z-20 px-6 py-4 bg-white/95 backdrop-blur border border-gray-200 rounded-lg flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky top-0 z-20 px-6 py-4 bg-[var(--admin-bg-card)]/95 backdrop-blur border border-[var(--admin-border-primary)] rounded-lg flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">{collection ? 'Edit Collection' : 'Create New Collection'}</h2>
-          <p className="text-sm text-gray-500">Organize products into collections with names, descriptions, and hero imagery.</p>
+          <h2 className="text-xl font-semibold text-[var(--admin-text-primary)]">{collection ? 'Edit Collection' : 'Create New Collection'}</h2>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Organize products into collections with names, descriptions, and hero imagery.</p>
         </div>
         <div className="flex items-center gap-3">
           <Button type="button" variant="outline" onClick={onCancel}>
@@ -130,7 +130,7 @@ export function CollectionForm({ collection, onSave, onCancel }) {
             />
           </div>
           {driveNotice && (
-            <p className="text-xs text-gray-700 mt-2">{driveNotice}</p>
+            <p className="text-xs text-[var(--admin-text-secondary)] mt-2">{driveNotice}</p>
           )}
 
           <div className="flex items-center gap-3">
@@ -139,7 +139,7 @@ export function CollectionForm({ collection, onSave, onCancel }) {
               checked={!!formData.archived}
               onCheckedChange={(v) => setFormData(prev => ({ ...prev, archived: v }))}
             />
-            <label htmlFor="collection-archived" className="text-sm text-gray-700 select-none">Archived (hide from storefront)</label>
+            <label htmlFor="collection-archived" className="text-sm text-[var(--admin-text-secondary)] select-none">Archived (hide from storefront)</label>
           </div>
 
           <div>
@@ -162,7 +162,7 @@ export function CollectionForm({ collection, onSave, onCancel }) {
               onPreview={(src) => setModalImage(src)}
               hideInput
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-[var(--admin-text-muted)] mt-1">
               This image will be displayed as a banner on the collection page
             </p>
           </div>
@@ -172,18 +172,18 @@ export function CollectionForm({ collection, onSave, onCancel }) {
     </div>
     {modalImage && (
       <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
-        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="bg-[var(--admin-bg-card)] rounded-lg shadow-xl max-w-3xl w-full mx-4 relative max-h-[90vh] overflow-auto border border-[var(--admin-border-primary)]" onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
-            className="absolute top-2 right-2 px-2 py-1 rounded border bg-white/90 hover:bg-white"
+            className="absolute top-2 right-2 px-2 py-1 rounded border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] hover:bg-[var(--admin-bg-secondary)] text-[var(--admin-text-primary)]"
             onClick={() => setModalImage(null)}
             aria-label="Close"
           >
-            ×
+            X
           </button>
           <img src={modalImage} alt="preview" className="w-full h-auto max-h-[80vh] object-contain rounded" />
           <div className="p-3 border-t text-center">
-            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-gray-600 hover:text-gray-700">Open original</a>
+            <a href={modalImage} target="_blank" rel="noreferrer" className="text-sm text-[var(--admin-accent-light)] hover:underline">Open original</a>
           </div>
         </div>
       </div>

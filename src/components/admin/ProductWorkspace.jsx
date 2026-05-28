@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card"
 import { Button } from "../ui/button"
 import { Select } from "../ui/select"
@@ -6,6 +7,16 @@ import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
 import { Switch } from "../ui/switch"
 import { RefreshCcw, Plus, Save, Trash2, CheckCircle2, AlertTriangle, Package } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "../ui/alert-dialog"
 import ImageUrlField from "./ImageUrlField"
 import VariantImageSelector from "./VariantImageSelector"
 import { adminApiRequest } from "../../lib/auth"
@@ -53,6 +64,8 @@ const mapProductToDraft = (product) => {
 
 const hasVariantGroup = (variants, style) =>
   (Array.isArray(variants) && variants.length > 0) || Boolean(style)
+
+const draftFingerprint = (draft) => JSON.stringify(draft || null)
 
 const prepareVariantsForSave = (variants = []) =>
   variants
@@ -109,7 +122,7 @@ function VariantGroupEditor({
               Add option
             </Button>
           </div>
-          <div className="grid grid-cols-12 gap-2 text-xs text-[var(--admin-text-muted)] px-1">
+          <div className="hidden grid-cols-12 gap-2 px-1 text-xs text-[var(--admin-text-muted)] md:grid">
             <div className="col-span-3">Option name</div>
             <div className="col-span-3">Selector image</div>
             <div className="col-span-3">Display image</div>
@@ -120,29 +133,41 @@ function VariantGroupEditor({
           ) : (
             <div className="space-y-2">
               {items.map((variant, index) => (
-                <div key={variant.id || index} className="grid grid-cols-12 gap-2 items-center">
-                  <div className="col-span-3">
+                <div
+                  key={variant.id || index}
+                  className="grid grid-cols-1 gap-3 rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] p-3 md:grid-cols-12 md:items-center md:bg-transparent md:p-0 md:border-0"
+                >
+                  <div className="md:col-span-3">
+                    <label className="mb-1 block text-[11px] font-semibold uppercase text-[var(--admin-text-muted)] md:hidden">
+                      Option name
+                    </label>
                     <Input
                       value={variant.name || ""}
                       onChange={(event) => onVariantChange(index, "name", event.target.value)}
                       placeholder="Variant name"
                     />
                   </div>
-                  <div className="col-span-3 flex justify-center">
+                  <div className="flex justify-start md:col-span-3 md:justify-center">
+                    <label className="mr-3 self-center text-[11px] font-semibold uppercase text-[var(--admin-text-muted)] md:hidden">
+                      Selector
+                    </label>
                     <VariantImageSelector
                       value={variant.selectorImageUrl || ""}
                       onChange={(value) => onVariantChange(index, "selectorImageUrl", value)}
                       onPreview={onPreview}
                     />
                   </div>
-                  <div className="col-span-3 flex justify-center">
+                  <div className="flex justify-start md:col-span-3 md:justify-center">
+                    <label className="mr-3 self-center text-[11px] font-semibold uppercase text-[var(--admin-text-muted)] md:hidden">
+                      Display
+                    </label>
                     <VariantImageSelector
                       value={variant.displayImageUrl || ""}
                       onChange={(value) => onVariantChange(index, "displayImageUrl", value)}
                       onPreview={onPreview}
                     />
                   </div>
-                  <div className="col-span-3 flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-2 md:col-span-3">
                     <div className="flex items-center gap-2">
                       <Switch
                         checked={!!variant.hasCustomPrice}
@@ -165,8 +190,9 @@ function VariantGroupEditor({
                       size="sm"
                       className="px-2 text-[var(--admin-error)] border-[var(--admin-error)] hover:bg-[var(--admin-error-bg)]"
                       onClick={() => onVariantRemove(index)}
+                      aria-label={`Remove ${variant.name || 'variant option'}`}
                     >
-                      X
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -244,6 +270,8 @@ function ProductListItem({ product, isActive, onSelect, collectionName }) {
 }
 
 export function ProductWorkspace() {
+  const { productId } = useParams()
+  const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [collections, setCollections] = useState([])
   const [collectionFilter, setCollectionFilter] = useState('all')
@@ -251,6 +279,7 @@ export function ProductWorkspace() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedId, setSelectedId] = useState(null)
   const [draft, setDraft] = useState(null)
+  const [baselineDraft, setBaselineDraft] = useState(null)
   const [isCreating, setIsCreating] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -259,6 +288,11 @@ export function ProductWorkspace() {
   const [variants1Enabled, setVariants1Enabled] = useState(false)
   const [variants2Enabled, setVariants2Enabled] = useState(false)
   const [storeSettings, setStoreSettings] = useState(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [pendingSelection, setPendingSelection] = useState(null)
+  const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
+
+  const isDirty = draftFingerprint(draft) !== draftFingerprint(baselineDraft)
 
   const collectionLookup = useMemo(() => {
     const map = new Map()
@@ -308,9 +342,12 @@ export function ProductWorkspace() {
     const productData = await productsRes.json()
     setProducts(productData)
 
-    if (!isCreating) {
+    if (!isCreating && productId !== 'new') {
       if (productData.length > 0) {
         setSelectedId((prev) => {
+          if (productId && productData.some((product) => product.id === productId)) {
+            return productId
+          }
           if (prev && productData.some((product) => product.id === prev)) {
             return prev
           }
@@ -319,6 +356,7 @@ export function ProductWorkspace() {
       } else {
         setSelectedId(null)
         setDraft(null)
+        setBaselineDraft(null)
       }
     }
 
@@ -362,6 +400,28 @@ export function ProductWorkspace() {
   }, [])
 
   useEffect(() => {
+    if (productId === 'new') {
+      if (!isCreating) {
+        const blank = createEmptyProduct()
+        setDraft(blank)
+        setBaselineDraft(blank)
+        setIsCreating(true)
+        setSelectedId(null)
+        setVariants1Enabled(false)
+        setVariants2Enabled(false)
+        setStatus(null)
+      }
+      return
+    }
+
+    if (productId && products.some((product) => product.id === productId)) {
+      setIsCreating(false)
+      setSelectedId(productId)
+      setStatus(null)
+    }
+  }, [productId, products, isCreating])
+
+  useEffect(() => {
     if (isCreating) return
     if (filteredProducts.length === 0) {
       if (selectedId !== null) {
@@ -369,24 +429,29 @@ export function ProductWorkspace() {
       }
       if (draft) {
         setDraft(null)
+        setBaselineDraft(null)
       }
       return
     }
     if (!selectedId || !filteredProducts.some((product) => product.id === selectedId)) {
-      setSelectedId(filteredProducts[0].id)
+      const nextId = filteredProducts[0].id
+      setSelectedId(nextId)
+      if (!productId) navigate(`/admin/products/${nextId}`, { replace: true })
     }
-  }, [filteredProducts, isCreating, selectedId, draft])
+  }, [filteredProducts, isCreating, selectedId, draft, productId, navigate])
 
   useEffect(() => {
     if (isCreating) return
     if (!selectedId) {
       setDraft(null)
+      setBaselineDraft(null)
       return
     }
     const selectedProduct = products.find((product) => product.id === selectedId)
     if (selectedProduct) {
       const nextDraft = mapProductToDraft(selectedProduct)
       setDraft(nextDraft)
+      setBaselineDraft(nextDraft)
       setVariants1Enabled(hasVariantGroup(nextDraft.variants, nextDraft.variantStyle))
       setVariants2Enabled(hasVariantGroup(nextDraft.variants2, nextDraft.variantStyle2))
     }
@@ -411,19 +476,55 @@ export function ProductWorkspace() {
   }
 
   const startCreate = () => {
+    if (isDirty) {
+      setPendingSelection('new')
+      setUnsavedDialogOpen(true)
+      return
+    }
     const blank = createEmptyProduct()
     setDraft(blank)
+    setBaselineDraft(blank)
     setIsCreating(true)
     setSelectedId(null)
     setVariants1Enabled(false)
     setVariants2Enabled(false)
     setStatus(null)
+    navigate('/admin/products/new')
   }
 
   const handleSelectProduct = (productId) => {
+    if (isDirty) {
+      setPendingSelection(productId)
+      setUnsavedDialogOpen(true)
+      return
+    }
     setIsCreating(false)
     setSelectedId(productId)
     setStatus(null)
+    navigate(`/admin/products/${productId}`)
+  }
+
+  const confirmPendingSelection = () => {
+    const next = pendingSelection
+    setPendingSelection(null)
+    setUnsavedDialogOpen(false)
+    if (next === 'new') {
+      const blank = createEmptyProduct()
+      setDraft(blank)
+      setBaselineDraft(blank)
+      setIsCreating(true)
+      setSelectedId(null)
+      setVariants1Enabled(false)
+      setVariants2Enabled(false)
+      navigate('/admin/products/new')
+      return
+    }
+    if (next) {
+      setIsCreating(false)
+      setSelectedId(next)
+      setStatus(null)
+      navigate(`/admin/products/${next}`)
+    }
   }
 
   const handleDraftChange = (key, value) => {
@@ -520,19 +621,24 @@ export function ProductWorkspace() {
       setIsCreating(false)
       if (filteredProducts.length > 0) {
         setSelectedId(filteredProducts[0].id)
+        navigate(`/admin/products/${filteredProducts[0].id}`)
       } else {
         setDraft(null)
+        setBaselineDraft(null)
+        navigate('/admin/products')
       }
       return
     }
     if (!selectedId) {
       setDraft(null)
+      setBaselineDraft(null)
       return
     }
     const original = products.find((product) => product.id === selectedId)
     if (original) {
       const nextDraft = mapProductToDraft(original)
       setDraft(nextDraft)
+      setBaselineDraft(nextDraft)
       setVariants1Enabled(hasVariantGroup(nextDraft.variants, nextDraft.variantStyle))
       setVariants2Enabled(hasVariantGroup(nextDraft.variants2, nextDraft.variantStyle2))
     }
@@ -596,9 +702,11 @@ export function ProductWorkspace() {
       setSelectedId(savedProduct.id)
       const nextDraft = mapProductToDraft(savedProduct)
       setDraft(nextDraft)
+      setBaselineDraft(nextDraft)
       setVariants1Enabled(hasVariantGroup(nextDraft.variants, nextDraft.variantStyle))
       setVariants2Enabled(hasVariantGroup(nextDraft.variants2, nextDraft.variantStyle2))
       setStatus({ type: 'success', message: isNew ? 'Product created' : 'Product updated' })
+      navigate(`/admin/products/${savedProduct.id}`, { replace: true })
       
       // Refresh store settings after creating a product to update limit status
       if (isNew) {
@@ -614,8 +722,7 @@ export function ProductWorkspace() {
 
   const handleDelete = async () => {
     if (!draft?.id || isCreating) return
-    const confirmed = window.confirm('Delete this product? This action cannot be undone.')
-    if (!confirmed) return
+    setDeleteDialogOpen(false)
     try {
       const response = await adminApiRequest(`/api/admin/products/${draft.id}`, {
         method: 'DELETE',
@@ -625,9 +732,11 @@ export function ProductWorkspace() {
       }
       setProducts((prev) => prev.filter((product) => product.id !== draft.id))
       setDraft(null)
+      setBaselineDraft(null)
       setSelectedId(null)
       setIsCreating(false)
       setStatus({ type: 'success', message: 'Product deleted' })
+      navigate('/admin/products', { replace: true })
       
       // Refresh store settings after deleting a product to update limit status
       await fetchStoreSettings()
@@ -798,16 +907,18 @@ export function ProductWorkspace() {
 
           {draft ? (
             <div className="space-y-5 pb-16">
-              <Card className="border border-[var(--admin-border-primary)]">
+              <Card className="sticky top-0 z-20 border border-[var(--admin-border-primary)]">
                 <CardHeader className="gap-4 md:flex-row md:items-center md:justify-between py-4">
                   <div className="space-y-1">
                     <CardTitle className="text-lg">
                       {draft.name || (isCreating ? 'New product draft' : 'Untitled product')}
                     </CardTitle>
                     <p className="text-xs text-[var(--admin-text-secondary)]">
-                      {isCreating
-                        ? 'Draft will be created once you save changes.'
-                        : 'Changes are saved to the live product.'}
+                      {isDirty
+                        ? 'Unsaved changes'
+                        : isCreating
+                          ? 'Draft is ready for edits.'
+                          : 'All changes saved.'}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -815,7 +926,7 @@ export function ProductWorkspace() {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={handleDelete}
+                        onClick={() => setDeleteDialogOpen(true)}
                         disabled={isSaving}
                         className="border-[var(--admin-error)] text-[var(--admin-error)] hover:bg-[var(--admin-error-bg)]"
                         size="sm"
@@ -824,10 +935,10 @@ export function ProductWorkspace() {
                         Delete
                       </Button>
                     )}
-                    <Button type="button" variant="outline" onClick={handleCancel} disabled={isSaving} size="sm">
+                    <Button type="button" variant="outline" onClick={handleCancel} disabled={isSaving || !isDirty} size="sm">
                       Discard
                     </Button>
-                    <Button type="button" onClick={handleSave} disabled={isSaving} size="sm">
+                    <Button type="button" onClick={handleSave} disabled={isSaving || !isDirty} size="sm">
                       {isSaving ? (
                         <>
                           <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />
@@ -1078,6 +1189,40 @@ export function ProductWorkspace() {
           </div>
         </div>
       )}
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete product?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {draft?.name || 'This product'} will be permanently removed from the catalog. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSaving}>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" disabled={isSaving} onClick={handleDelete}>
+              Delete product
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={unsavedDialogOpen} onOpenChange={setUnsavedDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Switching products will discard edits that have not been saved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep editing</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmPendingSelection}>
+              Discard changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

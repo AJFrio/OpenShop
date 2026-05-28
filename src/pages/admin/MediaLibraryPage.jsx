@@ -3,13 +3,25 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
 import { normalizeImageUrl } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
-import { Plus, Trash2, Image as ImageIcon, X } from 'lucide-react'
+import { Plus, Trash2, Image as ImageIcon, X, Copy } from 'lucide-react'
 import AddMediaModal from '../../components/admin/AddMediaModal'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '../../components/ui/alert-dialog'
 
 export function MediaLibraryPage() {
   const [media, setMedia] = useState([])
   const [selected, setSelected] = useState(null)
   const [addOpen, setAddOpen] = useState(false)
+  const [mediaToDelete, setMediaToDelete] = useState(null)
+  const [status, setStatus] = useState('')
 
   useEffect(() => {
     load()
@@ -28,14 +40,25 @@ export function MediaLibraryPage() {
   }
 
   async function handleDelete(id) {
-    if (!confirm('Remove this media from the library?')) return
     try {
       const res = await adminApiRequest(`/api/admin/media/${id}`, { method: 'DELETE' })
       if (res.ok) {
         setMedia(media.filter((m) => m.id !== id))
+        if (selected?.id === id) setSelected(null)
+        setMediaToDelete(null)
+        setStatus('Media removed')
       }
     } catch (e) {
       console.error('Delete media failed', e)
+    }
+  }
+
+  async function copyUrl(url) {
+    try {
+      await navigator.clipboard.writeText(url)
+      setStatus('Media URL copied')
+    } catch {
+      setStatus('Unable to copy URL')
     }
   }
 
@@ -53,6 +76,12 @@ export function MediaLibraryPage() {
           </Button>
         </div>
       </div>
+
+      {status && (
+        <div className="rounded-md border border-[var(--admin-success)]/30 bg-[var(--admin-success-bg)] px-4 py-3 text-sm text-[var(--admin-success)]">
+          {status}
+        </div>
+      )}
 
       {media.length === 0 ? (
         <Card>
@@ -82,8 +111,11 @@ export function MediaLibraryPage() {
                   className="w-full h-28 object-cover"
                 />
               </button>
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button size="sm" variant="destructive" className="h-8 w-8 p-0" onClick={() => handleDelete(m.id)}>
+              <div className="absolute top-2 right-2 flex gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => copyUrl(m.url)} aria-label="Copy media URL">
+                  <Copy className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant="destructive" className="h-8 w-8 p-0" onClick={() => setMediaToDelete(m)} aria-label="Delete media">
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -128,6 +160,20 @@ export function MediaLibraryPage() {
                 >
                   Open original
                 </a>
+                <button
+                  type="button"
+                  className="text-[var(--admin-accent-light)] hover:underline"
+                  onClick={() => copyUrl(selected.url)}
+                >
+                  Copy URL
+                </button>
+                <button
+                  type="button"
+                  className="text-[var(--admin-error)] hover:underline"
+                  onClick={() => setMediaToDelete(selected)}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
@@ -143,6 +189,23 @@ export function MediaLibraryPage() {
           setAddOpen(false)
         }}
       />
+
+      <AlertDialog open={!!mediaToDelete} onOpenChange={(open) => !open && setMediaToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete media?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {mediaToDelete?.filename || 'This media item'} will be removed from the library. Existing product or page references may stop displaying if they use this URL.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={() => handleDelete(mediaToDelete.id)}>
+              Delete media
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

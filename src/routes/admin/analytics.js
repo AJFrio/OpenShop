@@ -23,6 +23,7 @@ router.get('/orders', asyncHandler(async (c) => {
   const direction = c.req.query('direction') || 'next'
   const cursor = c.req.query('cursor') || undefined
   const showFulfilled = c.req.query('showFulfilled') === 'true'
+  const fulfillmentStatus = c.req.query('status') || (showFulfilled ? 'fulfilled' : 'open')
 
   const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
   const analyticsService = new AnalyticsService(stripeService)
@@ -33,6 +34,7 @@ router.get('/orders', asyncHandler(async (c) => {
     direction,
     cursor,
     showFulfilled,
+    fulfillmentStatus,
     kvNamespace
   })
 
