@@ -9,48 +9,11 @@ const PAGE_OPTIONS = [
   { slug: 'about', label: 'About', path: '/about' },
 ]
 
-const MOCK_PRODUCTS = [
-  {
-    id: 'mock-1',
-    name: 'Premium Headphones',
-    tagline: 'High-fidelity wireless audio',
-    description: 'High-fidelity wireless headphones with noise cancellation.',
-    price: 29900,
-    currency: 'USD',
-    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
-    stripePriceId: 'price_mock',
-  },
-  {
-    id: 'mock-2',
-    name: 'Ergonomic Chair',
-    tagline: 'Comfort for your workspace',
-    description: 'Designed for comfort and productivity during long work sessions.',
-    price: 45000,
-    currency: 'USD',
-    imageUrl: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=500&q=80',
-    stripePriceId: 'price_mock',
-  },
-  {
-    id: 'mock-3',
-    name: 'Mechanical Keyboard',
-    tagline: 'Tactile typing experience',
-    description: 'Tactile switches and customizable RGB lighting.',
-    price: 12000,
-    currency: 'USD',
-    imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b91a91e?w=500&q=80',
-    stripePriceId: 'price_mock',
-  },
-]
-
-const MOCK_COLLECTIONS = [
-  { id: 'featured', name: 'Featured' },
-  { id: 'workspace', name: 'Workspace' },
-  { id: 'audio', name: 'Audio' },
-]
-
 export function PuckPageEditor() {
   const [activeSlug, setActiveSlug] = useState('home')
   const [page, setPage] = useState(null)
+  const [products, setProducts] = useState([])
+  const [collections, setCollections] = useState([])
   const [loading, setLoading] = useState(true)
   const [publishing, setPublishing] = useState(false)
   const [message, setMessage] = useState('')
@@ -58,10 +21,41 @@ export function PuckPageEditor() {
 
   const activePage = PAGE_OPTIONS.find((option) => option.slug === activeSlug) || PAGE_OPTIONS[0]
   const config = useMemo(() => createPageBuilderConfig({
-    products: MOCK_PRODUCTS,
-    collections: MOCK_COLLECTIONS,
+    products,
+    collections,
     disableNavigation: true,
-  }), [])
+  }), [collections, products])
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadCatalogPreviewData() {
+      try {
+        const [productsResponse, collectionsResponse] = await Promise.all([
+          fetch('/api/products'),
+          fetch('/api/collections'),
+        ])
+
+        if (productsResponse.ok) {
+          const productsData = await productsResponse.json()
+          if (isMounted) setProducts(Array.isArray(productsData) ? productsData : [])
+        }
+
+        if (collectionsResponse.ok) {
+          const collectionsData = await collectionsResponse.json()
+          if (isMounted) setCollections(Array.isArray(collectionsData) ? collectionsData : [])
+        }
+      } catch (catalogError) {
+        console.error('Error fetching page editor preview data:', catalogError)
+      }
+    }
+
+    loadCatalogPreviewData()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   useEffect(() => {
     let isMounted = true
