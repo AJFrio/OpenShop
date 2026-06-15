@@ -61,8 +61,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     setUploading(true)
     setError('')
     try {
-      const createdItems = []
-      for (const f of files) {
+      const createdItems = await Promise.all(files.map(async (f) => {
         const dataUrl = await fileToDataUrl(f)
         const { mimeType, base64 } = parseDataUrl(dataUrl)
         const uploadRes = await adminApiRequest('/api/admin/storage/upload', {
@@ -83,8 +82,8 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
         })
         const saved = await mediaRes.json()
         if (!mediaRes.ok) throw new Error(saved.error || 'Failed to save media')
-        createdItems.push(saved)
-      }
+        return saved
+      }))
       onCreated?.(createdItems)
       onClose?.()
     } catch (e) {
@@ -155,17 +154,18 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     setError('')
     try {
       // Build inputs from selected reference images (up to 3)
-      const inputs = []
-      for (const url of refUrls.slice(0, 3)) {
+      const inputs = (await Promise.all(refUrls.slice(0, 3).map(async (url) => {
         try {
           const proxied = `/api/image-proxy?src=${encodeURIComponent(url)}`
           const resp = await fetch(proxied)
-          if (!resp.ok) continue
+          if (!resp.ok) return null
           const blob = await resp.blob()
           const { mimeType, base64 } = await blobToBase64(blob)
-          if (base64) inputs.push({ mimeType, dataBase64: base64 })
-        } catch (_) {}
-      }
+          return base64 ? { mimeType, dataBase64: base64 } : null
+        } catch (_) {
+          return null
+        }
+      }))).filter(Boolean)
 
       const res = await adminApiRequest('/api/admin/ai/generate-image', {
         method: 'POST',
