@@ -154,18 +154,21 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     setResultBase64('')
     setError('')
     try {
-      // Build inputs from selected reference images (up to 3)
-      const inputs = []
-      for (const url of refUrls.slice(0, 3)) {
+      // Build inputs from selected reference images (up to 3) in parallel
+      const inputPromises = refUrls.slice(0, 3).map(async (url) => {
         try {
           const proxied = `/api/image-proxy?src=${encodeURIComponent(url)}`
           const resp = await fetch(proxied)
-          if (!resp.ok) continue
+          if (!resp.ok) return null
           const blob = await resp.blob()
           const { mimeType, base64 } = await blobToBase64(blob)
-          if (base64) inputs.push({ mimeType, dataBase64: base64 })
-        } catch (_) {}
-      }
+          return base64 ? { mimeType, dataBase64: base64 } : null
+        } catch (_) {
+          return null
+        }
+      })
+      const results = await Promise.all(inputPromises)
+      const inputs = results.filter(Boolean)
 
       const res = await adminApiRequest('/api/admin/ai/generate-image', {
         method: 'POST',
