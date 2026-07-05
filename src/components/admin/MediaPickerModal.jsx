@@ -198,13 +198,14 @@ export default function MediaPickerModal({
     setIsGenerating(true)
     setResultBase64('')
     try {
-      const inputs = []
-      for (const f of files.slice(0, 4)) {
-        if (!f) continue
-        const dataUrl = await fileToDataUrl(f)
-        const { mimeType, base64 } = parseDataUrl(dataUrl)
-        inputs.push({ mimeType, dataBase64: base64 })
-      }
+      const inputsToProcess = files.slice(0, 4).filter(f => f)
+      const inputs = await Promise.all(
+        inputsToProcess.map(async (f) => {
+          const dataUrl = await fileToDataUrl(f)
+          const { mimeType, base64 } = parseDataUrl(dataUrl)
+          return { mimeType, dataBase64: base64 }
+        })
+      )
       const res = await adminApiRequest('/api/admin/ai/generate-image', {
         method: 'POST',
         body: JSON.stringify({ prompt, inputs })
