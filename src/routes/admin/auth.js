@@ -1,7 +1,6 @@
 // Admin authentication routes
 import { Hono } from 'hono'
-import { generateSessionToken } from '../../utils/crypto.js'
-import { hashToken, verifyPassword, hashPasswordWithSalt } from '../../utils/crypto.js'
+import { generateSessionToken, hashToken, timingSafeEqualStrings } from '../../utils/crypto.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { ADMIN_TOKEN_TTL, KV_KEYS } from '../../config/index.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
@@ -29,20 +28,9 @@ router.post('/login', asyncHandler(async (c) => {
     throw new AuthenticationError('Too many login attempts. Please try again later.')
   }
 
-  // Get stored password hash or use default (will be hashed on first use)
-  const storedHashKey = `${KV_KEYS.ADMIN_TOKEN_PREFIX}password_hash`
-  let storedHash = await kvNamespace.get(storedHashKey)
-  
+  // ADMIN_PASSWORD Worker secret/env is the single source of truth (not KV)
   const adminPassword = c.env.ADMIN_PASSWORD || 'admin123'
-  
-  // If no hash stored, create one from the current password
-  if (!storedHash) {
-    storedHash = await hashPasswordWithSalt(adminPassword)
-    await kvNamespace.put(storedHashKey, storedHash)
-  }
-  
-  // Verify password
-  const isValid = await verifyPassword(password, storedHash)
+  const isValid = await timingSafeEqualStrings(password, adminPassword)
   
   if (!isValid) {
     // Increment rate limit counter
@@ -55,6 +43,9 @@ router.post('/login', asyncHandler(async (c) => {
   // Clear rate limit on successful login
   await kvNamespace.delete(rateLimitKey)
 
+  // Clean up legacy KV password hash from older deploys
+  await kvNamespace.delete(`${KV_KEYS.ADMIN_TOKEN_PREFIX}password_hash`)
+
   const token = generateSessionToken()
   const hashedToken = await hashToken(token)
 
@@ -66,4 +57,3 @@ router.post('/login', asyncHandler(async (c) => {
 }))
 
 export default router
-

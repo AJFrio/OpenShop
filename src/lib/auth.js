@@ -81,7 +81,11 @@ export async function adminApiRequest(url, options = {}) {
   return response
 }
 
-// Simple admin login (in production, implement proper password authentication)
+/**
+ * Admin login against Worker ADMIN_PASSWORD.
+ * @param {string} password
+ * @returns {Promise<{ ok: true } | { ok: false, error: string }>}
+ */
 export async function adminLogin(password) {
   try {
     const response = await fetch('/api/admin/login', {
@@ -95,12 +99,16 @@ export async function adminLogin(password) {
     if (response.ok) {
       const { token } = await response.json()
       setAdminToken(token)
-      return true
-    } else {
-      return false
+      return { ok: true }
+    }
+
+    const errorData = await response.json().catch(() => ({}))
+    return {
+      ok: false,
+      error: errorData.error || 'Invalid password. Please try again.',
     }
   } catch (error) {
     console.error('Admin login error:', error)
-    return false
+    return { ok: false, error: 'Login failed. Please try again.' }
   }
 }

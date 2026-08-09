@@ -1,8 +1,7 @@
 // Integration tests for admin authentication
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { createTestApp, createTestRequest, executeRequest, parseJsonResponse, createAdminToken, createAdminHeaders } from '../utils/test-helpers.js'
 import { createMockEnv, createMockKV } from '../setup.js'
-import { hashPasswordWithSalt, verifyPassword } from '../../src/utils/crypto.js'
 import { KV_KEYS } from '../../src/config/index.js'
 
 describe('Admin Authentication', () => {
@@ -72,10 +71,9 @@ describe('Admin Authentication', () => {
       expect(data.error).toContain('Invalid password')
     })
 
-    it('should hash password on first use', async () => {
-      // Clear any existing password hash
+    it('should authenticate against ADMIN_PASSWORD without storing a KV password hash', async () => {
       const hashKey = `${KV_KEYS.ADMIN_TOKEN_PREFIX}password_hash`
-      await kv.delete(hashKey)
+      await kv.put(hashKey, 'stale:hash:value')
 
       const request = createTestRequest('/api/admin/login', {
         method: 'POST',
@@ -88,10 +86,9 @@ describe('Admin Authentication', () => {
       expect(response.status).toBe(200)
       expect(data.token).toBeDefined()
 
-      // Verify password hash was stored
+      // Legacy hash cleaned up; password is not stored in KV
       const storedHash = await kv.get(hashKey)
-      expect(storedHash).toBeTruthy()
-      expect(storedHash).toContain(':') // Format: iterations:salt:hash
+      expect(storedHash).toBeNull()
     })
 
     it('should store token in KV after successful login', async () => {
@@ -105,15 +102,10 @@ describe('Admin Authentication', () => {
 
       expect(response.status).toBe(200)
       expect(data.token).toBeDefined()
-
-      // Token should be stored in KV (we can't easily verify the hashed key, but we can check the response)
       expect(data.token).toBeTruthy()
     })
 
     it('should implement rate limiting', async () => {
-      const rateLimitKey = 'rate_limit:login:test-ip'
-      
-      // Simulate 5 failed attempts
       for (let i = 0; i < 5; i++) {
         const request = createTestRequest('/api/admin/login', {
           method: 'POST',
@@ -123,7 +115,6 @@ describe('Admin Authentication', () => {
         await executeRequest(app, request, env)
       }
 
-      // 6th attempt should be rate limited
       const request = createTestRequest('/api/admin/login', {
         method: 'POST',
         body: { password: 'wrong_password' },
@@ -139,11 +130,8 @@ describe('Admin Authentication', () => {
 
     it('should clear rate limit on successful login', async () => {
       const rateLimitKey = 'rate_limit:login:test-ip'
-      
-      // Set up rate limit
       await kv.put(rateLimitKey, '4', { expirationTtl: 900 })
 
-      // Successful login should clear the rate limit
       const request = createTestRequest('/api/admin/login', {
         method: 'POST',
         body: { password: env.ADMIN_PASSWORD },
@@ -151,11 +139,8 @@ describe('Admin Authentication', () => {
       })
 
       const response = await executeRequest(app, request, env)
-      const data = await parseJsonResponse(response)
-
       expect(response.status).toBe(200)
-      
-      // Rate limit should be cleared
+
       const rateLimitValue = await kv.get(rateLimitKey)
       expect(rateLimitValue).toBeNull()
     })
@@ -172,8 +157,6 @@ describe('Admin Authentication', () => {
       })
 
       const response = await executeRequest(app, request, env)
-
-      // Should not return 401 (authentication error)
       expect(response.status).not.toBe(401)
     })
 
@@ -220,19 +203,16 @@ describe('Admin Authentication', () => {
         method: 'GET'
       })
 
-      // Should not return 401 (may return other errors, but not auth error)
       const response = await executeRequest(app, request, env)
       expect(response.status).not.toBe(401)
     })
 
     it('should handle expired tokens', async () => {
-      // Create a token that appears expired
       const { hashToken } = await import('../../src/utils/crypto.js')
       const token = 'expired-token'
       const hashedToken = await hashToken(token)
       const storageKey = `${KV_KEYS.ADMIN_TOKEN_PREFIX}${hashedToken}`
-      
-      // Store token with old timestamp (expired)
+
       const oldTimestamp = Date.now() - (25 * 60 * 60 * 1000) // 25 hours ago
       await kv.put(storageKey, oldTimestamp.toString())
 
@@ -249,8 +229,3 @@ describe('Admin Authentication', () => {
     })
   })
 })
-
-
-
-
-

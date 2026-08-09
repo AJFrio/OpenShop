@@ -112,13 +112,13 @@ Always test thoroughly with test keys before switching to live mode.
 
 ## Admin Password
 
-Set a secure admin password during setup. This password is used to access the admin dashboard at `/admin`.
+Set a secure admin password during setup (`ADMIN_PASSWORD`). Login compares the submitted password to this Worker secret/env var — it is not stored in KV.
 
 **Security Tips:**
 - Use a strong, unique password
 - Don't share your admin password
-- Change it regularly if compromised
-- The password is stored securely in Cloudflare Workers secrets
+- Rotate it by updating the `ADMIN_PASSWORD` Worker secret (or via OpenShop Service reset)
+- Never put `ADMIN_PASSWORD` in client-side code or public repos
 
 ## Site URL
 
