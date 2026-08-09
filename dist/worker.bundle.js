@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-07-05T16:34:51Z
+// Worker Bundle - Built 2026-08-09T23:27:55Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -5792,59 +5792,31 @@ async function hashToken(token) {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 __name(hashToken, "hashToken");
-async function hashPassword(password, salt, iterations = 1e5) {
-  const cryptoObj = getCrypto();
-  if (!cryptoObj.subtle) {
-    throw new Error("Web Crypto API is not available for password hashing");
-  }
-  const encoder = new TextEncoder();
-  const passwordData = encoder.encode(password);
-  const saltBytes = new Uint8Array(salt.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
-  const keyMaterial = await cryptoObj.subtle.importKey(
-    "raw",
-    passwordData,
-    { name: "PBKDF2" },
-    false,
-    ["deriveBits"]
-  );
-  const derivedBits = await cryptoObj.subtle.deriveBits(
-    {
-      name: "PBKDF2",
-      salt: saltBytes,
-      iterations,
-      hash: "SHA-256"
-    },
-    keyMaterial,
-    256
-    // 256 bits = 32 bytes
-  );
-  return Array.from(new Uint8Array(derivedBits)).map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-__name(hashPassword, "hashPassword");
-async function verifyPassword(password, hash) {
-  try {
-    const [iterationsStr, salt, expectedHash] = hash.split(":");
-    const iterations = parseInt(iterationsStr, 10);
-    if (!iterations || !salt || !expectedHash) {
-      return false;
-    }
-    const computedHash = await hashPassword(password, salt, iterations);
-    return computedHash === expectedHash;
-  } catch (error3) {
+async function timingSafeEqualStrings(a, b) {
+  if (typeof a !== "string" || typeof b !== "string") {
     return false;
   }
+  const cryptoObj = getCrypto();
+  if (!cryptoObj.subtle || typeof cryptoObj.subtle.digest !== "function") {
+    throw new Error("Web Crypto API is not available for secure comparison");
+  }
+  const encoder = new TextEncoder();
+  const [digestA, digestB] = await Promise.all([
+    cryptoObj.subtle.digest("SHA-256", encoder.encode(a)),
+    cryptoObj.subtle.digest("SHA-256", encoder.encode(b))
+  ]);
+  const bytesA = new Uint8Array(digestA);
+  const bytesB = new Uint8Array(digestB);
+  if (bytesA.length !== bytesB.length) {
+    return false;
+  }
+  let diff = 0;
+  for (let i = 0; i < bytesA.length; i++) {
+    diff |= bytesA[i] ^ bytesB[i];
+  }
+  return diff === 0;
 }
-__name(verifyPassword, "verifyPassword");
-function generateSalt(bytes = 16) {
-  return randomHex(bytes);
-}
-__name(generateSalt, "generateSalt");
-async function hashPasswordWithSalt(password, iterations = 1e5) {
-  const salt = generateSalt(16);
-  const hash = await hashPassword(password, salt, iterations);
-  return `${iterations}:${salt}:${hash}`;
-}
-__name(hashPasswordWithSalt, "hashPasswordWithSalt");
+__name(timingSafeEqualStrings, "timingSafeEqualStrings");
 
 // src/middleware/auth.js
 async function verifyAdminAuth(request, env2) {
@@ -13040,14 +13012,8 @@ router9.post("/login", asyncHandler(async (c) => {
   if (attemptCount >= 5) {
     throw new AuthenticationError("Too many login attempts. Please try again later.");
   }
-  const storedHashKey = `${KV_KEYS.ADMIN_TOKEN_PREFIX}password_hash`;
-  let storedHash = await kvNamespace.get(storedHashKey);
   const adminPassword = c.env.ADMIN_PASSWORD || "admin123";
-  if (!storedHash) {
-    storedHash = await hashPasswordWithSalt(adminPassword);
-    await kvNamespace.put(storedHashKey, storedHash);
-  }
-  const isValid = await verifyPassword(password, storedHash);
+  const isValid = await timingSafeEqualStrings(password, adminPassword);
   if (!isValid) {
     await kvNamespace.put(rateLimitKey, (attemptCount + 1).toString(), {
       expirationTtl: 900
@@ -13056,6 +13022,7 @@ router9.post("/login", asyncHandler(async (c) => {
     throw new AuthenticationError("Invalid password");
   }
   await kvNamespace.delete(rateLimitKey);
+  await kvNamespace.delete(`${KV_KEYS.ADMIN_TOKEN_PREFIX}password_hash`);
   const token = generateSessionToken();
   const hashedToken = await hashToken(token);
   await kvNamespace.put(`${KV_KEYS.ADMIN_TOKEN_PREFIX}${hashedToken}`, Date.now().toString(), {
