@@ -63,92 +63,38 @@ export async function hashToken(token) {
 }
 
 /**
- * Hashes a password using PBKDF2 (for password verification)
- * Note: In production, consider using a more secure method like Argon2
- * @param {string} password - Password to hash
- * @param {string} salt - Salt (hex string)
- * @param {number} iterations - Number of iterations (default: 100000)
- * @returns {Promise<string>} - Hashed password (hex string)
+ * Timing-safe string comparison via SHA-256 digests.
+ * Avoids leaking password length/content through early exits on raw bytes.
+ * @param {string} a
+ * @param {string} b
+ * @returns {Promise<boolean>}
  */
-export async function hashPassword(password, salt, iterations = 100000) {
+export async function timingSafeEqualStrings(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') {
+    return false
+  }
+
   const cryptoObj = getCrypto()
-  if (!cryptoObj.subtle) {
-    throw new Error('Web Crypto API is not available for password hashing')
+  if (!cryptoObj.subtle || typeof cryptoObj.subtle.digest !== 'function') {
+    throw new Error('Web Crypto API is not available for secure comparison')
   }
 
   const encoder = new TextEncoder()
-  const passwordData = encoder.encode(password)
-  
-  // Convert salt from hex to Uint8Array
-  const saltBytes = new Uint8Array(salt.match(/.{1,2}/g).map(byte => parseInt(byte, 16)))
-  
-  // Import password as key
-  const keyMaterial = await cryptoObj.subtle.importKey(
-    'raw',
-    passwordData,
-    { name: 'PBKDF2' },
-    false,
-    ['deriveBits']
-  )
-  
-  // Derive key using PBKDF2
-  const derivedBits = await cryptoObj.subtle.deriveBits(
-    {
-      name: 'PBKDF2',
-      salt: saltBytes,
-      iterations: iterations,
-      hash: 'SHA-256'
-    },
-    keyMaterial,
-    256 // 256 bits = 32 bytes
-  )
-  
-  // Convert to hex string
-  return Array.from(new Uint8Array(derivedBits))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('')
-}
+  const [digestA, digestB] = await Promise.all([
+    cryptoObj.subtle.digest('SHA-256', encoder.encode(a)),
+    cryptoObj.subtle.digest('SHA-256', encoder.encode(b)),
+  ])
 
-/**
- * Verifies a password against a hash
- * @param {string} password - Password to verify
- * @param {string} hash - Stored hash (format: iterations:salt:hash)
- * @returns {Promise<boolean>} - True if password matches
- */
-export async function verifyPassword(password, hash) {
-  try {
-    const [iterationsStr, salt, expectedHash] = hash.split(':')
-    const iterations = parseInt(iterationsStr, 10)
-    
-    if (!iterations || !salt || !expectedHash) {
-      return false
-    }
-    
-    const computedHash = await hashPassword(password, salt, iterations)
-    return computedHash === expectedHash
-  } catch (error) {
+  const bytesA = new Uint8Array(digestA)
+  const bytesB = new Uint8Array(digestB)
+  if (bytesA.length !== bytesB.length) {
     return false
   }
-}
 
-/**
- * Generates a random salt for password hashing
- * @param {number} bytes - Number of bytes (default: 16)
- * @returns {string} - Salt as hex string
- */
-export function generateSalt(bytes = 16) {
-  return randomHex(bytes)
-}
-
-/**
- * Hashes a password with a new salt
- * @param {string} password - Password to hash
- * @param {number} iterations - Number of iterations (default: 100000)
- * @returns {Promise<string>} - Hash in format: iterations:salt:hash
- */
-export async function hashPasswordWithSalt(password, iterations = 100000) {
-  const salt = generateSalt(16)
-  const hash = await hashPassword(password, salt, iterations)
-  return `${iterations}:${salt}:${hash}`
+  let diff = 0
+  for (let i = 0; i < bytesA.length; i++) {
+    diff |= bytesA[i] ^ bytesB[i]
+  }
+  return diff === 0
 }
 
