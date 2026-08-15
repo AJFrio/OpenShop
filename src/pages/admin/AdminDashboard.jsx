@@ -8,6 +8,7 @@ import { ProductsPage } from './ProductsPage'
 import { CollectionsPage } from './CollectionsPage'
 import { MediaLibraryPage } from './MediaLibraryPage'
 import { StoreSettingsPage } from './StoreSettingsPage'
+import { PagesPage } from './PagesPage'
 import { FulfillmentPage } from './FulfillmentPage'
 
 export function AdminDashboard() {
@@ -61,6 +62,7 @@ export function AdminDashboard() {
         <Route path="Fulfillment" element={<FulfillmentPage />} />
         <Route path="media" element={<MediaLibraryPage />} />
         <Route path="store-settings" element={<StoreSettingsPage />} />
+        <Route path="pages" element={<PagesPage />} />
       </Route>
     </Routes>
   )

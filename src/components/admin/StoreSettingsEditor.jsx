@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Select } from '../ui/select'
@@ -24,8 +24,6 @@ import {
 } from '../ui/alert-dialog'
 import { Image as ImageIcon, Info, MapPin, Paintbrush } from 'lucide-react'
 
-const PuckPageEditor = lazy(() => import('./PuckPageEditor').then((module) => ({ default: module.PuckPageEditor })))
-
 const DEFAULT_SETTINGS = {
   logoType: 'text',
   logoText: 'OpenShop',
@@ -50,7 +48,6 @@ const DEFAULT_SETTINGS = {
 }
 
 export function StoreSettingsEditor() {
-  const [activeTab, setActiveTab] = useState('settings')
   const [activeSection, setActiveSection] = useState('theme')
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [settingsBaseline, setSettingsBaseline] = useState(null)
@@ -280,25 +277,12 @@ export function StoreSettingsEditor() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-[var(--admin-text-primary)]">Store settings</h2>
-            <p className="text-xs text-[var(--admin-text-muted)]">Manage brand settings and edit storefront pages.</p>
-          </div>
-          <div className="inline-flex rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] p-1">
-            <Button type="button" size="sm" variant={activeTab === 'settings' ? 'default' : 'ghost'} onClick={() => setActiveTab('settings')} className="h-8 px-3 text-xs">
-              Brand & Theme
-            </Button>
-            <Button type="button" size="sm" variant={activeTab === 'pages' ? 'default' : 'ghost'} onClick={() => setActiveTab('pages')} className="h-8 px-3 text-xs">
-              Pages
-            </Button>
+            <p className="text-xs text-[var(--admin-text-muted)]">Manage brand, theme, and store identity.</p>
           </div>
         </div>
       </div>
 
-      {activeTab === 'pages' ? (
-        <Suspense fallback={<div className="rounded-lg border border-[var(--admin-border-primary)] bg-[var(--admin-bg-card)] p-6 text-sm text-[var(--admin-text-muted)]">Loading page editor...</div>}>
-          <PuckPageEditor />
-        </Suspense>
-      ) : (
-        <form onSubmit={handleSubmit} className="grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
+      <form onSubmit={handleSubmit} className="grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
           <div className="rounded-xl border border-[var(--admin-border-primary)] bg-[var(--admin-bg-secondary)] p-4 shadow-sm">
             <div className="grid gap-2">
               {sections.map((item) => {
@@ -452,7 +436,6 @@ export function StoreSettingsEditor() {
             </div>
           </div>
         </form>
-      )}
 
       {modalImage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => setModalImage(null)}>
