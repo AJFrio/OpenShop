@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-08-09T23:27:55Z
+// Worker Bundle - Built 2026-08-15T21:04:33Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -5581,9 +5581,9 @@ async function securityHeadersMiddleware(c, next) {
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
     // Stripe requires unsafe-inline
-    "style-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: https: blob:",
-    "font-src 'self' data:",
+    "font-src 'self' data: https://fonts.gstatic.com",
     "connect-src 'self' https://api.stripe.com https://*.stripe.com https://oauth2.googleapis.com https://www.googleapis.com",
     "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
     "frame-ancestors 'none'",
@@ -14100,7 +14100,7 @@ app.get("*", async (c) => {
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
               text-align: center; 
               padding: 50px 20px; 
-              background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%);
+              background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
               color: white;
               margin: 0;
               min-height: 100vh;
