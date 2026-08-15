@@ -7,6 +7,7 @@ import {
   Settings,
   ShoppingBag,
   Image as ImageIcon,
+  LayoutTemplate,
   LogOut,
   Store,
 } from 'lucide-react'
@@ -18,6 +19,7 @@ const menuItems = [
   { path: '/admin/fulfillment', label: 'Fulfillment', icon: ShoppingBag },
   { path: '/admin/media', label: 'Media', icon: ImageIcon },
   { path: '/admin/store-settings', label: 'Store Settings', icon: Settings },
+  { path: '/admin/pages', label: 'Pages', icon: LayoutTemplate },
 ]
 
 function isNavActive(pathname, item) {
@@ -44,7 +46,7 @@ export function AdminLayout({ onLogout }) {
           </Link>
         </div>
         <nav className="flex-1 p-3">
-          <ul className="flex gap-1 overflow-x-auto lg:block lg:space-y-1">
+          <ul className="grid grid-cols-2 gap-1 sm:grid-cols-3 lg:block lg:space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon
               const isActive = isNavActive(location.pathname, item)
@@ -52,14 +54,15 @@ export function AdminLayout({ onLogout }) {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`flex whitespace-nowrap items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-200 ${
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--admin-bg-primary)] ${
                       isActive
                         ? 'bg-[var(--admin-accent)]/15 text-[var(--admin-accent-light)] border-l-2 border-[var(--admin-accent)]'
                         : 'text-[var(--admin-text-secondary)] hover:bg-[var(--admin-overlay-light)] hover:text-[var(--admin-text-primary)]'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
+                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{item.label}</span>
                   </Link>
                 </li>
               )

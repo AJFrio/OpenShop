@@ -5,12 +5,12 @@ import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, BarChart3, Package }
 const iconStyles = {
   [DollarSign?.name || 'DollarSign']: { bg: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' },
   [ShoppingBag?.name || 'ShoppingBag']: { bg: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' },
-  [BarChart3?.name || 'BarChart3']: { bg: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa' },
+  [BarChart3?.name || 'BarChart3']: { bg: 'rgba(37, 99, 235, 0.15)', color: '#60a5fa' },
   [Package?.name || 'Package']: { bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' },
 }
 
 function getIconStyle(Icon) {
-  return iconStyles[Icon?.name] || { bg: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa' }
+  return iconStyles[Icon?.name] || { bg: 'rgba(37, 99, 235, 0.15)', color: '#60a5fa' }
 }
 
 export function MetricCard({ title, value, change, changeType, icon: Icon, prefix = '' }) {
@@ -22,7 +22,7 @@ export function MetricCard({ title, value, change, changeType, icon: Icon, prefi
     <Card className="admin-stat-card relative overflow-hidden group">
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" 
-           style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.03) 0%, transparent 50%)' }} />
+           style={{ background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.04) 0%, transparent 50%)' }} />
       
       <CardContent className="p-5 relative">
         <div className="flex items-center justify-between">
@@ -30,13 +30,13 @@ export function MetricCard({ title, value, change, changeType, icon: Icon, prefi
             <p className="text-xs font-medium uppercase tracking-wider mb-1 truncate" style={{ color: '#94a3b8' }}>
               {title}
             </p>
-            <p className="text-2xl font-bold truncate" style={{ color: '#e2e8f0', letterSpacing: '-0.02em' }}>
+            <p className="text-2xl font-bold truncate tabular-nums" style={{ color: '#e2e8f0', letterSpacing: '-0.02em' }}>
               {typeof value === 'number'
                 ? (prefix === '$' ? formatCurrency(value) : `${prefix}${value}`)
                 : `${prefix}${value}`}
             </p>
             {change !== undefined && (
-              <div className={`flex items-center mt-2 text-sm ${
+              <div className={`flex items-center mt-2 text-sm tabular-nums ${
                 isNeutral ? 'text-slate-500' : isPositive ? 'text-emerald-400' : 'text-red-400'
               }`}>
                 {!isNeutral && (
@@ -102,7 +102,7 @@ export function RecentOrdersCard({ orders }) {
                      className="p-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
                      style={{ backgroundColor: '#242837', border: '1px solid #2d3748' }}>
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>
+                    <p className="text-sm font-semibold tabular-nums" style={{ color: '#e2e8f0' }}>
                       {formatCurrency(order.amount, order.currency)}
                     </p>
                     <span className="px-2 py-0.5 text-xs font-medium rounded-full" 

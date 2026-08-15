@@ -2,6 +2,8 @@
 
 How OpenShop code is organized for human and agent maintainability.
 
+> Canonical visual tokens (color ramp, typography, copy tone, forbidden patterns) live in [`DESIGN-TOKENS.md`](./DESIGN-TOKENS.md). This file covers layering and code boundaries only.
+
 ## Layer rules
 
 | Layer | Path | May import |

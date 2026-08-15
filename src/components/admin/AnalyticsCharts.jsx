@@ -23,7 +23,7 @@ export function RevenueChart({ data, period }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
+          <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
           Revenue Over Time
         </CardTitle>
       </CardHeader>
@@ -34,16 +34,17 @@ export function RevenueChart({ data, period }) {
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis 
                 dataKey="formattedDate" 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }}
                 tickFormatter={formatXAxisLabel}
               />
               <YAxis 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }}
                 tickFormatter={(value) => `$${value}`}
               />
               <Tooltip 
                 formatter={formatTooltip}
-                labelStyle={{ color: '#374151' }}
+                labelStyle={{ color: '#374151', fontVariantNumeric: 'tabular-nums' }}
+                itemStyle={{ fontVariantNumeric: 'tabular-nums' }}
                 contentStyle={{ 
                   backgroundColor: 'white', 
                   border: '1px solid #e5e7eb',
@@ -53,10 +54,10 @@ export function RevenueChart({ data, period }) {
               <Line 
                 type="monotone" 
                 dataKey="revenue" 
-                stroke="#9333ea" 
+                stroke="#2563eb" 
                 strokeWidth={3}
-                dot={{ fill: '#9333ea', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#9333ea', strokeWidth: 2 }}
+                dot={{ fill: '#2563eb', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#2563eb', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -90,13 +91,14 @@ export function OrdersChart({ data, period }) {
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis 
                 dataKey="formattedDate" 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }}
                 tickFormatter={formatXAxisLabel}
               />
-              <YAxis tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }} />
               <Tooltip 
                 formatter={(value, name) => [value, 'Orders']}
-                labelStyle={{ color: '#374151' }}
+                labelStyle={{ color: '#374151', fontVariantNumeric: 'tabular-nums' }}
+                itemStyle={{ fontVariantNumeric: 'tabular-nums' }}
                 contentStyle={{ 
                   backgroundColor: 'white', 
                   border: '1px solid #e5e7eb',

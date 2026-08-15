@@ -32,7 +32,7 @@ export function AdminLogin({ onLoginSuccess }) {
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0f1117 0%, #1a1d29 100%)' }}>
       <div className="w-full max-w-md p-8 rounded-xl" style={{ backgroundColor: '#1e212b', border: '1px solid #2d3748', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
         <div className="text-center mb-8">
-          <div className="w-12 h-12 mx-auto mb-4 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%)' }}>
+          <div className="w-12 h-12 mx-auto mb-4 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)' }}>
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
