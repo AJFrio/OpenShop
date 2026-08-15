@@ -88,9 +88,13 @@ export function MediaLibraryPage() {
           <CardContent className="p-12 text-center">
             <ImageIcon className="w-12 h-12 text-[var(--admin-border-secondary)] mx-auto mb-4" />
             <h3 className="text-base font-medium text-[var(--admin-text-primary)] mb-2">No media yet</h3>
-            <p className="text-[var(--admin-text-secondary)] text-sm">
-              Use Add media to upload, link, or generate images.
+            <p className="text-[var(--admin-text-secondary)] text-sm mb-6">
+              Upload, link, or generate images to use across products and pages.
             </p>
+            <Button onClick={() => setAddOpen(true)} size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Add media
+            </Button>
           </CardContent>
         </Card>
       ) : (

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card"
 import { Button } from "../ui/button"
@@ -81,6 +81,14 @@ const prepareVariantsForSave = (variants = []) =>
         price: variant.hasCustomPrice ? (Number.isFinite(parsedPrice) ? parsedPrice : 0) : undefined,
       }
     })
+
+const PRODUCT_SECTIONS = [
+  { id: "product-section-overview", label: "Overview" },
+  { id: "product-section-pricing", label: "Pricing" },
+  { id: "product-section-media", label: "Media" },
+  { id: "product-section-collections", label: "Collections" },
+  { id: "product-section-variants", label: "Variants" },
+]
 function VariantGroupEditor({
   id,
   title,
@@ -291,6 +299,9 @@ export function ProductWorkspace() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [pendingSelection, setPendingSelection] = useState(null)
   const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState(PRODUCT_SECTIONS[0].id)
+  const [headerOffset, setHeaderOffset] = useState(160)
+  const headerRef = useRef(null)
 
   const isDirty = draftFingerprint(draft) !== draftFingerprint(baselineDraft)
 
@@ -462,6 +473,40 @@ export function ProductWorkspace() {
     const timer = setTimeout(() => setStatus(null), 4000)
     return () => clearTimeout(timer)
   }, [status])
+
+  useEffect(() => {
+    if (!headerRef.current) return
+    const observer = new ResizeObserver((entries) => {
+      const height = entries[0]?.contentRect?.height
+      if (height) setHeaderOffset(Math.ceil(height) + 16)
+    })
+    observer.observe(headerRef.current)
+    return () => observer.disconnect()
+  }, [draft])
+
+  useEffect(() => {
+    if (!draft) return
+    const sectionEls = PRODUCT_SECTIONS.map((section) => document.getElementById(section.id)).filter(Boolean)
+    if (sectionEls.length === 0) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id)
+        })
+      },
+      { rootMargin: '-30% 0px -60% 0px' }
+    )
+    sectionEls.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [draft])
+
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id)
+    if (!el) return
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+    setActiveSection(id)
+  }
   const handleRefresh = async () => {
     try {
       setIsLoading(true)
@@ -907,7 +952,7 @@ export function ProductWorkspace() {
 
           {draft ? (
             <div className="space-y-5 pb-16">
-              <Card className="sticky top-0 z-20 border border-[var(--admin-border-primary)]">
+              <Card ref={headerRef} className="sticky top-0 z-20 border border-[var(--admin-border-primary)]">
                 <CardHeader className="gap-4 md:flex-row md:items-center md:justify-between py-4">
                   <div className="space-y-1">
                     <CardTitle className="text-lg">
@@ -953,10 +998,29 @@ export function ProductWorkspace() {
                     </Button>
                   </div>
                 </CardHeader>
+                <div className="border-t border-[var(--admin-border-primary)] px-3 py-2">
+                  <nav aria-label="Product sections" className="flex flex-wrap items-center gap-1">
+                    {PRODUCT_SECTIONS.map((section) => (
+                      <button
+                        key={section.id}
+                        type="button"
+                        onClick={() => scrollToSection(section.id)}
+                        aria-current={activeSection === section.id ? 'true' : undefined}
+                        className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                          activeSection === section.id
+                            ? 'bg-[var(--admin-accent)]/15 text-[var(--admin-accent-light)]'
+                            : 'text-[var(--admin-text-secondary)] hover:bg-[var(--admin-overlay-light)] hover:text-[var(--admin-text-primary)]'
+                        }`}
+                      >
+                        {section.label}
+                      </button>
+                    ))}
+                  </nav>
+                </div>
               </Card>
 
               <div className="grid gap-5 xl:grid-cols-2">
-                <Card>
+                <Card id="product-section-overview" style={{ scrollMarginTop: headerOffset }}>
                   <CardHeader className="py-4">
                     <CardTitle className="text-base">Product overview</CardTitle>
                     <p className="text-xs text-[var(--admin-text-secondary)]">
@@ -996,7 +1060,7 @@ export function ProductWorkspace() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card id="product-section-pricing" style={{ scrollMarginTop: headerOffset }}>
                   <CardHeader className="py-4">
                     <CardTitle className="text-base">Pricing & visibility</CardTitle>
                     <p className="text-xs text-[var(--admin-text-secondary)]">
@@ -1048,7 +1112,7 @@ export function ProductWorkspace() {
                   </CardContent>
                 </Card>
 
-                <Card className="xl:col-span-2">
+                <Card id="product-section-media" style={{ scrollMarginTop: headerOffset }} className="xl:col-span-2">
                   <CardHeader className="py-4">
                     <CardTitle className="text-base">Media</CardTitle>
                     <p className="text-xs text-[var(--admin-text-secondary)]">
@@ -1087,7 +1151,7 @@ export function ProductWorkspace() {
                   </CardContent>
                 </Card>
 
-                <Card className="xl:col-span-2">
+                <Card id="product-section-collections" style={{ scrollMarginTop: headerOffset }} className="xl:col-span-2">
                   <CardHeader className="py-4">
                     <CardTitle className="text-base">Collections & metadata</CardTitle>
                     <p className="text-xs text-[var(--admin-text-secondary)]">
@@ -1114,7 +1178,7 @@ export function ProductWorkspace() {
                   </CardContent>
                 </Card>
 
-                <Card className="xl:col-span-2">
+                <Card id="product-section-variants" style={{ scrollMarginTop: headerOffset }} className="xl:col-span-2">
                   <CardHeader className="py-4">
                     <CardTitle className="text-base">Variants</CardTitle>
                     <p className="text-xs text-[var(--admin-text-secondary)]">

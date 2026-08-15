@@ -3,7 +3,7 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
-import { X } from 'lucide-react'
+import { X, ShoppingBag, Check } from 'lucide-react'
 
 export function FulfillmentPage() {
   const [orders, setOrders] = useState([])
@@ -292,7 +292,17 @@ export function FulfillmentPage() {
         </Card>
       ) : orders.length === 0 ? (
         <Card>
-          <CardContent className="p-12 text-center text-[var(--admin-text-muted)]">No orders found.</CardContent>
+          <CardContent className="p-12 text-center">
+            <ShoppingBag className="w-12 h-12 text-[var(--admin-border-secondary)] mx-auto mb-4" />
+            <h3 className="text-base font-medium text-[var(--admin-text-primary)] mb-2">
+              {statusFilter === 'open' ? 'No open orders' : statusFilter === 'fulfilled' ? 'No fulfilled orders' : 'No orders yet'}
+            </h3>
+            <p className="text-[var(--admin-text-secondary)] text-sm">
+              {statusFilter === 'fulfilled'
+                ? 'Orders you fulfill will appear here.'
+                : 'Orders will appear here after a customer completes checkout.'}
+            </p>
+          </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
@@ -335,8 +345,9 @@ export function FulfillmentPage() {
                           {order.customer_email || ''}
                         </span>
                         {order.fulfillment?.fulfilled && (
-                          <span className="text-xs text-[var(--admin-success)] font-medium mt-1">
-                            ✓ Fulfilled{' '}
+                          <span className="inline-flex items-center gap-1 text-xs text-[var(--admin-success)] font-medium mt-1">
+                            <Check className="h-3.5 w-3.5" />
+                            Fulfilled{' '}
                             {order.fulfillment.fulfilledAt
                               ? new Date(order.fulfillment.fulfilledAt).toLocaleDateString()
                               : ''}
@@ -344,7 +355,7 @@ export function FulfillmentPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="text-right font-semibold text-[var(--admin-text-primary)] text-sm">
+                        <div className="text-right font-semibold text-[var(--admin-text-primary)] text-sm tabular-nums">
                           {formatCurrency(
                             (order.amount_total || 0) / 100,
                             order.currency?.toUpperCase() || 'USD'
@@ -423,7 +434,7 @@ export function FulfillmentPage() {
                       <span className="text-[var(--admin-text-muted)]">Order Date:</span>{' '}
                       {new Date(selectedOrder.created * 1000).toLocaleString()}
                     </p>
-                    <p className="text-[var(--admin-text-secondary)]">
+                    <p className="text-[var(--admin-text-secondary)] tabular-nums">
                       <span className="text-[var(--admin-text-muted)]">Total:</span>{' '}
                       {formatCurrency(
                         (selectedOrder.amount_total || 0) / 100,
@@ -431,8 +442,9 @@ export function FulfillmentPage() {
                       )}
                     </p>
                     {selectedOrder.fulfillment?.fulfilled && (
-                      <p className="text-[var(--admin-success)] font-medium text-sm">
-                        ✓ Fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
+                      <p className="inline-flex items-center gap-1 text-[var(--admin-success)] font-medium text-sm">
+                        <Check className="h-4 w-4" />
+                        Fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
                       </p>
                     )}
                   </div>
@@ -508,7 +520,7 @@ export function FulfillmentPage() {
                         <p className="text-xs text-[var(--admin-text-secondary)]">Quantity: {item.quantity}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-[var(--admin-text-primary)] text-sm">
+                        <p className="font-medium text-[var(--admin-text-primary)] text-sm tabular-nums">
                           {formatCurrency(
                             (item.amount_total || 0) / 100,
                             item.currency?.toUpperCase() || 'USD'
@@ -525,8 +537,9 @@ export function FulfillmentPage() {
               {!selectedOrder.fulfillment?.fulfilled ? (
                 <div className="text-sm text-[var(--admin-text-secondary)]">This order is ready for fulfillment</div>
               ) : (
-                <div className="text-sm text-[var(--admin-success)] font-medium">
-                  ✓ Order fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
+                <div className="inline-flex items-center gap-1 text-sm text-[var(--admin-success)] font-medium">
+                  <Check className="h-4 w-4" />
+                  Order fulfilled on {new Date(selectedOrder.fulfillment.fulfilledAt).toLocaleDateString()}
                 </div>
               )}
               <div className="flex gap-2">
