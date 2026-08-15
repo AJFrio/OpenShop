@@ -517,7 +517,7 @@ export function FulfillmentPage() {
                             )}
                           </div>
                         )}
-                        <p className="text-xs text-[var(--admin-text-secondary)]">Quantity: {item.quantity}</p>
+                        <p className="text-xs text-[var(--admin-text-secondary)] tabular-nums">Quantity: {item.quantity}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-[var(--admin-text-primary)] text-sm tabular-nums">

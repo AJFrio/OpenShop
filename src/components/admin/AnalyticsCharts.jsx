@@ -34,16 +34,17 @@ export function RevenueChart({ data, period }) {
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis 
                 dataKey="formattedDate" 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }}
                 tickFormatter={formatXAxisLabel}
               />
               <YAxis 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }}
                 tickFormatter={(value) => `$${value}`}
               />
               <Tooltip 
                 formatter={formatTooltip}
-                labelStyle={{ color: '#374151' }}
+                labelStyle={{ color: '#374151', fontVariantNumeric: 'tabular-nums' }}
+                itemStyle={{ fontVariantNumeric: 'tabular-nums' }}
                 contentStyle={{ 
                   backgroundColor: 'white', 
                   border: '1px solid #e5e7eb',
@@ -90,13 +91,14 @@ export function OrdersChart({ data, period }) {
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis 
                 dataKey="formattedDate" 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }}
                 tickFormatter={formatXAxisLabel}
               />
-              <YAxis tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }} />
               <Tooltip 
                 formatter={(value, name) => [value, 'Orders']}
-                labelStyle={{ color: '#374151' }}
+                labelStyle={{ color: '#374151', fontVariantNumeric: 'tabular-nums' }}
+                itemStyle={{ fontVariantNumeric: 'tabular-nums' }}
                 contentStyle={{ 
                   backgroundColor: 'white', 
                   border: '1px solid #e5e7eb',

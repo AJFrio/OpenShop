@@ -248,7 +248,7 @@ function ProductListItem({ product, isActive, onSelect, collectionName }) {
             <span className="font-medium text-[var(--admin-text-primary)] text-sm truncate">
               {product.name || 'Untitled product'}
             </span>
-            <span className="text-xs font-semibold text-[var(--admin-text-secondary)]">
+            <span className="text-xs font-semibold text-[var(--admin-text-secondary)] tabular-nums">
               {formatCurrency(product.price, product.currency)}
             </span>
           </div>
@@ -474,6 +474,8 @@ export function ProductWorkspace() {
     return () => clearTimeout(timer)
   }, [status])
 
+  const hasDraft = draft != null
+
   useEffect(() => {
     if (!headerRef.current) return
     const observer = new ResizeObserver((entries) => {
@@ -482,23 +484,24 @@ export function ProductWorkspace() {
     })
     observer.observe(headerRef.current)
     return () => observer.disconnect()
-  }, [draft])
+  }, [hasDraft])
 
   useEffect(() => {
-    if (!draft) return
+    if (!hasDraft) return
     const sectionEls = PRODUCT_SECTIONS.map((section) => document.getElementById(section.id)).filter(Boolean)
     if (sectionEls.length === 0) return
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id)
-        })
+        const topMost = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
+        if (topMost) setActiveSection(topMost.target.id)
       },
       { rootMargin: '-30% 0px -60% 0px' }
     )
     sectionEls.forEach((el) => observer.observe(el))
     return () => observer.disconnect()
-  }, [draft])
+  }, [hasDraft])
 
   const scrollToSection = (id) => {
     const el = document.getElementById(id)
@@ -1005,8 +1008,8 @@ export function ProductWorkspace() {
                         key={section.id}
                         type="button"
                         onClick={() => scrollToSection(section.id)}
-                        aria-current={activeSection === section.id ? 'true' : undefined}
-                        className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                        aria-current={activeSection === section.id ? 'location' : undefined}
+                        className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--admin-bg-primary)] ${
                           activeSection === section.id
                             ? 'bg-[var(--admin-accent)]/15 text-[var(--admin-accent-light)]'
                             : 'text-[var(--admin-text-secondary)] hover:bg-[var(--admin-overlay-light)] hover:text-[var(--admin-text-primary)]'

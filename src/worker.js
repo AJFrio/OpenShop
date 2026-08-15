@@ -99,7 +99,7 @@ app.get('*', async (c) => {
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
               text-align: center; 
               padding: 50px 20px; 
-              background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%);
+              background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
               color: white;
               margin: 0;
               min-height: 100vh;

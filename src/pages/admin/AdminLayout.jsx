@@ -54,7 +54,8 @@ export function AdminLayout({ onLogout }) {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-200 ${
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--admin-bg-primary)] ${
                       isActive
                         ? 'bg-[var(--admin-accent)]/15 text-[var(--admin-accent-light)] border-l-2 border-[var(--admin-accent)]'
                         : 'text-[var(--admin-text-secondary)] hover:bg-[var(--admin-overlay-light)] hover:text-[var(--admin-text-primary)]'
