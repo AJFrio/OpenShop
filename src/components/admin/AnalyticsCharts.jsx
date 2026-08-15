@@ -23,7 +23,7 @@ export function RevenueChart({ data, period }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
+          <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
           Revenue Over Time
         </CardTitle>
       </CardHeader>
@@ -53,10 +53,10 @@ export function RevenueChart({ data, period }) {
               <Line 
                 type="monotone" 
                 dataKey="revenue" 
-                stroke="#9333ea" 
+                stroke="#2563eb" 
                 strokeWidth={3}
-                dot={{ fill: '#9333ea', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#9333ea', strokeWidth: 2 }}
+                dot={{ fill: '#2563eb', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#2563eb', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>

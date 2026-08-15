@@ -144,7 +144,7 @@ export function DashboardPage() {
                       >
                         <div>
                           <h4 className="font-medium text-[var(--admin-text-primary)] text-sm">{product.name}</h4>
-                          <p className="text-xs text-[var(--admin-text-secondary)]">
+                          <p className="text-xs text-[var(--admin-text-secondary)] tabular-nums">
                             {formatCurrency(product.price, product.currency)}
                           </p>
                         </div>

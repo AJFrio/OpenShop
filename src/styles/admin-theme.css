@@ -22,11 +22,11 @@
   --admin-border-secondary: #374151;
   --admin-border-focus: #4b5563;
   
-  /* Accent colors - Purple (keeping brand identity) */
-  --admin-accent: #8b5cf6;
-  --admin-accent-hover: #7c3aed;
-  --admin-accent-light: #a78bfa;
-  --admin-accent-dark: #6d28d9;
+  /* Accent colors - Brand blue (cart-aligned, per docs/DESIGN-TOKENS.md) */
+  --admin-accent: #2563eb;
+  --admin-accent-hover: #1d4ed8;
+  --admin-accent-light: #60a5fa;
+  --admin-accent-dark: #1e3a8a;
   
   /* Semantic colors */
   --admin-success: #22c55e;
@@ -46,7 +46,7 @@
   --admin-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --admin-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
   --admin-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
-  --admin-shadow-glow: 0 0 20px rgba(139, 92, 246, 0.15);
+  --admin-shadow-glow: 0 0 20px rgba(37, 99, 235, 0.15);
   
   /* Spacing scale - more compact */
   --admin-space-1: 0.25rem;
@@ -73,6 +73,12 @@
   background-color: var(--admin-bg-primary);
   color: var(--admin-text-primary);
   min-height: 100vh;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Numeric alignment for metrics, prices, counts, and stats */
+.admin-tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Sidebar styles */
@@ -99,7 +105,7 @@
 }
 
 .admin-sidebar-link.active {
-  background-color: rgba(139, 92, 246, 0.15);
+  background-color: rgba(37, 99, 235, 0.15);
   color: var(--admin-accent-light);
   border-left: 3px solid var(--admin-accent);
 }
@@ -150,7 +156,7 @@
 .admin-input:focus {
   outline: none;
   border-color: var(--admin-accent);
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 .admin-input:disabled {
@@ -178,7 +184,7 @@
 .admin-select:focus {
   outline: none;
   border-color: var(--admin-accent);
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 .admin-select option {
@@ -266,7 +272,7 @@
 .admin-textarea:focus {
   outline: none;
   border-color: var(--admin-accent);
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 /* Switch styles */

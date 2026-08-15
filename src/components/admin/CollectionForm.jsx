@@ -102,7 +102,7 @@ export function CollectionForm({ collection, onSave, onCancel }) {
   return (
     <>
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <div className="sticky top-0 z-20 px-6 py-4 bg-[var(--admin-bg-card)]/95 backdrop-blur border border-[var(--admin-border-primary)] rounded-lg flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky top-0 z-20 px-6 py-4 bg-[var(--admin-bg-card)] border border-[var(--admin-border-primary)] rounded-lg flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-[var(--admin-text-primary)]">{collection ? 'Edit Collection' : 'Create New Collection'}</h2>
           <p className="text-sm text-[var(--admin-text-secondary)]">Organize products into collections with names, descriptions, and hero imagery.</p>
