@@ -124,7 +124,6 @@ export function DashboardPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <RecentOrdersCard orders={analytics.recentOrders} />
-            <AgentChat />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -177,6 +176,10 @@ export function DashboardPage() {
           </CardContent>
         </Card>
       )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AgentChat />
+      </div>
     </div>
   )
 }
