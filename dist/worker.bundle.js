@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-08-15T21:04:33Z
+// Worker Bundle - Built 2026-08-25T20:14:28Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -12698,7 +12698,25 @@ init_performance2();
 var PAGE_VERSION = 1;
 var MAX_PAGE_BYTES = 5e4;
 var MAX_TEXT_LENGTH = 5e3;
-var ALLOWED_PAGE_SLUGS = ["home", "about"];
+var MAX_SLUG_LENGTH = 48;
+var CORE_PAGE_SLUGS = ["home", "about"];
+var RESERVED_PAGE_SLUGS = /* @__PURE__ */ new Set([
+  "admin",
+  "api",
+  "assets",
+  "cart",
+  "checkout",
+  "collections",
+  "login",
+  "p",
+  "products",
+  "success"
+]);
+var PAGE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+function isValidPageSlug(slug) {
+  return typeof slug === "string" && slug.length >= 1 && slug.length <= MAX_SLUG_LENGTH && PAGE_SLUG_PATTERN.test(slug) && !RESERVED_PAGE_SLUGS.has(slug);
+}
+__name(isValidPageSlug, "isValidPageSlug");
 var PAGE_COMPONENT_PROPS = {
   HeroSection: {
     title: "string",
@@ -12719,7 +12737,7 @@ var PAGE_COMPONENT_PROPS = {
   },
   RichTextSection: {
     heading: "string",
-    body: "string"
+    body: "html"
   },
   ImageTextSection: {
     imageUrl: "url",
@@ -12734,14 +12752,20 @@ function getPageContentKey(slug) {
   return `storefront:page:${slug}`;
 }
 __name(getPageContentKey, "getPageContentKey");
+function getPageIndexKey() {
+  return "storefront:pages:index";
+}
+__name(getPageIndexKey, "getPageIndexKey");
 function assertPageSlug(slug) {
-  if (!ALLOWED_PAGE_SLUGS.includes(slug)) {
+  if (!isValidPageSlug(slug)) {
     throw new Error(`Invalid page slug: ${slug}`);
   }
 }
 __name(assertPageSlug, "assertPageSlug");
 function createDefaultPageRecord(slug, settings = {}) {
-  assertPageSlug(slug);
+  if (!CORE_PAGE_SLUGS.includes(slug)) {
+    throw new Error(`No default content for page slug: ${slug}`);
+  }
   const data = slug === "about" ? createDefaultAboutData(settings) : createDefaultHomeData(settings);
   return {
     slug,
@@ -12793,11 +12817,50 @@ function validatePageData(data) {
     content: data.content.map(validateContentItem),
     root: {
       ...data.root,
-      props: sanitizePlainObject(data.root.props || {})
+      props: sanitizeRootProps(data.root.props || {})
     }
   };
 }
 __name(validatePageData, "validatePageData");
+var ROOT_PROP_FIELDS = ["title", "description"];
+function sanitizeRootProps(props) {
+  if (!props || typeof props !== "object" || Array.isArray(props)) return {};
+  const sanitized = {};
+  for (const key of ROOT_PROP_FIELDS) {
+    const value = props[key];
+    if (value === void 0 || value === null) continue;
+    sanitized[key] = sanitizeString(value, 500);
+  }
+  return sanitized;
+}
+__name(sanitizeRootProps, "sanitizeRootProps");
+function validatePageIndexEntry(entry) {
+  if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+    throw new Error("Page index entries must be objects");
+  }
+  assertPageSlug(entry.slug);
+  return {
+    slug: entry.slug,
+    createdAt: typeof entry.createdAt === "string" ? entry.createdAt : null,
+    updatedAt: typeof entry.updatedAt === "string" ? entry.updatedAt : null
+  };
+}
+__name(validatePageIndexEntry, "validatePageIndexEntry");
+function validatePageIndex(value) {
+  if (!Array.isArray(value)) {
+    throw new Error("Page index must be an array");
+  }
+  const seen = /* @__PURE__ */ new Set();
+  const entries = [];
+  for (const entry of value) {
+    const validated = validatePageIndexEntry(entry);
+    if (seen.has(validated.slug)) continue;
+    seen.add(validated.slug);
+    entries.push(validated);
+  }
+  return entries;
+}
+__name(validatePageIndex, "validatePageIndex");
 function validateContentItem(item) {
   if (!item || typeof item !== "object" || Array.isArray(item)) {
     throw new Error("Page content entries must be objects");
@@ -12832,6 +12895,9 @@ __name(sanitizeProps, "sanitizeProps");
 function sanitizeValue(key, value, expectedType) {
   if (expectedType === "string") {
     return sanitizeString(value, MAX_TEXT_LENGTH);
+  }
+  if (expectedType === "html") {
+    return sanitizeHtml(value);
   }
   if (expectedType === "url") {
     const text = sanitizeString(value, 1e3);
@@ -12870,12 +12936,78 @@ function sanitizeString(value, maxLength) {
   return value.slice(0, maxLength);
 }
 __name(sanitizeString, "sanitizeString");
-function sanitizePlainObject(value) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-  return JSON.parse(JSON.stringify(value));
+var ALLOWED_HTML_TAGS = /* @__PURE__ */ new Set([
+  "p",
+  "br",
+  "strong",
+  "em",
+  "u",
+  "s",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "ul",
+  "ol",
+  "li",
+  "blockquote",
+  "a"
+]);
+var HTML_TAG_PATTERN = /<\s*(\/?)\s*([a-zA-Z][a-zA-Z0-9]*)((?:[^<>"']|"[^"]*"|'[^']*')*?)\s*(\/?)\s*>/g;
+var SCRIPT_STYLE_PATTERN = /<(script|style|iframe|object|embed)\b[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi;
+var HREF_PATTERN = /(?:^|[\s"'])href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s">]+))/i;
+var STYLE_PATTERN = /(?:^|[\s"'])style\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s">]+))/i;
+var ALLOWED_TEXT_ALIGN_VALUES = /* @__PURE__ */ new Set(["left", "center", "right", "justify"]);
+function extractTextAlignStyle(attributes) {
+  const styleMatch = attributes.match(STYLE_PATTERN);
+  const rawStyle = styleMatch ? styleMatch[1] ?? styleMatch[2] ?? styleMatch[3] : "";
+  const declarations = rawStyle.split(";").map((declaration) => declaration.trim().toLowerCase()).filter(Boolean);
+  if (declarations.length !== 1) return "";
+  const [property, value] = declarations[0].split(":").map((part) => part.trim());
+  if (property !== "text-align" || !ALLOWED_TEXT_ALIGN_VALUES.has(value)) return "";
+  return ` style="text-align: ${value}"`;
 }
-__name(sanitizePlainObject, "sanitizePlainObject");
+__name(extractTextAlignStyle, "extractTextAlignStyle");
+function escapeHtmlText(text) {
+  return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+__name(escapeHtmlText, "escapeHtmlText");
+function sanitizeHtml(value) {
+  const raw2 = typeof value === "string" ? value : "";
+  const withoutBlocks = raw2.slice(0, MAX_TEXT_LENGTH).replace(SCRIPT_STYLE_PATTERN, "");
+  let result = "";
+  let lastIndex = 0;
+  let match;
+  HTML_TAG_PATTERN.lastIndex = 0;
+  while ((match = HTML_TAG_PATTERN.exec(withoutBlocks)) !== null) {
+    result += escapeHtmlText(withoutBlocks.slice(lastIndex, match.index));
+    lastIndex = HTML_TAG_PATTERN.lastIndex;
+    const isClosing = match[1] === "/";
+    const tagName = match[2].toLowerCase();
+    const isSelfClosing = match[4] === "/";
+    if (!ALLOWED_HTML_TAGS.has(tagName)) continue;
+    if (isClosing) {
+      result += `</${tagName}>`;
+      continue;
+    }
+    let attributes = extractTextAlignStyle(match[3]);
+    if (tagName === "a") {
+      const hrefMatch = match[3].match(HREF_PATTERN);
+      const href = hrefMatch ? hrefMatch[1] ?? hrefMatch[2] ?? hrefMatch[3] : "";
+      if (href && isSafeUrl(href)) {
+        attributes += ` href="${href.replace(/"/g, "&quot;")}"`;
+      }
+    }
+    result += `<${tagName}${attributes}${isSelfClosing ? " /" : ""}>`;
+  }
+  result += escapeHtmlText(withoutBlocks.slice(lastIndex));
+  return result;
+}
+__name(sanitizeHtml, "sanitizeHtml");
 function isSafeUrl(value) {
+  if (value.includes("\\")) return false;
   if (value.startsWith("#")) return true;
   if (value.startsWith("/") && !value.startsWith("//")) return true;
   try {
@@ -12954,6 +13086,7 @@ function createDefaultAboutData(settings) {
 __name(createDefaultAboutData, "createDefaultAboutData");
 
 // src/services/PageContentService.js
+var EMPTY_PAGE_DATA = { content: [], root: { props: {} } };
 var PageContentService = class {
   static {
     __name(this, "PageContentService");
@@ -12962,19 +13095,83 @@ var PageContentService = class {
     this.kv = kvNamespace;
     this.settingsService = new StoreSettingsService(kvNamespace);
   }
+  async readIndex() {
+    const raw2 = await this.kv.get(getPageIndexKey());
+    if (!raw2) return [];
+    return validatePageIndex(JSON.parse(raw2));
+  }
+  async writeIndex(entries) {
+    await this.kv.put(getPageIndexKey(), JSON.stringify(entries));
+  }
   async getPage(slug) {
     const key = getPageContentKey(slug);
     const raw2 = await this.kv.get(key);
     if (raw2) {
       return validatePageRecord(JSON.parse(raw2));
     }
+    if (!CORE_PAGE_SLUGS.includes(slug)) {
+      throw new NotFoundError(`Page not found: ${slug}`);
+    }
     const settings = await this.settingsService.getSettings();
     return createDefaultPageRecord(slug, settings);
+  }
+  async listPages() {
+    const entries = await this.readIndex();
+    const bySlug = new Map(entries.map((entry) => [entry.slug, entry]));
+    const result = [];
+    for (const slug of CORE_PAGE_SLUGS) {
+      const entry = bySlug.get(slug) || { slug, createdAt: null, updatedAt: null };
+      result.push(entry);
+      bySlug.delete(slug);
+    }
+    const dynamicPages = [...bySlug.values()].sort((a, b) => a.slug.localeCompare(b.slug));
+    return [...result, ...dynamicPages];
+  }
+  async ensureIndexed(slug, updatedAt) {
+    const entries = await this.readIndex();
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const existing = entries.find((entry) => entry.slug === slug);
+    let nextEntries;
+    if (existing) {
+      nextEntries = entries.map(
+        (entry) => entry.slug === slug ? { ...entry, updatedAt } : entry
+      );
+    } else {
+      nextEntries = [...entries, { slug, createdAt: now, updatedAt }];
+    }
+    await this.writeIndex(nextEntries);
+  }
+  async createPage(slug) {
+    assertPageSlug(slug);
+    if (CORE_PAGE_SLUGS.includes(slug)) {
+      throw new Error(`Page already exists: ${slug}`);
+    }
+    const existingRecord = await this.kv.get(getPageContentKey(slug));
+    const index = await this.readIndex();
+    const indexEntry = index.find((entry) => entry.slug === slug);
+    if (existingRecord || indexEntry) {
+      throw new Error(`Page already exists: ${slug}`);
+    }
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const emptyRecord = { slug, version: 1, updatedAt: null, data: EMPTY_PAGE_DATA };
+    await this.kv.put(getPageContentKey(slug), JSON.stringify(emptyRecord));
+    await this.writeIndex([...index, { slug, createdAt: now, updatedAt: null }]);
+    return emptyRecord;
+  }
+  async deletePage(slug) {
+    if (CORE_PAGE_SLUGS.includes(slug)) {
+      throw new Error(`Cannot delete core page: ${slug}`);
+    }
+    assertPageSlug(slug);
+    await this.kv.delete(getPageContentKey(slug));
+    const entries = await this.readIndex();
+    await this.writeIndex(entries.filter((entry) => entry.slug !== slug));
   }
   async updatePage(slug, data) {
     const key = getPageContentKey(slug);
     const record = createPageRecord(slug, data);
     await this.kv.put(key, JSON.stringify(record));
+    await this.ensureIndexed(slug, record.updatedAt);
     return record;
   }
 };
@@ -12983,14 +13180,14 @@ var PageContentService = class {
 var router8 = new Hono2();
 router8.get("/:slug", asyncHandler(async (c) => {
   const slug = c.req.param("slug");
+  if (!isValidPageSlug(slug)) {
+    throw new ValidationError(`Invalid page slug: ${slug}`);
+  }
   const kvNamespace = getKVNamespace(c.env);
   const service = new PageContentService(kvNamespace);
-  try {
-    const page = await service.getPage(slug);
-    return c.json(page);
-  } catch (error3) {
-    throw new ValidationError(error3.message);
-  }
+  const page = await service.getPage(slug);
+  c.header("Cache-Control", "public, max-age=60");
+  return c.json(page);
 }));
 var pages_default = router8;
 
@@ -13195,7 +13392,7 @@ var ProductStripeService = class {
             if (prior?.stripePriceId && priorWasCustom) {
               try {
                 await stripeService.archivePrice(prior.stripePriceId);
-              } catch (_) {
+              } catch {
               }
             }
             priceIdToUse = newVariantPrice.id;
@@ -13205,7 +13402,7 @@ var ProductStripeService = class {
           if (prior?.stripePriceId && prior?.hasCustomPrice) {
             try {
               await stripeService.archivePrice(prior.stripePriceId);
-            } catch (_) {
+            } catch {
             }
           }
           return { ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: void 0 };
@@ -13244,7 +13441,7 @@ var ProductStripeService = class {
             if (prior?.stripePriceId && priorWasCustom) {
               try {
                 await stripeService.archivePrice(prior.stripePriceId);
-              } catch (_) {
+              } catch {
               }
             }
             priceIdToUse = newVariantPrice.id;
@@ -13254,7 +13451,7 @@ var ProductStripeService = class {
           if (prior?.stripePriceId && prior?.hasCustomPrice) {
             try {
               await stripeService.archivePrice(prior.stripePriceId);
-            } catch (_) {
+            } catch {
             }
           }
           return { ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: void 0 };
@@ -13916,6 +14113,24 @@ router15.put("/store-settings", asyncHandler(async (c) => {
   const updatedSettings = await settingsService.updateSettings(settings);
   return c.json(updatedSettings);
 }));
+router15.get("/storefront/pages", asyncHandler(async (c) => {
+  const kvNamespace = getKVNamespace(c.env);
+  const pageContentService = new PageContentService(kvNamespace);
+  const pages = await pageContentService.listPages();
+  return c.json(pages);
+}));
+router15.post("/storefront/pages", asyncHandler(async (c) => {
+  const payload = await c.req.json();
+  const kvNamespace = getKVNamespace(c.env);
+  const pageContentService = new PageContentService(kvNamespace);
+  try {
+    const page = await pageContentService.createPage(payload.slug);
+    return c.json(page);
+  } catch (error3) {
+    if (error3 instanceof APIError) throw error3;
+    throw new ValidationError(error3.message);
+  }
+}));
 router15.get("/storefront/pages/:slug", asyncHandler(async (c) => {
   const slug = c.req.param("slug");
   const kvNamespace = getKVNamespace(c.env);
@@ -13924,6 +14139,7 @@ router15.get("/storefront/pages/:slug", asyncHandler(async (c) => {
     const page = await pageContentService.getPage(slug);
     return c.json(page);
   } catch (error3) {
+    if (error3 instanceof APIError) throw error3;
     throw new ValidationError(error3.message);
   }
 }));
@@ -13936,6 +14152,19 @@ router15.put("/storefront/pages/:slug", asyncHandler(async (c) => {
     const page = await pageContentService.updatePage(slug, payload.data || payload);
     return c.json(page);
   } catch (error3) {
+    if (error3 instanceof APIError) throw error3;
+    throw new ValidationError(error3.message);
+  }
+}));
+router15.delete("/storefront/pages/:slug", asyncHandler(async (c) => {
+  const slug = c.req.param("slug");
+  const kvNamespace = getKVNamespace(c.env);
+  const pageContentService = new PageContentService(kvNamespace);
+  try {
+    await pageContentService.deletePage(slug);
+    return c.json({ success: true });
+  } catch (error3) {
+    if (error3 instanceof APIError) throw error3;
     throw new ValidationError(error3.message);
   }
 }));
