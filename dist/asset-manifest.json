@@ -1,11 +1,23 @@
 {
-  "/assets/chunk-2CNEFIQP-DyP9G2z2.js": {
-    "hash": "8269ad2e8f9042907179921c8339a537af326bf3a2af25477aad1a2e1f0c98b5",
-    "size": 58422
-  },
   "/assets/Editor-44C53YAG-DaMT9Vd6.js": {
     "hash": "159394c84f42e4f8c39306c1a064ec52f547d3a75d2be9abe90dac6a114ab7bf",
     "size": 2259
+  },
+  "/assets/PuckPageEditor-C-wiggwY.css": {
+    "hash": "87a3ad6170d7c85c35f1a087cb16c7c0ced39dedcf31e7dc1f389c33cfd217e7",
+    "size": 90664
+  },
+  "/assets/PuckPageEditor-DPMqNKo9.js": {
+    "hash": "270fffd6c52d11e2e3e511de095aa20da8c8a07f0cfc4a3cd74a588a5431f9df",
+    "size": 7999
+  },
+  "/assets/Render-DQXAYUBI-BQRtOFH_.js": {
+    "hash": "c2d4ae180fed8c3691a517a8d1a7aab78c2c0790baf5f95cb2b2cc5813141d60",
+    "size": 1732
+  },
+  "/assets/chunk-2CNEFIQP-DyP9G2z2.js": {
+    "hash": "8269ad2e8f9042907179921c8339a537af326bf3a2af25477aad1a2e1f0c98b5",
+    "size": 58422
   },
   "/assets/full-7ZJV44EE-B1yj0PzZ.js": {
     "hash": "fed620446a9d08e65f20d422f47c02477c8e4b513b5075214003341be8bc10bb",
@@ -39,33 +51,21 @@
     "hash": "a2291d2a54c2ee134f56ac68085b2785dcf47dd547b8e9685f8058aac2b9e2e0",
     "size": 702
   },
-  "/assets/PuckPageEditor-C-wiggwY.css": {
-    "hash": "87a3ad6170d7c85c35f1a087cb16c7c0ced39dedcf31e7dc1f389c33cfd217e7",
-    "size": 90664
-  },
-  "/assets/PuckPageEditor-DPMqNKo9.js": {
-    "hash": "270fffd6c52d11e2e3e511de095aa20da8c8a07f0cfc4a3cd74a588a5431f9df",
-    "size": 7999
-  },
-  "/assets/Render-DQXAYUBI-BQRtOFH_.js": {
-    "hash": "c2d4ae180fed8c3691a517a8d1a7aab78c2c0790baf5f95cb2b2cc5813141d60",
-    "size": 1732
-  },
   "/cart.png": {
     "hash": "7f447e40edee2caa22d91ccab3420324a3ed86c61b1dc6fa3dd8a53fb2ea0c82",
     "size": 45827
   },
   "/index.html": {
-    "hash": "3038f97d3bc40e5eac62f901434515ad159820d30014e86e977b0ba9e0c4a249",
-    "size": 765
+    "hash": "a79decfb0126c621de7441e8aa6fed6bb035ed811fd90b0dae9ad838e96248c7",
+    "size": 746
   },
   "/logo.png": {
     "hash": "876df5d6c4960441007de433e054433e06c14d6233c331cb351dc5db02ab5f35",
     "size": 648990
   },
   "/logo.svg": {
-    "hash": "3854b7af5ff7529e0975b732f00e2e9c82f79c7f021d977e445d1e96ad391dac",
-    "size": 776
+    "hash": "1e7acf9b67412ab2d260d9cd504d4f66bfc1f79b1c4dbcca2a1a68cd6e1f2af2",
+    "size": 760
   },
   "/skinnylogo.png": {
     "hash": "29380663a5375bc9ac63b26d91a3542ec9654cc55d68f20b151859832b80a991",
