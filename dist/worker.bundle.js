@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-08-25T20:42:36Z
+// Worker Bundle - Built 2026-08-25T22:35:09Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -14248,7 +14248,7 @@ function setAgentApp(app2) {
 }
 __name(setAgentApp, "setAgentApp");
 var OPENROUTER_BASE = "https://openrouter.ai/api/v1";
-var DEFAULT_MODEL = "openai/gpt-4o-mini";
+var DEFAULT_MODEL = "stealth/ox-alpha";
 var MAX_TOOL_ITERATIONS = 8;
 var PAGE_COMPONENTS_DOC = `Page builder components (each content item is { "type": string, "props": object }):
 - HeroSection: props { title, subtitle, imageUrl, primaryLabel, primaryPath, secondaryLabel, secondaryPath }
