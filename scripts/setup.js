@@ -143,7 +143,7 @@ async function setup() {
     } else if (availableAccounts.length > 1) {
       console.log(`✅ Found ${availableAccounts.length} available Cloudflare accounts`)
     }
-  } catch (e) {
+  } catch {
     // Not authenticated
   }
   
@@ -229,7 +229,7 @@ async function setup() {
   try {
     execSync('wrangler whoami', { stdio: 'ignore' })
     console.log('✅ Cloudflare authentication verified')
-  } catch (error) {
+  } catch {
     console.log('⚠️  Authentication check failed.')
     if (!cloudflareApiToken) {
       console.error('❌ You must be logged in with Wrangler or provide a Cloudflare API Token.')
@@ -278,7 +278,7 @@ head_sampling_rate = 1
   try {
     execSync(`wrangler r2 bucket create "${bucketName}"`, { stdio: 'ignore' })
     console.log(`✅ Created R2 bucket: ${bucketName}`)
-  } catch (e) {
+  } catch {
     console.log(`⚠️  R2 bucket creation failed or already exists: ${bucketName}`)
   }
 

@@ -332,6 +332,126 @@ describe('Admin Settings Endpoints', () => {
       expect(response.status).toBe(400)
     })
   })
+
+  describe('dynamic page management', () => {
+    it('should list core pages by default', async () => {
+      const request = createTestRequest('/api/admin/storefront/pages', {
+        headers: createAdminHeaders(adminToken)
+      })
+
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+
+      expect(response.status).toBe(200)
+      expect(data.map((entry) => entry.slug)).toEqual(['home', 'about'])
+    })
+
+    it('should require authentication for page management', async () => {
+      const request = createTestRequest('/api/admin/storefront/pages', { method: 'POST', body: { slug: 'new-page' } })
+      const response = await executeRequest(app, request, env)
+      expect(response.status).toBe(401)
+
+      const deleteRequest = createTestRequest('/api/admin/storefront/pages/home', { method: 'DELETE' })
+      const deleteResponse = await executeRequest(app, deleteRequest, env)
+      expect(deleteResponse.status).toBe(401)
+    })
+
+    it('should create a page, publish to it, expose it publicly, then delete it', async () => {
+      const createRequest = createTestRequest('/api/admin/storefront/pages', {
+        method: 'POST',
+        body: { slug: 'landing-page' },
+        headers: createAdminHeaders(adminToken)
+      })
+      const createResponse = await executeRequest(app, createRequest, env)
+      expect(createResponse.status).toBe(200)
+
+      // A freshly created page must be immediately loadable in the editor.
+      const loadRequest = createTestRequest('/api/admin/storefront/pages/landing-page', {
+        headers: createAdminHeaders(adminToken)
+      })
+      const loadResponse = await executeRequest(app, loadRequest, env)
+      const loadData = await parseJsonResponse(loadResponse)
+      expect(loadResponse.status).toBe(200)
+      expect(loadData.slug).toBe('landing-page')
+      expect(Array.isArray(loadData.data.content)).toBe(true)
+
+      const publishRequest = createTestRequest('/api/admin/storefront/pages/landing-page', {
+        method: 'PUT',
+        body: {
+          data: {
+            content: [
+              { type: 'RichTextSection', props: { id: 'x', heading: 'Landing', body: '<p>Hello</p>' } }
+            ],
+            root: { props: { title: 'Landing SEO' } }
+          }
+        },
+        headers: createAdminHeaders(adminToken)
+      })
+      const publishResponse = await executeRequest(app, publishRequest, env)
+      expect(publishResponse.status).toBe(200)
+
+      const publicRequest = createTestRequest('/api/storefront/pages/landing-page')
+      const publicResponse = await executeRequest(app, publicRequest, env)
+      const publicData = await parseJsonResponse(publicResponse)
+      expect(publicResponse.status).toBe(200)
+      expect(publicData.data.content[0].props.body).toBe('<p>Hello</p>')
+      expect(publicData.data.root.props.title).toBe('Landing SEO')
+
+      const listRequest = createTestRequest('/api/admin/storefront/pages', {
+        headers: createAdminHeaders(adminToken)
+      })
+      const listResponse = await executeRequest(app, listRequest, env)
+      const listData = await parseJsonResponse(listResponse)
+      expect(listData.map((entry) => entry.slug)).toContain('landing-page')
+
+      const deleteRequest = createTestRequest('/api/admin/storefront/pages/landing-page', {
+        method: 'DELETE',
+        headers: createAdminHeaders(adminToken)
+      })
+      const deleteResponse = await executeRequest(app, deleteRequest, env)
+      expect(deleteResponse.status).toBe(200)
+
+      const goneResponse = await executeRequest(app, publicRequest, env)
+      expect(goneResponse.status).toBe(404)
+    })
+
+    it('should reject invalid and duplicate slugs on create', async () => {
+      const invalidRequest = createTestRequest('/api/admin/storefront/pages', {
+        method: 'POST',
+        body: { slug: 'checkout' },
+        headers: createAdminHeaders(adminToken)
+      })
+      const invalidResponse = await executeRequest(app, invalidRequest, env)
+      expect(invalidResponse.status).toBe(400)
+
+      const duplicateRequest = createTestRequest('/api/admin/storefront/pages', {
+        method: 'POST',
+        body: { slug: 'home' },
+        headers: createAdminHeaders(adminToken)
+      })
+      const duplicateResponse = await executeRequest(app, duplicateRequest, env)
+      expect(duplicateResponse.status).toBe(400)
+    })
+
+    it('should refuse to delete core pages', async () => {
+      const request = createTestRequest('/api/admin/storefront/pages/about', {
+        method: 'DELETE',
+        headers: createAdminHeaders(adminToken)
+      })
+
+      const response = await executeRequest(app, request, env)
+
+      expect(response.status).toBe(400)
+    })
+
+    it('should return 404 for unpublished unknown slugs on the public endpoint', async () => {
+      const request = createTestRequest('/api/storefront/pages/never-created')
+
+      const response = await executeRequest(app, request, env)
+
+      expect(response.status).toBe(404)
+    })
+  })
 })
 
 

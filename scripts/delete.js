@@ -165,7 +165,7 @@ async function deleteSite() {
     } else if (existsSync('wrangler.toml')) {
       try {
         unlinkSync('wrangler.toml')
-      } catch (e) {
+      } catch {
         // Ignore errors removing temp file
       }
     }

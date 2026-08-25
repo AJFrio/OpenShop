@@ -5,7 +5,6 @@ import { Footer } from '../../components/storefront/Footer'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
-import { redirectToCheckout } from '../../lib/stripe'
 import { useCart } from '../../contexts/CartContext'
 
 export function ProductPage() {

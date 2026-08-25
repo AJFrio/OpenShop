@@ -6,7 +6,7 @@ import { PageContentService } from '../../services/PageContentService.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { validateThemePayload } from '../../middleware/validation.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
-import { ValidationError } from '../../utils/errors.js'
+import { APIError, ValidationError } from '../../utils/errors.js'
 
 const router = new Hono()
 
@@ -61,6 +61,29 @@ router.put('/store-settings', asyncHandler(async (c) => {
   return c.json(updatedSettings)
 }))
 
+// List page-builder pages
+router.get('/storefront/pages', asyncHandler(async (c) => {
+  const kvNamespace = getKVNamespace(c.env)
+  const pageContentService = new PageContentService(kvNamespace)
+  const pages = await pageContentService.listPages()
+  return c.json(pages)
+}))
+
+// Create a new page-builder page
+router.post('/storefront/pages', asyncHandler(async (c) => {
+  const payload = await c.req.json()
+  const kvNamespace = getKVNamespace(c.env)
+  const pageContentService = new PageContentService(kvNamespace)
+
+  try {
+    const page = await pageContentService.createPage(payload.slug)
+    return c.json(page)
+  } catch (error) {
+    if (error instanceof APIError) throw error
+    throw new ValidationError(error.message)
+  }
+}))
+
 // Get page-builder content
 router.get('/storefront/pages/:slug', asyncHandler(async (c) => {
   const slug = c.req.param('slug')
@@ -71,6 +94,7 @@ router.get('/storefront/pages/:slug', asyncHandler(async (c) => {
     const page = await pageContentService.getPage(slug)
     return c.json(page)
   } catch (error) {
+    if (error instanceof APIError) throw error
     throw new ValidationError(error.message)
   }
 }))
@@ -86,6 +110,22 @@ router.put('/storefront/pages/:slug', asyncHandler(async (c) => {
     const page = await pageContentService.updatePage(slug, payload.data || payload)
     return c.json(page)
   } catch (error) {
+    if (error instanceof APIError) throw error
+    throw new ValidationError(error.message)
+  }
+}))
+
+// Delete a page-builder page
+router.delete('/storefront/pages/:slug', asyncHandler(async (c) => {
+  const slug = c.req.param('slug')
+  const kvNamespace = getKVNamespace(c.env)
+  const pageContentService = new PageContentService(kvNamespace)
+
+  try {
+    await pageContentService.deletePage(slug)
+    return c.json({ success: true })
+  } catch (error) {
+    if (error instanceof APIError) throw error
     throw new ValidationError(error.message)
   }
 }))

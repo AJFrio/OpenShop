@@ -135,18 +135,29 @@ export function ProductGrid({
   )
 }
 
+const HAS_HTML_PATTERN = /<[a-z][^>]*>/i
+
 export function RichTextSection({ heading, body }) {
-  const paragraphs = String(body || '').split(/\n{2,}/).filter(Boolean)
+  const bodyText = String(body || '')
+  const isHtml = HAS_HTML_PATTERN.test(bodyText)
+  const paragraphs = bodyText.split(/\n{2,}/).filter(Boolean)
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="storefront-card storefront-radius bg-white p-8 shadow-sm md:p-12">
         {heading && <h2 className="mb-6 text-3xl font-bold storefront-heading">{heading}</h2>}
-        <div className="space-y-6 text-lg leading-relaxed storefront-subtle">
-          {paragraphs.map((paragraph, index) => (
-            <p key={`${paragraph.slice(0, 20)}-${index}`}>{paragraph}</p>
-          ))}
-        </div>
+        {isHtml ? (
+          <div
+            className="space-y-6 text-lg leading-relaxed storefront-subtle [&_a]:underline"
+            dangerouslySetInnerHTML={{ __html: bodyText }}
+          />
+        ) : (
+          <div className="space-y-6 text-lg leading-relaxed storefront-subtle">
+            {paragraphs.map((paragraph, index) => (
+              <p key={`${paragraph.slice(0, 20)}-${index}`}>{paragraph}</p>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

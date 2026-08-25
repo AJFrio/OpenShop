@@ -157,7 +157,7 @@ function createKVNamespaceAndUpdateToml(projectName, wranglerConfig) {
       if (!kvResult || !kvResult.includes('id =')) {
         throw new Error('Could not find existing KV namespace')
       }
-    } catch (listError) {
+    } catch {
       throw new Error(`Failed to create or find KV namespace: ${error.message}`)
     }
   }
@@ -210,7 +210,7 @@ function createR2BucketAndUpdateToml(projectName, wranglerConfig) {
   try {
     execSync(`wrangler r2 bucket create "${bucketName}"`, { stdio: 'ignore' })
     console.log(`✅ Created R2 bucket: ${bucketName}`)
-  } catch (e) {
+  } catch {
     console.log(`⚠️  R2 bucket creation failed or already exists: ${bucketName}`)
   }
 

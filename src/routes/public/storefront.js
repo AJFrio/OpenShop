@@ -2,7 +2,6 @@
 import { Hono } from 'hono'
 import { ThemeService } from '../../services/ThemeService.js'
 import { StoreSettingsService } from '../../services/StoreSettingsService.js'
-import { getKVNamespace } from '../../utils/kv.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 
 const router = new Hono()

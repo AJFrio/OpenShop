@@ -25,7 +25,7 @@ export function setAdminToken(token) {
   localStorage.setItem(ADMIN_TOKEN_KEY, token)
   try {
     window.dispatchEvent(new CustomEvent('openshop-admin-login'))
-  } catch (_) {}
+  } catch {}
 }
 
 // Get admin token from localStorage
@@ -38,7 +38,7 @@ export function clearAdminToken() {
   localStorage.removeItem(ADMIN_TOKEN_KEY)
   try {
     window.dispatchEvent(new CustomEvent('openshop-admin-logout'))
-  } catch (_) {}
+  } catch {}
 }
 
 // Check if user is authenticated as admin

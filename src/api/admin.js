@@ -69,8 +69,11 @@ export const adminAPI = {
       reset: () => apiClient.delete(API_ENDPOINTS.admin.settings.theme.reset)
     },
     pages: {
+      list: () => apiClient.get(API_ENDPOINTS.admin.settings.pages.list),
       get: (slug) => apiClient.get(API_ENDPOINTS.admin.settings.pages.get(slug)),
-      update: (slug, data) => apiClient.put(API_ENDPOINTS.admin.settings.pages.update(slug), data)
+      create: (data) => apiClient.post(API_ENDPOINTS.admin.settings.pages.create, data),
+      update: (slug, data) => apiClient.put(API_ENDPOINTS.admin.settings.pages.update(slug), data),
+      delete: (slug) => apiClient.delete(API_ENDPOINTS.admin.settings.pages.delete(slug))
     },
     store: {
       update: (data) => apiClient.put(API_ENDPOINTS.admin.settings.store.update, data)

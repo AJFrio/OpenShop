@@ -4,8 +4,8 @@ import { ProductStripeService } from '../../src/services/ProductStripeService.js
 describe('ProductStripeService Performance', () => {
   it('measures updateProductVariants performance with many variants', async () => {
     const mockStripeService = {
-      createPrice: async (data) => ({ id: `price_${Math.random()}` }),
-      archivePrice: async (id) => {}
+      createPrice: async (_data) => ({ id: `price_${Math.random()}` }),
+      archivePrice: async (_id) => {}
     }
     const service = new ProductStripeService(mockStripeService)
 

@@ -1,8 +1,26 @@
 const PAGE_VERSION = 1
 const MAX_PAGE_BYTES = 50000
 const MAX_TEXT_LENGTH = 5000
+const MAX_SLUG_LENGTH = 48
 
-export const ALLOWED_PAGE_SLUGS = ['home', 'about']
+export const CORE_PAGE_SLUGS = ['home', 'about']
+
+const RESERVED_PAGE_SLUGS = new Set([
+  'admin', 'api', 'assets', 'cart', 'checkout',
+  'collections', 'login', 'p', 'products', 'success',
+])
+
+const PAGE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+export function isValidPageSlug(slug) {
+  return (
+    typeof slug === 'string' &&
+    slug.length >= 1 &&
+    slug.length <= MAX_SLUG_LENGTH &&
+    PAGE_SLUG_PATTERN.test(slug) &&
+    !RESERVED_PAGE_SLUGS.has(slug)
+  )
+}
 
 export const PAGE_COMPONENT_PROPS = {
   HeroSection: {
@@ -24,7 +42,7 @@ export const PAGE_COMPONENT_PROPS = {
   },
   RichTextSection: {
     heading: 'string',
-    body: 'string',
+    body: 'html',
   },
   ImageTextSection: {
     imageUrl: 'url',
@@ -41,14 +59,20 @@ export function getPageContentKey(slug) {
   return `storefront:page:${slug}`
 }
 
+export function getPageIndexKey() {
+  return 'storefront:pages:index'
+}
+
 export function assertPageSlug(slug) {
-  if (!ALLOWED_PAGE_SLUGS.includes(slug)) {
+  if (!isValidPageSlug(slug)) {
     throw new Error(`Invalid page slug: ${slug}`)
   }
 }
 
 export function createDefaultPageRecord(slug, settings = {}) {
-  assertPageSlug(slug)
+  if (!CORE_PAGE_SLUGS.includes(slug)) {
+    throw new Error(`No default content for page slug: ${slug}`)
+  }
   const data = slug === 'about'
     ? createDefaultAboutData(settings)
     : createDefaultHomeData(settings)
@@ -109,9 +133,52 @@ export function validatePageData(data) {
     content: data.content.map(validateContentItem),
     root: {
       ...data.root,
-      props: sanitizePlainObject(data.root.props || {}),
+      props: sanitizeRootProps(data.root.props || {}),
     },
   }
+}
+
+export const ROOT_PROP_FIELDS = ['title', 'description']
+
+function sanitizeRootProps(props) {
+  if (!props || typeof props !== 'object' || Array.isArray(props)) return {}
+  const sanitized = {}
+  for (const key of ROOT_PROP_FIELDS) {
+    const value = props[key]
+    if (value === undefined || value === null) continue
+    sanitized[key] = sanitizeString(value, 500)
+  }
+  return sanitized
+}
+
+export function validatePageIndexEntry(entry) {
+  if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+    throw new Error('Page index entries must be objects')
+  }
+
+  assertPageSlug(entry.slug)
+
+  return {
+    slug: entry.slug,
+    createdAt: typeof entry.createdAt === 'string' ? entry.createdAt : null,
+    updatedAt: typeof entry.updatedAt === 'string' ? entry.updatedAt : null,
+  }
+}
+
+export function validatePageIndex(value) {
+  if (!Array.isArray(value)) {
+    throw new Error('Page index must be an array')
+  }
+
+  const seen = new Set()
+  const entries = []
+  for (const entry of value) {
+    const validated = validatePageIndexEntry(entry)
+    if (seen.has(validated.slug)) continue
+    seen.add(validated.slug)
+    entries.push(validated)
+  }
+  return entries
 }
 
 function validateContentItem(item) {
@@ -157,6 +224,10 @@ function sanitizeValue(key, value, expectedType) {
     return sanitizeString(value, MAX_TEXT_LENGTH)
   }
 
+  if (expectedType === 'html') {
+    return sanitizeHtml(value)
+  }
+
   if (expectedType === 'url') {
     const text = sanitizeString(value, 1000)
     if (!text) return ''
@@ -198,12 +269,85 @@ function sanitizeString(value, maxLength) {
   return value.slice(0, maxLength)
 }
 
-function sanitizePlainObject(value) {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
-  return JSON.parse(JSON.stringify(value))
+const ALLOWED_HTML_TAGS = new Set([
+  'p', 'br', 'strong', 'em', 'u', 's',
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'ul', 'ol', 'li', 'blockquote', 'a',
+])
+
+const HTML_TAG_PATTERN = /<\s*(\/?)\s*([a-zA-Z][a-zA-Z0-9]*)((?:[^<>"']|"[^"]*"|'[^']*')*?)\s*(\/?)\s*>/g
+
+const SCRIPT_STYLE_PATTERN = /<(script|style|iframe|object|embed)\b[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi
+
+const HREF_PATTERN = /(?:^|[\s"'])href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s">]+))/i
+
+const STYLE_PATTERN = /(?:^|[\s"'])style\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s">]+))/i
+
+const ALLOWED_TEXT_ALIGN_VALUES = new Set(['left', 'center', 'right', 'justify'])
+
+function extractTextAlignStyle(attributes) {
+  const styleMatch = attributes.match(STYLE_PATTERN)
+  const rawStyle = styleMatch ? (styleMatch[1] ?? styleMatch[2] ?? styleMatch[3]) : ''
+  const declarations = rawStyle
+    .split(';')
+    .map((declaration) => declaration.trim().toLowerCase())
+    .filter(Boolean)
+
+  if (declarations.length !== 1) return ''
+
+  const [property, value] = declarations[0].split(':').map((part) => part.trim())
+  if (property !== 'text-align' || !ALLOWED_TEXT_ALIGN_VALUES.has(value)) return ''
+
+  return ` style="text-align: ${value}"`
+}
+
+function escapeHtmlText(text) {
+  return text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+export function sanitizeHtml(value) {
+  const raw = typeof value === 'string' ? value : ''
+  const withoutBlocks = raw.slice(0, MAX_TEXT_LENGTH).replace(SCRIPT_STYLE_PATTERN, '')
+
+  let result = ''
+  let lastIndex = 0
+  let match
+
+  HTML_TAG_PATTERN.lastIndex = 0
+  while ((match = HTML_TAG_PATTERN.exec(withoutBlocks)) !== null) {
+    result += escapeHtmlText(withoutBlocks.slice(lastIndex, match.index))
+    lastIndex = HTML_TAG_PATTERN.lastIndex
+
+    const isClosing = match[1] === '/'
+    const tagName = match[2].toLowerCase()
+    const isSelfClosing = match[4] === '/'
+
+    if (!ALLOWED_HTML_TAGS.has(tagName)) continue
+
+    if (isClosing) {
+      result += `</${tagName}>`
+      continue
+    }
+
+    let attributes = extractTextAlignStyle(match[3])
+    if (tagName === 'a') {
+      const hrefMatch = match[3].match(HREF_PATTERN)
+      const href = hrefMatch ? (hrefMatch[1] ?? hrefMatch[2] ?? hrefMatch[3]) : ''
+      if (href && isSafeUrl(href)) {
+        attributes += ` href="${href.replace(/"/g, '&quot;')}"`
+      }
+    }
+
+    result += `<${tagName}${attributes}${isSelfClosing ? ' /' : ''}>`
+  }
+
+  result += escapeHtmlText(withoutBlocks.slice(lastIndex))
+
+  return result
 }
 
 function isSafeUrl(value) {
+  if (value.includes('\\')) return false
   if (value.startsWith('#')) return true
   if (value.startsWith('/') && !value.startsWith('//')) return true
 
