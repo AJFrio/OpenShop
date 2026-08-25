@@ -69,8 +69,7 @@ class APIClient {
       const response = await fetch(finalConfig.url, {
         method: finalConfig.method || 'GET',
         headers: finalConfig.headers,
-        body: finalConfig.body ? JSON.stringify(finalConfig.body) : undefined,
-        ...finalConfig
+        body: finalConfig.body ? JSON.stringify(finalConfig.body) : undefined
       })
 
       // Apply response interceptors

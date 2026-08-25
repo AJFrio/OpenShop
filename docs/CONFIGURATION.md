@@ -28,6 +28,13 @@ GOOGLE_CLIENT_ID=your_google_oauth_client_id
 GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
 # Optional: customize the root folder created/used in Drive
 DRIVE_ROOT_FOLDER=OpenShop
+
+# Optional: Store Agent (dashboard AI assistant, powered by OpenRouter)
+# Enables the "Store Agent" chat on the admin dashboard, which can manage
+# products, collections, and pages on behalf of the merchant.
+OPENROUTER_API_KEY=your_openrouter_api_key
+# Optional: override the default agent model (any OpenRouter model ID)
+OPENROUTER_MODEL=openai/gpt-4o-mini
 ```
 
 ## Cloudflare Setup
@@ -81,6 +88,9 @@ wrangler secret put GOOGLE_CLIENT_SECRET
 
 # Add custom Drive root folder
 wrangler secret put DRIVE_ROOT_FOLDER
+
+# Add OpenRouter API key (enables the dashboard Store Agent)
+wrangler secret put OPENROUTER_API_KEY
 ```
 
 ## Wrangler Configuration

@@ -87,6 +87,10 @@ export const API_ENDPOINTS = {
     },
     ai: {
       generateImage: '/api/admin/ai/generate-image'
+    },
+    agent: {
+      chat: '/api/admin/agent/chat',
+      models: '/api/admin/agent/models'
     }
   }
 }

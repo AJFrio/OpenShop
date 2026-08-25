@@ -1,71 +1,71 @@
 {
-  "/assets/Editor-44C53YAG-CWw83-xg.js": {
-    "hash": "8c5635111520ff438bedb0d23cfef4c410cfbb82c7bcece0ea7217f3592399d2",
-    "size": 2259
-  },
-  "/assets/PuckPageEditor-C-wiggwY.css": {
-    "hash": "87a3ad6170d7c85c35f1a087cb16c7c0ced39dedcf31e7dc1f389c33cfd217e7",
-    "size": 90664
-  },
-  "/assets/PuckPageEditor-uGeO24rN.js": {
-    "hash": "2f7f02a5b11683934c8ed3fe450dff373fbbd2b8a208a7cb50a05d728aeade50",
-    "size": 12784
-  },
-  "/assets/Render-DQXAYUBI-DvS61ch4.js": {
-    "hash": "386040c499d0f5a86699fb5e320223300a73cfdd9d51ea286d8f2eec46491da2",
-    "size": 1732
-  },
-  "/assets/chunk-2CNEFIQP-CiqoDA3n.js": {
-    "hash": "97c69d802d6415fe4a83c52ba35b0819bd4e66dae6659462f917f9149c31603a",
+  "/assets/chunk-2CNEFIQP-DyP9G2z2.js": {
+    "hash": "8269ad2e8f9042907179921c8339a537af326bf3a2af25477aad1a2e1f0c98b5",
     "size": 58422
   },
-  "/assets/full-7ZJV44EE-BOIfXNNF.js": {
-    "hash": "ed7f643bd809d3b0b9bfd8885ddba68514b1cd9dfcfe2df782904dcfd9ddf993",
+  "/assets/Editor-44C53YAG-DaMT9Vd6.js": {
+    "hash": "159394c84f42e4f8c39306c1a064ec52f547d3a75d2be9abe90dac6a114ab7bf",
+    "size": 2259
+  },
+  "/assets/full-7ZJV44EE-B1yj0PzZ.js": {
+    "hash": "fed620446a9d08e65f20d422f47c02477c8e4b513b5075214003341be8bc10bb",
     "size": 2153
   },
-  "/assets/index-Be2VZXNU.js": {
-    "hash": "88443cc17e306fa359dc27c4a5f55c4bd789a7e423a3cf75313573ad26e0b101",
-    "size": 1348266
+  "/assets/index-Ccmw-FdD.js": {
+    "hash": "81e4499990cb11827a338b04f4e721d2116153114e5cc980bbabf6e6b170e11e",
+    "size": 1360902
   },
-  "/assets/index-DCsBPp9B.css": {
-    "hash": "1f23da4a01d46b1e4eebb79d7a418c236bfc1fc7fd67e84ced24f5a19644e0fb",
-    "size": 67479
+  "/assets/index-DdOGvaQu.css": {
+    "hash": "84b43ec3d69c06b765b284029fe6ad1a6418e96426b0f6396dc5ff6ff662de30",
+    "size": 67954
   },
-  "/assets/index-DKT2PKbg.js": {
-    "hash": "02bf464cc59c8465c1687433ba950f5518ae14dcc5f8b9f07429bca2e69234ba",
+  "/assets/index-DgoGlPdV.js": {
+    "hash": "f56a6434fc7f25ed83e214331a2c72c1b1e83d4eb42996f4c0ed8a7c828285f8",
     "size": 14586
   },
   "/assets/index-minhF0Aa.js": {
     "hash": "80a600ce710f390fa831c5bcb445baa09e993594cdf705dc30b03d01f9c62a16",
     "size": 277762
   },
-  "/assets/loaded-36WRJPBT-DHoUYio9.js": {
-    "hash": "a26227dc96d45ef85519553066d132bd6c5b6298c721518e42f48ea66b07266d",
+  "/assets/loaded-36WRJPBT-B3jP069l.js": {
+    "hash": "c2b364b26fbdd9628e219e3a8da43e05277d46ac4cdc6ca2541b554c424f6fa4",
     "size": 630
   },
-  "/assets/loaded-JKA25A3T-M34GBdhd.js": {
-    "hash": "ed682d8b64a98a7982e3fd9759d13a7919f58fb06cbd0bec7190d7c7b8e89610",
+  "/assets/loaded-JKA25A3T-JNBY4ukk.js": {
+    "hash": "93732a5742269f415ac7c10394c0a8ae23ec802004faa6bafe9f69e9be482ae3",
     "size": 677
   },
-  "/assets/loaded-SMPR6KZF-JDf0SCyS.js": {
-    "hash": "54925469a22c72994b670716a6b65ef7b6890fb60e989856580ee88c3646fc3d",
+  "/assets/loaded-SMPR6KZF-BC5IQkDA.js": {
+    "hash": "a2291d2a54c2ee134f56ac68085b2785dcf47dd547b8e9685f8058aac2b9e2e0",
     "size": 702
+  },
+  "/assets/PuckPageEditor-C-wiggwY.css": {
+    "hash": "87a3ad6170d7c85c35f1a087cb16c7c0ced39dedcf31e7dc1f389c33cfd217e7",
+    "size": 90664
+  },
+  "/assets/PuckPageEditor-DPMqNKo9.js": {
+    "hash": "270fffd6c52d11e2e3e511de095aa20da8c8a07f0cfc4a3cd74a588a5431f9df",
+    "size": 7999
+  },
+  "/assets/Render-DQXAYUBI-BQRtOFH_.js": {
+    "hash": "c2d4ae180fed8c3691a517a8d1a7aab78c2c0790baf5f95cb2b2cc5813141d60",
+    "size": 1732
   },
   "/cart.png": {
     "hash": "7f447e40edee2caa22d91ccab3420324a3ed86c61b1dc6fa3dd8a53fb2ea0c82",
     "size": 45827
   },
   "/index.html": {
-    "hash": "c4a4bf254d1b2b64be796b229dc4e306e7bfcddebd792fbee363ff03136c939a",
-    "size": 746
+    "hash": "3038f97d3bc40e5eac62f901434515ad159820d30014e86e977b0ba9e0c4a249",
+    "size": 765
   },
   "/logo.png": {
     "hash": "876df5d6c4960441007de433e054433e06c14d6233c331cb351dc5db02ab5f35",
     "size": 648990
   },
   "/logo.svg": {
-    "hash": "1e7acf9b67412ab2d260d9cd504d4f66bfc1f79b1c4dbcca2a1a68cd6e1f2af2",
-    "size": 760
+    "hash": "3854b7af5ff7529e0975b732f00e2e9c82f79c7f021d977e445d1e96ad391dac",
+    "size": 776
   },
   "/skinnylogo.png": {
     "hash": "29380663a5375bc9ac63b26d91a3542ec9654cc55d68f20b151859832b80a991",

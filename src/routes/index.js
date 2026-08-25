@@ -20,12 +20,17 @@ import mediaRouter from './admin/media.js'
 import storageRouter from './admin/storage.js'
 import settingsRouter from './admin/settings.js'
 import aiRouter from './admin/ai.js'
+import agentRouter, { setAgentApp } from './admin/agent.js'
 
 /**
  * Register all routes on the app
  * @param {Hono} app - Hono app instance
  */
 export function registerRoutes(app) {
+  // Give the agent route access to the full app so its tools can invoke
+  // existing admin endpoints in-process (auth, Stripe sync, limits all apply).
+  setAgentApp(app)
+
   // Health check
   app.get('/api/health', (c) => {
     return c.json({ status: 'healthy', timestamp: new Date().toISOString() })
@@ -51,4 +56,5 @@ export function registerRoutes(app) {
   app.route('/api/admin/storage', storageRouter)
   app.route('/api/admin', settingsRouter) // /api/admin/storefront/theme, etc.
   app.route('/api/admin/ai', aiRouter)
+  app.route('/api/admin/agent', agentRouter) // /api/admin/agent/chat, /models
 }

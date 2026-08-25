@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
 import { RevenueChart, OrdersChart } from '../../components/admin/AnalyticsCharts'
 import { MetricCard, RecentOrdersCard } from '../../components/admin/AnalyticsCards'
+import { AgentChat } from '../../components/admin/AgentChat'
 import { formatCurrency } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
 import { Package, Edit, DollarSign, ShoppingBag, BarChart3 } from 'lucide-react'
@@ -123,7 +124,10 @@ export function DashboardPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <RecentOrdersCard orders={analytics.recentOrders} />
+            <AgentChat />
+          </div>
 
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardContent className="p-5">
                 <div className="flex items-center justify-between mb-4">

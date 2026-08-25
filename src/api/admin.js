@@ -85,6 +85,14 @@ export const adminAPI = {
    */
   ai: {
     generateImage: (data) => apiClient.post(API_ENDPOINTS.admin.ai.generateImage, data)
+  },
+
+  /**
+   * Store agent (AI assistant)
+   */
+  agent: {
+    chat: (data) => apiClient.post(API_ENDPOINTS.admin.agent.chat, data),
+    models: () => apiClient.get(API_ENDPOINTS.admin.agent.models)
   }
 }
 
