@@ -175,7 +175,7 @@ apiClient.addResponseInterceptor(async (response) => {
     // Dispatch event for components to handle
     try {
       window.dispatchEvent(new CustomEvent('openshop-admin-logout'))
-    } catch (_) {}
+    } catch {}
   }
   return response
 })

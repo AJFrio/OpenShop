@@ -145,7 +145,7 @@ export default function MediaPickerModal({
       const res = await adminApiRequest('/api/admin/drive/status', { method: 'GET' })
       const data = await res.json()
       setDriveConnected(!!data.connected)
-    } catch (_) {
+    } catch {
       setDriveConnected(false)
     }
   }

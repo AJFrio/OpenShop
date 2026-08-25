@@ -24,7 +24,7 @@ class MockStripeService {
     }
   }
 
-  async listPaymentIntents(startDate) {
+  async listPaymentIntents(_startDate) {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 50))
     return {

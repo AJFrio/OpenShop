@@ -290,7 +290,7 @@ describe('Admin Product Endpoints', () => {
       })
 
       const response = await executeRequest(app, request, env)
-      const data = await parseJsonResponse(response)
+      const _data = await parseJsonResponse(response)
 
       expect(response.status).toBe(200)
       expect(mockStripe.products.update).toHaveBeenCalledWith(

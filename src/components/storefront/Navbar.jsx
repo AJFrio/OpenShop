@@ -6,7 +6,7 @@ import { useCart } from '../../contexts/CartContext'
 import { ShoppingCart } from 'lucide-react'
 
 export function Navbar({ previewSettings, disableNavigation }) {
-  const [collections, setCollections] = useState([])
+  const [_collections, setCollections] = useState([])
   const [collectionsWithProducts, setCollectionsWithProducts] = useState([])
   const [fetchedStoreSettings, setFetchedStoreSettings] = useState({
     logoType: 'text',

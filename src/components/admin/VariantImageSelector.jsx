@@ -6,8 +6,8 @@ import ExistingMediaModal from './ExistingMediaModal'
 export function VariantImageSelector({
   value,
   onChange,
-  onPreview,
-  placeholder = 'Select image'
+  onPreview: _onPreview,
+  placeholder: _placeholder = 'Select image'
 }) {
   const [pickerOpen, setPickerOpen] = useState(false)
 

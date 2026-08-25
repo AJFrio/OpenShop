@@ -25,7 +25,7 @@ export function createMockKV() {
     get: async (key) => {
       return store.get(key) || null
     },
-    put: async (key, value, options) => {
+    put: async (key, value, _options) => {
       store.set(key, value)
     },
     delete: async (key) => {

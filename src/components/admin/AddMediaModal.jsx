@@ -47,12 +47,12 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
     // Rebuild previews when files change
     // Revoke prior object URLs
     for (const p of previews) {
-      try { URL.revokeObjectURL(p.url) } catch (_) {}
+      try { URL.revokeObjectURL(p.url) } catch {}
     }
     const next = files.map(f => ({ url: URL.createObjectURL(f), name: f.name, size: f.size }))
     setPreviews(next)
     return () => {
-      for (const p of next) { try { URL.revokeObjectURL(p.url) } catch (_) {} }
+      for (const p of next) { try { URL.revokeObjectURL(p.url) } catch {} }
     }
   }, [files])
 
@@ -119,7 +119,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
         e.preventDefault()
         setFiles(prev => prev.concat(images))
       }
-    } catch (_) {}
+    } catch {}
   }
 
   function preventDragDefaults(e) {
@@ -162,7 +162,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
           const blob = await resp.blob()
           const { mimeType, base64 } = await blobToBase64(blob)
           return base64 ? { mimeType, dataBase64: base64 } : null
-        } catch (_) {
+        } catch {
           return null
         }
       }))).filter(Boolean)
@@ -228,7 +228,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
         const items = await res.json().catch(() => [])
         const urls = Array.isArray(items) ? items.map(i => i.url).filter(Boolean) : []
         setLibrary(urls)
-      } catch (_) {
+      } catch {
         // ignore
       } finally {
         setLibraryLoading(false)

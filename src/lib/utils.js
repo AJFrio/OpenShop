@@ -66,7 +66,7 @@ export function normalizeImageUrl(url) {
           // Nothing else we can confidently normalize
           return url
         }
-      } catch (_) {}
+      } catch {}
     }
 
     // Already in usercontent form → normalize query params (ensure export=view)
@@ -80,9 +80,9 @@ export function normalizeImageUrl(url) {
           u.searchParams.set('export', 'view')
           return u.toString()
         }
-      } catch (_) {}
+      } catch {}
     }
-  } catch (_) {
+  } catch {
     // ignore
   }
   return url

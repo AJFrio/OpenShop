@@ -11,16 +11,24 @@ export function createPageBuilderConfig(options = {}) {
     products = [],
     collections = [],
     disableNavigation = false,
+    imageField = null,
   } = options
+  const imageUrlField = imageField || { type: 'text' }
 
   return {
+    root: {
+      fields: {
+        title: { type: 'text', label: 'SEO title' },
+        description: { type: 'textarea', label: 'SEO description' },
+      },
+    },
     components: {
       HeroSection: {
         label: 'Hero section',
         fields: {
           title: { type: 'text' },
           subtitle: { type: 'textarea' },
-          imageUrl: { type: 'text' },
+          imageUrl: imageUrlField,
           primaryLabel: { type: 'text' },
           primaryPath: { type: 'text' },
           secondaryLabel: { type: 'text' },
@@ -78,7 +86,7 @@ export function createPageBuilderConfig(options = {}) {
         label: 'Text section',
         fields: {
           heading: { type: 'text' },
-          body: { type: 'textarea' },
+          body: { type: 'richtext' },
         },
         defaultProps: {
           heading: 'About this store',
@@ -89,7 +97,7 @@ export function createPageBuilderConfig(options = {}) {
       ImageTextSection: {
         label: 'Image and text',
         fields: {
-          imageUrl: { type: 'text' },
+          imageUrl: imageUrlField,
           heading: { type: 'text' },
           body: { type: 'textarea' },
           imageAlign: {

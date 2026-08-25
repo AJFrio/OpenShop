@@ -183,7 +183,7 @@ export class ProductStripeService {
             })
             // Archive old variant price if it existed and was custom
             if (prior?.stripePriceId && priorWasCustom) {
-              try { await stripeService.archivePrice(prior.stripePriceId) } catch (_) {}
+              try { await stripeService.archivePrice(prior.stripePriceId) } catch {}
             }
             priceIdToUse = newVariantPrice.id
           }
@@ -192,7 +192,7 @@ export class ProductStripeService {
         } else {
           // No custom price → point to base product price
           if (prior?.stripePriceId && prior?.hasCustomPrice) {
-            try { await stripeService.archivePrice(prior.stripePriceId) } catch (_) {}
+            try { await stripeService.archivePrice(prior.stripePriceId) } catch {}
           }
           return { ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: undefined }
         }
@@ -234,7 +234,7 @@ export class ProductStripeService {
               }
             })
             if (prior?.stripePriceId && priorWasCustom) {
-              try { await stripeService.archivePrice(prior.stripePriceId) } catch (_) {}
+              try { await stripeService.archivePrice(prior.stripePriceId) } catch {}
             }
             priceIdToUse = newVariantPrice.id
           }
@@ -242,7 +242,7 @@ export class ProductStripeService {
           return { ...v, stripePriceId: priceIdToUse, hasCustomPrice: true }
         } else {
           if (prior?.stripePriceId && prior?.hasCustomPrice) {
-            try { await stripeService.archivePrice(prior.stripePriceId) } catch (_) {}
+            try { await stripeService.archivePrice(prior.stripePriceId) } catch {}
           }
           return { ...v, stripePriceId: baseStripePriceId, hasCustomPrice: false, price: undefined }
         }

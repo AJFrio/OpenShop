@@ -132,8 +132,6 @@ describe('Checkout Process', () => {
       })
 
       const response = await executeRequest(app, request, env)
-      const data = await parseJsonResponse(response)
-
       expect(response.status).toBe(200)
       expect(mockStripe.checkout.sessions.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -288,7 +286,7 @@ describe('Checkout Process', () => {
       })
 
       const response = await executeRequest(app, request, env)
-      const data = await parseJsonResponse(response)
+      const _data = await parseJsonResponse(response)
 
       expect(response.status).toBe(200)
       const callArgs = mockStripe.checkout.sessions.create.mock.calls[0][0]
@@ -311,7 +309,7 @@ describe('Checkout Process', () => {
       })
 
       const response = await executeRequest(app, request, env)
-      const data = await parseJsonResponse(response)
+      const _data = await parseJsonResponse(response)
 
       expect(response.status).toBe(200)
       const callArgs = mockStripe.checkout.sessions.create.mock.calls[0][0]
@@ -364,7 +362,7 @@ describe('Checkout Process', () => {
       })
 
       const response = await executeRequest(app, request, env)
-      const data = await parseJsonResponse(response)
+      const _data = await parseJsonResponse(response)
 
       expect(response.status).toBe(200)
       const callArgs = mockStripe.checkout.sessions.create.mock.calls[0][0]
@@ -390,7 +388,7 @@ describe('Checkout Process', () => {
       })
 
       const response = await executeRequest(app, request, env)
-      const data = await parseJsonResponse(response)
+      const _data = await parseJsonResponse(response)
 
       expect(response.status).toBe(200)
       const callArgs = mockStripe.checkout.sessions.create.mock.calls[0][0]

@@ -95,11 +95,11 @@ export function OrdersChart({ data, period }) {
                 tickFormatter={formatXAxisLabel}
               />
               <YAxis tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }} />
-              <Tooltip 
-                formatter={(value, name) => [value, 'Orders']}
+              <Tooltip
+                formatter={(value, _name) => [value, 'Orders']}
                 labelStyle={{ color: '#374151', fontVariantNumeric: 'tabular-nums' }}
                 itemStyle={{ fontVariantNumeric: 'tabular-nums' }}
-                contentStyle={{ 
+                contentStyle={{
                   backgroundColor: 'white', 
                   border: '1px solid #e5e7eb',
                   borderRadius: '6px'

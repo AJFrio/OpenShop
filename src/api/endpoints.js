@@ -75,8 +75,11 @@ export const API_ENDPOINTS = {
         reset: '/api/admin/storefront/theme'
       },
       pages: {
+        list: '/api/admin/storefront/pages',
+        create: '/api/admin/storefront/pages',
         get: (slug) => `/api/admin/storefront/pages/${slug}`,
-        update: (slug) => `/api/admin/storefront/pages/${slug}`
+        update: (slug) => `/api/admin/storefront/pages/${slug}`,
+        delete: (slug) => `/api/admin/storefront/pages/${slug}`
       },
       store: {
         update: '/api/admin/store-settings'

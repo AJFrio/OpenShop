@@ -4,11 +4,12 @@
 
 ## Index keys
 
-| Key | Value |
-|-----|--------|
+| Pattern | Value |
+|---------|--------|
 | `products:all` | JSON array of product IDs |
 | `collections:all` | JSON array of collection IDs |
 | `media:all` | JSON array of media IDs |
+| `storefront:pages:index` | JSON array of page index entries (`{ slug, createdAt, updatedAt }`) |
 
 ## Entity keys
 
@@ -18,7 +19,7 @@
 | `collection:{id}` | Collection document |
 | `collection:products:{collectionId}` | JSON array of product IDs in collection |
 | `media:{id}` | Media metadata record |
-| `storefront:page:{slug}` | Puck page-builder document for `home` or `about` |
+| `storefront:page:{slug}` | Puck page-builder document (core slugs `home`/`about` plus admin-created dynamic pages; slugs match `[a-z0-9]+(-[a-z0-9]+)*`, reserved route words rejected — see `src/lib/pageContent.js`) |
 
 ## Product shape (typical)
 
@@ -79,11 +80,16 @@
       }
     ],
     "root": {
-      "props": {}
+      "props": {
+        "title": "optional SEO title (string, max 500 chars)",
+        "description": "optional SEO description (string, max 500 chars)"
+      }
     }
   }
 }
 ```
+
+Only known root props are kept; unknown keys are dropped during sanitization (`validatePageData`).
 
 ## Settings and auth
 
