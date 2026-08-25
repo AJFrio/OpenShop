@@ -29,7 +29,7 @@ export function AgentChat() {
   useEffect(() => {
     let cancelled = false
     adminAPI
-      .models()
+      .agent.models()
       .then((data) => {
         if (cancelled) return
         setConfigured(data.configured !== false)
