@@ -43,11 +43,11 @@ export function RevenueChart({ data, period }) {
               />
               <Tooltip 
                 formatter={formatTooltip}
-                labelStyle={{ color: '#374151', fontVariantNumeric: 'tabular-nums' }}
+                labelStyle={{ color: '#71717a', fontVariantNumeric: 'tabular-nums' }}
                 itemStyle={{ fontVariantNumeric: 'tabular-nums' }}
                 contentStyle={{ 
                   backgroundColor: 'white', 
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid #27272a',
                   borderRadius: '6px'
                 }}
               />
@@ -97,11 +97,11 @@ export function OrdersChart({ data, period }) {
               <YAxis tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }} />
               <Tooltip
                 formatter={(value, _name) => [value, 'Orders']}
-                labelStyle={{ color: '#374151', fontVariantNumeric: 'tabular-nums' }}
+                labelStyle={{ color: '#71717a', fontVariantNumeric: 'tabular-nums' }}
                 itemStyle={{ fontVariantNumeric: 'tabular-nums' }}
                 contentStyle={{
                   backgroundColor: 'white', 
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid #27272a',
                   borderRadius: '6px'
                 }}
               />

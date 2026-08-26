@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
 import { normalizeImageUrl } from '../../lib/utils'
+import { AdminImage } from '../../components/admin/AdminImage'
 import { adminApiRequest } from '../../lib/auth'
 import { Plus, Trash2, Image as ImageIcon, X, Copy } from 'lucide-react'
 import AddMediaModal from '../../components/admin/AddMediaModal'
@@ -109,13 +110,14 @@ export function MediaLibraryPage() {
                 className="block w-full h-full"
                 title={m.filename || m.url}
               >
-                <img
+                <AdminImage
                   src={normalizeImageUrl(m.url)}
                   alt={m.filename || 'media'}
                   className="w-full h-28 object-cover"
+                  fallbackClassName="w-full h-28"
                 />
               </button>
-              <div className="absolute top-2 right-2 flex gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+              <div className="absolute top-2 right-2 flex gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 group-focus-within:sm:opacity-100">
                 <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => copyUrl(m.url)} aria-label="Copy media URL">
                   <Copy className="w-4 h-4" />
                 </Button>
@@ -130,7 +132,7 @@ export function MediaLibraryPage() {
 
       {selected && (
         <div
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
           onClick={() => setSelected(null)}
         >
           <div

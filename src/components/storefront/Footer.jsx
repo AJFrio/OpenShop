@@ -42,12 +42,16 @@ export function Footer({ previewSettings }) {
             <p className="storefront-subtle text-sm">
               Have questions about our products or need support? We'd love to hear from you.
             </p>
-            <a
-              href={`mailto:${contactEmail && contactEmail !== 'contact@example.com' ? contactEmail : 'contact@example.com'}`}
-              className="inline-flex items-center px-4 py-2 storefront-button-outline storefront-radius-sm text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
-            >
-              {loading ? 'Loading...' : 'Contact Us'}
-            </a>
+            {contactEmail && contactEmail !== 'contact@example.com' ? (
+              <a
+                href={`mailto:${contactEmail}`}
+                className="inline-flex items-center px-4 py-2 storefront-button-outline storefront-radius-sm text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+              >
+                Contact Us
+              </a>
+            ) : (
+              <span className="text-sm storefront-subtle">{loading ? 'Loading...' : 'Contact options coming soon'}</span>
+            )}
           </div>
 
           {/* Made with OpenShop Section - Right Half */}

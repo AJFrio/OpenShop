@@ -316,6 +316,39 @@ export function StoreSettingsEditor() {
                   </Button>
                 </div>
 
+                <div
+                  data-storefront-theme="true"
+                  className="rounded-lg border p-4"
+                  style={{
+                    '--storefront-color-bg': previewTheme.colors.background,
+                    '--storefront-color-surface': previewTheme.colors.card,
+                    '--storefront-color-heading': previewTheme.colors.text,
+                    '--storefront-color-body': previewTheme.colors.text,
+                    '--storefront-color-muted': previewTheme.colors.mutedText,
+                    '--storefront-color-accent': previewTheme.colors.primary,
+                    '--storefront-color-accent-hover': previewTheme.colors.primaryHover,
+                    '--storefront-color-accent-soft': previewTheme.colors.accentSoft,
+                    '--storefront-color-border': previewTheme.colors.card,
+                    '--storefront-radius': `${computedRadiusPx}px`,
+                    background: previewTheme.colors.background,
+                    fontFamily: previewTheme.typography.fontFamily,
+                  }}
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--storefront-color-muted)] mb-2">Live storefront preview</p>
+                  <div className="rounded-lg border p-3 mb-3" style={{ background: previewTheme.colors.card, borderColor: previewTheme.colors.mutedText, borderRadius: `${computedRadiusPx}px` }}>
+                    <div className="h-14 rounded mb-2 flex items-center justify-center" style={{ background: previewTheme.colors.accentSoft, borderRadius: `${Math.max(0, computedRadiusPx - 2)}px` }}>
+                      <span className="text-sm font-semibold" style={{ color: previewTheme.colors.headingText, fontFamily: previewTheme.typography.fontFamily }}>
+                        {settings.storeName || 'Your store'}
+                      </span>
+                    </div>
+                    <div className="h-2 w-3/4 rounded mb-1.5" style={{ background: previewTheme.colors.mutedText, opacity: 0.5 }} />
+                    <div className="h-2 w-1/2 rounded mb-3" style={{ background: previewTheme.colors.mutedText, opacity: 0.35 }} />
+                    <span className="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white" style={{ background: previewTheme.colors.primary, color: previewTheme.colors.onPrimary, borderRadius: `${Math.max(0, computedRadiusPx - 2)}px` }}>
+                      Shop Now
+                    </span>
+                  </div>
+                </div>
+
                 {COLOR_GROUPS.map((group) => (
                   <div key={group.title} className="space-y-3">
                     <div>

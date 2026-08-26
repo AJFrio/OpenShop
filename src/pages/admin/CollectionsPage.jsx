@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 import { Select } from '../../components/ui/select'
 import { Card, CardContent } from '../../components/ui/card'
@@ -19,10 +20,24 @@ import {
 
 export function CollectionsPage() {
   const [collections, setCollections] = useState([])
+  const [productCounts, setProductCounts] = useState({})
   const [showForm, setShowForm] = useState(false)
   const [editingCollection, setEditingCollection] = useState(null)
   const [archivedFilter, setArchivedFilter] = useState('all')
   const [collectionToDelete, setCollectionToDelete] = useState(null)
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((all) => {
+        const counts = {}
+        for (const p of all) {
+          if (p.collectionId) counts[p.collectionId] = (counts[p.collectionId] || 0) + 1
+        }
+        setProductCounts(counts)
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     fetchCollections()
@@ -122,12 +137,22 @@ export function CollectionsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-3">
           {filteredCollections.map((collection) => (
-            <Card key={collection.id} className="hover:border-[var(--admin-border-secondary)] transition-colors">
+            <Card key={collection.id} className={`hover:border-[var(--admin-border-secondary)] transition-colors ${collection.archived ? 'opacity-60' : ''}`}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-medium text-[var(--admin-text-primary)]">{collection.name}</h3>
+                    <h3 className="text-sm font-medium text-[var(--admin-text-primary)]">
+                      {collection.name}
+                      {collection.archived && (
+                        <span className="ml-2 inline-flex items-center rounded-full bg-[var(--admin-bg-elevated)] px-2 py-0.5 text-xs text-[var(--admin-text-secondary)]">Archived</span>
+                      )}
+                    </h3>
                     <p className="text-xs text-[var(--admin-text-secondary)]">{collection.description}</p>
+                    {productCounts[collection.id] !== undefined && (
+                      <p className="text-xs text-[var(--admin-text-muted)] mt-1 tabular-nums">
+                        {productCounts[collection.id]} product{productCounts[collection.id] === 1 ? '' : 's'}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="flex items-center gap-2 text-xs text-[var(--admin-text-secondary)]">
@@ -145,12 +170,19 @@ export function CollectionsPage() {
                           }
                         }}
                       />
-                      Archived
+                      Hidden from store
                     </label>
+                    <Link
+                      to={`/admin/products?collection=${collection.id}`}
+                      className="inline-flex h-8 items-center rounded-md border border-[var(--admin-border-primary)] px-2.5 text-xs font-medium text-[var(--admin-text-secondary)] hover:bg-[var(--admin-bg-elevated)]"
+                    >
+                      Products
+                    </Link>
                     <Button
                       variant="outline"
                       size="sm"
                       className="h-8 px-2.5"
+                      aria-label={`Edit collection ${collection.name}`}
                       onClick={() => {
                         setEditingCollection(collection)
                         setShowForm(true)
@@ -162,6 +194,7 @@ export function CollectionsPage() {
                       variant="destructive"
                       size="sm"
                       className="h-8 px-2.5"
+                      aria-label={`Delete collection ${collection.name}`}
                     onClick={() => setCollectionToDelete(collection)}
                     >
                       <Trash2 className="w-4 h-4" />

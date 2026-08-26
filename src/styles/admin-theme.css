@@ -3,24 +3,26 @@
  * Color palette designed for reduced eye strain and professional aesthetics
  */
 
-/* CSS Custom Properties for Admin Theme */
+/* CSS Custom Properties for Admin Theme
+ * Aligned to docs/DESIGN-TOKENS.md zinc scale (canonical: OpenShop-Service @theme).
+ */
 :root {
-  /* Main backgrounds */
-  --admin-bg-primary: #0f1117;
-  --admin-bg-secondary: #1a1d29;
-  --admin-bg-elevated: #242837;
-  --admin-bg-card: #1e212b;
+  /* Main backgrounds (zinc: 950 / 900 / 800) */
+  --admin-bg-primary: #09090b;
+  --admin-bg-secondary: #18181b;
+  --admin-bg-elevated: #27272a;
+  --admin-bg-card: #18181b;
   
-  /* Text colors */
-  --admin-text-primary: #e2e8f0;
-  --admin-text-secondary: #94a3b8;
-  --admin-text-muted: #64748b;
-  --admin-text-inverse: #0f1117;
+  /* Text colors (zinc: 100 / 400 / 500) */
+  --admin-text-primary: #f4f4f5;
+  --admin-text-secondary: #a1a1aa;
+  --admin-text-muted: #71717a;
+  --admin-text-inverse: #09090b;
   
-  /* Border colors */
-  --admin-border-primary: #2d3748;
-  --admin-border-secondary: #374151;
-  --admin-border-focus: #4b5563;
+  /* Border colors (zinc: 800 / 700 / 600) */
+  --admin-border-primary: #27272a;
+  --admin-border-secondary: #3f3f46;
+  --admin-border-focus: #52525b;
   
   /* Accent colors - Brand blue (cart-aligned, per docs/DESIGN-TOKENS.md) */
   --admin-accent: #2563eb;
@@ -35,17 +37,19 @@
   --admin-warning-bg: rgba(245, 158, 11, 0.1);
   --admin-error: #ef4444;
   --admin-error-bg: rgba(239, 68, 68, 0.1);
+  --admin-error-hover: #dc2626;
+  --admin-error-light: #fca5a5;
   --admin-info: #3b82f6;
   --admin-info-bg: rgba(59, 130, 246, 0.1);
   
   /* Overlay colors */
-  --admin-overlay: rgba(0, 0, 0, 0.7);
+  --admin-overlay: rgba(0, 0, 0, 0.6);
   --admin-overlay-light: rgba(255, 255, 255, 0.05);
   
-  /* Shadows */
-  --admin-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --admin-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-  --admin-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  /* Shadows (brand-tinted per DESIGN-TOKENS.md; lg = Service .shadow-elevated) */
+  --admin-shadow-sm: 0 1px 2px 0 rgba(37, 99, 235, 0.06);
+  --admin-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.10);
+  --admin-shadow-lg: 0 18px 45px -15px rgba(37, 99, 235, 0.35), 0 6px 18px -6px rgba(37, 99, 235, 0.18);
   --admin-shadow-glow: 0 0 20px rgba(37, 99, 235, 0.15);
   
   /* Spacing scale - more compact */
@@ -156,7 +160,7 @@
 .admin-input:focus {
   outline: none;
   border-color: var(--admin-accent);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.35);
 }
 
 .admin-input:disabled {
@@ -184,7 +188,7 @@
 .admin-select:focus {
   outline: none;
   border-color: var(--admin-accent);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.35);
 }
 
 .admin-select option {
@@ -272,7 +276,7 @@
 .admin-textarea:focus {
   outline: none;
   border-color: var(--admin-accent);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.35);
 }
 
 /* Switch styles */
@@ -313,7 +317,6 @@
   display: block;
   font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--admin-text-secondary);
   margin-bottom: var(--admin-space-2);
@@ -361,7 +364,6 @@
   color: var(--admin-text-secondary);
   font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: var(--admin-space-3) var(--admin-space-4);
   text-align: left;
@@ -382,7 +384,6 @@
 /* Modal/Dialog styles */
 .admin-modal-overlay {
   background-color: var(--admin-overlay);
-  backdrop-filter: blur(4px);
 }
 
 .admin-modal {

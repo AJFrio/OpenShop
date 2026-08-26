@@ -54,15 +54,3 @@
 }
 
 /* Admin-specific utility classes */
-.admin-gradient-text {
-  background: linear-gradient(135deg, var(--admin-accent-light) 0%, var(--admin-accent) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.admin-glass {
-  background: rgba(30, 33, 43, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}

@@ -1,4 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
+import { confirmLeaveIfDirty } from '../../lib/dirtyGuard'
 import { Button } from '../../components/ui/button'
 import {
   Package,
@@ -54,6 +55,9 @@ export function AdminLayout({ onLogout }) {
                 <li key={item.path}>
                   <Link
                     to={item.path}
+                    onClick={(e) => {
+                      if (!confirmLeaveIfDirty()) e.preventDefault()
+                    }}
                     aria-current={isActive ? 'page' : undefined}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--admin-bg-primary)] ${
                       isActive
@@ -69,13 +73,13 @@ export function AdminLayout({ onLogout }) {
             })}
           </ul>
         </nav>
-        <div className="p-3 border-t border-[var(--admin-border-primary)]">
+        <div className="p-3 border-t border-[var(--admin-border-primary)] flex justify-end">
           <Button
             onClick={onLogout}
-            variant="outline"
-            className="w-full border-[var(--admin-error)] text-[var(--admin-error)] hover:bg-[var(--admin-error-bg)] text-sm"
+            variant="ghost"
+            className="text-[var(--admin-text-muted)] hover:text-[var(--admin-error)] hover:bg-[var(--admin-error-bg)] text-sm"
           >
-            <LogOut className="w-4 h-4 mr-2" />
+            <LogOut className="w-4 h-4 mr-1.5" />
             Logout
           </Button>
         </div>

@@ -33,7 +33,7 @@ export function AlertDialogContent({ children, className }) {
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setOpen(false)} />
+      <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
       <div
         className={cn(
           "relative w-full max-w-md mx-4 rounded-lg border border-[var(--admin-border-primary)] bg-[var(--admin-bg-card)] text-[var(--admin-text-primary)] shadow-[var(--admin-shadow-lg)]",
