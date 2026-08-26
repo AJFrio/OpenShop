@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { normalizeImageUrl } from '../../lib/utils'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
+import { SmartImage } from '../../components/storefront/SmartImage'
 import { Navbar } from '../../components/storefront/Navbar'
 import { Footer } from '../../components/storefront/Footer'
 import { ProductCard } from '../../components/storefront/ProductCard'
@@ -9,6 +10,7 @@ export function CollectionPage() {
   const { collectionId } = useParams()
   const [collection, setCollection] = useState(null)
   const [products, setProducts] = useState([])
+  const [sortBy, setSortBy] = useState('featured')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -42,6 +44,14 @@ export function CollectionPage() {
       setLoading(false)
     }
   }
+
+  const sortedProducts = useMemo(() => {
+    const list = [...products]
+    if (sortBy === 'price-asc') list.sort((a, b) => (a.price || 0) - (b.price || 0))
+    else if (sortBy === 'price-desc') list.sort((a, b) => (b.price || 0) - (a.price || 0))
+    else if (sortBy === 'name') list.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    return list
+  }, [products, sortBy])
 
   if (loading) {
     return (
@@ -79,16 +89,16 @@ export function CollectionPage() {
       <Navbar />
       
       {/* Collection Header */}
-      <section className="relative w-screen overflow-hidden text-white">
-        {collection.heroImage ? (
-          <img
-            src={collection.heroImage}
-            alt={collection.name}
-            className="w-screen h-auto max-h-[90vh] object-contain block mx-auto opacity-70"
-          />
-        ) : (
-          <div className="w-screen min-h-[320px] sm:min-h-[420px] lg:min-h-[560px] bg-gradient-to-r from-slate-600 to-slate-700" />
-        )}
+      <section className="relative w-full overflow-hidden text-white">
+        <div className="min-h-[320px] sm:min-h-[420px] lg:min-h-[560px] bg-gradient-to-r from-slate-600 to-slate-700">
+          {collection.heroImage && (
+            <SmartImage
+              src={collection.heroImage}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover opacity-70"
+            />
+          )}
+        </div>
 
         <div className="absolute inset-0 bg-black/40" aria-hidden />
 
@@ -117,19 +127,33 @@ export function CollectionPage() {
             <p className="text-slate-600 mb-6">
               This collection doesn't have any products yet.
             </p>
-            <a href="/" className="text-slate-600 hover:text-slate-500">
+            <Link to="/" className="text-slate-600 hover:text-slate-500">
               Browse all products
-            </a>
+            </Link>
           </div>
         ) : (
           <>
-            <div className="mb-8">
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
               <h2 className="text-2xl font-bold text-slate-900">
                 Products ({products.length})
               </h2>
+              <div>
+                <label htmlFor="collection-sort" className="sr-only">Sort products</label>
+                <select
+                  id="collection-sort"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-500"
+                >
+                  <option value="featured">Featured</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="name">Name A to Z</option>
+                </select>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-              {products.map((product) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>

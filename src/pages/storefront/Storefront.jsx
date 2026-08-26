@@ -8,10 +8,12 @@ export function Storefront() {
   const [collections, setCollections] = useState([])
   const [page, setPage] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [retryCount])
 
   const fetchData = async () => {
     try {
@@ -61,6 +63,28 @@ export function Storefront() {
             <p className="storefront-subtle">Loading products...</p>
           </div>
         </div>
+      </div>
+    )
+  }
+
+  if (loadError && products.length === 0) {
+    return (
+      <div className="min-h-screen storefront-surface">
+        <Navbar />
+        <div className="flex items-center justify-center h-96 px-4">
+          <div className="text-center">
+            <p className="storefront-heading text-xl font-semibold mb-2">We couldn't load the store right now</p>
+            <p className="storefront-subtle mb-6">Please check your connection and try again.</p>
+            <button
+              type="button"
+              onClick={() => { setLoadError(false); setRetryCount((c) => c + 1) }}
+              className="storefront-button-primary storefront-radius-sm px-6 py-3 text-sm font-semibold"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+        <Footer />
       </div>
     )
   }

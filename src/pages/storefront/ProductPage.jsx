@@ -4,8 +4,10 @@ import { Navbar } from '../../components/storefront/Navbar'
 import { Footer } from '../../components/storefront/Footer'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
+import { SmartImage } from '../../components/storefront/SmartImage'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { useCart } from '../../contexts/CartContext'
+import { Minus, Plus } from 'lucide-react'
 
 export function ProductPage() {
   const { id } = useParams()
@@ -13,6 +15,8 @@ export function ProductPage() {
   const [loading, setLoading] = useState(true)
   const [currentImage, setCurrentImage] = useState(0)
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(null)
+  const [quantity, setQuantity] = useState(1)
+  const [variantErrors, setVariantErrors] = useState({})
   const { addItem } = useCart()
 
   useEffect(() => {
@@ -97,20 +101,24 @@ export function ProductPage() {
     return effectiveVariant?.stripePriceId || effectiveVariant2?.stripePriceId || product?.stripePriceId
   }, [effectiveVariant, effectiveVariant2, product])
 
+  const validateVariants = () => {
+    const errors = {}
+    if (Array.isArray(product?.variants) && product.variants.length > 0 && selectedVariantIndex == null) {
+      errors.variant1 = `Please select a ${product.variantStyle || 'variant'} option.`
+    }
+    if (Array.isArray(product?.variants2) && product.variants2.length > 0 && selectedVariant2Index == null) {
+      errors.variant2 = `Please select a ${product.variantStyle2 || 'variant'} option.`
+    }
+    setVariantErrors(errors)
+    if (Object.keys(errors).length > 0) return false
+    return true
+  }
+
   const handleBuyNow = async () => {
     // Use the cart checkout API to preserve line item context (variant names)
     if (!product) return
 
-    // Validate variant selection
-    if (Array.isArray(product.variants) && product.variants.length > 0 && selectedVariantIndex == null) {
-      alert(`Please select a ${product.variantStyle || 'variant'} option.`)
-      return
-    }
-
-    if (Array.isArray(product.variants2) && product.variants2.length > 0 && selectedVariant2Index == null) {
-      alert(`Please select a ${product.variantStyle2 || 'variant'} option.`)
-      return
-    }
+    if (!validateVariants()) return
 
     try {
       const tempItem = {
@@ -138,16 +146,7 @@ export function ProductPage() {
   const handleAddToCart = () => {
     if (!product) return
 
-    // Validate variant selection
-    if (Array.isArray(product.variants) && product.variants.length > 0 && selectedVariantIndex == null) {
-      alert(`Please select a ${product.variantStyle || 'variant'} option.`)
-      return
-    }
-
-    if (Array.isArray(product.variants2) && product.variants2.length > 0 && selectedVariant2Index == null) {
-      alert(`Please select a ${product.variantStyle2 || 'variant'} option.`)
-      return
-    }
+    if (!validateVariants()) return
 
     const variant = effectiveVariant
     const variant2 = effectiveVariant2
@@ -185,7 +184,8 @@ export function ProductPage() {
       stripePriceId: stripePriceIdToUse,
       selectedVariant: variant ? { id: variant.id, name: variant.name } : undefined,
       selectedVariant2: variant2 ? { id: variant2.id, name: variant2.name } : undefined,
-    })
+    }, quantity)
+    setQuantity(1)
   }
 
   if (loading) {
@@ -224,24 +224,22 @@ export function ProductPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           <div>
             <Card className="overflow-hidden">
-              {images.length > 0 ? (
-                <img
-                  src={images[currentImage]}
-                  alt={product.name}
-                  className="w-full aspect-square object-cover"
-                />
-              ) : (
-                <div className="w-full aspect-square bg-slate-200" />
-              )}
+              <SmartImage
+                src={images[currentImage] || null}
+                alt={product.name}
+                className="w-full aspect-square object-cover"
+              />
               {images.length > 1 && (
                 <CardContent className="p-4 grid grid-cols-5 gap-3">
                   {images.map((src, idx) => (
                     <button
                       key={idx}
                       onClick={() => setCurrentImage(idx)}
-                      className={`border rounded overflow-hidden h-16 ${idx === currentImage ? 'border-slate-600' : 'border-transparent'}`}
+                      aria-label={`Show image ${idx + 1} of ${product.name}`}
+                      aria-pressed={idx === currentImage}
+                      className={`border rounded overflow-hidden h-16 ${idx === currentImage ? 'border-slate-900 ring-2 ring-slate-300' : 'border-transparent'}`}
                     >
-                      <img src={src} alt="thumb" className="w-full h-full object-cover" />
+                      <SmartImage src={src} alt={`${product.name} — view ${idx + 1}`} className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </CardContent>
@@ -250,6 +248,17 @@ export function ProductPage() {
           </div>
 
           <div>
+            <nav aria-label="Breadcrumb" className="mb-4 text-sm text-slate-500">
+              <Link to="/" className="hover:text-slate-700">Home</Link>
+              {product.collectionId && product.collectionName && (
+                <>
+                  <span className="mx-2" aria-hidden>/</span>
+                  <Link to={`/collections/${product.collectionId}`} className="hover:text-slate-700">{product.collectionName}</Link>
+                </>
+              )}
+              <span className="mx-2" aria-hidden>/</span>
+              <span className="text-slate-700" aria-current="page">{product.name}</span>
+            </nav>
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-slate-900 mb-2">{product.name}</h1>
               {product.tagline && (
@@ -262,27 +271,31 @@ export function ProductPage() {
               <div className="mb-6">
                 <p className="text-sm text-slate-700 mb-2 font-medium">
                   {product.variantStyle || 'Variant'}
+                  {selectedVariantIndex != null && product.variants[selectedVariantIndex]?.name && (
+                    <span className="text-slate-500">: {product.variants[selectedVariantIndex].name}</span>
+                  )}
                 </p>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                   {product.variants.map((v, idx) => (
                     <button
                       key={v.id || idx}
-                      onClick={() => { setSelectedVariantIndex(idx); setCurrentImage(0) }}
-                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-slate-500 ${idx === selectedVariantIndex ? 'border-slate-600 ring-2 ring-slate-200' : 'border-slate-200'}`}
+                      onClick={() => { setSelectedVariantIndex(idx); setCurrentImage(0); setVariantErrors((e) => ({ ...e, variant1: undefined })) }}
+                      aria-pressed={idx === selectedVariantIndex}
+                      className={`border-2 rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-slate-500 ${idx === selectedVariantIndex ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200'}`}
                       title={v.name}
                     >
                       {v.selectorImageUrl || v.imageUrl ? (
-                        <img src={normalizeImageUrl(v.selectorImageUrl || v.imageUrl)} alt={v.name} className="w-full h-16 object-cover" />
+                        <SmartImage src={normalizeImageUrl(v.selectorImageUrl || v.imageUrl)} alt={v.name} className="w-full h-16 object-cover" />
                       ) : (
-                        <div className="w-full h-16 flex items-center justify-center text-sm text-slate-600 bg-slate-50">
+                        <div className={`w-full h-16 flex items-center justify-center text-sm ${idx === selectedVariantIndex ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-50'}`}>
                           {v.name || 'Option'}
                         </div>
                       )}
                     </button>
                   ))}
                 </div>
-                {selectedVariantIndex != null && product.variants[selectedVariantIndex]?.name && (
-                  <p className="text-sm text-slate-600 mt-2">Selected: {product.variants[selectedVariantIndex].name}</p>
+                {variantErrors.variant1 && (
+                  <p role="alert" className="text-sm text-red-600 mt-2">{variantErrors.variant1}</p>
                 )}
               </div>
             )}
@@ -292,34 +305,65 @@ export function ProductPage() {
               <div className="mb-6">
                 <p className="text-sm text-slate-700 mb-2 font-medium">
                   {product.variantStyle2 || 'Variant'}
+                  {selectedVariant2Index != null && product.variants2[selectedVariant2Index]?.name && (
+                    <span className="text-slate-500">: {product.variants2[selectedVariant2Index].name}</span>
+                  )}
                 </p>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                   {product.variants2.map((v, idx) => (
                     <button
                       key={v.id || idx}
-                      onClick={() => { setSelectedVariant2Index(idx); setCurrentImage(0) }}
-                      className={`border rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-slate-500 ${idx === selectedVariant2Index ? 'border-slate-600 ring-2 ring-slate-200' : 'border-slate-200'}`}
+                      onClick={() => { setSelectedVariant2Index(idx); setCurrentImage(0); setVariantErrors((e) => ({ ...e, variant2: undefined })) }}
+                      aria-pressed={idx === selectedVariant2Index}
+                      className={`border-2 rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-slate-500 ${idx === selectedVariant2Index ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200'}`}
                       title={v.name}
                     >
                       {v.selectorImageUrl || v.imageUrl ? (
-                        <img src={normalizeImageUrl(v.selectorImageUrl || v.imageUrl)} alt={v.name} className="w-full h-16 object-cover" />
+                        <SmartImage src={normalizeImageUrl(v.selectorImageUrl || v.imageUrl)} alt={v.name} className="w-full h-16 object-cover" />
                       ) : (
-                        <div className="w-full h-16 flex items-center justify-center text-sm text-slate-600 bg-slate-50">
+                        <div className={`w-full h-16 flex items-center justify-center text-sm ${idx === selectedVariant2Index ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-50'}`}>
                           {v.name || 'Option'}
                         </div>
                       )}
                     </button>
                   ))}
                 </div>
-                {selectedVariant2Index != null && product.variants2[selectedVariant2Index]?.name && (
-                  <p className="text-sm text-slate-600 mt-2">Selected: {product.variants2[selectedVariant2Index].name}</p>
+                {variantErrors.variant2 && (
+                  <p role="alert" className="text-sm text-red-600 mt-2">{variantErrors.variant2}</p>
                 )}
               </div>
             )}
-            <div className="mb-8">
+            <div className="mb-6 flex items-baseline gap-4">
               <span className="text-4xl font-bold text-slate-900">
                 {formatCurrency(effectivePriceCents / 100, product.currency)}
               </span>
+              {!effectiveStripePriceId && (
+                <span className="text-sm text-slate-500">Currently unavailable for online purchase</span>
+              )}
+            </div>
+
+            <div className="mb-6 flex items-center gap-3">
+              <span className="text-sm font-medium text-slate-700" id="quantity-label">Quantity</span>
+              <div className="flex items-center border border-slate-300 rounded-md" role="group" aria-labelledby="quantity-label">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  disabled={quantity <= 1}
+                  aria-label="Decrease quantity"
+                  className="p-2 text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="w-10 text-center text-sm font-medium tabular-nums" aria-live="polite">{quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.min(99, q + 1))}
+                  aria-label="Increase quantity"
+                  className="p-2 text-slate-600 hover:text-slate-900"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -330,25 +374,27 @@ export function ProductPage() {
               >
                 Add to Cart
               </Button>
-              <Button 
-                onClick={handleBuyNow}
-                className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700"
-                disabled={!effectiveStripePriceId}
-              >
-                Buy Now
-              </Button>
+              {effectiveStripePriceId ? (
+                <Button 
+                  onClick={handleBuyNow}
+                  className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700"
+                >
+                  Buy Now
+                </Button>
+              ) : (
+                <Button 
+                  className="w-full bg-slate-900 text-white"
+                  disabled
+                >
+                  Unavailable online
+                </Button>
+              )}
             </div>
 
             {product.description && (
               <div className="mt-10">
                 <h2 className="text-xl font-semibold text-slate-900 mb-2">Description</h2>
                 <p className="text-slate-700 leading-relaxed whitespace-pre-line">{product.description}</p>
-              </div>
-            )}
-
-            {product.collectionName && (
-              <div className="mt-6 text-sm text-slate-500">
-                Part of collection: <Link className="text-slate-600 hover:text-slate-500" to={`/collections/${product.collectionId}`}>{product.collectionName}</Link>
               </div>
             )}
           </div>

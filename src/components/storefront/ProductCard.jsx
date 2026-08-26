@@ -1,22 +1,32 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardFooter } from '../ui/card'
 import { Button } from '../ui/button'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { redirectToCheckout } from '../../lib/stripe'
 import { useCart } from '../../contexts/CartContext'
+import { SmartImage } from './SmartImage'
 import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
 
 export function ProductCard({ product, disableNavigation }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { addItem } = useCart()
-  
-  const images = (Array.isArray(product.images) ? product.images : 
+  const navigate = useNavigate()
+
+  const images = (Array.isArray(product.images) ? product.images :
                 (product.imageUrl ? [product.imageUrl] : []))
                 .map(normalizeImageUrl)
   const hasMultipleImages = images.length > 1
+  const hasVariants = Boolean(
+    product.variants?.length || product.variants2?.length
+  )
+
   const handleBuyNow = async () => {
     if (disableNavigation) return
+    if (hasVariants) {
+      navigate(`/products/${product.id}`)
+      return
+    }
     try {
       await redirectToCheckout(product.stripePriceId)
     } catch (error) {
@@ -35,6 +45,10 @@ export function ProductCard({ product, disableNavigation }) {
 
   const handleAddToCart = () => {
     if (disableNavigation) return
+    if (hasVariants) {
+      navigate(`/products/${product.id}`)
+      return
+    }
     addItem(product)
   }
 
@@ -50,7 +64,7 @@ export function ProductCard({ product, disableNavigation }) {
       <CardLink to={`/products/${product.id}`} className="block">
       <div
         className="relative aspect-w-16 aspect-h-12 overflow-hidden"
-        style={{ 
+        style={{
           backgroundColor: 'var(--storefront-color-accent-soft)',
           borderTopLeftRadius: 'var(--storefront-radius-lg)',
           borderTopRightRadius: 'var(--storefront-radius-lg)'
@@ -58,52 +72,52 @@ export function ProductCard({ product, disableNavigation }) {
       >
         {images.length > 0 ? (
           <>
-            <img
+            <SmartImage
               src={images[currentImageIndex]}
               alt={product.name}
               className="w-full h-48 object-cover"
-              style={{
-                borderTopLeftRadius: 'var(--storefront-radius-lg)',
-                borderTopRightRadius: 'var(--storefront-radius-lg)'
-              }}
             />
             {hasMultipleImages && (
               <>
                 <button
                   onClick={(e) => { e.preventDefault(); prevImage(); }}
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-75 transition-all opacity-0 group-hover:opacity-100"
+                  aria-label={`Previous image of ${product.name}`}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 hidden sm:block"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
                   onClick={(e) => { e.preventDefault(); nextImage(); }}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-75 transition-all opacity-0 group-hover:opacity-100"
+                  aria-label={`Next image of ${product.name}`}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 hidden sm:block"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
                   {images.map((_, index) => (
                     <button
                       key={index}
                       onClick={(e) => { e.preventDefault(); setCurrentImageIndex(index); }}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentImageIndex ? 'bg-white' : 'bg-white bg-opacity-50'
+                      aria-label={`Show image ${index + 1} of ${product.name}`}
+                      className={`w-4 h-4 flex items-center justify-center ${
+                        index === currentImageIndex ? 'text-white' : 'text-white/60'
                       }`}
-                    />
+                    >
+                      <span className={`block w-2 h-2 rounded-full transition-all ${
+                        index === currentImageIndex ? 'bg-current' : 'bg-current'
+                      }`} />
+                    </button>
                   ))}
                 </div>
               </>
             )}
           </>
         ) : (
-          <div
-            className="w-full h-48 flex items-center justify-center"
-            style={{ backgroundColor: 'var(--storefront-color-accent-soft)' }}
-          >
-            <svg className="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
+          <SmartImage
+            src={null}
+            alt={product.name}
+            className="w-full h-48"
+          />
         )}
       </div>
       </CardLink>
@@ -135,13 +149,23 @@ export function ProductCard({ product, disableNavigation }) {
             <ShoppingCart className="w-4 h-4 mr-2" />
             Add to Cart
           </Button>
-          <Button 
-            onClick={handleBuyNow}
-            className="w-full"
-            disabled={!product.stripePriceId || disableNavigation}
-          >
-            Buy Now
-          </Button>
+          {product.stripePriceId || hasVariants ? (
+            <Button 
+              onClick={handleBuyNow}
+              className="w-full"
+              disabled={disableNavigation}
+            >
+              Buy Now
+            </Button>
+          ) : (
+            <Button 
+              className="w-full"
+              disabled
+              title="Currently unavailable for online purchase"
+            >
+              Unavailable online
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>

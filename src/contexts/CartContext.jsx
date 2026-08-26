@@ -23,14 +23,14 @@ function cartReducer(state, action) {
           ...state,
           items: state.items.map(item =>
             item.id === action.payload.id
-              ? { ...item, quantity: item.quantity + 1 }
+              ? { ...item, quantity: item.quantity + (action.payload.quantity || 1) }
               : item
           )
         }
       } else {
         return {
           ...state,
-          items: [...state.items, { ...action.payload, quantity: 1 }]
+          items: [...state.items, { ...action.payload, quantity: action.payload.quantity || 1 }]
         }
       }
     }
@@ -123,8 +123,8 @@ export function CartProvider({ children }) {
   }, [state.items])
 
   // Cart actions
-  const addItem = (product) => {
-    dispatch({ type: CART_ACTIONS.ADD_ITEM, payload: product })
+  const addItem = (product, quantity = 1) => {
+    dispatch({ type: CART_ACTIONS.ADD_ITEM, payload: { ...product, quantity } })
     dispatch({ type: CART_ACTIONS.OPEN_CART })
   }
 

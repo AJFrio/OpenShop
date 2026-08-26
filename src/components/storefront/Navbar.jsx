@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { normalizeImageUrl } from '../../lib/utils'
+import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { Link } from 'react-router-dom'
 import { Button } from '../ui/button'
 import { useCart } from '../../contexts/CartContext'
@@ -136,14 +136,16 @@ export function Navbar({ previewSettings, disableNavigation }) {
               
               {/* Individual Collection Links with Product Dropdowns */}
               {collectionsWithProducts.map((collection) => (
-                <div key={collection.id} className="relative group">
+                <div key={collection.id} className="relative group focus-within:visible">
                   <NavLink
                     to={`/collections/${collection.id}`}
+                    aria-haspopup={collection.products.length > 0 || undefined}
+                    aria-expanded={collection.products.length > 0 ? undefined : undefined}
                     className="storefront-heading hover:text-slate-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
                   >
                     {collection.name}
                     {collection.products.length > 0 && (
-                      <svg className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     )}
@@ -151,7 +153,7 @@ export function Navbar({ previewSettings, disableNavigation }) {
                   
                   {/* Product Dropdown */}
                   {collection.products.length > 0 && (
-                  <div className="absolute left-0 top-full w-72 bg-white rounded-md rounded-t-none shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[100] pointer-events-none group-hover:pointer-events-auto storefront-surface-inverse storefront-radius">
+                  <div className="absolute left-0 top-full w-72 bg-white rounded-md rounded-t-none shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 z-[100] pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto storefront-surface-inverse storefront-radius">
                       <div className="py-2">
                         <div className="px-4 py-2 text-xs font-semibold storefront-subtle uppercase tracking-wide border-b">
                           {collection.name} Products
@@ -200,7 +202,7 @@ export function Navbar({ previewSettings, disableNavigation }) {
                                     {product.name}
                                   </p>
                                   <p className="text-sm storefront-subtle font-semibold">
-                                    ${product.price}
+                                    {formatCurrency(product.price, product.currency)}
                                   </p>
                                 </div>
                               </div>
@@ -241,6 +243,8 @@ export function Navbar({ previewSettings, disableNavigation }) {
             {/* Mobile menu button - Only visible on mobile */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
             className="md:hidden storefront-heading hover:text-slate-600 transition-colors duration-200 p-2"
             >
               {mobileMenuOpen ? (
@@ -300,13 +304,13 @@ export function Navbar({ previewSettings, disableNavigation }) {
                           <div className="flex-shrink-0">
                             {(product.images && product.images.length > 0) ? (
                               <img
-                                src={product.images[0]}
+                                src={normalizeImageUrl(product.images[0])}
                                 alt={product.name}
                                 className="w-8 h-8 object-cover rounded"
                               />
                             ) : product.imageUrl ? (
                               <img
-                                src={product.imageUrl}
+                                src={normalizeImageUrl(product.imageUrl)}
                                 alt={product.name}
                                 className="w-8 h-8 object-cover rounded"
                               />
@@ -320,7 +324,7 @@ export function Navbar({ previewSettings, disableNavigation }) {
                           </div>
                           <div className="flex-1">
                             <p className="font-medium storefront-heading truncate">{product.name}</p>
-                            <p className="storefront-subtle font-semibold">${product.price}</p>
+                            <p className="storefront-subtle font-semibold">{formatCurrency(product.price, product.currency)}</p>
                           </div>
                         </div>
                       </NavLink>

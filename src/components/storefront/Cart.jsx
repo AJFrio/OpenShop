@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useCart } from '../../contexts/CartContext'
 import { Button } from '../ui/button'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
@@ -53,13 +54,27 @@ export function Cart() {
     }
   }
 
+  useEffect(() => {
+    if (!isOpen) return undefined
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') toggleCart()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isOpen, toggleCart])
+
   if (!isOpen) return null
 
   return (
     <>
       {/* Overlay - Desktop */}
       <div 
-        className={`fixed inset-0 bg-black z-40 hidden lg:block transition-opacity duration-400 ease-in-out ${
+        className={`fixed inset-0 bg-black z-[60] hidden lg:block transition-opacity duration-400 ease-in-out ${
           isOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'
         }`}
         onClick={toggleCart}
@@ -67,7 +82,7 @@ export function Cart() {
 
       {/* Overlay - Mobile */}
       <div 
-        className={`fixed inset-0 bg-black z-40 lg:hidden transition-opacity duration-400 ease-in-out ${
+        className={`fixed inset-0 bg-black z-[60] lg:hidden transition-opacity duration-400 ease-in-out ${
           isOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'
         }`}
         onClick={toggleCart}
@@ -75,12 +90,15 @@ export function Cart() {
       
       {/* Cart Sidebar - Desktop (slides from right) */}
       <div className={`
-        fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-50 
+        fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-[70] 
         hidden lg:flex lg:flex-col
         transform transition-transform duration-400 ease-in-out
         ${isOpen ? 'translate-x-0' : 'translate-x-full'}
       `}>
         <CartContent 
+          role="dialog"
+          aria-modal="true"
+          aria-label="Shopping Cart"
           items={items}
           totalPrice={totalPrice}
           updateQuantity={updateQuantity}
@@ -96,12 +114,15 @@ export function Cart() {
 
       {/* Cart Fullscreen - Mobile (slides from top) */}
       <div className={`
-        fixed inset-0 bg-white z-50 
+        fixed inset-0 bg-white z-[70] 
         lg:hidden flex flex-col
         transform transition-transform duration-400 ease-in-out
         ${isOpen ? 'translate-y-0' : '-translate-y-full'}
       `}>
         <CartContent 
+          role="dialog"
+          aria-modal="true"
+          aria-label="Shopping Cart"
           items={items}
           totalPrice={totalPrice}
           updateQuantity={updateQuantity}
@@ -118,9 +139,9 @@ export function Cart() {
   )
 }
 
-function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart, clearCart, handleCheckout, isCheckingOut, checkoutError, isMobile }) {
+function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart, clearCart, handleCheckout, isCheckingOut, checkoutError, isMobile, ...dialogProps }) {
   return (
-    <>
+    <div {...dialogProps} className={isMobile ? 'flex flex-col h-full' : 'flex flex-col h-full'}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b animate-fade-in">
         <h2 className="text-lg font-semibold">Shopping Cart</h2>
@@ -139,12 +160,13 @@ function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart
             <ShoppingBag className="w-16 h-16 text-slate-300 mb-4" />
             <h3 className="text-lg font-medium text-slate-900 mb-2">Your cart is empty</h3>
             <p className="text-slate-500 mb-6">Add some products to get started!</p>
-            <Button 
+            <Link
+              to="/"
               onClick={toggleCart}
-              className="bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 transition-all duration-300"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 h-10 px-4 py-2 transition-all duration-300"
             >
               Continue Shopping
-            </Button>
+            </Link>
           </div>
         ) : (
           <div className="space-y-4">
@@ -168,20 +190,24 @@ function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart
       {/* Footer */}
       {items.length > 0 && (
         <div className="border-t p-4 space-y-4">
-          {/* Clear Cart Button */}
-          <button
-            onClick={clearCart}
-            className="text-sm text-red-600 hover:text-red-700 flex items-center gap-2 transition-all duration-200 hover:scale-105"
-          >
-            <Trash2 className="w-4 h-4" />
-            Clear Cart
-          </button>
-
           {/* Total */}
           <div className="flex justify-between items-center text-lg font-semibold animate-fade-in">
             <span>Total:</span>
             <span className="text-slate-600">{formatCurrency(totalPrice)}</span>
           </div>
+
+          {/* Clear Cart - demoted destructive action */}
+          <button
+            onClick={() => {
+              if (window.confirm('Remove all items from your cart?')) {
+                clearCart()
+              }
+            }}
+            className="text-xs text-slate-500 hover:text-red-600 flex items-center gap-1.5 transition-colors duration-200 self-center"
+          >
+            <Trash2 className="w-3 h-3" aria-hidden />
+            Clear cart
+          </button>
 
           {/* Checkout Button */}
           <Button 
@@ -216,7 +242,7 @@ function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart
           )}
         </div>
       )}
-    </>
+    </div>
   )
 }
 
@@ -227,11 +253,7 @@ function CartItem({ item, updateQuantity, removeItem }) {
   const primaryImage = primaryImageRaw ? normalizeImageUrl(primaryImageRaw) : ''
 
   const handleQuantityChange = (newQuantity) => {
-    if (newQuantity < 1) {
-      removeItem(item.id)
-    } else {
-      updateQuantity(item.id, newQuantity)
-    }
+    updateQuantity(item.id, newQuantity)
   }
 
   return (
@@ -261,24 +283,27 @@ function CartItem({ item, updateQuantity, removeItem }) {
             {item.selectedVariant2?.name ? `${item.variantStyle2 || 'Variant'}: ${item.selectedVariant2.name}` : ''}
           </p>
         )}
-        <p className="text-sm text-slate-500 mt-1">{formatCurrency(item.price)}</p>
+        <p className="text-sm text-slate-500 mt-1">{formatCurrency(item.price, item.currency)}</p>
 
         {/* Quantity Controls */}
         <div className="flex items-center gap-2 mt-2">
           <button
             onClick={() => handleQuantityChange(item.quantity - 1)}
-            className="p-1 hover:bg-slate-100 rounded transition-all duration-200 hover:scale-110"
+            disabled={item.quantity <= 1}
+            aria-label={`Decrease quantity of ${item.name}`}
+            className="p-1.5 hover:bg-slate-100 rounded transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Minus className="w-4 h-4" />
           </button>
           
-          <span className="px-3 py-1 bg-slate-100 rounded text-sm font-medium min-w-[2rem] text-center transition-all duration-200">
+          <span className="px-3 py-1 bg-slate-100 rounded text-sm font-medium min-w-[2rem] text-center tabular-nums" aria-live="polite">
             {item.quantity}
           </span>
           
           <button
             onClick={() => handleQuantityChange(item.quantity + 1)}
-            className="p-1 hover:bg-slate-100 rounded transition-all duration-200 hover:scale-110"
+            aria-label={`Increase quantity of ${item.name}`}
+            className="p-1.5 hover:bg-slate-100 rounded transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -286,7 +311,8 @@ function CartItem({ item, updateQuantity, removeItem }) {
           {/* Remove Button */}
           <button
             onClick={() => removeItem(item.id)}
-            className="ml-auto p-1 text-red-500 hover:bg-red-50 rounded transition-all duration-200 hover:scale-110"
+            aria-label={`Remove ${item.name} from cart`}
+            className="ml-auto p-1.5 text-red-500 hover:bg-red-50 rounded transition-all duration-200"
           >
             <X className="w-4 h-4" />
           </button>
@@ -295,8 +321,8 @@ function CartItem({ item, updateQuantity, removeItem }) {
 
       {/* Item Total */}
       <div className="flex-shrink-0 text-right">
-        <p className="font-medium text-slate-900">
-          {formatCurrency(item.price * item.quantity)}
+        <p className="font-medium text-slate-900 tabular-nums">
+          {formatCurrency(item.price * item.quantity, item.currency)}
         </p>
       </div>
     </div>

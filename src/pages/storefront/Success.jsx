@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { Card, CardContent } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Footer } from '../../components/storefront/Footer'
 import { CheckCircle, Package, ArrowLeft } from 'lucide-react'
@@ -47,21 +46,19 @@ export function Success() {
   if (!sessionId) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-8 text-center">
-            <Package className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-slate-900 mb-2">Invalid Session</h1>
-            <p className="text-slate-600 mb-6">
-              We couldn't find your order information.
-            </p>
-            <Link to="/">
-              <Button>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Store
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <div className="w-full max-w-md bg-white rounded-lg shadow-md border border-slate-200 p-8 text-center">
+          <Package className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Order not found</h1>
+          <p className="text-slate-600 mb-6">
+            We couldn't find your order information. If you just checked out, check your email for confirmation.
+          </p>
+          <Link to="/">
+            <Button>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Store
+            </Button>
+          </Link>
+        </div>
       </div>
     )
   }
@@ -69,8 +66,7 @@ export function Success() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md mx-4">
-          <CardContent className="p-8 text-center">
+        <div className="w-full max-w-md mx-4 bg-white rounded-lg shadow-md border border-slate-200 p-8 text-center">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-slate-900 mb-2">Order Successful!</h1>
             <p className="text-slate-600 mb-6">
@@ -90,14 +86,8 @@ export function Success() {
                   Continue Shopping
                 </Button>
               </Link>
-              <Link to="/orders" className="block">
-                <Button variant="outline" className="w-full">
-                  View Order History
-                </Button>
-              </Link>
             </div>
-          </CardContent>
-        </Card>
+        </div>
       </div>
 
       {/* Footer */}
