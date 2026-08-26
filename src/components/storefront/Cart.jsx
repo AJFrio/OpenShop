@@ -1,50 +1,55 @@
+import { useState } from 'react'
 import { useCart } from '../../contexts/CartContext'
 import { Button } from '../ui/button'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
-import { redirectToCheckout } from '../../lib/stripe'
+import { buildCheckoutItems } from '../../lib/checkoutPayload'
 import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react'
 
 export function Cart() {
   const { items, isOpen, totalPrice, updateQuantity, removeItem, toggleCart, clearCart } = useCart()
+  const [isCheckingOut, setIsCheckingOut] = useState(false)
+  const [checkoutError, setCheckoutError] = useState('')
 
   const handleCheckout = async () => {
-    if (items.length === 0) return
+    if (items.length === 0 || isCheckingOut) return
 
+    const checkoutItems = buildCheckoutItems(items)
+    if (checkoutItems.length === 0) {
+      setCheckoutError('Items in your cart are not available for online checkout.')
+      return
+    }
+
+    setIsCheckingOut(true)
     try {
-      if (items.length === 1) {
-        // Single item checkout
-        await redirectToCheckout(items[0].stripePriceId)
-      } else {
-        // Multiple items checkout
-        const response = await fetch('/api/create-cart-checkout-session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ items }),
-        })
+      const response = await fetch('/api/create-cart-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ items: checkoutItems }),
+      })
 
-        const session = await response.json()
+      const session = await response.json()
 
-        if (session.error) {
-          throw new Error(session.error)
-        }
+      if (session.error) {
+        throw new Error(session.error)
+      }
 
-        // Import Stripe and redirect
-        const { loadStripe } = await import('@stripe/stripe-js')
-        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
-        
-        const result = await stripe.redirectToCheckout({
-          sessionId: session.sessionId,
-        })
+      const { loadStripe } = await import('@stripe/stripe-js')
+      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
 
-        if (result.error) {
-          throw new Error(result.error.message)
-        }
+      const result = await stripe.redirectToCheckout({
+        sessionId: session.sessionId,
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message)
       }
     } catch (error) {
       console.error('Error during checkout:', error)
-      alert('Error starting checkout. Please try again.')
+      setCheckoutError('Error starting checkout. Please try again.')
+    } finally {
+      setIsCheckingOut(false)
     }
   }
 
@@ -83,6 +88,8 @@ export function Cart() {
           toggleCart={toggleCart}
           clearCart={clearCart}
           handleCheckout={handleCheckout}
+          isCheckingOut={isCheckingOut}
+          checkoutError={checkoutError}
           isMobile={false}
         />
       </div>
@@ -102,6 +109,8 @@ export function Cart() {
           toggleCart={toggleCart}
           clearCart={clearCart}
           handleCheckout={handleCheckout}
+          isCheckingOut={isCheckingOut}
+          checkoutError={checkoutError}
           isMobile={true}
         />
       </div>
@@ -109,7 +118,7 @@ export function Cart() {
   )
 }
 
-function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart, clearCart, handleCheckout, isMobile }) {
+function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart, clearCart, handleCheckout, isCheckingOut, checkoutError, isMobile }) {
   return (
     <>
       {/* Header */}
@@ -177,11 +186,23 @@ function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart
           {/* Checkout Button */}
           <Button 
             onClick={handleCheckout} 
-            className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            disabled={isCheckingOut}
+            className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
             size="lg"
           >
-            Checkout
+            {isCheckingOut ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                Redirecting…
+              </span>
+            ) : (
+              'Checkout'
+            )}
           </Button>
+
+          {checkoutError && (
+            <p role="alert" className="text-sm text-red-600 text-center">{checkoutError}</p>
+          )}
 
           {/* Continue Shopping - Mobile Only */}
           {isMobile && (
