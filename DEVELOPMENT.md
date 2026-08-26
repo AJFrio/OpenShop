@@ -1,210 +1,126 @@
 # OpenShop Development Guide
 
-## 🚀 Getting Started
+OpenShop is a React 19 + Vite storefront/admin served **by** a Hono Cloudflare Worker
+(ASSETS binding, single-process prod parity), with KV for data and Stripe for checkout.
+Local development runs the exact same architecture on your machine via `wrangler dev --local`
+— no Cloudflare account, no real credentials, no network calls.
 
-### Prerequisites
-- Node.js 20.19+ (current version warnings can be ignored for now)
-- npm or yarn
-- Cloudflare account (for deployment)
-- Stripe account (for payments)
+## Quick start
 
-### Local Development Setup
+```bash
+npm install
+npm run dev:local     # generate config (if needed) + worker at http://localhost:8787
+```
 
-1. **Install dependencies:**
-   \`\`\`bash
-   npm install
-   \`\`\`
+Then:
 
-2. **Start development server:**
-   \`\`\`bash
-   npm run dev
-   \`\`\`
+- Storefront: http://localhost:8787/
+- Admin dashboard: http://localhost:8787/admin — password `local-dev-password`
 
-3. **Build for production:**
-   \`\`\`bash
-   npm run build
-   \`\`\`
+The first `dev:local` run generates local config; seed data next:
 
-## 🏗️ Project Architecture
+```bash
+npm run dev:seed      # idempotent: seeds local KV + local R2 media
+```
 
-### Frontend Structure
-- **React 19** with **Vite** for fast development
-- **Tailwind CSS** for styling
-- **ShadCN/UI** for component library
-- **React Router** for routing
+## Commands
 
-### Backend Structure
-- **Cloudflare Functions** for API endpoints
-- **Cloudflare KV** for data storage
-- **Stripe** for payment processing
+| Command | What it does |
+|---------|--------------|
+| `npm run dev:local` | Generates config if missing, then runs `wrangler dev --local` (foreground) |
+| `npm run dev:seed` | Seeds local KV fixtures + uploads seed SVGs to the local R2 simulation (idempotent) |
+| `npm run dev:fresh` | Wipes `.wrangler/` local state, regenerates config (`--force`), reseeds |
+| `npm run smoke` | Full end-to-end smoke test (`scripts/dev/smoke.sh`) — build, serve, assert, exit 0/1 |
+| `npm run dev:frontend` | Vite dev server only (see HMR workflow below) |
+| `npm test -- --run` | Vitest suite |
+| `npm run lint` | ESLint |
+| `npm run harness:validate` | Docs structure + architecture layer checks |
 
-### New Features Added
-- **Multiple Product Images**: Products can now have multiple images with carousel navigation
-- **Collection Hero Banners**: Collections can have hero banner images for stunning collection pages
-- **Shopping Cart System**: Full-featured cart with persistent storage, quantity management, and responsive design
-  - Desktop: Sliding sidebar from the right (slides back to right when closing)
-  - Mobile: Full-screen overlay sliding from top (slides back to top when closing)
-  - Persistent storage using localStorage
-  - Real-time item count badge on cart button with bounce animation
-  - Natural slide-in/slide-out animations that return to origin point
-- **Gradient Button Effects**: All buttons feature purple-to-blue gradient hover effects with smooth transitions
-- **Store Customization**: Dynamic logo management system allowing text or image logos
-- **Analytics Dashboard**: Real-time Stripe analytics with revenue charts, order tracking, and growth metrics
-- **Enhanced Navigation**: Individual collection links with product dropdown menus on hover
-- **Admin Access**: Admin dashboard accessible only via direct URL (/admin) for security
+## How local dev works
 
-## 📁 File Structure
+`scripts/dev/build-local-config.mjs` generates three gitignored files from
+`template.toml.example` semantics:
 
-\`\`\`
-src/
-├── components/
-│   ├── ui/                 # Reusable UI components (ShadCN)
-│   ├── admin/              # Admin-specific components
-│   └── storefront/         # Storefront-specific components
-├── pages/
-│   ├── admin/              # Admin dashboard pages
-│   └── storefront/         # Public storefront pages
-├── lib/
-│   ├── utils.js            # Utility functions
-│   ├── kv.js              # KV database operations
-│   └── stripe.js          # Stripe client operations
-└── hooks/                  # Custom React hooks
+| File | Purpose |
+|------|---------|
+| `wrangler.toml` | `main = src/worker.js`, `nodejs_compat`, KV binding `YOUR_STORE_KV` (dummy 32-hex id), R2 binding `IMAGES` → bucket `local-images`, `[assets] directory = "dist"` with `ASSETS` binding, `SITE_URL = http://localhost:8787` |
+| `.dev.vars` | Worker-side secrets for `wrangler dev`: `ADMIN_PASSWORD`, `SITE_URL`, `STRIPE_SECRET_KEY` |
+| `.env.local` | Client-side `VITE_` vars read by Vite (e.g. `VITE_STRIPE_PUBLISHABLE_KEY`) |
 
-functions/
-└── api/                    # Cloudflare Functions (API routes)
-    ├── products.js         # Products CRUD
-    ├── collections.js      # Collections CRUD
-    └── create-checkout-session.js
-\`\`\`
+Regeneration is idempotent. A hand-edited `wrangler.toml` (one without the generator
+marker) is never overwritten silently — pass `--force` to replace it.
 
-## 🛠️ Development Workflow
+Everything stays on your machine:
 
-### Adding New Components
+- **KV** is simulated under `.wrangler/state` (scoped to the dummy namespace id, which is
+  constant so seeded data survives regeneration).
+- **R2** is simulated locally in the same state dir; `/api/images/:key` serves objects from it.
+- **Assets**: the worker itself serves `dist/` through the ASSETS binding, exactly like production.
 
-1. **UI Components** (in \`src/components/ui/\`):
-   - Follow ShadCN/UI patterns
-   - Use Tailwind for styling
-   - Export from component file
+### Seeded data
 
-2. **Feature Components** (in \`src/components/admin/\` or \`src/components/storefront/\`):
-   - Import UI components
-   - Handle business logic
-   - Connect to APIs
+`scripts/dev/seed-fixtures.mjs` builds entries matching
+[docs/generated/kv-data-model.md](./docs/generated/kv-data-model.md): 6 products across
+2 collections, 3 media records (`media/seed-*.svg`, served from local R2), store settings,
+and Puck page content for the `home` and `about` slugs. `scripts/dev/seed-local.mjs` writes
+them via `wrangler kv bulk put --local` and also stores an admin token entry
+(`admin_token:<sha256(token)>`, 24h TTL) so API calls work without logging in first.
 
-### Adding New Pages
+Local credentials (safe, never real):
 
-1. Create page component in appropriate folder
-2. Add route to \`src/App.jsx\`
-3. Update navigation if needed
+```
+Admin password: local-dev-password
+Admin token:    local-dev-admin-token
+Stripe secret:  sk_test_local_no_network   (reserved sentinel)
+Publishable:    pk_test_local_no_network
+```
 
-### Adding New API Endpoints
+## Optional HMR workflow
 
-1. Create function in \`functions/api/\`
-2. Export HTTP method handlers (\`onRequestGet\`, \`onRequestPost\`, etc.)
-3. Use KV operations from \`src/lib/kv.js\`
-4. Handle errors appropriately
+By default the worker serves both API and built assets — no Vite server involved. For
+frontend hot reload while keeping the worker's API:
 
-## 🎨 Styling Guidelines
+```bash
+DEV_API_PROXY=1 npm run dev:frontend   # vite on :5173, /api proxied to :8787
+npm run dev:local                      # in another terminal
+```
 
-### Tailwind CSS Classes
-- Use semantic class names
-- Follow mobile-first responsive design
-- Use Tailwind's color palette
+The proxy exists in `vite.config.js` but is inert unless `DEV_API_PROXY` is set.
 
-### Component Styling
-- Use \`cn()\` utility for conditional classes
-- Follow ShadCN/UI patterns for consistency
-- Keep components visually consistent
+## Smoke test
 
-## 🔧 Configuration
+```bash
+npm run smoke
+```
 
-### Environment Variables
-Create \`.env\` file with:
-\`\`\`env
-CLOUDFLARE_API_TOKEN=your_token
-CLOUDFLARE_ACCOUNT_ID=your_account_id
-STRIPE_SECRET_KEY=sk_test_...
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
-SITE_URL=http://localhost:5173
-\`\`\`
+Generates config → builds the frontend → seeds → starts `wrangler dev --local` headless →
+asserts: `GET /` returns 200 HTML with expected markup; `GET /api/products` returns ≥6
+products; `GET /api/collections` returns ≥2; `GET /api/store-settings` returns 200;
+`POST /api/admin/login` returns a token; `POST /api/admin/products` creates and
+`DELETE` cleans up (exercising the Stripe degradation path) → kills the worker → exit 0.
 
-### Wrangler Configuration
-The \`wrangler.toml\` file configures:
-- KV namespace bindings
-- Environment variables
-- Pages project settings
+## Known limitations (local mode)
 
-## 🧪 Testing
+- **Real Stripe payment redirect unavailable.** Checkout requires a real Stripe key;
+  with the reserved `sk_test_local_no_network` sentinel, remote product/price sync is
+  skipped (logged once) while KV writes continue, so admin CRUD works offline. Any other
+  key value behaves normally.
+- **R2 is simulated locally** — objects live in `.wrangler/state`, not any real bucket.
+- **Google Drive OAuth / AI features** are not usable locally (no real credentials).
+- **Stripe-backed analytics** return nothing without a real key.
 
-### Manual Testing
-1. **Admin Dashboard:**
-   - Create/edit/delete products
-   - Create/edit/delete collections
-   - Verify Stripe integration
+## Testing
 
-2. **Storefront:**
-   - Browse products
-   - Filter by collections
-   - Test checkout flow
+```bash
+npm test -- --run          # unit + integration (vitest)
+bash scripts/dev/smoke.sh  # end-to-end against a real local worker
+```
 
-### API Testing
-Use tools like Postman or curl to test API endpoints:
-\`\`\`bash
-# Get all products
-curl http://localhost:5173/api/products
+Harness tests live in `tests/harness/`; docs/architecture rules are enforced by
+`npm run harness:validate`. See [docs/HARNESS.md](./docs/HARNESS.md) and
+[docs/TESTING.md](./docs/TESTING.md).
 
-# Create a product
-curl -X POST http://localhost:5173/api/products \\
-  -H "Content-Type: application/json" \\
-  -d '{"name":"Test Product","price":10.00}'
-\`\`\`
+## Deployment
 
-## 🚀 Deployment
-
-### Production Deployment
-\`\`\`bash
-# One-time setup
-npm run setup
-
-# Deploy updates
-npm run deploy
-\`\`\`
-
-### Development Deployment
-\`\`\`bash
-# Test with Wrangler locally
-npm run functions:dev
-\`\`\`
-
-## 🐛 Common Issues
-
-### Build Warnings
-- Node.js version warnings can be ignored for now
-- Ensure all imports are correct
-
-### API Issues
-- Check KV namespace is properly bound
-- Verify environment variables are set
-- Check Cloudflare Functions logs
-
-### Stripe Issues
-- Verify API keys are correct
-- Check webhook endpoints (if using)
-- Test with Stripe test mode first
-
-## 📚 Resources
-
-- [Cloudflare Pages Documentation](https://developers.cloudflare.com/pages/)
-- [Cloudflare KV Documentation](https://developers.cloudflare.com/workers/runtime-apis/kv/)
-- [Stripe API Documentation](https://stripe.com/docs/api)
-- [ShadCN/UI Documentation](https://ui.shadcn.com/)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-
-## 🤝 Contributing
-
-1. Follow the existing code style
-2. Test your changes thoroughly
-3. Update documentation if needed
-4. Submit clear pull requests
-
-Happy coding! 🎉
+Local development never touches Cloudflare. To deploy for real, see
+[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) and [docs/CONFIGURATION.md](./docs/CONFIGURATION.md).

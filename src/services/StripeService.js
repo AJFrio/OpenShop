@@ -2,8 +2,22 @@
 import Stripe from 'stripe'
 import { SHIPPING_COUNTRIES } from '../config/index.js'
 
+// Reserved local-dev sentinel from scripts/dev/build-local-config.mjs (.dev.vars).
+// Exact match only: skips remote Stripe sync offline; every other key behaves normally.
+export const LOCAL_NO_NETWORK_STRIPE_KEY = 'sk_test_local_no_network'
+
+let warnedNoNetworkOnce = false
+function warnNoNetworkOnce() {
+  if (!warnedNoNetworkOnce) {
+    console.warn('[StripeService] STRIPE_SECRET_KEY is the local no-network sentinel; skipping remote Stripe sync (KV writes continue)')
+    warnedNoNetworkOnce = true
+  }
+}
+
 export class StripeService {
   constructor(secretKey, siteUrl) {
+    this.secretKey = secretKey
+    this.isLocalNoNetwork = secretKey === LOCAL_NO_NETWORK_STRIPE_KEY
     this.stripe = new Stripe(secretKey)
     this.siteUrl = siteUrl
   }
@@ -12,21 +26,26 @@ export class StripeService {
    * Create a Stripe product
    */
   async createProduct(productData) {
-    const stripeImages = Array.isArray(productData.images) 
-      ? productData.images 
+    if (this.isLocalNoNetwork) {
+      warnNoNetworkOnce()
+      return { id: 'prod_local_no_network', name: productData.name, active: true }
+    }
+
+    const stripeImages = Array.isArray(productData.images)
+      ? productData.images
       : (productData.imageUrl ? [productData.imageUrl] : [])
-    
+
     const productParams = {
       name: productData.name,
       images: stripeImages.slice(0, 8),
       type: 'good',
       tax_code: 'txcd_99999999', // Physical goods tax code
     }
-    
+
     if (productData.description && String(productData.description).trim() !== '') {
       productParams.description = String(productData.description)
     }
-    
+
     return await this.stripe.products.create(productParams)
   }
 
@@ -34,6 +53,11 @@ export class StripeService {
    * Update a Stripe product
    */
   async updateProduct(productId, updates) {
+    if (this.isLocalNoNetwork) {
+      warnNoNetworkOnce()
+      return { id: productId }
+    }
+
     const updateParams = {
       name: updates.name,
       images: updates.images?.slice(0, 8) || [],
@@ -53,6 +77,10 @@ export class StripeService {
    * Archive a Stripe product
    */
   async archiveProduct(productId) {
+    if (this.isLocalNoNetwork) {
+      warnNoNetworkOnce()
+      return { id: productId, active: false }
+    }
     return await this.stripe.products.update(productId, { active: false })
   }
 
@@ -60,6 +88,10 @@ export class StripeService {
    * Create a Stripe price
    */
   async createPrice(params) {
+    if (this.isLocalNoNetwork) {
+      warnNoNetworkOnce()
+      return { id: 'price_local_no_network' }
+    }
     return await this.stripe.prices.create({
       unit_amount: Math.round(params.amount * 100),
       currency: params.currency,
@@ -73,6 +105,10 @@ export class StripeService {
    * Archive a Stripe price
    */
   async archivePrice(priceId) {
+    if (this.isLocalNoNetwork) {
+      warnNoNetworkOnce()
+      return { id: priceId, active: false }
+    }
     return await this.stripe.prices.update(priceId, { active: false })
   }
 

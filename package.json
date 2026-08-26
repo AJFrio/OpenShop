@@ -7,6 +7,10 @@
   "scripts": {
     "dev": "wrangler dev",
     "dev:frontend": "vite",
+    "dev:local": "node scripts/dev/build-local-config.mjs && wrangler dev --local",
+    "dev:seed": "node scripts/dev/seed-local.mjs",
+    "dev:fresh": "rm -rf .wrangler && node scripts/dev/build-local-config.mjs --force && node scripts/dev/seed-local.mjs",
+    "smoke": "bash scripts/dev/smoke.sh",
     "build": "vite build",
     "build:worker": "node scripts/build-worker.js",
     "build:all": "npm run build && npm run build:worker",
