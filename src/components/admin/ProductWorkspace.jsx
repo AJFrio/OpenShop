@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react"
 import { useNavigate, useParams } from "react-router-dom"
+import { registerDirtyGuard } from "../../lib/dirtyGuard"
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card"
 import { Button } from "../ui/button"
 import { Select } from "../ui/select"
@@ -7,6 +8,7 @@ import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
 import { Switch } from "../ui/switch"
 import { RefreshCcw, Plus, Save, Trash2, CheckCircle2, AlertTriangle, Package } from "lucide-react"
+import { AdminImage } from "./AdminImage"
 import {
   AlertDialog,
   AlertDialogContent,
@@ -232,17 +234,12 @@ function ProductListItem({ product, isActive, onSelect, collectionName }) {
       }`}
     >
       <div className="flex gap-3">
-        {previewImage ? (
-          <img
-            src={previewImage}
-            alt={product.name}
-            className="h-12 w-12 flex-shrink-0 rounded-md object-cover"
-          />
-        ) : (
-          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-[var(--admin-bg-secondary)]">
-            <Package className="h-6 w-6 text-[var(--admin-text-muted)]" />
-          </div>
-        )}
+        <AdminImage
+          src={previewImage}
+          alt={product.name}
+          className="h-12 w-12 flex-shrink-0 rounded-md object-cover"
+          fallbackClassName="h-12 w-12 flex-shrink-0 rounded-md"
+        />
         <div className="flex-1 space-y-1">
           <div className="flex items-center justify-between gap-3">
             <span className="font-medium text-[var(--admin-text-primary)] text-sm truncate">
@@ -304,6 +301,20 @@ export function ProductWorkspace() {
   const headerRef = useRef(null)
 
   const isDirty = draftFingerprint(draft) !== draftFingerprint(baselineDraft)
+
+  useEffect(() => {
+    return registerDirtyGuard(() => isDirty)
+  }, [isDirty])
+
+  useEffect(() => {
+    if (!isDirty) return undefined
+    const handleBeforeUnload = (e) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [isDirty])
 
   const collectionLookup = useMemo(() => {
     const map = new Map()

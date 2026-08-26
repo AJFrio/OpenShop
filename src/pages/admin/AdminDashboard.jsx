@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { isAdminAuthenticated, clearAdminToken } from '../../lib/auth'
 import { AdminLogin } from '../../components/admin/AdminLogin'
 import { AdminLayout } from './AdminLayout'
@@ -59,7 +59,7 @@ export function AdminDashboard() {
         <Route path="products/:productId" element={<ProductsPage />} />
         <Route path="collections" element={<CollectionsPage />} />
         <Route path="fulfillment" element={<FulfillmentPage />} />
-        <Route path="Fulfillment" element={<FulfillmentPage />} />
+        <Route path="Fulfillment" element={<Navigate to="/admin/fulfillment" replace />} />
         <Route path="media" element={<MediaLibraryPage />} />
         <Route path="store-settings" element={<StoreSettingsPage />} />
         <Route path="pages" element={<PagesPage />} />

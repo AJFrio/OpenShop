@@ -288,7 +288,10 @@ export function FulfillmentPage() {
         </div>
       ) : error ? (
         <Card>
-          <CardContent className="p-6 text-[var(--admin-error)]">{error}</CardContent>
+          <CardContent className="p-6 text-center">
+            <p className="text-[var(--admin-error)] mb-4">{error}</p>
+            <Button variant="outline" size="sm" onClick={fetchOrders}>Retry</Button>
+          </CardContent>
         </Card>
       ) : orders.length === 0 ? (
         <Card>
@@ -335,6 +338,15 @@ export function FulfillmentPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
+                        <span
+                          className={`mb-1 inline-flex w-fit items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                            order.fulfillment?.fulfilled
+                              ? 'bg-[var(--admin-success-bg)] text-[var(--admin-success)]'
+                              : 'bg-[var(--admin-bg-elevated)] text-[var(--admin-text-secondary)]'
+                          }`}
+                        >
+                          {order.fulfillment?.fulfilled ? 'Fulfilled' : 'Open'}
+                        </span>
                         <span className="text-xs text-[var(--admin-text-muted)]">
                           {new Date(order.created * 1000).toLocaleString()}
                         </span>
