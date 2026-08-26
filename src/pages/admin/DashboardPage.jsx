@@ -7,7 +7,7 @@ import { MetricCard, RecentOrdersCard } from '../../components/admin/AnalyticsCa
 import { AgentChat } from '../../components/admin/AgentChat'
 import { formatCurrency } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
-import { Package, Edit, DollarSign, ShoppingBag, BarChart3 } from 'lucide-react'
+import { Package, Edit, DollarSign, ShoppingBag, BarChart3, Plus } from 'lucide-react'
 
 export function DashboardPage() {
   const [stats, setStats] = useState({
@@ -17,6 +17,7 @@ export function DashboardPage() {
   })
   const [analytics, setAnalytics] = useState(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(true)
+  const [analyticsError, setAnalyticsError] = useState(false)
   const [selectedPeriod, setSelectedPeriod] = useState('30d')
 
   useEffect(() => {
@@ -47,15 +48,18 @@ export function DashboardPage() {
   const fetchAnalytics = async () => {
     try {
       setAnalyticsLoading(true)
+      setAnalyticsError(false)
       const response = await adminApiRequest(`/api/admin/analytics?period=${selectedPeriod}`)
       if (response.ok) {
         const data = await response.json()
         setAnalytics(data)
       } else {
         console.error('Failed to fetch analytics')
+        setAnalyticsError(true)
       }
     } catch (error) {
       console.error('Error fetching analytics:', error)
+      setAnalyticsError(true)
     } finally {
       setAnalyticsLoading(false)
     }
@@ -87,14 +91,47 @@ export function DashboardPage() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Link to="/admin/products/new" className="contents">
+          <Button variant="outline" className="h-11 text-sm">
+            <Plus className="w-4 h-4 mr-2" />
+            New product
+          </Button>
+        </Link>
+        <Link to="/admin/fulfillment" className="contents">
+          <Button variant="outline" className="h-11 text-sm">
+            <ShoppingBag className="w-4 h-4 mr-2" />
+            Manage orders
+          </Button>
+        </Link>
+        <Link to="/admin/collections" className="contents">
+          <Button variant="outline" className="h-11 text-sm">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Collections
+          </Button>
+        </Link>
+      </div>
+
       {analyticsLoading ? (
         <div className="flex items-center justify-center h-64">
           <div className="admin-spinner"></div>
           <span className="ml-3 text-[var(--admin-text-secondary)]">Loading analytics...</span>
         </div>
+      ) : analyticsError ? (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <BarChart3 className="w-12 h-12 text-[var(--admin-border-secondary)] mx-auto mb-4" />
+            <h3 className="text-base font-medium text-[var(--admin-text-primary)] mb-2">Couldn't load analytics</h3>
+            <p className="text-[var(--admin-text-secondary)] text-sm mb-4">
+              Something went wrong while loading analytics data.
+            </p>
+            <Button variant="outline" size="sm" onClick={fetchAnalytics}>Retry</Button>
+          </CardContent>
+        </Card>
       ) : analytics ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <MetricCard title="Products" value={stats.totalProducts} icon={Package} />
             <MetricCard
               title="Total Revenue"
               value={analytics.totalRevenue}
@@ -114,7 +151,6 @@ export function DashboardPage() {
               icon={BarChart3}
               prefix="$"
             />
-            <MetricCard title="Products" value={stats.totalProducts} icon={Package} />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -131,12 +167,15 @@ export function DashboardPage() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-base font-semibold text-[var(--admin-text-primary)]">Recent Products</h3>
-                  <Package className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                  <Link to="/admin/products" className="text-xs text-[var(--admin-accent-light)] hover:underline">View all</Link>
                 </div>
                 {stats.recentProducts.length === 0 ? (
                   <div className="text-center py-8">
                     <Package className="w-12 h-12 text-[var(--admin-border-secondary)] mx-auto mb-3" />
-                    <p className="text-[var(--admin-text-muted)]">No products created yet.</p>
+                    <p className="text-[var(--admin-text-muted)] mb-3">No products created yet.</p>
+                    <Link to="/admin/products/new">
+                      <Button size="sm" variant="outline">Create your first product</Button>
+                    </Link>
                   </div>
                 ) : (
                   <div className="space-y-3">
