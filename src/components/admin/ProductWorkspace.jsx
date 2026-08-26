@@ -1231,11 +1231,11 @@ export function ProductWorkspace() {
 
       {modalImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
           onClick={() => setModalImage(null)}
         >
           <div
-            className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-lg bg-[var(--admin-bg-card)] shadow-[var(--admin-shadow-xl)] border border-[var(--admin-border-primary)]"
+            className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-lg bg-[var(--admin-bg-card)] shadow-[var(--admin-shadow-lg)] border border-[var(--admin-border-primary)]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[var(--admin-border-primary)] px-4 py-3">

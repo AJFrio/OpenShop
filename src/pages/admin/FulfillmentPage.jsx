@@ -395,7 +395,7 @@ export function FulfillmentPage() {
 
       {isModalOpen && selectedOrder && (
         <div
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
           onClick={() => setIsModalOpen(false)}
         >
           <div
