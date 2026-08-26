@@ -34,7 +34,7 @@ DRIVE_ROOT_FOLDER=OpenShop
 # products, collections, and pages on behalf of the merchant.
 OPENROUTER_API_KEY=your_openrouter_api_key
 # Optional: override the default agent model (any OpenRouter model ID)
-OPENROUTER_MODEL=stealth/ox-alpha
+OPENROUTER_MODEL=z-ai/glm-5.3-flash
 ```
 
 ## Cloudflare Setup
