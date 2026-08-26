@@ -16,7 +16,7 @@ export function setAgentApp(app) {
 }
 
 const OPENROUTER_BASE = 'https://openrouter.ai/api/v1'
-const DEFAULT_MODEL = 'stealth/ox-alpha'
+const DEFAULT_MODEL = 'z-ai/glm-5.3-flash'
 const MAX_TOOL_ITERATIONS = 8
 
 const PAGE_COMPONENTS_DOC = `Page builder components (each content item is { "type": string, "props": object }):
