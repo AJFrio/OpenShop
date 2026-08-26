@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-08-25T23:54:24Z
+// Worker Bundle - Built 2026-08-26T18:01:34Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -12260,11 +12260,22 @@ var Stripe = createStripe(new WebPlatformFunctions());
 var stripe_esm_worker_default = Stripe;
 
 // src/services/StripeService.js
+var LOCAL_NO_NETWORK_STRIPE_KEY = "sk_test_local_no_network";
+var warnedNoNetworkOnce = false;
+function warnNoNetworkOnce() {
+  if (!warnedNoNetworkOnce) {
+    console.warn("[StripeService] STRIPE_SECRET_KEY is the local no-network sentinel; skipping remote Stripe sync (KV writes continue)");
+    warnedNoNetworkOnce = true;
+  }
+}
+__name(warnNoNetworkOnce, "warnNoNetworkOnce");
 var StripeService = class {
   static {
     __name(this, "StripeService");
   }
   constructor(secretKey, siteUrl) {
+    this.secretKey = secretKey;
+    this.isLocalNoNetwork = secretKey === LOCAL_NO_NETWORK_STRIPE_KEY;
     this.stripe = new stripe_esm_worker_default(secretKey);
     this.siteUrl = siteUrl;
   }
@@ -12272,6 +12283,10 @@ var StripeService = class {
    * Create a Stripe product
    */
   async createProduct(productData) {
+    if (this.isLocalNoNetwork) {
+      warnNoNetworkOnce();
+      return { id: "prod_local_no_network", name: productData.name, active: true };
+    }
     const stripeImages = Array.isArray(productData.images) ? productData.images : productData.imageUrl ? [productData.imageUrl] : [];
     const productParams = {
       name: productData.name,
@@ -12289,6 +12304,10 @@ var StripeService = class {
    * Update a Stripe product
    */
   async updateProduct(productId, updates) {
+    if (this.isLocalNoNetwork) {
+      warnNoNetworkOnce();
+      return { id: productId };
+    }
     const updateParams = {
       name: updates.name,
       images: updates.images?.slice(0, 8) || []
@@ -12305,12 +12324,20 @@ var StripeService = class {
    * Archive a Stripe product
    */
   async archiveProduct(productId) {
+    if (this.isLocalNoNetwork) {
+      warnNoNetworkOnce();
+      return { id: productId, active: false };
+    }
     return await this.stripe.products.update(productId, { active: false });
   }
   /**
    * Create a Stripe price
    */
   async createPrice(params) {
+    if (this.isLocalNoNetwork) {
+      warnNoNetworkOnce();
+      return { id: "price_local_no_network" };
+    }
     return await this.stripe.prices.create({
       unit_amount: Math.round(params.amount * 100),
       currency: params.currency,
@@ -12323,6 +12350,10 @@ var StripeService = class {
    * Archive a Stripe price
    */
   async archivePrice(priceId) {
+    if (this.isLocalNoNetwork) {
+      warnNoNetworkOnce();
+      return { id: priceId, active: false };
+    }
     return await this.stripe.prices.update(priceId, { active: false });
   }
   /**
