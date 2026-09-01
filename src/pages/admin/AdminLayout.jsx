@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { confirmLeaveIfDirty } from '../../lib/dirtyGuard'
 import { Button } from '../../components/ui/button'
@@ -11,6 +12,7 @@ import {
   LayoutTemplate,
   LogOut,
   Store,
+  CreditCard,
 } from 'lucide-react'
 
 const menuItems = [
@@ -32,6 +34,21 @@ function isNavActive(pathname, item) {
 
 export function AdminLayout({ onLogout }) {
   const location = useLocation()
+  const [paymentsEnabled, setPaymentsEnabled] = useState(true)
+
+  // Catalogue-only mode: a store with no STRIPE_SECRET_KEY can still be built
+  // out, but cannot take money. Say so once, at the top, rather than letting
+  // it surface as a failed checkout later.
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/payments-status')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data) setPaymentsEnabled(data.paymentsEnabled !== false)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--admin-bg-primary)] admin-container lg:flex-row">
@@ -85,6 +102,25 @@ export function AdminLayout({ onLogout }) {
         </div>
       </div>
       <div className="flex-1 overflow-auto p-4 sm:p-5">
+        {!paymentsEnabled && (
+          <div
+            role="status"
+            className="mb-4 flex items-start gap-3 rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-card)] p-3.5"
+          >
+            <CreditCard className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--admin-text-muted)]" />
+            <div className="text-sm">
+              <p className="font-medium text-[var(--admin-text-primary)]">
+                Payments are not set up yet
+              </p>
+              <p className="mt-0.5 text-[var(--admin-text-secondary)]">
+                You can add and edit products, but customers cannot check out.
+                Set <code>STRIPE_SECRET_KEY</code> on the Worker to start
+                accepting payments; products created now sync to Stripe the
+                next time they are saved.
+              </p>
+            </div>
+          </div>
+        )}
         <Outlet />
       </div>
     </div>
