@@ -1,7 +1,7 @@
 // Admin product routes
 import { Hono } from 'hono'
 import { ProductService } from '../../services/ProductService.js'
-import { StripeService } from '../../services/StripeService.js'
+import { StripeService, UNLINKED_PRODUCT_ID } from '../../services/StripeService.js'
 import { ProductStripeService } from '../../services/ProductStripeService.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
@@ -57,6 +57,22 @@ router.put('/:id', asyncHandler(async (c) => {
   const productStripeService = new ProductStripeService(stripeService)
 
   const existingProduct = await productService.getProduct(c.req.param('id'))
+
+  // A product created while the store had no Stripe key carries placeholder
+  // ids. Once a key is configured, the first save creates it in Stripe for
+  // real — updating `prod_unlinked` would 404, since it never existed there.
+  const isUnlinked = !existingProduct.stripeProductId ||
+    existingProduct.stripeProductId === UNLINKED_PRODUCT_ID
+  if (isUnlinked && stripeService.isConfigured) {
+    const merged = { ...existingProduct, ...updates }
+    const { stripeProduct, basePrice, variantPrices } =
+      await productStripeService.createProductWithPrices(merged)
+    updates.stripeProductId = stripeProduct.id
+    updates.stripePriceId = basePrice?.id || Object.values(variantPrices)[0] || ''
+    updates.variantPrices = variantPrices
+    const backfilled = await productService.updateProduct(c.req.param('id'), updates)
+    return c.json(backfilled)
+  }
 
   // Update Stripe product if necessary
   if (updates.name || updates.description !== undefined || updates.images || updates.imageUrl) {

@@ -21,6 +21,7 @@ import storageRouter from './admin/storage.js'
 import settingsRouter from './admin/settings.js'
 import aiRouter from './admin/ai.js'
 import agentRouter, { setAgentApp } from './admin/agent.js'
+import { isStripeConfigured } from '../services/StripeService.js'
 
 /**
  * Register all routes on the app
@@ -34,6 +35,15 @@ export function registerRoutes(app) {
   // Health check
   app.get('/api/health', (c) => {
     return c.json({ status: 'healthy', timestamp: new Date().toISOString() })
+  })
+
+  // Whether the store can take money yet.
+  //
+  // Public because the storefront needs it to decide whether to render a Buy
+  // button, and it reveals nothing sensitive: only that a key is or is not
+  // present, never the key itself.
+  app.get('/api/payments-status', (c) => {
+    return c.json({ paymentsEnabled: isStripeConfigured(c.env.STRIPE_SECRET_KEY) })
   })
 
   // Public API routes
