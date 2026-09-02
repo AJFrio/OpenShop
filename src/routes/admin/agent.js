@@ -271,8 +271,12 @@ async function dispatch(c, path, init = {}) {
   return { status: res.status, ok: res.ok, body }
 }
 
-function summarizeResult(action, result) {
-  const b = result.body
+export function summarizeResult(action, result) {
+  // Tool handlers return { status, data }; `body` is the shape dispatch()
+  // uses internally. Reading the wrong one made every summary report
+  // `undefined` — "Created product "undefined" (undefined)" — even when the
+  // product was created correctly, which reads exactly like a failure.
+  const b = result.data ?? result.body
   if (!result.ok) {
     const detail = b?.error || `HTTP ${result.status}`
     return `Failed: ${detail}`

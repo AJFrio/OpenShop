@@ -88,6 +88,22 @@ describe('Merch prompt composition', () => {
   })
 })
 
+describe('Agent action summaries', () => {
+  it('reports the created product, not undefined', async () => {
+    // Regression: summarizeResult read result.body, but tool handlers return
+    // { status, data }. Every summary said "undefined", which reads as a
+    // failure even when the product was created correctly.
+    const { summarizeResult } = await import('../../src/routes/admin/agent.js')
+
+    const summary = summarizeResult(
+      { tool: 'create_product', args: {} },
+      { ok: true, data: { id: 'abc', name: 'Pine Tee' } },
+    )
+    expect(summary).toContain('Pine Tee')
+    expect(summary).not.toContain('undefined')
+  })
+})
+
 describe('POST /api/admin/ai/generate-merch-image', () => {
   let app
   let env
