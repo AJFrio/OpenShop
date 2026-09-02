@@ -18,6 +18,42 @@ From the admin media picker, you can:
 - Generate hero banner images for collections
 - Create custom images without leaving the admin
 
+### Providers
+
+Image generation runs through one of two providers, set by `IMAGE_PROVIDER`
+in **Developer Settings**:
+
+**`gemini`** (default) — talks to Google directly. The cheapest route to
+Nano Banana 2, since OpenRouter charges the same token rate but adds a ~5.5%
+fee on credit purchases. Needs `GEMINI_API_KEY`. Model is
+`gemini-3.1-flash-image`, overridable with `GEMINI_IMAGE_MODEL`.
+
+**`openrouter`** — reaches ~48 image models from ByteDance, Black Forest
+Labs, Qwen, Recraft, Sourceful and Google behind one key. Needs
+`OPENROUTER_API_KEY`. Model is `google/gemini-3.1-flash-image`, overridable
+with `OPENROUTER_IMAGE_MODEL`.
+
+With no explicit provider, whichever key is present is used.
+
+**Choosing a model.** Approximate per-image list prices, all supporting at
+least the 4 reference images the admin UI sends:
+
+| Model | Price |
+|---|---|
+| `black-forest-labs/flux.2-klein-4b` | $0.014 |
+| `sourceful/riverflow-v2.5-fast` | $0.019 |
+| `qwen/qwen-image-3` | $0.030 |
+| `google/gemini-3.1-flash-lite-image` | $0.034 |
+| `bytedance-seed/seedream-5-0-lite` | $0.035 |
+| `google/gemini-3.1-flash-image` | $0.067 |
+
+Cheaper is not automatically better. Reported text-rendering quality varies a
+lot, and some low-cost models render body text poorly — worth testing on your
+own prompts before switching, especially for apparel mockups with printed
+logos. Check a model's reference-image limit at
+`https://openrouter.ai/api/v1/images/models/<id>/endpoints`; several accept
+only one.
+
 ### Setup
 
 1. **Get Gemini API Key**

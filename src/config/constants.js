@@ -51,6 +51,7 @@ export const KV_KEYS = {
   DRIVE_TOKEN: 'drive:oauth:tokens',
   DRIVE_FOLDER_PREFIX: 'drive:folder',
   ADMIN_TOKEN_PREFIX: 'admin_token:',
+  DEVELOPER_SETTINGS: 'developer:settings',
 }
 
 // Theme validation constants

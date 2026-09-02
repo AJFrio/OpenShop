@@ -5,6 +5,7 @@ import { StripeService } from '../../services/StripeService.js'
 import { ProductStripeService } from '../../services/ProductStripeService.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
+import { resolveSetting } from '../../services/DeveloperSettingsService.js'
 
 const router = new Hono()
 
@@ -21,7 +22,10 @@ router.post('/', asyncHandler(async (c) => {
   const productData = await c.req.json()
   const kvNamespace = getKVNamespace(c.env)
   const productService = new ProductService(kvNamespace)
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, 'STRIPE_SECRET_KEY'),
+    await resolveSetting(getKVNamespace(c.env), c.env, 'SITE_URL'),
+  )
   const productStripeService = new ProductStripeService(stripeService)
 
   // Create Stripe product and prices
@@ -53,7 +57,10 @@ router.put('/:id', asyncHandler(async (c) => {
   const updates = await c.req.json()
   const kvNamespace = getKVNamespace(c.env)
   const productService = new ProductService(kvNamespace)
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, 'STRIPE_SECRET_KEY'),
+    await resolveSetting(getKVNamespace(c.env), c.env, 'SITE_URL'),
+  )
   const productStripeService = new ProductStripeService(stripeService)
 
   const existingProduct = await productService.getProduct(c.req.param('id'))
@@ -107,7 +114,10 @@ router.put('/:id', asyncHandler(async (c) => {
 router.delete('/:id', asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env)
   const productService = new ProductService(kvNamespace)
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, 'STRIPE_SECRET_KEY'),
+    await resolveSetting(getKVNamespace(c.env), c.env, 'SITE_URL'),
+  )
 
   const existingProduct = await productService.getProduct(c.req.param('id'))
 

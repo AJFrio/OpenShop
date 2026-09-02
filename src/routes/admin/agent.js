@@ -3,6 +3,8 @@
 import { Hono } from 'hono'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError } from '../../utils/errors.js'
+import { resolveSetting } from '../../services/DeveloperSettingsService.js'
+import { getKVNamespace } from '../../utils/kv.js'
 
 const router = new Hono()
 
@@ -27,13 +29,22 @@ const PAGE_COMPONENTS_DOC = `Page builder components (each content item is { "ty
 - ImageTextSection: props { imageUrl, heading, body, imageAlign ("left"|"right") }
 Root props support { title, description } for SEO.`
 
-function buildSystemPrompt() {
+function buildSystemPrompt({ hasReferences = false } = {}) {
   return [
     'You are the OpenShop store agent. You help merchants run their store by managing products, collections, and storefront pages.',
     'Use the provided tools to read and change store data. Prefer listing entities first to find correct IDs/slugs before updating or deleting.',
     'When asked to "change my site", build or edit pages using the page builder components documented below.',
     'Be concise in your replies. Summarize exactly what you created, changed, or deleted.',
     'Prices are decimal amounts (e.g. 19.99) in the store currency (USD unless told otherwise).',
+    'To sell something that needs a picture, call generate_product_image first, then pass the URL '
+      + 'it returns as imageUrl on create_product. Do not invent image URLs.',
+    'When generating an image, fill the model, pose, product and logo fields separately rather than '
+      + 'putting everything in description — each one steers a different part of the picture. '
+      + 'Leave pose blank to keep the pose from the reference image.',
+    hasReferences
+      ? 'The user attached reference images. They are passed to generate_product_image automatically; '
+        + 'you do not need to describe or upload them.'
+      : 'The user attached no reference images, so describe the model, garment and artwork in words.',
     '',
     PAGE_COMPONENTS_DOC,
   ].join('\n')
@@ -77,6 +88,28 @@ const TOOL_DEFINITIONS = [
           collectionId: { type: 'string', description: 'Collection to assign the product to' },
         },
         required: ['name', 'price'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'generate_product_image',
+      description:
+        'Generate a product or merchandise mockup image and store it. Returns a URL to pass '
+        + 'as imageUrl when creating a product. Reference images the user attached are used '
+        + 'automatically; describe who should wear it, the pose, the garment and the artwork '
+        + 'in the matching fields rather than cramming everything into one description.',
+      parameters: {
+        type: 'object',
+        properties: {
+          description: { type: 'string', description: 'Overall description of the desired image' },
+          model: { type: 'string', description: 'Who is wearing the item, e.g. "a young woman with short dark hair"' },
+          pose: { type: 'string', description: 'How they are posed. Leave blank to keep the pose from the reference image.' },
+          product: { type: 'string', description: 'The garment or product, e.g. "a heather grey hoodie"' },
+          logo: { type: 'string', description: 'What is printed on the item' },
+        },
+        required: [],
       },
     },
   },
@@ -238,13 +271,19 @@ async function dispatch(c, path, init = {}) {
   return { status: res.status, ok: res.ok, body }
 }
 
-function summarizeResult(action, result) {
-  const b = result.body
+export function summarizeResult(action, result) {
+  // Tool handlers return { status, data }; `body` is the shape dispatch()
+  // uses internally. Reading the wrong one made every summary report
+  // `undefined` — "Created product "undefined" (undefined)" — even when the
+  // product was created correctly, which reads exactly like a failure.
+  const b = result.data ?? result.body
   if (!result.ok) {
     const detail = b?.error || `HTTP ${result.status}`
     return `Failed: ${detail}`
   }
   switch (action.tool) {
+    case 'generate_product_image':
+      return b?.url ? `Generated an image: ${b.url}` : 'Generated an image'
     case 'create_product':
       return `Created product "${b?.name}" (${b?.id})`
     case 'update_product':
@@ -306,6 +345,22 @@ async function executeTool(c, name, args) {
       if (a.collectionId) payload.collectionId = a.collectionId
       const r = await dispatch(c, '/api/admin/products', { method: 'POST', body: JSON.stringify(payload) })
       return { status: r.status, data: trimProduct(r.body) }
+    }
+    case 'generate_product_image': {
+      // References come from the chat request, not from the model — it never
+      // sees the image bytes, only the URL it gets back.
+      const r = await dispatch(c, '/api/admin/ai/generate-merch-image', {
+        method: 'POST',
+        body: JSON.stringify({
+          description: a.description ?? '',
+          model: a.model ?? '',
+          pose: a.pose ?? '',
+          product: a.product ?? '',
+          logo: a.logo ?? '',
+          references: c.get('merchReferences') || {},
+        }),
+      })
+      return { status: r.status, data: r.body }
     }
     case 'update_product': {
       const payload = {}
@@ -451,7 +506,7 @@ async function callOpenRouter(apiKey, model, messages) {
 
 // GET /api/admin/agent/models - list available OpenRouter models
 router.get('/models', asyncHandler(async (c) => {
-  const apiKey = c.env.OPENROUTER_API_KEY
+  const apiKey = await resolveSetting(getKVNamespace(c.env), c.env, 'OPENROUTER_API_KEY')
   if (!apiKey) {
     return c.json({ models: [], defaultModel: DEFAULT_MODEL, configured: false })
   }
@@ -472,21 +527,28 @@ router.get('/models', asyncHandler(async (c) => {
 
   return c.json({
     models,
-    defaultModel: c.env.OPENROUTER_MODEL || DEFAULT_MODEL,
+    defaultModel: (await resolveSetting(getKVNamespace(c.env), c.env, 'OPENROUTER_MODEL')) || DEFAULT_MODEL,
     configured: true,
   })
 }))
 
 // POST /api/admin/agent/chat - send a conversation, get the agent's reply
 router.post('/chat', asyncHandler(async (c) => {
-  const apiKey = c.env.OPENROUTER_API_KEY
+  const apiKey = await resolveSetting(getKVNamespace(c.env), c.env, 'OPENROUTER_API_KEY')
   if (!apiKey) {
-    throw new ValidationError('OPENROUTER_API_KEY not configured. Add it with "wrangler secret put OPENROUTER_API_KEY".')
+    throw new ValidationError('OpenRouter API key not configured. Add it in Developer Settings.')
   }
 
-  const { messages, model } = await c.req.json()
+  const { messages, model, references } = await c.req.json()
   if (!Array.isArray(messages) || messages.length === 0) {
     throw new ValidationError('messages must be a non-empty array')
+  }
+
+  // Reference images are held on the request, not put in the model's context:
+  // the tool reads them when it runs. Sending base64 through the chat history
+  // would blow the context window and cost a fortune for no benefit.
+  if (references && typeof references === 'object') {
+    c.set('merchReferences', references)
   }
 
   const history = messages
@@ -498,9 +560,17 @@ router.post('/chat', asyncHandler(async (c) => {
     throw new ValidationError('Last message must be from the user')
   }
 
-  const selectedModel = typeof model === 'string' && model.trim() ? model.trim() : (c.env.OPENROUTER_MODEL || DEFAULT_MODEL)
+  const selectedModel = typeof model === 'string' && model.trim() ? model.trim() : ((await resolveSetting(getKVNamespace(c.env), c.env, 'OPENROUTER_MODEL')) || DEFAULT_MODEL)
 
-  const chatMessages = [{ role: 'system', content: buildSystemPrompt() }, ...history]
+  const chatMessages = [
+    {
+      role: 'system',
+      content: buildSystemPrompt({
+        hasReferences: Boolean(references && Object.keys(references).length > 0),
+      }),
+    },
+    ...history,
+  ]
   const actions = []
 
   for (let i = 0; i < MAX_TOOL_ITERATIONS; i++) {
