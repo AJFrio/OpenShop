@@ -18,6 +18,21 @@ From the admin media picker, you can:
 - Generate hero banner images for collections
 - Create custom images without leaving the admin
 
+### Model
+
+Uses `gemini-3.1-flash-image` ("Nano Banana 2"), which is GA and supports
+reference-image conditioning. It replaces `gemini-2.5-flash-image-preview`,
+which Google shut down on 2026-01-15.
+
+Set `GEMINI_IMAGE_MODEL` to override — for example
+`gemini-3.1-flash-lite-image`, which is cheaper but does not accept style or
+character reference images.
+
+Approximate list prices per 1K image at time of writing: `3.1-flash-image`
+$0.067, `3.1-flash-lite-image` $0.034, `3-pro-image` $0.134. Check
+[Gemini API pricing](https://ai.google.dev/gemini-api/docs/pricing) for
+current figures.
+
 ### Setup
 
 1. **Get Gemini API Key**

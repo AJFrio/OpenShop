@@ -34,7 +34,15 @@ router.post('/generate-image', asyncHandler(async (c) => {
     }
   }
 
-  const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent'
+  // gemini-2.5-flash-image-preview was shut down on 2026-01-15; requests to it
+  // now fail. gemini-3.1-flash-image ("Nano Banana 2") is Google's named
+  // replacement, is GA with no announced shutdown date, and supports the
+  // reference images this endpoint already sends.
+  //
+  // Overridable so a store can move to a cheaper or newer model (for example
+  // gemini-3.1-flash-lite-image) without waiting on a release.
+  const model = c.env.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image'
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
   const res = await fetch(endpoint, {
     method: 'POST',
     headers: {
