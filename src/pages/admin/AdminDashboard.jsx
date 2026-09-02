@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Routes, Route } from 'react-router-dom'
 import { isAdminAuthenticated, clearAdminToken } from '../../lib/auth'
 import { AdminLogin } from '../../components/admin/AdminLogin'
 import { AdminLayout } from './AdminLayout'
@@ -10,6 +10,7 @@ import { MediaLibraryPage } from './MediaLibraryPage'
 import { StoreSettingsPage } from './StoreSettingsPage'
 import { PagesPage } from './PagesPage'
 import { FulfillmentPage } from './FulfillmentPage'
+import { DeveloperSettingsPage } from './DeveloperSettingsPage'
 
 export function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -63,6 +64,7 @@ export function AdminDashboard() {
         <Route path="media" element={<MediaLibraryPage />} />
         <Route path="store-settings" element={<StoreSettingsPage />} />
         <Route path="pages" element={<PagesPage />} />
+        <Route path="developer-settings" element={<DeveloperSettingsPage />} />
       </Route>
     </Routes>
   )

@@ -3,6 +3,8 @@ import { Hono } from 'hono'
 import { StripeService } from '../../services/StripeService.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError } from '../../utils/errors.js'
+import { resolveSetting } from '../../services/DeveloperSettingsService.js'
+import { getKVNamespace } from '../../utils/kv.js'
 
 const router = new Hono()
 
@@ -31,7 +33,10 @@ router.post('/create-checkout-session', asyncHandler(async (c) => {
     throw new ValidationError('Price ID is too long')
   }
 
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, 'STRIPE_SECRET_KEY'),
+    await resolveSetting(getKVNamespace(c.env), c.env, 'SITE_URL'),
+  )
   const session = await stripeService.createCheckoutSession(trimmedPriceId)
   return c.json({ sessionId: session.id })
 }))
@@ -83,7 +88,10 @@ router.post('/create-cart-checkout-session', asyncHandler(async (c) => {
     }
   })
 
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, 'STRIPE_SECRET_KEY'),
+    await resolveSetting(getKVNamespace(c.env), c.env, 'SITE_URL'),
+  )
   const session = await stripeService.createCartCheckoutSession(normalizedItems)
   return c.json({ sessionId: session.id })
 }))
@@ -109,7 +117,10 @@ router.get('/checkout-session/:sessionId', asyncHandler(async (c) => {
     throw new ValidationError('Session ID is too long')
   }
   
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, 'STRIPE_SECRET_KEY'),
+    await resolveSetting(getKVNamespace(c.env), c.env, 'SITE_URL'),
+  )
   const session = await stripeService.getCheckoutSession(trimmedSessionId)
   return c.json(session)
 }))

@@ -3,6 +3,8 @@
 import { Hono } from 'hono'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError } from '../../utils/errors.js'
+import { resolveSetting } from '../../services/DeveloperSettingsService.js'
+import { getKVNamespace } from '../../utils/kv.js'
 
 const router = new Hono()
 
@@ -451,7 +453,7 @@ async function callOpenRouter(apiKey, model, messages) {
 
 // GET /api/admin/agent/models - list available OpenRouter models
 router.get('/models', asyncHandler(async (c) => {
-  const apiKey = c.env.OPENROUTER_API_KEY
+  const apiKey = await resolveSetting(getKVNamespace(c.env), c.env, 'OPENROUTER_API_KEY')
   if (!apiKey) {
     return c.json({ models: [], defaultModel: DEFAULT_MODEL, configured: false })
   }
@@ -472,14 +474,14 @@ router.get('/models', asyncHandler(async (c) => {
 
   return c.json({
     models,
-    defaultModel: c.env.OPENROUTER_MODEL || DEFAULT_MODEL,
+    defaultModel: (await resolveSetting(getKVNamespace(c.env), c.env, 'OPENROUTER_MODEL')) || DEFAULT_MODEL,
     configured: true,
   })
 }))
 
 // POST /api/admin/agent/chat - send a conversation, get the agent's reply
 router.post('/chat', asyncHandler(async (c) => {
-  const apiKey = c.env.OPENROUTER_API_KEY
+  const apiKey = await resolveSetting(getKVNamespace(c.env), c.env, 'OPENROUTER_API_KEY')
   if (!apiKey) {
     throw new ValidationError('OPENROUTER_API_KEY not configured. Add it with "wrangler secret put OPENROUTER_API_KEY".')
   }
@@ -498,7 +500,7 @@ router.post('/chat', asyncHandler(async (c) => {
     throw new ValidationError('Last message must be from the user')
   }
 
-  const selectedModel = typeof model === 'string' && model.trim() ? model.trim() : (c.env.OPENROUTER_MODEL || DEFAULT_MODEL)
+  const selectedModel = typeof model === 'string' && model.trim() ? model.trim() : ((await resolveSetting(getKVNamespace(c.env), c.env, 'OPENROUTER_MODEL')) || DEFAULT_MODEL)
 
   const chatMessages = [{ role: 'system', content: buildSystemPrompt() }, ...history]
   const actions = []
