@@ -21,6 +21,7 @@ import storageRouter from './admin/storage.js'
 import settingsRouter from './admin/settings.js'
 import aiRouter from './admin/ai.js'
 import agentRouter, { setAgentApp } from './admin/agent.js'
+import developerSettingsRouter from './admin/developer-settings.js'
 
 /**
  * Register all routes on the app
@@ -57,4 +58,5 @@ export function registerRoutes(app) {
   app.route('/api/admin', settingsRouter) // /api/admin/storefront/theme, etc.
   app.route('/api/admin/ai', aiRouter)
   app.route('/api/admin/agent', agentRouter) // /api/admin/agent/chat, /models
+  app.route('/api/admin/developer-settings', developerSettingsRouter)
 }
