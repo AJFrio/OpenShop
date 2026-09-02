@@ -42,6 +42,10 @@ export const ADMIN_TOKEN_TTL = 86400 // seconds
 export const ADMIN_TOKEN_TTL_MS = 86400000 // milliseconds
 
 // KV key prefixes
+// The password a fresh install ships with. Login reports when it is still in
+// use so the admin panel can require a change before anything else.
+export const DEFAULT_ADMIN_PASSWORD = 'admin123'
+
 export const KV_KEYS = {
   PRODUCTS_LIST: 'products:all',
   COLLECTIONS_LIST: 'collections:all',
@@ -51,6 +55,7 @@ export const KV_KEYS = {
   DRIVE_TOKEN: 'drive:oauth:tokens',
   DRIVE_FOLDER_PREFIX: 'drive:folder',
   ADMIN_TOKEN_PREFIX: 'admin_token:',
+  DEVELOPER_SETTINGS: 'developer:settings',
 }
 
 // Theme validation constants

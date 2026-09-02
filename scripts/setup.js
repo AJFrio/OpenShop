@@ -192,9 +192,16 @@ async function setup() {
       }
     }
     
-    console.log('🔑 Stripe Configuration:\n')
-    stripeSecretKey = await question('Stripe Secret Key: ')
-    stripePublishableKey = await question('Stripe Publishable Key: ')
+    // Stripe is optional: without it the store runs in catalogue-only mode,
+    // where products can be added but checkout is disabled. Onboarding a
+    // Stripe account can take days, and there is no reason to block someone
+    // from building their catalogue in the meantime. Keys can be added later
+    // from the admin panel under Developer Settings.
+    console.log('🔑 Stripe Configuration (optional - press Enter to skip):\n')
+    console.log('   Without these, you can still add products and set up your')
+    console.log('   store, but customers will not be able to check out.\n')
+    stripeSecretKey = await question('Stripe Secret Key (optional): ') || ''
+    stripePublishableKey = await question('Stripe Publishable Key (optional): ') || ''
     
     console.log('\n🔑 AI Configuration (optional - press Enter to skip):\n')
     geminiApiKey = await question('Gemini API Key (optional): ') || ''
@@ -204,6 +211,8 @@ async function setup() {
     productLimit = productLimitInput.trim() ? productLimitInput.trim() : ''
     
     console.log('\n🔑 Admin Access:\n')
+    console.log('   Press Enter to use the default. You will be asked to change')
+    console.log('   it the first time you sign in.\n')
     adminPassword = await question('Admin Password (default: admin123): ') || 'admin123'
   }
   
