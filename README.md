@@ -77,16 +77,29 @@ Perfect for entrepreneurs, developers, and businesses who want a professional on
    - **Project Name** - Unique name for your store
    - **Cloudflare API Token** - [Get token here](https://dash.cloudflare.com/?to=/:account/api-tokens)
    - **Cloudflare Account ID** - Found in your Cloudflare dashboard
-   - **Stripe Keys** - Secret and publishable keys from Stripe dashboard
-   - **Admin Password** - Your secure admin password
+   - *(Optional)* **Stripe Keys** - Press Enter to skip; you can add them later
    - *(Optional)* **Gemini API Key** - For AI image generation
+   - *(Optional)* **Admin Password** - Press Enter for the default
    - *(Optional)* **Google OAuth** - For Google Drive integration
+
+   Only the first three are required. Everything else can be set later from
+   the admin panel under **Developer Settings**, without redeploying.
 
    See [Configuration Guide](docs/CONFIGURATION.md) for detailed setup instructions.
 
 3. **Your Store is Live!**
    
    Access your store at: `https://your-project-name.username.workers.dev`
+
+4. **Sign in and secure it**
+
+   Go to `/admin` and sign in. If you skipped the password prompt, the
+   default is `admin123` — the panel will warn you and require a change
+   before you do anything else.
+
+   Without Stripe keys the store runs in **catalogue-only mode**: you can
+   add products and design the storefront, but checkout stays disabled until
+   you add keys under **Developer Settings**.
    
    Access admin at: `https://your-project-name.username.workers.dev/admin`
 

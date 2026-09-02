@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { confirmLeaveIfDirty } from '../../lib/dirtyGuard'
+import { mustChangePassword } from '../../lib/auth'
 import { Button } from '../../components/ui/button'
 import {
   Package,
@@ -10,6 +11,7 @@ import {
   Image as ImageIcon,
   LayoutTemplate,
   Wrench,
+  ShieldAlert,
   LogOut,
   Store,
 } from 'lucide-react'
@@ -34,6 +36,7 @@ function isNavActive(pathname, item) {
 
 export function AdminLayout({ onLogout }) {
   const location = useLocation()
+  const needsPasswordChange = mustChangePassword()
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--admin-bg-primary)] admin-container lg:flex-row">
@@ -87,6 +90,30 @@ export function AdminLayout({ onLogout }) {
         </div>
       </div>
       <div className="flex-1 overflow-auto p-4 sm:p-5">
+        {needsPasswordChange && location.pathname !== '/admin/developer-settings' && (
+          <div
+            role="alert"
+            className="mb-4 flex items-start gap-3 rounded-md border border-[var(--admin-error)] bg-[var(--admin-error-bg)] p-3.5"
+          >
+            <ShieldAlert className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--admin-error)]" />
+            <div className="text-sm">
+              <p className="font-medium text-[var(--admin-text-primary)]">
+                You are using the default admin password
+              </p>
+              <p className="mt-0.5 text-[var(--admin-text-secondary)]">
+                It is published in the OpenShop README, so anyone can sign in
+                to this store.{' '}
+                <Link
+                  to="/admin/developer-settings"
+                  className="underline hover:text-[var(--admin-text-primary)]"
+                >
+                  Change it now
+                </Link>
+                .
+              </p>
+            </div>
+          </div>
+        )}
         <Outlet />
       </div>
     </div>

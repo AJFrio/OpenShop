@@ -42,6 +42,24 @@ export function clearAdminToken() {
 }
 
 // Check if user is authenticated as admin
+/** Whether the store is still on the default password and must change it. */
+export function mustChangePassword() {
+  try {
+    return sessionStorage.getItem('openshop:must-change-password') === '1'
+  } catch {
+    return false
+  }
+}
+
+/** Clear the forced-change flag once a new password has been set. */
+export function clearMustChangePassword() {
+  try {
+    sessionStorage.removeItem('openshop:must-change-password')
+  } catch {
+    // sessionStorage can be unavailable; the banner simply persists.
+  }
+}
+
 export function isAdminAuthenticated() {
   const token = getAdminToken()
   return token !== null && token.length > 0
@@ -97,9 +115,16 @@ export async function adminLogin(password) {
     })
 
     if (response.ok) {
-      const { token } = await response.json()
+      const { token, mustChangePassword: needsChange } = await response.json()
       setAdminToken(token)
-      return { ok: true }
+      // Remembered for the session so the panel can insist on a change while
+      // the store is still on the published default password.
+      if (needsChange) {
+        sessionStorage.setItem('openshop:must-change-password', '1')
+      } else {
+        sessionStorage.removeItem('openshop:must-change-password')
+      }
+      return { ok: true, mustChangePassword: Boolean(needsChange) }
     }
 
     const errorData = await response.json().catch(() => ({}))
