@@ -1,84 +1,55 @@
-// Admin AI routes (Gemini image generation)
+// Admin AI routes (image generation).
+//
+// The provider is configurable: Gemini directly, or OpenRouter for access to
+// other vendors' models under one key. See ImageGenerationService.
 import { Hono } from 'hono'
 import { asyncHandler } from '../../middleware/errorHandler.js'
-import { ValidationError } from '../../utils/errors.js'
+import { ValidationError, APIError } from '../../utils/errors.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { resolveSetting } from '../../services/DeveloperSettingsService.js'
+import {
+  generateImage,
+  ImageGenerationError,
+} from '../../services/ImageGenerationService.js'
 
 const router = new Hono()
 
-// Generate image via Gemini
 router.post('/generate-image', asyncHandler(async (c) => {
   const { prompt, inputs } = await c.req.json()
-  
+
   if (!prompt || typeof prompt !== 'string') {
     throw new ValidationError('Missing prompt')
   }
-  
-  const kvNamespace = getKVNamespace(c.env)
-  const apiKey = await resolveSetting(kvNamespace, c.env, 'GEMINI_API_KEY')
-  if (!apiKey) {
-    throw new Error('GEMINI_API_KEY not configured')
-  }
 
-  const parts = []
-  parts.push({ text: prompt })
-  
-  if (Array.isArray(inputs)) {
-    for (const item of inputs.slice(0, 4)) {
-      if (item && item.dataBase64 && item.mimeType) {
-        parts.push({
-          inline_data: {
-            mime_type: item.mimeType,
-            data: item.dataBase64
-          }
-        })
-      }
-    }
-  }
+  const kv = getKVNamespace(c.env)
+  const [provider, geminiApiKey, openRouterApiKey, geminiModel, openRouterModel, siteUrl] =
+    await Promise.all([
+      resolveSetting(kv, c.env, 'IMAGE_PROVIDER'),
+      resolveSetting(kv, c.env, 'GEMINI_API_KEY'),
+      resolveSetting(kv, c.env, 'OPENROUTER_API_KEY'),
+      resolveSetting(kv, c.env, 'GEMINI_IMAGE_MODEL'),
+      resolveSetting(kv, c.env, 'OPENROUTER_IMAGE_MODEL'),
+      resolveSetting(kv, c.env, 'SITE_URL'),
+    ])
 
-  const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent'
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'x-goog-api-key': apiKey,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      contents: [ { parts } ]
+  try {
+    const image = await generateImage({
+      provider,
+      geminiApiKey,
+      openRouterApiKey,
+      geminiModel,
+      openRouterModel,
+      prompt,
+      inputs,
+      siteUrl,
     })
-  })
-  
-  if (!res.ok) {
-    const errText = await res.text()
-    console.error('Gemini API error', res.status, errText)
-    throw new Error(`Gemini API failed: ${errText}`)
-  }
-  
-  const data = await res.json()
-  const candidates = data?.candidates || []
-  let foundBase64 = null
-  let mime = 'image/png'
-  
-  for (const cand of candidates) {
-    const parts = cand?.content?.parts || []
-    for (const p of parts) {
-      const inlineA = p?.inlineData || p?.inline_data
-      if (inlineA && inlineA.data) {
-        foundBase64 = inlineA.data
-        mime = inlineA.mimeType || inlineA.mime_type || mime
-        break
-      }
+    return c.json(image)
+  } catch (error) {
+    if (error instanceof ImageGenerationError) {
+      throw new APIError(error.message, error.statusCode)
     }
-    if (foundBase64) break
+    throw error
   }
-  
-  if (!foundBase64) {
-    throw new Error('No image returned from Gemini')
-  }
-  
-  return c.json({ mimeType: mime, dataBase64: foundBase64 })
 }))
 
 export default router
-

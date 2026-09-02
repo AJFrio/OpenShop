@@ -14,6 +14,7 @@
 //
 import { KV_KEYS } from '../config/index.js'
 import { randomHex } from '../utils/crypto.js'
+import { ValidationError } from '../utils/errors.js'
 
 /**
  * Settings that may be written from the admin UI.
@@ -26,7 +27,10 @@ export const DEVELOPER_SETTING_FIELDS = [
   { key: 'STRIPE_SECRET_KEY', label: 'Stripe secret key', secret: true },
   { key: 'GEMINI_API_KEY', label: 'Gemini API key', secret: true },
   { key: 'OPENROUTER_API_KEY', label: 'OpenRouter API key', secret: true },
-  { key: 'OPENROUTER_MODEL', label: 'OpenRouter model', secret: false },
+  { key: 'IMAGE_PROVIDER', label: 'Image provider (gemini or openrouter)', secret: false },
+  { key: 'GEMINI_IMAGE_MODEL', label: 'Gemini image model', secret: false },
+  { key: 'OPENROUTER_IMAGE_MODEL', label: 'OpenRouter image model', secret: false },
+  { key: 'OPENROUTER_MODEL', label: 'OpenRouter model (agent)', secret: false },
   { key: 'SITE_URL', label: 'Site URL', secret: false },
   { key: 'ADMIN_PASSWORD', label: 'Admin password', secret: true, password: true },
 ]
@@ -96,6 +100,11 @@ export class DeveloperSettingsService {
     for (const [key, value] of Object.entries(updates)) {
       const field = FIELDS_BY_KEY.get(key)
       if (!field || field.password) continue // password has its own path
+      // A typo here would otherwise surface much later, as a confusing
+      // "not configured" error at generation time.
+      if (key === 'IMAGE_PROVIDER' && value && !['gemini', 'openrouter'].includes(String(value))) {
+        throw new ValidationError("Image provider must be 'gemini' or 'openrouter'")
+      }
       if (value === '' || value === null || value === undefined) {
         delete stored[key]
       } else {
