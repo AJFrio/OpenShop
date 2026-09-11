@@ -10,6 +10,7 @@ import {
   ShoppingBag,
   Image as ImageIcon,
   LayoutTemplate,
+  Wrench,
   LogOut,
   Store,
   CreditCard,
@@ -23,6 +24,7 @@ const menuItems = [
   { path: '/admin/media', label: 'Media', icon: ImageIcon },
   { path: '/admin/store-settings', label: 'Store Settings', icon: Settings },
   { path: '/admin/pages', label: 'Pages', icon: LayoutTemplate },
+  { path: '/admin/developer-settings', label: 'Developer', icon: Wrench },
 ]
 
 function isNavActive(pathname, item) {

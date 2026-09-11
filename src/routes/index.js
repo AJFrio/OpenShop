@@ -22,6 +22,9 @@ import settingsRouter from './admin/settings.js'
 import aiRouter from './admin/ai.js'
 import agentRouter, { setAgentApp } from './admin/agent.js'
 import { isStripeConfigured } from '../services/StripeService.js'
+import { resolveSetting } from '../services/DeveloperSettingsService.js'
+import { getKVNamespace } from '../utils/kv.js'
+import developerSettingsRouter from './admin/developer-settings.js'
 
 /**
  * Register all routes on the app
@@ -41,9 +44,15 @@ export function registerRoutes(app) {
   //
   // Public because the storefront needs it to decide whether to render a Buy
   // button, and it reveals nothing sensitive: only that a key is or is not
-  // present, never the key itself.
-  app.get('/api/payments-status', (c) => {
-    return c.json({ paymentsEnabled: isStripeConfigured(c.env.STRIPE_SECRET_KEY) })
+  // present, never the key itself. Resolved through Developer Settings so a
+  // key set in the admin panel enables checkout without a redeploy.
+  app.get('/api/payments-status', async (c) => {
+    const stripeKey = await resolveSetting(
+      getKVNamespace(c.env),
+      c.env,
+      'STRIPE_SECRET_KEY',
+    )
+    return c.json({ paymentsEnabled: isStripeConfigured(stripeKey) })
   })
 
   // Public API routes
@@ -67,4 +76,5 @@ export function registerRoutes(app) {
   app.route('/api/admin', settingsRouter) // /api/admin/storefront/theme, etc.
   app.route('/api/admin/ai', aiRouter)
   app.route('/api/admin/agent', agentRouter) // /api/admin/agent/chat, /models
+  app.route('/api/admin/developer-settings', developerSettingsRouter)
 }

@@ -4,13 +4,17 @@ import { AnalyticsService } from '../../services/AnalyticsService.js'
 import { StripeService } from '../../services/StripeService.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
+import { resolveSetting } from '../../services/DeveloperSettingsService.js'
 
 const router = new Hono()
 
 // Get analytics
 router.get('/', asyncHandler(async (c) => {
   const period = c.req.query('period') || '30d'
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, 'STRIPE_SECRET_KEY'),
+    await resolveSetting(getKVNamespace(c.env), c.env, 'SITE_URL'),
+  )
   const kvNamespace = getKVNamespace(c.env)
   const analyticsService = new AnalyticsService(stripeService, kvNamespace)
   const analytics = await analyticsService.getAnalytics(period)
@@ -25,7 +29,10 @@ router.get('/orders', asyncHandler(async (c) => {
   const showFulfilled = c.req.query('showFulfilled') === 'true'
   const fulfillmentStatus = c.req.query('status') || (showFulfilled ? 'fulfilled' : 'open')
 
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL)
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, 'STRIPE_SECRET_KEY'),
+    await resolveSetting(getKVNamespace(c.env), c.env, 'SITE_URL'),
+  )
   const analyticsService = new AnalyticsService(stripeService)
   const kvNamespace = getKVNamespace(c.env)
 

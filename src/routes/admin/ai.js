@@ -2,6 +2,8 @@
 import { Hono } from 'hono'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError } from '../../utils/errors.js'
+import { getKVNamespace } from '../../utils/kv.js'
+import { resolveSetting } from '../../services/DeveloperSettingsService.js'
 
 const router = new Hono()
 
@@ -13,7 +15,8 @@ router.post('/generate-image', asyncHandler(async (c) => {
     throw new ValidationError('Missing prompt')
   }
   
-  const apiKey = c.env.GEMINI_API_KEY
+  const kvNamespace = getKVNamespace(c.env)
+  const apiKey = await resolveSetting(kvNamespace, c.env, 'GEMINI_API_KEY')
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY not configured')
   }
