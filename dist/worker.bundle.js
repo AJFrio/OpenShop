@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-09-11T00:16:43Z
+// Worker Bundle - Built 2026-09-11T00:29:23Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -14464,8 +14464,6 @@ async function generateWithOpenRouter({ apiKey, model, prompt, references, siteU
 }
 __name(generateWithOpenRouter, "generateWithOpenRouter");
 async function generateImage({
-  provider,
-  // eslint-disable-line no-unused-vars
   openRouterApiKey,
   openRouterModel,
   prompt,
