@@ -8,12 +8,71 @@ import {
   Sparkles,
   Wrench,
   AlertCircle,
+  ImagePlus,
+  X,
 } from 'lucide-react'
+
+/**
+ * The four things a merch mockup needs, kept as separate fields.
+ *
+ * One free-text prompt tends to lose whichever of these the model decides to
+ * skip. Naming them separately keeps each addressable, and lets an attached
+ * image be labelled as the model / garment / artwork rather than arriving as
+ * an undifferentiated pile.
+ */
+const DESIGN_FIELDS = [
+  {
+    key: 'model',
+    label: 'Model',
+    placeholder: 'a young woman with short dark hair',
+    help: 'Who is wearing it',
+    image: true,
+  },
+  {
+    key: 'pose',
+    label: 'Pose',
+    placeholder: 'standing, hands in pockets',
+    help: 'Leave blank to keep the pose from the model image',
+    image: false,
+  },
+  {
+    key: 'product',
+    label: 'Product',
+    placeholder: 'a heather grey hoodie',
+    help: 'What you are selling',
+    image: true,
+  },
+  {
+    key: 'logo',
+    label: 'Logo',
+    placeholder: 'the camp crest, centred on the chest',
+    help: 'What goes on the merch',
+    image: true,
+  },
+]
+
+/** Read a File into the { mimeType, dataBase64 } shape the API expects. */
+function readAsReference(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = () => reject(new Error('Could not read the image'))
+    reader.onload = () => {
+      const result = String(reader.result || '')
+      const base64 = result.split(',')[1]
+      if (!base64) {
+        reject(new Error('Could not read the image'))
+        return
+      }
+      resolve({ mimeType: file.type || 'image/png', dataBase64: base64, name: file.name })
+    }
+    reader.readAsDataURL(file)
+  })
+}
 
 const EXAMPLE_PROMPTS = [
   'Add a product called "Classic Tee" for $24.99',
+  'Design a hoodie with our logo and list it for $45',
   'Create a "Summer Sale" collection',
-  'Build a landing page at /sale with a hero and featured products',
 ]
 
 export function AgentChat() {
@@ -24,6 +83,9 @@ export function AgentChat() {
   const [models, setModels] = useState([])
   const [selectedModel, setSelectedModel] = useState('')
   const [configured, setConfigured] = useState(true)
+  const [showDesigner, setShowDesigner] = useState(false)
+  const [design, setDesign] = useState({ model: '', pose: '', product: '', logo: '' })
+  const [references, setReferences] = useState({})
   const scrollRef = useRef(null)
 
   useEffect(() => {
@@ -62,9 +124,19 @@ export function AgentChat() {
       setSending(true)
 
       try {
+        // Strip the display-only `name` before sending; the API wants just
+        // the bytes and type.
+        const payloadReferences = Object.fromEntries(
+          Object.entries(references).map(([role, ref]) => [
+            role,
+            { mimeType: ref.mimeType, dataBase64: ref.dataBase64 },
+          ]),
+        )
+
         const response = await adminAPI.agent.chat({
           messages: nextMessages.map(({ role, content: c }) => ({ role, content: c })),
           model: selectedModel || undefined,
+          references: Object.keys(payloadReferences).length ? payloadReferences : undefined,
         })
         setMessages([
           ...nextMessages,
@@ -76,8 +148,43 @@ export function AgentChat() {
         setSending(false)
       }
     },
-    [input, messages, sending, selectedModel]
+    [input, messages, sending, selectedModel, references]
   )
+
+  const attachReference = useCallback(async (role, file) => {
+    if (!file) return
+    try {
+      const ref = await readAsReference(file)
+      setReferences((prev) => ({ ...prev, [role]: ref }))
+    } catch (err) {
+      setError(err.message)
+    }
+  }, [])
+
+  const clearReference = useCallback((role) => {
+    setReferences((prev) => {
+      const next = { ...prev }
+      delete next[role]
+      return next
+    })
+  }, [])
+
+  /**
+   * Turn the filled fields into a sentence the agent can act on.
+   *
+   * The fields are also sent to the tool, but the agent needs to know what
+   * was asked for in order to decide whether to generate an image at all.
+   */
+  const describeDesign = useCallback(() => {
+    const parts = []
+    if (design.product.trim()) parts.push(`Product: ${design.product.trim()}`)
+    if (design.model.trim()) parts.push(`Model: ${design.model.trim()}`)
+    if (design.pose.trim()) parts.push(`Pose: ${design.pose.trim()}`)
+    if (design.logo.trim()) parts.push(`Logo: ${design.logo.trim()}`)
+    const attached = Object.keys(references)
+    if (attached.length) parts.push(`Reference images attached for: ${attached.join(', ')}`)
+    return parts.join('. ')
+  }, [design, references])
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -203,17 +310,90 @@ export function AgentChat() {
               <p className="text-xs text-[var(--admin-error)] mb-2">{error}</p>
             )}
 
+            {showDesigner && (
+              <div className="mb-3 rounded-md border border-[var(--admin-border-primary)] p-3">
+                <p className="mb-3 text-xs text-[var(--admin-text-secondary)]">
+                  Fill in what you can. Anything left blank is left to the agent,
+                  and an attached image is used as the reference for that field.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {DESIGN_FIELDS.map((field) => (
+                    <div key={field.key}>
+                      <label
+                        htmlFor={`design-${field.key}`}
+                        className="block text-xs font-medium text-[var(--admin-text-primary)]"
+                      >
+                        {field.label}
+                      </label>
+                      <input
+                        id={`design-${field.key}`}
+                        type="text"
+                        value={design[field.key]}
+                        placeholder={field.placeholder}
+                        onChange={(e) => setDesign({ ...design, [field.key]: e.target.value })}
+                        className="mt-1 h-8 w-full rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] px-2 text-sm text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)]"
+                      />
+                      <div className="mt-1 flex items-center justify-between gap-2">
+                        <span className="text-[11px] text-[var(--admin-text-muted)]">{field.help}</span>
+                        {field.image && (
+                          references[field.key] ? (
+                            <button
+                              type="button"
+                              onClick={() => clearReference(field.key)}
+                              className="inline-flex items-center gap-1 text-[11px] text-[var(--admin-text-secondary)] hover:text-[var(--admin-error)]"
+                            >
+                              <X className="h-3 w-3" />
+                              {references[field.key].name || 'image'}
+                            </button>
+                          ) : (
+                            <label className="inline-flex cursor-pointer items-center gap-1 text-[11px] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]">
+                              <ImagePlus className="h-3 w-3" />
+                              Add image
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="sr-only"
+                                onChange={(e) => attachReference(field.key, e.target.files?.[0])}
+                              />
+                            </label>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowDesigner((v) => !v)}
+                aria-pressed={showDesigner}
+                title="Describe a merch design"
+              >
+                <ImagePlus className="w-4 h-4" />
+              </Button>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask the agent to update your store..."
+                placeholder={showDesigner
+                  ? 'Describe what you want to sell, e.g. "list this for $45"'
+                  : 'Ask the agent to update your store...'}
                 rows={1}
                 disabled={sending}
                 className="flex-1 resize-none rounded-md border border-[var(--admin-border-primary)] bg-transparent px-3 py-2 text-sm text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--admin-border-focus)] disabled:opacity-50"
               />
-              <Button size="sm" onClick={() => sendMessage()} disabled={sending || !input.trim()}>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const detail = describeDesign()
+                  sendMessage(detail ? `${input.trim()}\n\n${detail}`.trim() : undefined)
+                }}
+                disabled={sending || (!input.trim() && !describeDesign())}
+              >
                 <Send className="w-4 h-4" />
               </Button>
             </div>

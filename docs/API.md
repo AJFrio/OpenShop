@@ -39,6 +39,7 @@ These endpoints require admin authentication via the `X-Admin-Token` header.
 | `/api/admin/storefront/pages/:slug` | `GET, PUT` | Load or publish Puck page-builder content for `home` or `about` | Admin Token |
 | `/api/analytics` | `GET` | Revenue and order analytics | Admin Token |
 | `/api/admin/ai/generate-image` | `POST` | Generate image via OpenRouter | Admin Token |
+| `/api/admin/ai/generate-merch-image` | `POST` | Generate and store a product mockup (agent designer) | Admin Token |
 | `/api/admin/drive/status` | `GET` | Google Drive connection status | Admin Token |
 | `/api/admin/drive/oauth/start` | `GET` | Begin Google Drive OAuth | None |
 | `/api/admin/drive/oauth/callback` | `GET` | Handle Drive OAuth callback | None |
