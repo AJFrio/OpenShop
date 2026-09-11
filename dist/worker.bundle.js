@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-08-26T18:45:13Z
+// Worker Bundle - Built 2026-09-11T00:14:47Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -5126,20 +5126,20 @@ var SmartRouter = class {
     let i = 0;
     let res;
     for (; i < len; i++) {
-      const router18 = routers[i];
+      const router19 = routers[i];
       try {
         for (let i2 = 0, len2 = routes.length; i2 < len2; i2++) {
-          router18.add(...routes[i2]);
+          router19.add(...routes[i2]);
         }
-        res = router18.match(method, path);
+        res = router19.match(method, path);
       } catch (e) {
         if (e instanceof UnsupportedPathError) {
           continue;
         }
         throw e;
       }
-      this.match = router18.match.bind(router18);
-      this.#routers = [router18];
+      this.match = router19.match.bind(router19);
+      this.#routers = [router19];
       this.#routes = void 0;
       break;
     }
@@ -5536,7 +5536,8 @@ var KV_KEYS = {
   STOREFRONT_PAGE_PREFIX: "storefront:page:",
   DRIVE_TOKEN: "drive:oauth:tokens",
   DRIVE_FOLDER_PREFIX: "drive:folder",
-  ADMIN_TOKEN_PREFIX: "admin_token:"
+  ADMIN_TOKEN_PREFIX: "admin_token:",
+  DEVELOPER_SETTINGS: "developer:settings"
 };
 var THEME_COLOR_KEYS = ["primary", "secondary", "accent", "text", "background", "card"];
 var THEME_RADIUS_MULTIPLIER_MIN = 0;
@@ -5904,16 +5905,19 @@ var KVManager = class {
   }
   // Product operations
   async createProduct(product) {
-    const key = `product:${product.id}`;
+    const id = product.id || crypto.randomUUID();
+    const key = `product:${id}`;
     const productData = {
       ...product,
+      id,
       images: Array.isArray(product.images) ? product.images : product.imageUrl ? [product.imageUrl] : []
     };
     await this.namespace.put(key, JSON.stringify(productData));
     const productIds = await this.namespace.get("products:all");
     const existingIds = productIds ? JSON.parse(productIds) : [];
-    existingIds.push(product.id);
-    await this.namespace.put("products:all", JSON.stringify(existingIds));
+    const cleanedIds = existingIds.filter(Boolean);
+    cleanedIds.push(id);
+    await this.namespace.put("products:all", JSON.stringify(cleanedIds));
     if (productData.collectionId) {
       const collKey = `collection:products:${productData.collectionId}`;
       const collProductIds = await this.namespace.get(collKey);
@@ -5992,13 +5996,16 @@ var KVManager = class {
   }
   // Collection operations
   async createCollection(collection) {
-    const key = `collection:${collection.id}`;
-    await this.namespace.put(key, JSON.stringify(collection));
+    const id = collection.id || crypto.randomUUID();
+    const key = `collection:${id}`;
+    const collectionData = { ...collection, id };
+    await this.namespace.put(key, JSON.stringify(collectionData));
     const collectionIds = await this.namespace.get("collections:all");
     const existingIds = collectionIds ? JSON.parse(collectionIds) : [];
-    existingIds.push(collection.id);
-    await this.namespace.put("collections:all", JSON.stringify(existingIds));
-    return collection;
+    const cleanedIds = existingIds.filter(Boolean);
+    cleanedIds.push(id);
+    await this.namespace.put("collections:all", JSON.stringify(cleanedIds));
+    return collectionData;
   }
   async getCollection(id) {
     const key = `collection:${id}`;
@@ -12261,6 +12268,12 @@ var stripe_esm_worker_default = Stripe;
 
 // src/services/StripeService.js
 var LOCAL_NO_NETWORK_STRIPE_KEY = "sk_test_local_no_network";
+function isStripeConfigured(secretKey) {
+  return typeof secretKey === "string" && secretKey.trim() !== "";
+}
+__name(isStripeConfigured, "isStripeConfigured");
+var UNLINKED_PRODUCT_ID = "prod_unlinked";
+var UNLINKED_PRICE_ID = "price_unlinked";
 var warnedNoNetworkOnce = false;
 function warnNoNetworkOnce() {
   if (!warnedNoNetworkOnce) {
@@ -12269,23 +12282,58 @@ function warnNoNetworkOnce() {
   }
 }
 __name(warnNoNetworkOnce, "warnNoNetworkOnce");
+var warnedNotConfiguredOnce = false;
+function warnNotConfiguredOnce() {
+  if (!warnedNotConfiguredOnce) {
+    console.warn("[StripeService] No STRIPE_SECRET_KEY set; running in catalogue-only mode (products save to KV, checkout is disabled)");
+    warnedNotConfiguredOnce = true;
+  }
+}
+__name(warnNotConfiguredOnce, "warnNotConfiguredOnce");
 var StripeService = class {
   static {
     __name(this, "StripeService");
   }
   constructor(secretKey, siteUrl) {
     this.secretKey = secretKey;
+    this.isConfigured = isStripeConfigured(secretKey);
     this.isLocalNoNetwork = secretKey === LOCAL_NO_NETWORK_STRIPE_KEY;
-    this.stripe = new stripe_esm_worker_default(secretKey);
+    this.stripe = this.isConfigured ? new stripe_esm_worker_default(secretKey) : null;
     this.siteUrl = siteUrl;
+  }
+  /** Whether remote Stripe calls should be skipped for this instance. */
+  get skipsRemoteSync() {
+    return !this.isConfigured || this.isLocalNoNetwork;
+  }
+  /** Emit the one-time warning matching why sync is being skipped. */
+  warnSkip() {
+    if (!this.isConfigured) warnNotConfiguredOnce();
+    else warnNoNetworkOnce();
+  }
+  /**
+   * Refuse checkout when no Stripe account is connected.
+   *
+   * Product writes degrade gracefully in catalogue-only mode, but taking
+   * money must not: without a key there is no account to charge, and the
+   * placeholder price ids in KV do not exist in Stripe. Failing here with an
+   * explicit message beats a TypeError on a null client.
+   */
+  assertCheckoutAvailable() {
+    if (!this.isConfigured) {
+      throw new APIError("This store is not accepting payments yet.", 503);
+    }
   }
   /**
    * Create a Stripe product
    */
   async createProduct(productData) {
-    if (this.isLocalNoNetwork) {
-      warnNoNetworkOnce();
-      return { id: "prod_local_no_network", name: productData.name, active: true };
+    if (this.skipsRemoteSync) {
+      this.warnSkip();
+      return {
+        id: this.isConfigured ? "prod_local_no_network" : UNLINKED_PRODUCT_ID,
+        name: productData.name,
+        active: true
+      };
     }
     const stripeImages = Array.isArray(productData.images) ? productData.images : productData.imageUrl ? [productData.imageUrl] : [];
     const productParams = {
@@ -12304,8 +12352,8 @@ var StripeService = class {
    * Update a Stripe product
    */
   async updateProduct(productId, updates) {
-    if (this.isLocalNoNetwork) {
-      warnNoNetworkOnce();
+    if (this.skipsRemoteSync) {
+      this.warnSkip();
       return { id: productId };
     }
     const updateParams = {
@@ -12324,8 +12372,8 @@ var StripeService = class {
    * Archive a Stripe product
    */
   async archiveProduct(productId) {
-    if (this.isLocalNoNetwork) {
-      warnNoNetworkOnce();
+    if (this.skipsRemoteSync) {
+      this.warnSkip();
       return { id: productId, active: false };
     }
     return await this.stripe.products.update(productId, { active: false });
@@ -12334,9 +12382,9 @@ var StripeService = class {
    * Create a Stripe price
    */
   async createPrice(params) {
-    if (this.isLocalNoNetwork) {
-      warnNoNetworkOnce();
-      return { id: "price_local_no_network" };
+    if (this.skipsRemoteSync) {
+      this.warnSkip();
+      return { id: this.isConfigured ? "price_local_no_network" : UNLINKED_PRICE_ID };
     }
     return await this.stripe.prices.create({
       unit_amount: Math.round(params.amount * 100),
@@ -12350,8 +12398,8 @@ var StripeService = class {
    * Archive a Stripe price
    */
   async archivePrice(priceId) {
-    if (this.isLocalNoNetwork) {
-      warnNoNetworkOnce();
+    if (this.skipsRemoteSync) {
+      this.warnSkip();
       return { id: priceId, active: false };
     }
     return await this.stripe.prices.update(priceId, { active: false });
@@ -12360,6 +12408,7 @@ var StripeService = class {
    * Create checkout session for single item
    */
   async createCheckoutSession(priceId) {
+    this.assertCheckoutAvailable();
     return await this.stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
@@ -12376,6 +12425,7 @@ var StripeService = class {
    * Create checkout session for cart
    */
   async createCartCheckoutSession(items) {
+    this.assertCheckoutAvailable();
     const lineItems = items.map((item) => {
       const lineItem = {
         price: item.stripePriceId,
@@ -12469,6 +12519,111 @@ var StripeService = class {
   }
 };
 
+// src/services/DeveloperSettingsService.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var DEVELOPER_SETTING_FIELDS = [
+  { key: "STRIPE_SECRET_KEY", label: "Stripe secret key", secret: true },
+  { key: "GEMINI_API_KEY", label: "Gemini API key", secret: true },
+  { key: "OPENROUTER_API_KEY", label: "OpenRouter API key", secret: true },
+  { key: "OPENROUTER_MODEL", label: "OpenRouter model", secret: false },
+  { key: "SITE_URL", label: "Site URL", secret: false },
+  { key: "ADMIN_PASSWORD", label: "Admin password", secret: true, password: true }
+];
+var FIELDS_BY_KEY = new Map(DEVELOPER_SETTING_FIELDS.map((f) => [f.key, f]));
+async function hashPassword(password, salt = randomHex(16)) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`${salt}:${password}`);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  const hex = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return { salt, hash: hex };
+}
+__name(hashPassword, "hashPassword");
+var DeveloperSettingsService = class {
+  static {
+    __name(this, "DeveloperSettingsService");
+  }
+  constructor(kvNamespace) {
+    this.kv = kvNamespace;
+  }
+  /** Raw stored settings. Internal — contains secrets. */
+  async getRaw() {
+    const stored = await this.kv.get(KV_KEYS.DEVELOPER_SETTINGS);
+    if (!stored) return {};
+    try {
+      return JSON.parse(stored);
+    } catch {
+      console.error("[DeveloperSettings] stored settings are not valid JSON; ignoring");
+      return {};
+    }
+  }
+  /**
+   * Browser-safe view: which keys are set, and where each value comes from.
+   * Secret values are never included.
+   */
+  async getPublicView(env2 = {}) {
+    const stored = await this.getRaw();
+    return DEVELOPER_SETTING_FIELDS.map((field) => {
+      const inKv = field.password ? Boolean(stored.ADMIN_PASSWORD_HASH) : stored[field.key] !== void 0 && stored[field.key] !== "";
+      const inEnv = Boolean(env2[field.key]);
+      return {
+        key: field.key,
+        label: field.label,
+        secret: Boolean(field.secret),
+        isPassword: Boolean(field.password),
+        configured: inKv || inEnv,
+        source: inKv ? "settings" : inEnv ? "environment" : "unset",
+        // Non-secret values are safe to show so they can be edited in place.
+        value: field.secret ? void 0 : stored[field.key] ?? env2[field.key] ?? ""
+      };
+    });
+  }
+  /**
+   * Write settings. An empty string deletes the entry, restoring the `env`
+   * value — that is the documented way to undo a bad override.
+   */
+  async update(updates) {
+    const stored = await this.getRaw();
+    for (const [key, value] of Object.entries(updates)) {
+      const field = FIELDS_BY_KEY.get(key);
+      if (!field || field.password) continue;
+      if (value === "" || value === null || value === void 0) {
+        delete stored[key];
+      } else {
+        stored[key] = String(value);
+      }
+    }
+    await this.kv.put(KV_KEYS.DEVELOPER_SETTINGS, JSON.stringify(stored));
+    return stored;
+  }
+  /** Set the admin password, stored salted-and-hashed. */
+  async setAdminPassword(newPassword) {
+    const stored = await this.getRaw();
+    const { salt, hash } = await hashPassword(newPassword);
+    stored.ADMIN_PASSWORD_SALT = salt;
+    stored.ADMIN_PASSWORD_HASH = hash;
+    await this.kv.put(KV_KEYS.DEVELOPER_SETTINGS, JSON.stringify(stored));
+  }
+  /** Remove a UI-set password, falling back to ADMIN_PASSWORD from env. */
+  async clearAdminPassword() {
+    const stored = await this.getRaw();
+    delete stored.ADMIN_PASSWORD_SALT;
+    delete stored.ADMIN_PASSWORD_HASH;
+    await this.kv.put(KV_KEYS.DEVELOPER_SETTINGS, JSON.stringify(stored));
+  }
+};
+async function resolveSetting(kvNamespace, env2, key) {
+  try {
+    const stored = await new DeveloperSettingsService(kvNamespace).getRaw();
+    if (stored[key] !== void 0 && stored[key] !== "") return stored[key];
+  } catch (error3) {
+    console.error(`[DeveloperSettings] KV read failed for ${key}: ${error3?.message ?? error3}`);
+  }
+  return env2?.[key];
+}
+__name(resolveSetting, "resolveSetting");
+
 // src/routes/public/checkout.js
 var router4 = new Hono2();
 router4.post("/create-checkout-session", asyncHandler(async (c) => {
@@ -12486,7 +12641,10 @@ router4.post("/create-checkout-session", asyncHandler(async (c) => {
   if (trimmedPriceId.length > 255) {
     throw new ValidationError("Price ID is too long");
   }
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, "STRIPE_SECRET_KEY"),
+    await resolveSetting(getKVNamespace(c.env), c.env, "SITE_URL")
+  );
   const session = await stripeService.createCheckoutSession(trimmedPriceId);
   return c.json({ sessionId: session.id });
 }));
@@ -12520,7 +12678,10 @@ router4.post("/create-cart-checkout-session", asyncHandler(async (c) => {
       quantity
     };
   });
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, "STRIPE_SECRET_KEY"),
+    await resolveSetting(getKVNamespace(c.env), c.env, "SITE_URL")
+  );
   const session = await stripeService.createCartCheckoutSession(normalizedItems);
   return c.json({ sessionId: session.id });
 }));
@@ -12536,7 +12697,10 @@ router4.get("/checkout-session/:sessionId", asyncHandler(async (c) => {
   if (trimmedSessionId.length > 255) {
     throw new ValidationError("Session ID is too long");
   }
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, "STRIPE_SECRET_KEY"),
+    await resolveSetting(getKVNamespace(c.env), c.env, "SITE_URL")
+  );
   const session = await stripeService.getCheckoutSession(trimmedSessionId);
   return c.json(session);
 }));
@@ -13240,8 +13404,16 @@ router9.post("/login", asyncHandler(async (c) => {
   if (attemptCount >= 5) {
     throw new AuthenticationError("Too many login attempts. Please try again later.");
   }
-  const adminPassword = c.env.ADMIN_PASSWORD || "admin123";
-  const isValid = await timingSafeEqualStrings(password, adminPassword);
+  const devSettings = new DeveloperSettingsService(kvNamespace);
+  const stored = await devSettings.getRaw();
+  let isValid;
+  if (stored.ADMIN_PASSWORD_HASH && stored.ADMIN_PASSWORD_SALT) {
+    const { hash } = await hashPassword(password, stored.ADMIN_PASSWORD_SALT);
+    isValid = await timingSafeEqualStrings(hash, stored.ADMIN_PASSWORD_HASH);
+  } else {
+    const adminPassword = c.env.ADMIN_PASSWORD || "admin123";
+    isValid = await timingSafeEqualStrings(password, adminPassword);
+  }
   if (!isValid) {
     await kvNamespace.put(rateLimitKey, (attemptCount + 1).toString(), {
       expirationTtl: 900
@@ -13509,7 +13681,10 @@ router10.post("/", asyncHandler(async (c) => {
   const productData = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, "STRIPE_SECRET_KEY"),
+    await resolveSetting(getKVNamespace(c.env), c.env, "SITE_URL")
+  );
   const productStripeService = new ProductStripeService(stripeService);
   const { stripeProduct, basePrice, variantPrices } = await productStripeService.createProductWithPrices(productData);
   const product = {
@@ -13533,9 +13708,22 @@ router10.put("/:id", asyncHandler(async (c) => {
   const updates = await c.req.json();
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, "STRIPE_SECRET_KEY"),
+    await resolveSetting(getKVNamespace(c.env), c.env, "SITE_URL")
+  );
   const productStripeService = new ProductStripeService(stripeService);
   const existingProduct = await productService.getProduct(c.req.param("id"));
+  const isUnlinked = !existingProduct.stripeProductId || existingProduct.stripeProductId === UNLINKED_PRODUCT_ID;
+  if (isUnlinked && stripeService.isConfigured) {
+    const merged = { ...existingProduct, ...updates };
+    const { stripeProduct, basePrice, variantPrices } = await productStripeService.createProductWithPrices(merged);
+    updates.stripeProductId = stripeProduct.id;
+    updates.stripePriceId = basePrice?.id || Object.values(variantPrices)[0] || "";
+    updates.variantPrices = variantPrices;
+    const backfilled = await productService.updateProduct(c.req.param("id"), updates);
+    return c.json(backfilled);
+  }
   if (updates.name || updates.description !== void 0 || updates.images || updates.imageUrl) {
     const stripeImages = Array.isArray(updates.images) ? updates.images : updates.imageUrl ? [updates.imageUrl] : Array.isArray(existingProduct.images) ? existingProduct.images : existingProduct.imageUrl ? [existingProduct.imageUrl] : [];
     await stripeService.updateProduct(existingProduct.stripeProductId, {
@@ -13570,7 +13758,10 @@ router10.put("/:id", asyncHandler(async (c) => {
 router10.delete("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, "STRIPE_SECRET_KEY"),
+    await resolveSetting(getKVNamespace(c.env), c.env, "SITE_URL")
+  );
   const existingProduct = await productService.getProduct(c.req.param("id"));
   if (existingProduct.stripePriceId) {
     await stripeService.archivePrice(existingProduct.stripePriceId);
@@ -13899,7 +14090,10 @@ var AnalyticsService = class {
 var router12 = new Hono2();
 router12.get("/", asyncHandler(async (c) => {
   const period = c.req.query("period") || "30d";
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, "STRIPE_SECRET_KEY"),
+    await resolveSetting(getKVNamespace(c.env), c.env, "SITE_URL")
+  );
   const kvNamespace = getKVNamespace(c.env);
   const analyticsService = new AnalyticsService(stripeService, kvNamespace);
   const analytics = await analyticsService.getAnalytics(period);
@@ -13911,7 +14105,10 @@ router12.get("/orders", asyncHandler(async (c) => {
   const cursor = c.req.query("cursor") || void 0;
   const showFulfilled = c.req.query("showFulfilled") === "true";
   const fulfillmentStatus = c.req.query("status") || (showFulfilled ? "fulfilled" : "open");
-  const stripeService = new StripeService(c.env.STRIPE_SECRET_KEY, c.env.SITE_URL);
+  const stripeService = new StripeService(
+    await resolveSetting(getKVNamespace(c.env), c.env, "STRIPE_SECRET_KEY"),
+    await resolveSetting(getKVNamespace(c.env), c.env, "SITE_URL")
+  );
   const analyticsService = new AnalyticsService(stripeService);
   const kvNamespace = getKVNamespace(c.env);
   const orders = await analyticsService.getOrders({
@@ -14211,7 +14408,8 @@ router16.post("/generate-image", asyncHandler(async (c) => {
   if (!prompt || typeof prompt !== "string") {
     throw new ValidationError("Missing prompt");
   }
-  const apiKey = c.env.GEMINI_API_KEY;
+  const kvNamespace = getKVNamespace(c.env);
+  const apiKey = await resolveSetting(kvNamespace, c.env, "GEMINI_API_KEY");
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY not configured");
   }
@@ -14694,7 +14892,7 @@ async function callOpenRouter(apiKey, model, messages) {
 }
 __name(callOpenRouter, "callOpenRouter");
 router17.get("/models", asyncHandler(async (c) => {
-  const apiKey = c.env.OPENROUTER_API_KEY;
+  const apiKey = await resolveSetting(getKVNamespace(c.env), c.env, "OPENROUTER_API_KEY");
   if (!apiKey) {
     return c.json({ models: [], defaultModel: DEFAULT_MODEL, configured: false });
   }
@@ -14709,12 +14907,12 @@ router17.get("/models", asyncHandler(async (c) => {
   const models = (data?.data || []).map((m) => ({ id: m.id, name: m.name || m.id })).sort((x, y) => x.id.localeCompare(y.id));
   return c.json({
     models,
-    defaultModel: c.env.OPENROUTER_MODEL || DEFAULT_MODEL,
+    defaultModel: await resolveSetting(getKVNamespace(c.env), c.env, "OPENROUTER_MODEL") || DEFAULT_MODEL,
     configured: true
   });
 }));
 router17.post("/chat", asyncHandler(async (c) => {
-  const apiKey = c.env.OPENROUTER_API_KEY;
+  const apiKey = await resolveSetting(getKVNamespace(c.env), c.env, "OPENROUTER_API_KEY");
   if (!apiKey) {
     throw new ValidationError('OPENROUTER_API_KEY not configured. Add it with "wrangler secret put OPENROUTER_API_KEY".');
   }
@@ -14726,7 +14924,7 @@ router17.post("/chat", asyncHandler(async (c) => {
   if (history.length === 0 || history[history.length - 1].role !== "user") {
     throw new ValidationError("Last message must be from the user");
   }
-  const selectedModel = typeof model === "string" && model.trim() ? model.trim() : c.env.OPENROUTER_MODEL || DEFAULT_MODEL;
+  const selectedModel = typeof model === "string" && model.trim() ? model.trim() : await resolveSetting(getKVNamespace(c.env), c.env, "OPENROUTER_MODEL") || DEFAULT_MODEL;
   const chatMessages = [{ role: "system", content: buildSystemPrompt() }, ...history];
   const actions = [];
   for (let i = 0; i < MAX_TOOL_ITERATIONS; i++) {
@@ -14778,11 +14976,74 @@ router17.post("/chat", asyncHandler(async (c) => {
 }));
 var agent_default = router17;
 
+// src/routes/admin/developer-settings.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var router18 = new Hono2();
+router18.get("/", asyncHandler(async (c) => {
+  const service = new DeveloperSettingsService(getKVNamespace(c.env));
+  return c.json({ fields: await service.getPublicView(c.env) });
+}));
+router18.put("/", asyncHandler(async (c) => {
+  const updates = await c.req.json();
+  if (!updates || typeof updates !== "object" || Array.isArray(updates)) {
+    throw new ValidationError("Expected an object of settings");
+  }
+  if ("ADMIN_PASSWORD" in updates) {
+    throw new ValidationError("Use /password to change the admin password");
+  }
+  const service = new DeveloperSettingsService(getKVNamespace(c.env));
+  await service.update(updates);
+  return c.json({ fields: await service.getPublicView(c.env) });
+}));
+router18.put("/password", asyncHandler(async (c) => {
+  const { currentPassword, newPassword } = await c.req.json();
+  if (!newPassword || typeof newPassword !== "string" || newPassword.length < 8) {
+    throw new ValidationError("New password must be at least 8 characters");
+  }
+  if (!currentPassword || typeof currentPassword !== "string") {
+    throw new ValidationError("Current password is required");
+  }
+  const kvNamespace = getKVNamespace(c.env);
+  const service = new DeveloperSettingsService(kvNamespace);
+  const stored = await service.getRaw();
+  let currentValid;
+  if (stored.ADMIN_PASSWORD_HASH && stored.ADMIN_PASSWORD_SALT) {
+    const { hash } = await hashPassword(currentPassword, stored.ADMIN_PASSWORD_SALT);
+    currentValid = await timingSafeEqualStrings(hash, stored.ADMIN_PASSWORD_HASH);
+  } else {
+    currentValid = await timingSafeEqualStrings(
+      currentPassword,
+      c.env.ADMIN_PASSWORD || "admin123"
+    );
+  }
+  if (!currentValid) {
+    throw new ValidationError("Current password is incorrect");
+  }
+  await service.setAdminPassword(newPassword);
+  return c.json({ ok: true });
+}));
+router18.delete("/password", asyncHandler(async (c) => {
+  const service = new DeveloperSettingsService(getKVNamespace(c.env));
+  await service.clearAdminPassword();
+  return c.json({ ok: true });
+}));
+var developer_settings_default = router18;
+
 // src/routes/index.js
 function registerRoutes(app2) {
   setAgentApp(app2);
   app2.get("/api/health", (c) => {
     return c.json({ status: "healthy", timestamp: (/* @__PURE__ */ new Date()).toISOString() });
+  });
+  app2.get("/api/payments-status", async (c) => {
+    const stripeKey = await resolveSetting(
+      getKVNamespace(c.env),
+      c.env,
+      "STRIPE_SECRET_KEY"
+    );
+    return c.json({ paymentsEnabled: isStripeConfigured(stripeKey) });
   });
   app2.route("/api/products", products_default);
   app2.route("/api/collections", collections_default);
@@ -14802,6 +15063,7 @@ function registerRoutes(app2) {
   app2.route("/api/admin", settings_default);
   app2.route("/api/admin/ai", ai_default);
   app2.route("/api/admin/agent", agent_default);
+  app2.route("/api/admin/developer-settings", developer_settings_default);
 }
 __name(registerRoutes, "registerRoutes");
 
