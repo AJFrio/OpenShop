@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-09-11T00:15:36Z
+// Worker Bundle - Built 2026-09-11T00:16:43Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -12526,9 +12526,9 @@ init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
 var DEVELOPER_SETTING_FIELDS = [
   { key: "STRIPE_SECRET_KEY", label: "Stripe secret key", secret: true },
-  { key: "GEMINI_API_KEY", label: "Gemini API key", secret: true },
   { key: "OPENROUTER_API_KEY", label: "OpenRouter API key", secret: true },
-  { key: "OPENROUTER_MODEL", label: "OpenRouter model", secret: false },
+  { key: "OPENROUTER_IMAGE_MODEL", label: "OpenRouter image model", secret: false },
+  { key: "OPENROUTER_MODEL", label: "OpenRouter model (agent)", secret: false },
   { key: "SITE_URL", label: "Site URL", secret: false },
   { key: "ADMIN_PASSWORD", label: "Admin password", secret: true, password: true }
 ];
@@ -14405,67 +14405,237 @@ var settings_default = router15;
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
+
+// src/services/ImageGenerationService.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var DEFAULT_OPENROUTER_MODEL = "google/gemini-3.1-flash-image";
+var MAX_REFERENCE_IMAGES = 4;
+var ImageGenerationError = class extends Error {
+  static {
+    __name(this, "ImageGenerationError");
+  }
+  constructor(message, statusCode = 500) {
+    super(message);
+    this.name = "ImageGenerationError";
+    this.statusCode = statusCode;
+  }
+};
+function normaliseReferences(inputs) {
+  if (!Array.isArray(inputs)) return [];
+  return inputs.slice(0, MAX_REFERENCE_IMAGES).filter((item) => item && item.dataBase64 && item.mimeType);
+}
+__name(normaliseReferences, "normaliseReferences");
+async function generateWithOpenRouter({ apiKey, model, prompt, references, siteUrl }) {
+  const body = { model, prompt };
+  if (references.length > 0) {
+    body.input_references = references.map((item) => ({
+      type: "image_url",
+      image_url: { url: `data:${item.mimeType};base64,${item.dataBase64}` }
+    }));
+  }
+  const res = await fetch("https://openrouter.ai/api/v1/images", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      // Optional attribution headers; OpenRouter uses them for its rankings.
+      ...siteUrl ? { "HTTP-Referer": siteUrl } : {},
+      "X-Title": "OpenShop"
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const detail = await res.text();
+    console.error("OpenRouter image API error", res.status, detail);
+    throw new ImageGenerationError(`OpenRouter image generation failed: ${detail}`, 502);
+  }
+  const data = await res.json();
+  const first = data?.data?.[0];
+  if (!first?.b64_json) {
+    throw new ImageGenerationError("No image returned from OpenRouter", 502);
+  }
+  return {
+    dataBase64: first.b64_json,
+    // Output format varies by model, so trust what came back.
+    mimeType: first.media_type || "image/png"
+  };
+}
+__name(generateWithOpenRouter, "generateWithOpenRouter");
+async function generateImage({
+  provider,
+  // eslint-disable-line no-unused-vars
+  openRouterApiKey,
+  openRouterModel,
+  prompt,
+  inputs,
+  siteUrl
+}) {
+  if (!openRouterApiKey) {
+    throw new ImageGenerationError("OPENROUTER_API_KEY is not configured. Add it in Developer Settings.", 400);
+  }
+  return generateWithOpenRouter({
+    apiKey: openRouterApiKey,
+    model: openRouterModel || DEFAULT_OPENROUTER_MODEL,
+    prompt,
+    references: normaliseReferences(inputs),
+    siteUrl
+  });
+}
+__name(generateImage, "generateImage");
+
+// src/services/MerchPromptService.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var REFERENCE_ROLES = ["model", "product", "logo"];
+var MAX_REFERENCES = 4;
+function describeRole(role) {
+  switch (role) {
+    case "model":
+      return "the person who should be wearing the item";
+    case "product":
+      return "the blank garment or product being sold";
+    case "logo":
+      return "the artwork or logo to place on the item";
+    default:
+      return "additional reference";
+  }
+}
+__name(describeRole, "describeRole");
+function composeMerchPrompt({
+  description = "",
+  model = "",
+  pose = "",
+  product = "",
+  logo = ""
+} = {}) {
+  const clauses = [];
+  const subject = product.trim() || "the product";
+  clauses.push(`A product photograph of ${subject}.`);
+  if (model.trim()) {
+    clauses.push(`It is worn by ${model.trim()}.`);
+  }
+  if (pose.trim()) {
+    clauses.push(`Pose: ${pose.trim()}.`);
+  } else if (model.trim()) {
+    clauses.push("Keep the pose and framing from the reference image.");
+  }
+  if (logo.trim()) {
+    clauses.push(`Printed on the item: ${logo.trim()}.`);
+  }
+  if (description.trim()) {
+    clauses.push(description.trim());
+  }
+  clauses.push(
+    "Photorealistic, evenly lit, plain uncluttered background, the product clearly visible and in focus."
+  );
+  return clauses.join(" ");
+}
+__name(composeMerchPrompt, "composeMerchPrompt");
+function composeReferences(references = {}) {
+  const ordered = [];
+  for (const role of REFERENCE_ROLES) {
+    const entry = references[role];
+    if (entry && entry.dataBase64 && entry.mimeType) {
+      ordered.push({ role, ...entry });
+    }
+  }
+  return ordered.slice(0, MAX_REFERENCES);
+}
+__name(composeReferences, "composeReferences");
+function composeMerchRequest(fields = {}, references = {}) {
+  const ordered = composeReferences(references);
+  let prompt = composeMerchPrompt(fields);
+  if (ordered.length > 0) {
+    const legend = ordered.map((ref2, index) => `Image ${index + 1} is ${describeRole(ref2.role)}.`).join(" ");
+    prompt = `${prompt} ${legend}`;
+  }
+  return { prompt, inputs: ordered.map(({ mimeType, dataBase64 }) => ({ mimeType, dataBase64 })) };
+}
+__name(composeMerchRequest, "composeMerchRequest");
+
+// src/routes/admin/ai.js
 var router16 = new Hono2();
 router16.post("/generate-image", asyncHandler(async (c) => {
   const { prompt, inputs } = await c.req.json();
   if (!prompt || typeof prompt !== "string") {
     throw new ValidationError("Missing prompt");
   }
-  const kvNamespace = getKVNamespace(c.env);
-  const apiKey = await resolveSetting(kvNamespace, c.env, "GEMINI_API_KEY");
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY not configured");
-  }
-  const parts = [];
-  parts.push({ text: prompt });
-  if (Array.isArray(inputs)) {
-    for (const item of inputs.slice(0, 4)) {
-      if (item && item.dataBase64 && item.mimeType) {
-        parts.push({
-          inline_data: {
-            mime_type: item.mimeType,
-            data: item.dataBase64
-          }
-        });
-      }
+  const kv = getKVNamespace(c.env);
+  const [openRouterApiKey, openRouterModel, siteUrl] = await Promise.all([
+    resolveSetting(kv, c.env, "OPENROUTER_API_KEY"),
+    resolveSetting(kv, c.env, "OPENROUTER_IMAGE_MODEL"),
+    resolveSetting(kv, c.env, "SITE_URL")
+  ]);
+  try {
+    const image = await generateImage({
+      openRouterApiKey,
+      openRouterModel,
+      prompt,
+      inputs,
+      siteUrl
+    });
+    return c.json(image);
+  } catch (error3) {
+    if (error3 instanceof ImageGenerationError) {
+      throw new APIError(error3.message, error3.statusCode);
     }
+    throw error3;
   }
-  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent";
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "x-goog-api-key": apiKey,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      contents: [{ parts }]
-    })
+}));
+router16.post("/generate-merch-image", asyncHandler(async (c) => {
+  const body = await c.req.json();
+  const { description, model, pose, product, logo, references } = body || {};
+  if (!description && !product) {
+    throw new ValidationError("Describe the product, or name it in the product field");
+  }
+  const { prompt, inputs } = composeMerchRequest(
+    { description, model, pose, product, logo },
+    references || {}
+  );
+  const kv = getKVNamespace(c.env);
+  const [openRouterApiKey, openRouterModel, siteUrl] = await Promise.all([
+    resolveSetting(kv, c.env, "OPENROUTER_API_KEY"),
+    resolveSetting(kv, c.env, "OPENROUTER_IMAGE_MODEL"),
+    resolveSetting(kv, c.env, "SITE_URL")
+  ]);
+  let image;
+  try {
+    image = await generateImage({
+      openRouterApiKey,
+      openRouterModel,
+      prompt,
+      inputs,
+      siteUrl
+    });
+  } catch (error3) {
+    if (error3 instanceof ImageGenerationError) {
+      throw new APIError(error3.message, error3.statusCode);
+    }
+    throw error3;
+  }
+  const r2 = new R2Service(c.env);
+  let stored;
+  try {
+    stored = await r2.uploadFile(image.mimeType, image.dataBase64, "merch-mockup.png");
+  } catch (error3) {
+    throw new APIError(
+      `Image generated, but could not be saved: ${error3?.message ?? error3}. Check the R2 bucket binding.`,
+      503
+    );
+  }
+  const url = stored.viewUrl || stored.downloadUrl;
+  await new MediaService(kv).createMediaItem({
+    url,
+    source: "storage",
+    filename: "merch-mockup",
+    mimeType: image.mimeType
+  }).catch((error3) => {
+    console.error("Generated image was stored but not added to the media library:", error3);
   });
-  if (!res.ok) {
-    const errText = await res.text();
-    console.error("Gemini API error", res.status, errText);
-    throw new Error(`Gemini API failed: ${errText}`);
-  }
-  const data = await res.json();
-  const candidates = data?.candidates || [];
-  let foundBase64 = null;
-  let mime = "image/png";
-  for (const cand of candidates) {
-    const parts2 = cand?.content?.parts || [];
-    for (const p of parts2) {
-      const inlineA = p?.inlineData || p?.inline_data;
-      if (inlineA && inlineA.data) {
-        foundBase64 = inlineA.data;
-        mime = inlineA.mimeType || inlineA.mime_type || mime;
-        break;
-      }
-    }
-    if (foundBase64) break;
-  }
-  if (!foundBase64) {
-    throw new Error("No image returned from Gemini");
-  }
-  return c.json({ mimeType: mime, dataBase64: foundBase64 });
+  return c.json({ url, mimeType: image.mimeType, prompt });
 }));
 var ai_default = router16;
 
@@ -14489,13 +14659,16 @@ var PAGE_COMPONENTS_DOC = `Page builder components (each content item is { "type
 - RichTextSection: props { heading, body (HTML string) }
 - ImageTextSection: props { imageUrl, heading, body, imageAlign ("left"|"right") }
 Root props support { title, description } for SEO.`;
-function buildSystemPrompt() {
+function buildSystemPrompt({ hasReferences = false } = {}) {
   return [
     "You are the OpenShop store agent. You help merchants run their store by managing products, collections, and storefront pages.",
     "Use the provided tools to read and change store data. Prefer listing entities first to find correct IDs/slugs before updating or deleting.",
     'When asked to "change my site", build or edit pages using the page builder components documented below.',
     "Be concise in your replies. Summarize exactly what you created, changed, or deleted.",
     "Prices are decimal amounts (e.g. 19.99) in the store currency (USD unless told otherwise).",
+    "To sell something that needs a picture, call generate_product_image first, then pass the URL it returns as imageUrl on create_product. Do not invent image URLs.",
+    "When generating an image, fill the model, pose, product and logo fields separately rather than putting everything in description \u2014 each one steers a different part of the picture. Leave pose blank to keep the pose from the reference image.",
+    hasReferences ? "The user attached reference images. They are passed to generate_product_image automatically; you do not need to describe or upload them." : "The user attached no reference images, so describe the model, garment and artwork in words.",
     "",
     PAGE_COMPONENTS_DOC
   ].join("\n");
@@ -14539,6 +14712,24 @@ var TOOL_DEFINITIONS = [
           collectionId: { type: "string", description: "Collection to assign the product to" }
         },
         required: ["name", "price"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "generate_product_image",
+      description: "Generate a product or merchandise mockup image and store it. Returns a URL to pass as imageUrl when creating a product. Reference images the user attached are used automatically; describe who should wear it, the pose, the garment and the artwork in the matching fields rather than cramming everything into one description.",
+      parameters: {
+        type: "object",
+        properties: {
+          description: { type: "string", description: "Overall description of the desired image" },
+          model: { type: "string", description: 'Who is wearing the item, e.g. "a young woman with short dark hair"' },
+          pose: { type: "string", description: "How they are posed. Leave blank to keep the pose from the reference image." },
+          product: { type: "string", description: 'The garment or product, e.g. "a heather grey hoodie"' },
+          logo: { type: "string", description: "What is printed on the item" }
+        },
+        required: []
       }
     }
   },
@@ -14694,12 +14885,14 @@ async function dispatch(c, path, init = {}) {
 }
 __name(dispatch, "dispatch");
 function summarizeResult(action, result) {
-  const b = result.body;
+  const b = result.data ?? result.body;
   if (!result.ok) {
     const detail = b?.error || `HTTP ${result.status}`;
     return `Failed: ${detail}`;
   }
   switch (action.tool) {
+    case "generate_product_image":
+      return b?.url ? `Generated an image: ${b.url}` : "Generated an image";
     case "create_product":
       return `Created product "${b?.name}" (${b?.id})`;
     case "update_product":
@@ -14761,6 +14954,20 @@ async function executeTool(c, name, args) {
       if (a.collectionId) payload.collectionId = a.collectionId;
       const r = await dispatch(c, "/api/admin/products", { method: "POST", body: JSON.stringify(payload) });
       return { status: r.status, data: trimProduct(r.body) };
+    }
+    case "generate_product_image": {
+      const r = await dispatch(c, "/api/admin/ai/generate-merch-image", {
+        method: "POST",
+        body: JSON.stringify({
+          description: a.description ?? "",
+          model: a.model ?? "",
+          pose: a.pose ?? "",
+          product: a.product ?? "",
+          logo: a.logo ?? "",
+          references: c.get("merchReferences") || {}
+        })
+      });
+      return { status: r.status, data: r.body };
     }
     case "update_product": {
       const payload = {};
@@ -14917,18 +15124,29 @@ router17.get("/models", asyncHandler(async (c) => {
 router17.post("/chat", asyncHandler(async (c) => {
   const apiKey = await resolveSetting(getKVNamespace(c.env), c.env, "OPENROUTER_API_KEY");
   if (!apiKey) {
-    throw new ValidationError('OPENROUTER_API_KEY not configured. Add it with "wrangler secret put OPENROUTER_API_KEY".');
+    throw new ValidationError("OpenRouter API key not configured. Add it in Developer Settings.");
   }
-  const { messages, model } = await c.req.json();
+  const { messages, model, references } = await c.req.json();
   if (!Array.isArray(messages) || messages.length === 0) {
     throw new ValidationError("messages must be a non-empty array");
+  }
+  if (references && typeof references === "object") {
+    c.set("merchReferences", references);
   }
   const history = messages.filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string").slice(-30).map((m) => ({ role: m.role, content: m.content }));
   if (history.length === 0 || history[history.length - 1].role !== "user") {
     throw new ValidationError("Last message must be from the user");
   }
   const selectedModel = typeof model === "string" && model.trim() ? model.trim() : await resolveSetting(getKVNamespace(c.env), c.env, "OPENROUTER_MODEL") || DEFAULT_MODEL;
-  const chatMessages = [{ role: "system", content: buildSystemPrompt() }, ...history];
+  const chatMessages = [
+    {
+      role: "system",
+      content: buildSystemPrompt({
+        hasReferences: Boolean(references && Object.keys(references).length > 0)
+      })
+    },
+    ...history
+  ];
   const actions = [];
   for (let i = 0; i < MAX_TOOL_ITERATIONS; i++) {
     const completion2 = await callOpenRouter(apiKey, selectedModel, chatMessages);
