@@ -10,7 +10,7 @@ export function createMockEnv() {
     GOOGLE_CLIENT_ID: 'test_client_id',
     GOOGLE_CLIENT_SECRET: 'test_client_secret',
     GOOGLE_API_KEY: 'test_api_key',
-    GEMINI_API_KEY: 'test_gemini_key',
+    OPENROUTER_API_KEY: 'test_openrouter_key',
     DRIVE_ROOT_FOLDER: 'TestFolder',
     // Mock KV namespace
     TEST_KV: createMockKV()

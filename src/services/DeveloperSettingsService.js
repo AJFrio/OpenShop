@@ -24,9 +24,9 @@ import { randomHex } from '../utils/crypto.js'
  */
 export const DEVELOPER_SETTING_FIELDS = [
   { key: 'STRIPE_SECRET_KEY', label: 'Stripe secret key', secret: true },
-  { key: 'GEMINI_API_KEY', label: 'Gemini API key', secret: true },
   { key: 'OPENROUTER_API_KEY', label: 'OpenRouter API key', secret: true },
-  { key: 'OPENROUTER_MODEL', label: 'OpenRouter model', secret: false },
+  { key: 'OPENROUTER_IMAGE_MODEL', label: 'OpenRouter image model', secret: false },
+  { key: 'OPENROUTER_MODEL', label: 'OpenRouter model (agent)', secret: false },
   { key: 'SITE_URL', label: 'Site URL', secret: false },
   { key: 'ADMIN_PASSWORD', label: 'Admin password', secret: true, password: true },
 ]

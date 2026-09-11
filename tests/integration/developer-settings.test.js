@@ -37,17 +37,17 @@ describe('Developer Settings', () => {
   })
 
   it('never returns secret values to the browser', async () => {
-    env.GEMINI_API_KEY = 'super-secret-value'
+    env.OPENROUTER_API_KEY = 'super-secret-value'
     const req = createTestRequest('/api/admin/developer-settings', {
       headers: createAdminHeaders(adminToken),
     })
     const res = await executeRequest(app, req, env)
     const body = await parseJsonResponse(res)
 
-    const gemini = body.fields.find((f) => f.key === 'GEMINI_API_KEY')
-    expect(gemini.configured).toBe(true)
-    expect(gemini.source).toBe('environment')
-    expect(gemini.value).toBeUndefined()
+    const openRouter = body.fields.find((f) => f.key === 'OPENROUTER_API_KEY')
+    expect(openRouter.configured).toBe(true)
+    expect(openRouter.source).toBe('environment')
+    expect(openRouter.value).toBeUndefined()
     expect(JSON.stringify(body)).not.toContain('super-secret-value')
   })
 
