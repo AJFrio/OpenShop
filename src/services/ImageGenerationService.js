@@ -84,13 +84,9 @@ async function generateWithOpenRouter({ apiKey, model, prompt, references, siteU
 /**
  * Generate an image via OpenRouter.
  *
- * `provider` and the Gemini-specific keys are accepted and ignored so
- * existing settings in KV stay harmless until cleared.
- *
  * @returns {Promise<{ mimeType: string, dataBase64: string }>}
  */
 export async function generateImage({
-  provider, // eslint-disable-line no-unused-vars
   openRouterApiKey,
   openRouterModel,
   prompt,
