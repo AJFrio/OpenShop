@@ -8,10 +8,16 @@ export class KVManager {
 
   // Product operations
   async createProduct(product) {
-    const key = `product:${product.id}`
+    // Callers do not supply an id — neither the admin UI nor the agent's
+    // create_product tool does. Without one this wrote to `product:undefined`
+    // and pushed `undefined` into products:all, so the create returned 201
+    // with no id and the product was invisible everywhere afterwards.
+    const id = product.id || crypto.randomUUID()
+    const key = `product:${id}`
     // Ensure images is always an array
     const productData = {
       ...product,
+      id,
       images: Array.isArray(product.images) ? product.images : (product.imageUrl ? [product.imageUrl] : [])
     }
     await this.namespace.put(key, JSON.stringify(productData))
@@ -19,8 +25,11 @@ export class KVManager {
     // Also update the products list
     const productIds = await this.namespace.get('products:all')
     const existingIds = productIds ? JSON.parse(productIds) : []
-    existingIds.push(product.id)
-    await this.namespace.put('products:all', JSON.stringify(existingIds))
+    // Drop any nulls left by creates that ran before ids were generated;
+    // they resolve to nothing and make every listing skip an entry.
+    const cleanedIds = existingIds.filter(Boolean)
+    cleanedIds.push(id)
+    await this.namespace.put('products:all', JSON.stringify(cleanedIds))
 
     // Update collection index if present
     if (productData.collectionId) {
@@ -119,16 +128,20 @@ export class KVManager {
 
   // Collection operations
   async createCollection(collection) {
-    const key = `collection:${collection.id}`
-    await this.namespace.put(key, JSON.stringify(collection))
+    // Same missing-id problem as createProduct: no caller supplies one.
+    const id = collection.id || crypto.randomUUID()
+    const key = `collection:${id}`
+    const collectionData = { ...collection, id }
+    await this.namespace.put(key, JSON.stringify(collectionData))
     
     // Also update the collections list
     const collectionIds = await this.namespace.get('collections:all')
     const existingIds = collectionIds ? JSON.parse(collectionIds) : []
-    existingIds.push(collection.id)
-    await this.namespace.put('collections:all', JSON.stringify(existingIds))
+    const cleanedIds = existingIds.filter(Boolean)
+    cleanedIds.push(id)
+    await this.namespace.put('collections:all', JSON.stringify(cleanedIds))
     
-    return collection
+    return collectionData
   }
 
   async getCollection(id) {
