@@ -5,15 +5,13 @@ import { Card, CardContent } from '../../components/ui/card'
 import { RevenueChart, OrdersChart } from '../../components/admin/AnalyticsCharts'
 import { MetricCard, RecentOrdersCard } from '../../components/admin/AnalyticsCards'
 import { AgentChat } from '../../components/admin/AgentChat'
-import { formatCurrency } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
-import { Package, Edit, DollarSign, ShoppingBag, BarChart3, Plus } from 'lucide-react'
+import { Package, DollarSign, ShoppingBag, BarChart3, Plus } from 'lucide-react'
 
 export function DashboardPage() {
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalCollections: 0,
-    recentProducts: [],
   })
   const [analytics, setAnalytics] = useState(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(true)
@@ -38,7 +36,6 @@ export function DashboardPage() {
       setStats({
         totalProducts: products.length,
         totalCollections: collections.length,
-        recentProducts: products.slice(0, 5),
       })
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
@@ -160,48 +157,7 @@ export function DashboardPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <RecentOrdersCard orders={analytics.recentOrders} />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card>
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-base font-semibold text-[var(--admin-text-primary)]">Recent Products</h3>
-                  <Link to="/admin/products" className="text-xs text-[var(--admin-accent-light)] hover:underline">View all</Link>
-                </div>
-                {stats.recentProducts.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Package className="w-12 h-12 text-[var(--admin-border-secondary)] mx-auto mb-3" />
-                    <p className="text-[var(--admin-text-muted)] mb-3">No products created yet.</p>
-                    <Link to="/admin/products/new">
-                      <Button size="sm" variant="outline">Create your first product</Button>
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {stats.recentProducts.map((product) => (
-                      <div
-                        key={product.id}
-                        className="flex items-center justify-between p-3 bg-[var(--admin-bg-elevated)] rounded-lg border border-[var(--admin-border-primary)]"
-                      >
-                        <div>
-                          <h4 className="font-medium text-[var(--admin-text-primary)] text-sm">{product.name}</h4>
-                          <p className="text-xs text-[var(--admin-text-secondary)] tabular-nums">
-                            {formatCurrency(product.price, product.currency)}
-                          </p>
-                        </div>
-                        <Link to={`/admin/products/${product.id}`}>
-                          <Button variant="outline" size="sm" className="h-8 text-xs">
-                            <Edit className="w-3.5 h-3.5 mr-1.5" />
-                            Edit
-                          </Button>
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <AgentChat />
           </div>
         </>
       ) : (
@@ -215,10 +171,6 @@ export function DashboardPage() {
           </CardContent>
         </Card>
       )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <AgentChat />
-      </div>
     </div>
   )
 }

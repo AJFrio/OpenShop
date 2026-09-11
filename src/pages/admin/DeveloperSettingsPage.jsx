@@ -15,6 +15,7 @@ export function DeveloperSettingsPage() {
   const [drafts, setDrafts] = useState({})
   const [status, setStatus] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [modelOptions, setModelOptions] = useState(null)
 
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -29,6 +30,13 @@ export function DeveloperSettingsPage() {
 
   useEffect(() => {
     load().catch((err) => setStatus({ error: err.message }))
+    adminApiRequest('/api/admin/developer-settings/models')
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`Request failed (${res.status})`))))
+      .then(setModelOptions)
+      .catch(() => {
+        // Listing unavailable — the two model fields fall back to text inputs.
+        setModelOptions({ imageModels: [], textModels: [] })
+      })
   }, [])
 
   async function save() {
@@ -86,6 +94,34 @@ export function DeveloperSettingsPage() {
 
   const editable = fields.filter((f) => !f.isPassword)
 
+  const MODEL_LISTS = {
+    OPENROUTER_IMAGE_MODEL: { list: 'imageModels', current: 'currentImageModel' },
+    OPENROUTER_MODEL: { list: 'textModels', current: 'currentTextModel' },
+  }
+
+  const renderModelSelect = (field, keys) => {
+    const models = modelOptions?.[keys.list] || []
+    const value = drafts[field.key] ?? field.value ?? ''
+    const listed = models.some((m) => m.id === value)
+
+    return (
+      <select
+        id={`ds-${field.key}`}
+        value={value}
+        onChange={(e) => setDrafts({ ...drafts, [field.key]: e.target.value })}
+        className="mt-1 flex h-9 w-full rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] px-3 py-2 text-sm text-[var(--admin-text-primary)]"
+      >
+        <option value="">Not set (use environment default)</option>
+        {!listed && value && (
+          <option value={value}>{value} (saved override)</option>
+        )}
+        {models.map((m) => (
+          <option key={m.id} value={m.id}>{m.name}</option>
+        ))}
+      </select>
+    )
+  }
+
   return (
     <section className="admin-section max-w-2xl">
       <h2 className="text-xl font-semibold text-[var(--admin-text-primary)]">Developer Settings</h2>
@@ -96,7 +132,14 @@ export function DeveloperSettingsPage() {
       </p>
 
       <div className="mt-5 space-y-4">
-        {editable.map((field) => (
+        {editable.map((field) => {
+          const modelKeys = modelOptions ? MODEL_LISTS[field.key] : undefined
+          const useSelect = Boolean(modelKeys) && (
+            (modelOptions?.[modelKeys.list] || []).length > 0 ||
+            Boolean(modelOptions?.[modelKeys.current])
+          )
+
+          return (
           <div key={field.key}>
             <label
               htmlFor={`ds-${field.key}`}
@@ -104,6 +147,7 @@ export function DeveloperSettingsPage() {
             >
               {field.label}
             </label>
+            {useSelect ? renderModelSelect(field, modelKeys) : (
             <input
               id={`ds-${field.key}`}
               type={field.secret ? 'password' : 'text'}
@@ -117,13 +161,15 @@ export function DeveloperSettingsPage() {
               onChange={(e) => setDrafts({ ...drafts, [field.key]: e.target.value })}
               className="mt-1 flex h-9 w-full rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] px-3 py-2 text-sm text-[var(--admin-text-primary)]"
             />
+            )}
             <p className="mt-1 text-xs text-[var(--admin-text-muted)]">
               {field.source === 'settings' && 'Set here.'}
               {field.source === 'environment' && 'Currently from the Worker environment.'}
               {field.source === 'unset' && 'Not configured.'}
             </p>
           </div>
-        ))}
+          )
+        })}
       </div>
 
       {status?.error && (

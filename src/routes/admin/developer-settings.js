@@ -6,6 +6,7 @@
 // write its own secrets.
 import { Hono } from 'hono'
 import { getKVNamespace } from '../../utils/kv.js'
+import { resolveSetting } from '../../services/DeveloperSettingsService.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError } from '../../utils/errors.js'
 import { timingSafeEqualStrings } from '../../utils/crypto.js'
@@ -74,6 +75,60 @@ router.put('/password', asyncHandler(async (c) => {
 
   await service.setAdminPassword(newPassword)
   return c.json({ ok: true })
+}))
+
+// Model choices for the settings dropdowns. OpenRouter's /models listing is
+// public, so the dropdowns work even before an API key is configured; the key
+// is sent when available anyway. Models are split by what they can output —
+// image generation models under imageModels, everything that produces text
+// under textModels — using the `architecture.output_modalities` metadata the
+// listing carries for every model.
+//
+// GET /api/admin/developer-settings/models
+router.get('/models', asyncHandler(async (c) => {
+  const kv = getKVNamespace(c.env)
+  const [apiKey, currentImageModel, currentTextModel] = await Promise.all([
+    resolveSetting(kv, c.env, 'OPENROUTER_API_KEY'),
+    resolveSetting(kv, c.env, 'OPENROUTER_IMAGE_MODEL'),
+    resolveSetting(kv, c.env, 'OPENROUTER_MODEL'),
+  ])
+
+  let imageModels = []
+  let textModels = []
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/models', {
+      headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {},
+    })
+    if (!res.ok) {
+      console.error('OpenRouter models listing error', res.status)
+    } else {
+      const data = await res.json()
+      const rawModels = data?.data || []
+      const imageCapable = rawModels
+        .filter((m) => (m?.architecture?.output_modalities || []).includes('image'))
+        .map((m) => ({ id: m.id, name: m.name || m.id }))
+      const textCapable = rawModels
+        .filter((m) => (m?.architecture?.output_modalities || []).includes('text'))
+        .map((m) => ({ id: m.id, name: m.name || m.id }))
+      const byId = (a, b) => a.id.localeCompare(b.id)
+      imageModels = imageCapable.sort(byId)
+      textModels = textCapable.sort(byId)
+    }
+  } catch (error) {
+    // The dropdowns degrade to free-text inputs when the listing cannot be
+    // reached; settings save/load is unaffected.
+    console.error('OpenRouter models listing failed:', error)
+  }
+
+  return c.json({
+    imageModels,
+    textModels,
+    // Shown in the dropdown so a saved override that is no longer listed can
+    // still be seen (and cleared) instead of silently disappearing.
+    currentImageModel: currentImageModel || '',
+    currentTextModel: currentTextModel || '',
+    configured: Boolean(apiKey),
+  })
 }))
 
 // Drop a UI-set password, falling back to the ADMIN_PASSWORD binding.
