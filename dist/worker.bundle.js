@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-09-11T00:29:23Z
+// Worker Bundle - Built 2026-09-11T00:37:06Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -15242,6 +15242,43 @@ router18.put("/password", asyncHandler(async (c) => {
   }
   await service.setAdminPassword(newPassword);
   return c.json({ ok: true });
+}));
+router18.get("/models", asyncHandler(async (c) => {
+  const kv = getKVNamespace(c.env);
+  const [apiKey, currentImageModel, currentTextModel] = await Promise.all([
+    resolveSetting(kv, c.env, "OPENROUTER_API_KEY"),
+    resolveSetting(kv, c.env, "OPENROUTER_IMAGE_MODEL"),
+    resolveSetting(kv, c.env, "OPENROUTER_MODEL")
+  ]);
+  let imageModels = [];
+  let textModels = [];
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/models", {
+      headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {}
+    });
+    if (!res.ok) {
+      console.error("OpenRouter models listing error", res.status);
+    } else {
+      const data = await res.json();
+      const rawModels = data?.data || [];
+      const imageCapable = rawModels.filter((m) => (m?.architecture?.output_modalities || []).includes("image")).map((m) => ({ id: m.id, name: m.name || m.id }));
+      const textCapable = rawModels.filter((m) => (m?.architecture?.output_modalities || []).includes("text")).map((m) => ({ id: m.id, name: m.name || m.id }));
+      const byId = /* @__PURE__ */ __name((a, b) => a.id.localeCompare(b.id), "byId");
+      imageModels = imageCapable.sort(byId);
+      textModels = textCapable.sort(byId);
+    }
+  } catch (error3) {
+    console.error("OpenRouter models listing failed:", error3);
+  }
+  return c.json({
+    imageModels,
+    textModels,
+    // Shown in the dropdown so a saved override that is no longer listed can
+    // still be seen (and cleared) instead of silently disappearing.
+    currentImageModel: currentImageModel || "",
+    currentTextModel: currentTextModel || "",
+    configured: Boolean(apiKey)
+  });
 }));
 router18.delete("/password", asyncHandler(async (c) => {
   const service = new DeveloperSettingsService(getKVNamespace(c.env));
