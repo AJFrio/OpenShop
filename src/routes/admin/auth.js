@@ -2,7 +2,7 @@
 import { Hono } from 'hono'
 import { generateSessionToken, hashToken, timingSafeEqualStrings } from '../../utils/crypto.js'
 import { getKVNamespace } from '../../utils/kv.js'
-import { ADMIN_TOKEN_TTL, KV_KEYS } from '../../config/index.js'
+import { ADMIN_TOKEN_TTL, KV_KEYS, DEFAULT_ADMIN_PASSWORD } from '../../config/index.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError, AuthenticationError } from '../../utils/errors.js'
 import { DeveloperSettingsService, hashPassword } from '../../services/DeveloperSettingsService.js'
@@ -39,12 +39,16 @@ router.post('/login', asyncHandler(async (c) => {
   const stored = await devSettings.getRaw()
 
   let isValid
+  // A fresh install runs on a password that is published in the README. The
+  // panel needs to know so it can require a change before anything else.
+  let usingDefaultPassword = false
   if (stored.ADMIN_PASSWORD_HASH && stored.ADMIN_PASSWORD_SALT) {
     const { hash } = await hashPassword(password, stored.ADMIN_PASSWORD_SALT)
     isValid = await timingSafeEqualStrings(hash, stored.ADMIN_PASSWORD_HASH)
   } else {
-    const adminPassword = c.env.ADMIN_PASSWORD || 'admin123'
+    const adminPassword = c.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD
     isValid = await timingSafeEqualStrings(password, adminPassword)
+    usingDefaultPassword = adminPassword === DEFAULT_ADMIN_PASSWORD
   }
   
   if (!isValid) {
@@ -68,7 +72,7 @@ router.post('/login', asyncHandler(async (c) => {
     expirationTtl: ADMIN_TOKEN_TTL // 24 hours
   })
 
-  return c.json({ token })
+  return c.json({ token, mustChangePassword: usingDefaultPassword })
 }))
 
 export default router

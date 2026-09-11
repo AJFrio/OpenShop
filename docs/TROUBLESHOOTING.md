@@ -182,7 +182,7 @@ npm install -g wrangler@latest
 
 ### Wrong API Keys
 
-**Symptoms**: External services (Stripe, Gemini, etc.) not working
+**Symptoms**: External services (Stripe, OpenRouter, etc.) not working
 
 **Solutions**:
 1. Verify API keys are correct

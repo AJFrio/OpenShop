@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { adminApiRequest } from '../../lib/auth'
+import { adminApiRequest, clearMustChangePassword } from '../../lib/auth'
 import { Button } from '../../components/ui/button'
 
 /**
@@ -65,6 +65,7 @@ export function DeveloperSettingsPage() {
       }
       setCurrentPassword('')
       setNewPassword('')
+      clearMustChangePassword()
       setPwStatus({ ok: 'Password changed. It applies to the next sign-in.' })
       await load()
     } catch (err) {
