@@ -65,6 +65,28 @@ wrangler secret put STRIPE_SECRET_KEY
 
 The publishable key should be set as an environment variable in your `wrangler.toml` or site configuration.
 
+## Running Without Stripe (Catalogue-Only Mode)
+
+`STRIPE_SECRET_KEY` is optional. With no key set, the store runs in
+**catalogue-only mode**:
+
+- Products and collections can be created and edited. They save to KV with
+  placeholder Stripe ids (`prod_unlinked`, `price_unlinked`).
+- Checkout is refused with `503 This store is not accepting payments yet.`
+- The admin panel shows a banner explaining that payments are not set up.
+- `GET /api/payments-status` returns `{ "paymentsEnabled": false }`, so a
+  storefront can hide Buy buttons.
+
+This exists because building a catalogue and setting up payments usually
+happen in that order. Previously, creating a product without a key failed
+with `Neither apiKey nor config.authenticator provided`, so a store could
+not be stocked, previewed, or demoed until Stripe was fully configured.
+
+**Adding a key later.** Set `STRIPE_SECRET_KEY` and save each existing
+product once. A product still carrying placeholder ids is created in Stripe
+on that save, and its real product and price ids are written back to KV.
+Products created after the key is set behave normally.
+
 ## Webhook Setup (Optional)
 
 Webhooks allow you to track order completion and payment events in real-time.
