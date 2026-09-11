@@ -116,7 +116,7 @@ async function setup() {
 
   // Collect required credentials
   let cloudflareApiToken, cloudflareAccountId, stripeSecretKey, stripePublishableKey
-  let geminiApiKey = '', productLimit = '', adminPassword = 'admin123'
+  let openRouterApiKey = '', productLimit = '', adminPassword = 'admin123'
 
   // Check if Wrangler is authenticated
   let isWranglerAuthenticated = false
@@ -154,7 +154,7 @@ async function setup() {
     stripePublishableKey = args.stripe_publishable_key
     adminPassword = args.password || 'admin123'
     productLimit = args.product_limit || ''
-    geminiApiKey = args.gemini_api_key || ''
+    openRouterApiKey = args.openrouter_api_key || ''
     
     // Validate required flags
     const isCloudflareAuthMissing = !cloudflareApiToken || !cloudflareAccountId
@@ -204,7 +204,7 @@ async function setup() {
     stripePublishableKey = await question('Stripe Publishable Key (optional): ') || ''
     
     console.log('\n🔑 AI Configuration (optional - press Enter to skip):\n')
-    geminiApiKey = await question('Gemini API Key (optional): ') || ''
+    openRouterApiKey = await question('OpenRouter API Key (optional): ') || ''
     
     console.log('\n🔑 Store Configuration:\n')
     const productLimitInput = await question('Product Limit (optional - press Enter for unlimited): ') || ''
@@ -376,7 +376,7 @@ bucket_name = "${bucketName}"
   varsSection += `ADMIN_PASSWORD = "${adminPassword}"\n`
   varsSection += `STRIPE_SECRET_KEY = "${stripeSecretKey}"\n`
   
-  if (geminiApiKey) varsSection += `GEMINI_API_KEY = "${geminiApiKey}"\n`
+  if (openRouterApiKey) varsSection += `OPENROUTER_API_KEY = "${openRouterApiKey}"\n`
   if (productLimit) varsSection += `PRODUCT_LIMIT = "${productLimit}"\n`
   
   // Replace the entire SITE_URL line and add all variables
@@ -409,7 +409,7 @@ VITE_STRIPE_PUBLISHABLE_KEY=${stripePublishableKey}
 ADMIN_PASSWORD=${adminPassword}
 SITE_URL=${workerUrl}
 `
-  if (geminiApiKey) envContent += `GEMINI_API_KEY=${geminiApiKey}\n`
+  if (openRouterApiKey) envContent += `OPENROUTER_API_KEY=${openRouterApiKey}\n`
   if (productLimit) envContent += `PRODUCT_LIMIT=${productLimit}\n`
   
   writeFileSync('.env', envContent)

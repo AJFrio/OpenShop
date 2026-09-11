@@ -46,7 +46,7 @@ Perfect for entrepreneurs, developers, and businesses who want a professional on
 - **Rich Media Support** - Multiple product images with carousel navigation
 - **Store Customization** - Dynamic logo management (text or image)
 - **Secure Admin System** - Token-based authentication with session management
-- **AI Image Generation** (Optional) - Generate product images with Gemini AI
+- **AI Image Generation** (Optional) - Generate product images via OpenRouter
 - **Google Drive Integration** (Optional) - Store and serve images from Google Drive
 
 ---
@@ -78,7 +78,7 @@ Perfect for entrepreneurs, developers, and businesses who want a professional on
    - **Cloudflare API Token** - [Get token here](https://dash.cloudflare.com/?to=/:account/api-tokens)
    - **Cloudflare Account ID** - Found in your Cloudflare dashboard
    - *(Optional)* **Stripe Keys** - Press Enter to skip; you can add them later
-   - *(Optional)* **Gemini API Key** - For AI image generation
+   - *(Optional)* **OpenRouter API Key** - For AI image generation
    - *(Optional)* **Admin Password** - Press Enter for the default
    - *(Optional)* **Google OAuth** - For Google Drive integration
 
@@ -188,7 +188,7 @@ Complete documentation is available in the `docs/` directory:
 - **[API Reference](docs/API.md)** - Complete API documentation
 - **[Configuration Guide](docs/CONFIGURATION.md)** - Environment variables and setup
 - **[Stripe Integration](docs/STRIPE.md)** - Payment processing and webhook setup
-- **[AI & Media](docs/AI_MEDIA.md)** - Gemini AI and Google Drive integration
+- **[AI & Media](docs/AI_MEDIA.md)** - OpenRouter AI and Google Drive integration
 - **[Deployment Guide](docs/DEPLOYMENT.md)** - Deployment instructions and multi-site setup
 - **[Performance Guide](docs/PERFORMANCE.md)** - Performance metrics and optimization
 - **[Customization Guide](docs/CUSTOMIZATION.md)** - Frontend and backend customization

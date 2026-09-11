@@ -21,20 +21,15 @@ ADMIN_PASSWORD=your_secure_admin_password
 # Site Configuration
 SITE_URL=https://your-project.workers.dev
 
-# Optional: AI (Gemini) & Google Drive
-# Used for admin-side AI image generation and Drive uploads
-GEMINI_API_KEY=your_gemini_api_key
+# Optional: AI & Google Drive
+# OpenRouter is used for admin-side AI image generation (and the Store Agent)
+OPENROUTER_API_KEY=your_openrouter_api_key
+# Optional: override the default agent model (any OpenRouter model ID)
+OPENROUTER_MODEL=z-ai/glm-5.3-flash
 GOOGLE_CLIENT_ID=your_google_oauth_client_id
 GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
 # Optional: customize the root folder created/used in Drive
 DRIVE_ROOT_FOLDER=OpenShop
-
-# Optional: Store Agent (dashboard AI assistant, powered by OpenRouter)
-# Enables the "Store Agent" chat on the admin dashboard, which can manage
-# products, collections, and pages on behalf of the merchant.
-OPENROUTER_API_KEY=your_openrouter_api_key
-# Optional: override the default agent model (any OpenRouter model ID)
-OPENROUTER_MODEL=z-ai/glm-5.3-flash
 ```
 
 ## Cloudflare Setup
@@ -44,7 +39,7 @@ The setup script (`npm run setup`) automatically configures:
 - ✅ **KV Namespace** - Creates isolated data storage
 - ✅ **Worker Deployment** - Deploys your application
 - ✅ **Environment Variables** - Sets all required secrets
-- ✅ **Optional Secrets** - You can add `GEMINI_API_KEY`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET` later via `wrangler secret put` to enable AI and Drive features
+- ✅ **Optional Secrets** - You can add `OPENROUTER_API_KEY`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET` later via `wrangler secret put` to enable AI and Drive features
 - ✅ **Static Assets** - Configures asset serving
 - ✅ **Custom Domain** - Sets up your unique subdomain
 
@@ -79,8 +74,8 @@ When creating your Cloudflare API token, ensure it has the following permissions
 To add optional secrets to your deployed Worker:
 
 ```bash
-# Add Gemini API key
-wrangler secret put GEMINI_API_KEY
+# Add OpenRouter API key (enables the dashboard Store Agent and AI image generation)
+wrangler secret put OPENROUTER_API_KEY
 
 # Add Google OAuth credentials
 wrangler secret put GOOGLE_CLIENT_ID
@@ -88,9 +83,6 @@ wrangler secret put GOOGLE_CLIENT_SECRET
 
 # Add custom Drive root folder
 wrangler secret put DRIVE_ROOT_FOLDER
-
-# Add OpenRouter API key (enables the dashboard Store Agent)
-wrangler secret put OPENROUTER_API_KEY
 ```
 
 ## Wrangler Configuration
@@ -145,12 +137,12 @@ This URL is used for:
 
 ## Optional Features
 
-### AI Image Generation (Gemini)
+### AI Image Generation (OpenRouter)
 
 To enable AI image generation in the admin:
 
-1. Get a [Google Gemini API key](https://ai.google.dev/)
-2. Add `GEMINI_API_KEY` to your environment variables
+1. Get an [OpenRouter API key](https://openrouter.ai/)
+2. Add `OPENROUTER_API_KEY` to your environment variables
 3. The feature will be available in the admin media picker
 
 ### Google Drive Integration
