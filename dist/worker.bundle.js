@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-09-11T00:14:47Z
+// Worker Bundle - Built 2026-09-11T00:15:36Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -5528,6 +5528,7 @@ var ALLOWED_DRIVE_HOSTS = [
 ];
 var ADMIN_TOKEN_TTL = 86400;
 var ADMIN_TOKEN_TTL_MS = 864e5;
+var DEFAULT_ADMIN_PASSWORD = "admin123";
 var KV_KEYS = {
   PRODUCTS_LIST: "products:all",
   COLLECTIONS_LIST: "collections:all",
@@ -13407,12 +13408,14 @@ router9.post("/login", asyncHandler(async (c) => {
   const devSettings = new DeveloperSettingsService(kvNamespace);
   const stored = await devSettings.getRaw();
   let isValid;
+  let usingDefaultPassword = false;
   if (stored.ADMIN_PASSWORD_HASH && stored.ADMIN_PASSWORD_SALT) {
     const { hash } = await hashPassword(password, stored.ADMIN_PASSWORD_SALT);
     isValid = await timingSafeEqualStrings(hash, stored.ADMIN_PASSWORD_HASH);
   } else {
-    const adminPassword = c.env.ADMIN_PASSWORD || "admin123";
+    const adminPassword = c.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
     isValid = await timingSafeEqualStrings(password, adminPassword);
+    usingDefaultPassword = adminPassword === DEFAULT_ADMIN_PASSWORD;
   }
   if (!isValid) {
     await kvNamespace.put(rateLimitKey, (attemptCount + 1).toString(), {
@@ -13429,7 +13432,7 @@ router9.post("/login", asyncHandler(async (c) => {
     expirationTtl: ADMIN_TOKEN_TTL
     // 24 hours
   });
-  return c.json({ token });
+  return c.json({ token, mustChangePassword: usingDefaultPassword });
 }));
 var auth_default = router9;
 
