@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '../ui/button'
 import { adminAPI } from '../../api/admin'
 import {
@@ -207,7 +208,7 @@ export function AgentChat() {
     sendMessage(detail ? `${input.trim()}\n\n${detail}`.trim() : undefined)
   }
 
-  const canSend = !sending && configured && (!!input.trim() || !!describeDesign())
+  const canSend = !sending && (!!input.trim() || !!describeDesign())
   const hasTranscript = messages.length > 0 || sending
 
   return (
@@ -265,18 +266,6 @@ export function AgentChat() {
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {!configured && (
-        <div className="mb-3 flex items-center gap-2 text-sm text-[var(--admin-text-secondary)]">
-          <AlertCircle className="h-4 w-4 shrink-0 text-[var(--admin-text-muted)]" />
-          <p>
-            The store agent needs an OpenRouter API key.
-            <code className="ml-2 text-xs text-[var(--admin-text-muted)]">
-              wrangler secret put OPENROUTER_API_KEY
-            </code>
-          </p>
         </div>
       )}
 
@@ -359,7 +348,7 @@ export function AgentChat() {
               : 'Ask the agent to update your store…'
           }
           rows={1}
-          disabled={sending || !configured}
+          disabled={sending}
           className="min-h-[3.25rem] w-full resize-none overflow-hidden border-0 bg-transparent px-4 pt-3.5 pb-1 text-[15px] leading-relaxed text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none disabled:opacity-50"
         />
 
@@ -372,7 +361,6 @@ export function AgentChat() {
               aria-pressed={showDesigner}
               title="Describe a merch design"
               className="h-8 w-8 shrink-0 rounded-full"
-              disabled={!configured}
             >
               <ImagePlus className="h-4 w-4" />
               <span className="sr-only">Describe a merch design</span>
@@ -394,6 +382,20 @@ export function AgentChat() {
                 ))}
               </select>
             )}
+            {!configured && (
+              <p className="flex min-w-0 items-center gap-1 truncate px-1 text-[11px] text-[var(--admin-text-muted)]">
+                <AlertCircle className="h-3 w-3 shrink-0" />
+                <span className="truncate">
+                  Add an OpenRouter key in{' '}
+                  <Link
+                    to="/admin/developer-settings"
+                    className="underline hover:text-[var(--admin-text-secondary)]"
+                  >
+                    Developer Settings
+                  </Link>
+                </span>
+              </p>
+            )}
           </div>
           <Button
             size="icon"
@@ -407,7 +409,7 @@ export function AgentChat() {
         </div>
       </div>
 
-      {!hasTranscript && configured && (
+      {!hasTranscript && (
         <div className="mt-3 flex flex-wrap gap-2">
           {EXAMPLE_PROMPTS.map((prompt) => (
             <button
