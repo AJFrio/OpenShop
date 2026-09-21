@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '../ui/button'
-import { Card, CardContent } from '../ui/card'
 import { adminAPI } from '../../api/admin'
 import {
   Bot,
   Send,
-  Sparkles,
   Wrench,
   AlertCircle,
   ImagePlus,
@@ -75,6 +74,12 @@ const EXAMPLE_PROMPTS = [
   'Create a "Summer Sale" collection',
 ]
 
+function resizeComposer(el) {
+  if (!el) return
+  el.style.height = 'auto'
+  el.style.height = `${Math.min(el.scrollHeight, 160)}px`
+}
+
 export function AgentChat() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
@@ -87,6 +92,7 @@ export function AgentChat() {
   const [design, setDesign] = useState({ model: '', pose: '', product: '', logo: '' })
   const [references, setReferences] = useState({})
   const scrollRef = useRef(null)
+  const inputRef = useRef(null)
 
   useEffect(() => {
     let cancelled = false
@@ -111,6 +117,10 @@ export function AgentChat() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }, [messages, sending])
+
+  useEffect(() => {
+    resizeComposer(inputRef.current)
+  }, [input])
 
   const sendMessage = useCallback(
     async (text) => {
@@ -189,217 +199,230 @@ export function AgentChat() {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      sendMessage()
+      submitComposer()
     }
   }
 
-  return (
-    <Card>
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[var(--admin-text-muted)]" />
-            <h3 className="text-base font-semibold text-[var(--admin-text-primary)]">Store Agent</h3>
-          </div>
-          {configured && models.length > 0 && (
-            <select
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              className="text-xs bg-[var(--admin-bg-elevated)] border border-[var(--admin-border-primary)] rounded-md px-2 py-1 text-[var(--admin-text-secondary)] max-w-52"
-              aria-label="Agent model"
-            >
-              {!models.some((m) => m.id === selectedModel) && selectedModel && (
-                <option value={selectedModel}>{selectedModel}</option>
-              )}
-              {models.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
+  const submitComposer = () => {
+    const detail = describeDesign()
+    sendMessage(detail ? `${input.trim()}\n\n${detail}`.trim() : undefined)
+  }
 
-        {!configured ? (
-          <div className="flex flex-col items-center py-10 text-center">
-            <AlertCircle className="w-10 h-10 text-[var(--admin-text-muted)] mb-3" />
-            <p className="text-sm text-[var(--admin-text-secondary)] mb-1">
-              The store agent needs an OpenRouter API key.
-            </p>
-            <code className="text-xs text-[var(--admin-text-muted)]">wrangler secret put OPENROUTER_API_KEY</code>
-          </div>
-        ) : (
-          <>
-            <div ref={scrollRef} className="space-y-3 overflow-y-auto max-h-96 mb-3 pr-1">
-              {messages.length === 0 && (
-                <div className="flex flex-col items-start gap-2 py-4">
-                  <div className="flex items-start gap-2">
-                    <div className="w-7 h-7 rounded-full bg-[var(--admin-bg-elevated)] border border-[var(--admin-border-primary)] flex items-center justify-center shrink-0">
-                      <Bot className="w-4 h-4 text-[var(--admin-text-secondary)]" />
-                    </div>
-                    <p className="text-sm text-[var(--admin-text-secondary)] pt-1">
-                      Hi! I can manage your products, collections, and pages. Ask me to make a change to your store.
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 pl-9">
-                    {EXAMPLE_PROMPTS.map((prompt) => (
-                      <Button
-                        key={prompt}
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => sendMessage(prompt)}
-                      >
-                        {prompt}
-                      </Button>
-                    ))}
-                  </div>
+  const canSend = !sending && (!!input.trim() || !!describeDesign())
+  const hasTranscript = messages.length > 0 || sending
+
+  return (
+    <section className="w-full" aria-label="Store agent" data-testid="store-agent">
+      {hasTranscript && (
+        <div
+          ref={scrollRef}
+          className="mb-3 max-h-72 space-y-3 overflow-y-auto px-0.5"
+          aria-live="polite"
+        >
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`flex gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              {message.role === 'assistant' && (
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--admin-bg-elevated)]">
+                  <Bot className="h-3.5 w-3.5 text-[var(--admin-text-secondary)]" />
                 </div>
               )}
-
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  {message.role === 'assistant' && (
-                    <div className="w-7 h-7 rounded-full bg-[var(--admin-bg-elevated)] border border-[var(--admin-border-primary)] flex items-center justify-center shrink-0">
-                      <Bot className="w-4 h-4 text-[var(--admin-text-secondary)]" />
-                    </div>
-                  )}
-                  <div
-                    className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
-                      message.role === 'user'
-                        ? 'bg-[var(--admin-accent)] text-white'
-                        : 'bg-[var(--admin-bg-elevated)] border border-[var(--admin-border-primary)] text-[var(--admin-text-primary)]'
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap">{message.content}</p>
-                    {Array.isArray(message.actions) && message.actions.length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        {message.actions.map((action, i) => (
-                          <div
-                            key={i}
-                            className={`flex items-center gap-1.5 text-xs ${
-                              action.ok ? 'text-[var(--admin-success)]' : 'text-[var(--admin-error)]'
-                            }`}
-                          >
-                            <Wrench className="w-3 h-3 shrink-0" />
-                            <span>{action.summary || action.tool}</span>
-                          </div>
-                        ))}
+              <div
+                className={`max-w-[min(80%,42rem)] rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
+                  message.role === 'user'
+                    ? 'bg-[var(--admin-accent)] text-white'
+                    : 'bg-[var(--admin-bg-secondary)] text-[var(--admin-text-primary)]'
+                }`}
+              >
+                <p className="whitespace-pre-wrap">{message.content}</p>
+                {Array.isArray(message.actions) && message.actions.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {message.actions.map((action, i) => (
+                      <div
+                        key={i}
+                        className={`flex items-center gap-1.5 text-xs ${
+                          action.ok ? 'text-[var(--admin-success)]' : 'text-[var(--admin-error)]'
+                        }`}
+                      >
+                        <Wrench className="h-3 w-3 shrink-0" />
+                        <span>{action.summary || action.tool}</span>
                       </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {sending && (
+            <div className="flex justify-start gap-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--admin-bg-elevated)]">
+                <Bot className="h-3.5 w-3.5 text-[var(--admin-text-secondary)]" />
+              </div>
+              <div className="rounded-2xl bg-[var(--admin-bg-secondary)] px-3.5 py-2.5">
+                <div className="admin-spinner h-4 w-4"></div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {error && (
+        <p className="mb-2 text-xs text-[var(--admin-error)]" role="alert">
+          {error}
+        </p>
+      )}
+
+      <div
+        className="agent-composer w-full rounded-2xl border border-[var(--admin-border-primary)] bg-[var(--admin-bg-secondary)] shadow-[var(--admin-shadow-sm)] transition-[border-color,box-shadow] duration-200 focus-within:border-[var(--admin-accent)]/50 focus-within:shadow-[var(--admin-shadow-glow)]"
+        data-testid="agent-composer"
+      >
+        {showDesigner && (
+          <div className="border-b border-[var(--admin-border-primary)] px-4 py-3">
+            <p className="mb-3 text-xs text-[var(--admin-text-muted)]">
+              Fill in what you can. Anything left blank is left to the agent.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {DESIGN_FIELDS.map((field) => (
+                <div key={field.key}>
+                  <label
+                    htmlFor={`design-${field.key}`}
+                    className="block text-xs font-medium text-[var(--admin-text-secondary)]"
+                  >
+                    {field.label}
+                  </label>
+                  <input
+                    id={`design-${field.key}`}
+                    type="text"
+                    value={design[field.key]}
+                    placeholder={field.placeholder}
+                    onChange={(e) => setDesign({ ...design, [field.key]: e.target.value })}
+                    className="mt-1 h-8 w-full rounded-lg border-0 bg-[var(--admin-bg-elevated)] px-2.5 text-sm text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--admin-accent)]/40"
+                  />
+                  <div className="mt-1 flex items-center justify-between gap-2">
+                    <span className="text-[11px] text-[var(--admin-text-muted)]">{field.help}</span>
+                    {field.image && (
+                      references[field.key] ? (
+                        <button
+                          type="button"
+                          onClick={() => clearReference(field.key)}
+                          className="inline-flex items-center gap-1 text-[11px] text-[var(--admin-text-secondary)] hover:text-[var(--admin-error)]"
+                        >
+                          <X className="h-3 w-3" />
+                          {references[field.key].name || 'image'}
+                        </button>
+                      ) : (
+                        <label className="inline-flex cursor-pointer items-center gap-1 text-[11px] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]">
+                          <ImagePlus className="h-3 w-3" />
+                          Add image
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            onChange={(e) => attachReference(field.key, e.target.files?.[0])}
+                          />
+                        </label>
+                      )
                     )}
                   </div>
                 </div>
               ))}
-
-              {sending && (
-                <div className="flex gap-2 justify-start">
-                  <div className="w-7 h-7 rounded-full bg-[var(--admin-bg-elevated)] border border-[var(--admin-border-primary)] flex items-center justify-center shrink-0">
-                    <Bot className="w-4 h-4 text-[var(--admin-text-secondary)]" />
-                  </div>
-                  <div className="rounded-lg px-3 py-2 bg-[var(--admin-bg-elevated)] border border-[var(--admin-border-primary)]">
-                    <div className="admin-spinner"></div>
-                  </div>
-                </div>
-              )}
             </div>
-
-            {error && (
-              <p className="text-xs text-[var(--admin-error)] mb-2">{error}</p>
-            )}
-
-            {showDesigner && (
-              <div className="mb-3 rounded-md border border-[var(--admin-border-primary)] p-3">
-                <p className="mb-3 text-xs text-[var(--admin-text-secondary)]">
-                  Fill in what you can. Anything left blank is left to the agent,
-                  and an attached image is used as the reference for that field.
-                </p>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {DESIGN_FIELDS.map((field) => (
-                    <div key={field.key}>
-                      <label
-                        htmlFor={`design-${field.key}`}
-                        className="block text-xs font-medium text-[var(--admin-text-primary)]"
-                      >
-                        {field.label}
-                      </label>
-                      <input
-                        id={`design-${field.key}`}
-                        type="text"
-                        value={design[field.key]}
-                        placeholder={field.placeholder}
-                        onChange={(e) => setDesign({ ...design, [field.key]: e.target.value })}
-                        className="mt-1 h-8 w-full rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] px-2 text-sm text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)]"
-                      />
-                      <div className="mt-1 flex items-center justify-between gap-2">
-                        <span className="text-[11px] text-[var(--admin-text-muted)]">{field.help}</span>
-                        {field.image && (
-                          references[field.key] ? (
-                            <button
-                              type="button"
-                              onClick={() => clearReference(field.key)}
-                              className="inline-flex items-center gap-1 text-[11px] text-[var(--admin-text-secondary)] hover:text-[var(--admin-error)]"
-                            >
-                              <X className="h-3 w-3" />
-                              {references[field.key].name || 'image'}
-                            </button>
-                          ) : (
-                            <label className="inline-flex cursor-pointer items-center gap-1 text-[11px] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]">
-                              <ImagePlus className="h-3 w-3" />
-                              Add image
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="sr-only"
-                                onChange={(e) => attachReference(field.key, e.target.files?.[0])}
-                              />
-                            </label>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setShowDesigner((v) => !v)}
-                aria-pressed={showDesigner}
-                title="Describe a merch design"
-              >
-                <ImagePlus className="w-4 h-4" />
-              </Button>
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={showDesigner
-                  ? 'Describe what you want to sell, e.g. "list this for $45"'
-                  : 'Ask the agent to update your store...'}
-                rows={1}
-                disabled={sending}
-                className="flex-1 resize-none rounded-md border border-[var(--admin-border-primary)] bg-transparent px-3 py-2 text-sm text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--admin-border-focus)] disabled:opacity-50"
-              />
-              <Button
-                size="sm"
-                onClick={() => {
-                  const detail = describeDesign()
-                  sendMessage(detail ? `${input.trim()}\n\n${detail}`.trim() : undefined)
-                }}
-                disabled={sending || (!input.trim() && !describeDesign())}
-              >
-                <Send className="w-4 h-4" />
-              </Button>
-            </div>
-          </>
+          </div>
         )}
-      </CardContent>
-    </Card>
+
+        <label htmlFor="store-agent-input" className="sr-only">
+          Ask the store agent
+        </label>
+        <textarea
+          id="store-agent-input"
+          ref={inputRef}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={
+            showDesigner
+              ? 'Describe what you want to sell, e.g. "list this for $45"'
+              : 'Ask the agent to update your store…'
+          }
+          rows={1}
+          disabled={sending}
+          className="min-h-[3.25rem] w-full resize-none overflow-hidden border-0 bg-transparent px-4 pt-3.5 pb-1 text-[15px] leading-relaxed text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none disabled:opacity-50"
+        />
+
+        <div className="flex items-center justify-between gap-2 px-2 pb-2 pt-1">
+          <div className="flex min-w-0 items-center gap-1">
+            <Button
+              size="icon"
+              variant={showDesigner ? 'secondary' : 'ghost'}
+              onClick={() => setShowDesigner((v) => !v)}
+              aria-pressed={showDesigner}
+              title="Describe a merch design"
+              className="h-8 w-8 shrink-0 rounded-full"
+            >
+              <ImagePlus className="h-4 w-4" />
+              <span className="sr-only">Describe a merch design</span>
+            </Button>
+            {configured && models.length > 0 && (
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="max-w-44 truncate rounded-full border-0 bg-transparent px-2 py-1 text-[11px] text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)] focus:outline-none"
+                aria-label="Agent model"
+              >
+                {!models.some((m) => m.id === selectedModel) && selectedModel && (
+                  <option value={selectedModel}>{selectedModel}</option>
+                )}
+                {models.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            {!configured && (
+              <p className="flex min-w-0 items-center gap-1 truncate px-1 text-[11px] text-[var(--admin-text-muted)]">
+                <AlertCircle className="h-3 w-3 shrink-0" />
+                <span className="truncate">
+                  Add an OpenRouter key in{' '}
+                  <Link
+                    to="/admin/developer-settings"
+                    className="underline hover:text-[var(--admin-text-secondary)]"
+                  >
+                    Developer Settings
+                  </Link>
+                </span>
+              </p>
+            )}
+          </div>
+          <Button
+            size="icon"
+            onClick={submitComposer}
+            disabled={!canSend}
+            className="h-8 w-8 shrink-0 rounded-full"
+            aria-label="Send message"
+          >
+            <Send className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+
+      {!hasTranscript && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {EXAMPLE_PROMPTS.map((prompt) => (
+            <button
+              key={prompt}
+              type="button"
+              onClick={() => sendMessage(prompt)}
+              className="rounded-full border border-[var(--admin-border-primary)] bg-transparent px-3 py-1 text-xs text-[var(--admin-text-secondary)] transition-colors hover:border-[var(--admin-border-secondary)] hover:text-[var(--admin-text-primary)]"
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
   )
 }
