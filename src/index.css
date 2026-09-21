@@ -53,4 +53,16 @@
   animation: bounce-in 0.5s ease-out;
 }
 
+/* Full-width store agent composer on the admin dashboard */
+.agent-composer {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 40%),
+    var(--admin-bg-secondary);
+}
+
+.agent-composer select option {
+  background-color: var(--admin-bg-elevated);
+  color: var(--admin-text-primary);
+}
+
 /* Admin-specific utility classes */

@@ -36,6 +36,10 @@ src/api/                # Fetch wrappers for public/admin APIs
 
 Public routes and admin are client-side via React Router. The Worker serves `index.html` for SPA paths—see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
+## Admin dashboard
+
+`DashboardPage` leads with a full-width store agent composer (`AgentChat`). Analytics, period filters, and quick actions sit in an Overview section below it and must not gate the composer — the agent stays visible while stats load.
+
 ## When changing UI
 
 1. Match existing component patterns in `src/components/ui/`.
