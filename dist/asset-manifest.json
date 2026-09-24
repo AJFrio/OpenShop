@@ -1,54 +1,54 @@
 {
-  "/assets/Editor-44C53YAG-Dj29z3Yk.js": {
-    "hash": "471713984ce69093ebcbb4fbf21c74822520e45f3d24fb3eb9ecf212890f18b7",
+  "/assets/Editor-44C53YAG-CsgIHs2u.js": {
+    "hash": "2a973b38b32db655600f0e51fd906a72c583f342c2b6d119c4702f7e18d0edb2",
     "size": 2259
+  },
+  "/assets/PuckPageEditor-BY6DVa0W.js": {
+    "hash": "11181adc56f9e79b52bb225c64ebbb4b7bfe34a40a05f0c299eaa2e2c66e04f9",
+    "size": 7999
   },
   "/assets/PuckPageEditor-C-wiggwY.css": {
     "hash": "87a3ad6170d7c85c35f1a087cb16c7c0ced39dedcf31e7dc1f389c33cfd217e7",
     "size": 90664
   },
-  "/assets/PuckPageEditor-CV7qDgwm.js": {
-    "hash": "fdfeace4aed18a7b8b2416f77802321de37fa8f997f8f3bb49860334f300985b",
-    "size": 7999
-  },
-  "/assets/Render-DQXAYUBI-D4dwUX4c.js": {
-    "hash": "3878b049a0d055b737d6e4c547a0589a49a4580425ba217dcfd5edd318d0822e",
+  "/assets/Render-DQXAYUBI-BWjcFauf.js": {
+    "hash": "3184da4b589d87c339a4f21ffde964e8d7d59aa423b879558a1d461bbad9d7ee",
     "size": 1732
   },
-  "/assets/chunk-2CNEFIQP-MfIf5KoU.js": {
-    "hash": "e5a16b5f2e5c45c13a6bba53ba104ac12f520643ba0b97878352e8a436719ccd",
+  "/assets/chunk-2CNEFIQP-DbW-13iV.js": {
+    "hash": "65590e81afd19ec416c80784528103651b6d1fd306af16e8f86929a64c8024c3",
     "size": 58422
   },
-  "/assets/full-7ZJV44EE-BS-UVyu4.js": {
-    "hash": "4c8428fc0d3b3932f96ade674150b290eb2b44267dd4082c8fcd11155db8399c",
+  "/assets/full-7ZJV44EE-BQ9OEOCh.js": {
+    "hash": "ec3b6f1d0278d89a91c8579a7932ae6a98b7d952fa662b0f67d3caf3d729e156",
     "size": 2153
-  },
-  "/assets/index-96vVVMly.js": {
-    "hash": "c348e0cdcc6de680d08507db8a6947353dcead27cfec681e84a7ab36977903fe",
-    "size": 1383812
   },
   "/assets/index-9BA8Un5Q.css": {
     "hash": "8c1950683ae6cebd595c609f0cdf70f2d60eb71f58a8732ac4a5b43fac4056db",
     "size": 71017
   },
-  "/assets/index-BbczSNc6.js": {
-    "hash": "1029226b8bbf5292bb599c165af5463c30287435e573b042e3414ba90f897fda",
+  "/assets/index-D9arY-DH.js": {
+    "hash": "b7ee3471c4761553396825931db895eb4128908a18fb31ff223195641e4b0272",
+    "size": 1383946
+  },
+  "/assets/index-DLokk9kk.js": {
+    "hash": "425dcc74a42c14dd07b7b70bee406b037b688247f746e37f697aa75f234dbb91",
     "size": 14586
   },
   "/assets/index-minhF0Aa.js": {
     "hash": "80a600ce710f390fa831c5bcb445baa09e993594cdf705dc30b03d01f9c62a16",
     "size": 277762
   },
-  "/assets/loaded-36WRJPBT-1vELQ2hv.js": {
-    "hash": "51f762a4fa6c0c2a5f9405edc1fb11e1c4073213a04b9c52b06f0e7d130d58fd",
+  "/assets/loaded-36WRJPBT-O_1NFQtX.js": {
+    "hash": "dc24dc59e55e77eeaa2c68ddccf7bf33964380554ba75d01a586dc5dacd61ca3",
     "size": 630
   },
-  "/assets/loaded-JKA25A3T-DuiELsu4.js": {
-    "hash": "1e2982fc95958768176c81ede7878948a0686431978ee47924ec32f865afdc20",
+  "/assets/loaded-JKA25A3T-C_pNbfSH.js": {
+    "hash": "8c7e1f43191c8a691bc56fbbe9452999e7cdd8b0098a75e183a090fb5381faaf",
     "size": 677
   },
-  "/assets/loaded-SMPR6KZF-7PYhdQez.js": {
-    "hash": "09b41231857e363a68e038209e1c49669482d708417e6277747093caeee85dc0",
+  "/assets/loaded-SMPR6KZF-BWG0AAPM.js": {
+    "hash": "a98100dad23ef772d7565e7390f83524ccd1084f76233ec6d852e46e41102938",
     "size": 702
   },
   "/cart.png": {
@@ -56,7 +56,7 @@
     "size": 45827
   },
   "/index.html": {
-    "hash": "cd64e9bff779139e4f8832512f2fed61711498d8c5b1147831116e5ea31f64f8",
+    "hash": "37eff26780101ab38bc87fa13563301f04895f33480c263281c4f553a1439956",
     "size": 746
   },
   "/logo.png": {
