@@ -40,6 +40,8 @@ Public routes and admin are client-side via React Router. The Worker serves `ind
 
 `DashboardPage` leads with a full-width store agent composer (`AgentChat`). Analytics, period filters, and quick actions sit in an Overview section below it and must not gate the composer — the agent stays visible while stats load.
 
+The agent can persist the same catalogue, pages, media, branding, and fulfillment edits as the rest of admin. Tool list and limits: [AGENT.md](./AGENT.md).
+
 ## When changing UI
 
 1. Match existing component patterns in `src/components/ui/`.

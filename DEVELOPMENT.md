@@ -106,7 +106,7 @@ products; `GET /api/collections` returns ≥2; `GET /api/store-settings` returns
   skipped (logged once) while KV writes continue, so admin CRUD works offline. Any other
   key value behaves normally.
 - **R2 is simulated locally** — objects live in `.wrangler/state`, not any real bucket.
-- **Google Drive OAuth / AI features** are not usable locally (no real credentials).
+- **Google Drive OAuth** is not usable locally (no real credentials). The store agent works if you set `OPENROUTER_API_KEY` in `.dev.vars`; optionally set `OPENROUTER_BASE` to point at a compatible mock instead of `https://openrouter.ai/api/v1`.
 - **Stripe-backed analytics** return nothing without a real key.
 
 ## Testing

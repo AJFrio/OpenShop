@@ -1,10 +1,17 @@
 // Admin agent routes - AI assistant backed by OpenRouter that can manage
-// products, collections, and pages by calling the existing admin endpoints.
+// the full admin surface by calling existing admin endpoints in-process.
 import { Hono } from 'hono'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError } from '../../utils/errors.js'
 import { resolveSetting } from '../../services/DeveloperSettingsService.js'
 import { getKVNamespace } from '../../utils/kv.js'
+import {
+  TOOL_DEFINITIONS,
+  MAX_TOOL_ITERATIONS,
+  buildSystemPrompt,
+  executeAgentTool,
+  summarizeResult,
+} from './agentTools.js'
 
 const router = new Hono()
 
@@ -17,240 +24,16 @@ export function setAgentApp(app) {
   appRef = app
 }
 
+export { summarizeResult, TOOL_DEFINITIONS }
+
 const OPENROUTER_BASE = 'https://openrouter.ai/api/v1'
 const DEFAULT_MODEL = 'z-ai/glm-5.3-flash'
-const MAX_TOOL_ITERATIONS = 8
-
-const PAGE_COMPONENTS_DOC = `Page builder components (each content item is { "type": string, "props": object }):
-- HeroSection: props { title, subtitle, imageUrl, primaryLabel, primaryPath, secondaryLabel, secondaryPath }
-- FeaturedProducts: props { heading, maxItems (1-12) }
-- ProductGrid: props { heading, showCollectionFilter (boolean) }
-- RichTextSection: props { heading, body (HTML string) }
-- ImageTextSection: props { imageUrl, heading, body, imageAlign ("left"|"right") }
-Root props support { title, description } for SEO.`
-
-function buildSystemPrompt({ hasReferences = false } = {}) {
-  return [
-    'You are the OpenShop store agent. You help merchants run their store by managing products, collections, and storefront pages.',
-    'Use the provided tools to read and change store data. Prefer listing entities first to find correct IDs/slugs before updating or deleting.',
-    'When asked to "change my site", build or edit pages using the page builder components documented below.',
-    'Be concise in your replies. Summarize exactly what you created, changed, or deleted.',
-    'Prices are decimal amounts (e.g. 19.99) in the store currency (USD unless told otherwise).',
-    'To sell something that needs a picture, call generate_product_image first, then pass the URL '
-      + 'it returns as imageUrl on create_product. Do not invent image URLs.',
-    'When generating an image, fill the model, pose, product and logo fields separately rather than '
-      + 'putting everything in description — each one steers a different part of the picture. '
-      + 'Leave pose blank to keep the pose from the reference image.',
-    hasReferences
-      ? 'The user attached reference images. They are passed to generate_product_image automatically; '
-        + 'you do not need to describe or upload them.'
-      : 'The user attached no reference images, so describe the model, garment and artwork in words.',
-    '',
-    PAGE_COMPONENTS_DOC,
-  ].join('\n')
-}
-
-const TOOL_DEFINITIONS = [
-  {
-    type: 'function',
-    function: {
-      name: 'list_products',
-      description: 'List all products in the store',
-      parameters: { type: 'object', properties: {}, required: [] },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'get_product',
-      description: 'Get a single product by ID',
-      parameters: {
-        type: 'object',
-        properties: { id: { type: 'string', description: 'Product ID' } },
-        required: ['id'],
-      },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'create_product',
-      description: 'Create a new product. Syncs to Stripe like the regular admin flow.',
-      parameters: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          price: { type: 'number', description: 'Decimal price, e.g. 19.99' },
-          description: { type: 'string' },
-          currency: { type: 'string', description: 'ISO currency code, defaults to USD' },
-          imageUrl: { type: 'string', description: 'Main image URL' },
-          images: { type: 'array', items: { type: 'string' } },
-          collectionId: { type: 'string', description: 'Collection to assign the product to' },
-        },
-        required: ['name', 'price'],
-      },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'generate_product_image',
-      description:
-        'Generate a product or merchandise mockup image and store it. Returns a URL to pass '
-        + 'as imageUrl when creating a product. Reference images the user attached are used '
-        + 'automatically; describe who should wear it, the pose, the garment and the artwork '
-        + 'in the matching fields rather than cramming everything into one description.',
-      parameters: {
-        type: 'object',
-        properties: {
-          description: { type: 'string', description: 'Overall description of the desired image' },
-          model: { type: 'string', description: 'Who is wearing the item, e.g. "a young woman with short dark hair"' },
-          pose: { type: 'string', description: 'How they are posed. Leave blank to keep the pose from the reference image.' },
-          product: { type: 'string', description: 'The garment or product, e.g. "a heather grey hoodie"' },
-          logo: { type: 'string', description: 'What is printed on the item' },
-        },
-        required: [],
-      },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'update_product',
-      description: 'Update an existing product. Only provided fields are changed.',
-      parameters: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          price: { type: 'number' },
-          description: { type: 'string' },
-          imageUrl: { type: 'string' },
-          images: { type: 'array', items: { type: 'string' } },
-          collectionId: { type: 'string' },
-        },
-        required: ['id'],
-      },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'delete_product',
-      description: 'Delete a product permanently',
-      parameters: {
-        type: 'object',
-        properties: { id: { type: 'string' } },
-        required: ['id'],
-      },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'list_collections',
-      description: 'List all collections in the store',
-      parameters: { type: 'object', properties: {}, required: [] },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'create_collection',
-      description: 'Create a new collection (a named group of products)',
-      parameters: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          description: { type: 'string' },
-        },
-        required: ['name'],
-      },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'update_collection',
-      description: 'Update an existing collection. Only provided fields are changed.',
-      parameters: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          description: { type: 'string' },
-        },
-        required: ['id'],
-      },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'delete_collection',
-      description: 'Delete a collection permanently',
-      parameters: {
-        type: 'object',
-        properties: { id: { type: 'string' } },
-        required: ['id'],
-      },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'list_pages',
-      description: 'List all storefront page-builder pages with their slugs',
-      parameters: { type: 'object', properties: {}, required: [] },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'create_page',
-      description: 'Create a new empty page-builder page. Slug must be lowercase letters, numbers, and dashes (e.g. "summer-sale").',
-      parameters: {
-        type: 'object',
-        properties: { slug: { type: 'string' } },
-        required: ['slug'],
-      },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'update_page',
-      description: 'Create (if missing) or update a page-builder page. Provide SEO title/description and/or a content array of components.',
-      parameters: {
-        type: 'object',
-        properties: {
-          slug: { type: 'string' },
-          seoTitle: { type: 'string' },
-          seoDescription: { type: 'string' },
-          content: {
-            type: 'array',
-            description: 'Ordered list of page sections. Omit to keep existing content.',
-            items: {
-              type: 'object',
-              properties: {
-                type: { type: 'string', enum: ['HeroSection', 'FeaturedProducts', 'ProductGrid', 'RichTextSection', 'ImageTextSection'] },
-                props: { type: 'object' },
-              },
-              required: ['type', 'props'],
-            },
-          },
-        },
-        required: ['slug'],
-      },
-    },
-  },
-]
 
 /**
  * Invoke an internal endpoint on the main app, forwarding the caller's admin
  * token so global auth middleware still applies.
  */
-async function dispatch(c, path, init = {}) {
+async function dispatchFrom(c, path, init = {}) {
   if (!appRef) {
     throw new Error('Agent app reference not initialized')
   }
@@ -271,218 +54,16 @@ async function dispatch(c, path, init = {}) {
   return { status: res.status, ok: res.ok, body }
 }
 
-export function summarizeResult(action, result) {
-  // Tool handlers return { status, data }; `body` is the shape dispatch()
-  // uses internally. Reading the wrong one made every summary report
-  // `undefined` — "Created product "undefined" (undefined)" — even when the
-  // product was created correctly, which reads exactly like a failure.
-  const b = result.data ?? result.body
-  if (!result.ok) {
-    const detail = b?.error || `HTTP ${result.status}`
-    return `Failed: ${detail}`
+async function openRouterBase(env) {
+  const override = env?.OPENROUTER_BASE
+  if (typeof override === 'string' && override.trim()) {
+    return override.trim().replace(/\/$/, '')
   }
-  switch (action.tool) {
-    case 'generate_product_image':
-      return b?.url ? `Generated an image: ${b.url}` : 'Generated an image'
-    case 'create_product':
-      return `Created product "${b?.name}" (${b?.id})`
-    case 'update_product':
-      return `Updated product "${b?.name}" (${b?.id})`
-    case 'delete_product':
-      return `Deleted product ${action.args.id}`
-    case 'create_collection':
-      return `Created collection "${b?.name}" (${b?.id})`
-    case 'update_collection':
-      return `Updated collection "${b?.name}" (${b?.id})`
-    case 'delete_collection':
-      return `Deleted collection ${action.args.id}`
-    case 'create_page':
-      return `Created page "${action.args.slug}"`
-    case 'update_page':
-      return `Updated page "${action.args.slug}"`
-    default:
-      return `${action.tool} ok`
-  }
+  return OPENROUTER_BASE
 }
 
-function trimProduct(p) {
-  if (!p || typeof p !== 'object') return p
-  return {
-    id: p.id,
-    name: p.name,
-    price: p.price,
-    currency: p.currency,
-    description: p.description,
-    imageUrl: p.imageUrl,
-    images: Array.isArray(p.images) ? p.images.slice(0, 5) : undefined,
-    collectionId: p.collectionId,
-    variantCount: Array.isArray(p.variants) ? p.variants.length : 0,
-    archived: !!p.archived,
-  }
-}
-
-async function executeTool(c, name, args) {
-  const a = args || {}
-  switch (name) {
-    case 'list_products': {
-      const r = await dispatch(c, '/api/admin/products')
-      return { status: r.status, data: Array.isArray(r.body) ? r.body.map(trimProduct) : r.body }
-    }
-    case 'get_product': {
-      const r = await dispatch(c, `/api/admin/products/${encodeURIComponent(a.id)}`)
-      return { status: r.status, data: trimProduct(r.body) }
-    }
-    case 'create_product': {
-      const payload = {
-        name: a.name,
-        price: Number(a.price),
-        description: a.description ?? '',
-        currency: a.currency ?? 'USD',
-      }
-      if (a.imageUrl) payload.imageUrl = a.imageUrl
-      if (Array.isArray(a.images)) payload.images = a.images.filter(Boolean)
-      else if (a.imageUrl) payload.images = [a.imageUrl]
-      if (a.collectionId) payload.collectionId = a.collectionId
-      const r = await dispatch(c, '/api/admin/products', { method: 'POST', body: JSON.stringify(payload) })
-      return { status: r.status, data: trimProduct(r.body) }
-    }
-    case 'generate_product_image': {
-      // References come from the chat request, not from the model — it never
-      // sees the image bytes, only the URL it gets back.
-      const r = await dispatch(c, '/api/admin/ai/generate-merch-image', {
-        method: 'POST',
-        body: JSON.stringify({
-          description: a.description ?? '',
-          model: a.model ?? '',
-          pose: a.pose ?? '',
-          product: a.product ?? '',
-          logo: a.logo ?? '',
-          references: c.get('merchReferences') || {},
-        }),
-      })
-      return { status: r.status, data: r.body }
-    }
-    case 'update_product': {
-      const payload = {}
-      if (a.name !== undefined) payload.name = a.name
-      if (a.price !== undefined) payload.price = Number(a.price)
-      if (a.description !== undefined) payload.description = a.description
-      if (a.imageUrl !== undefined) payload.imageUrl = a.imageUrl
-      if (Array.isArray(a.images)) payload.images = a.images.filter(Boolean)
-      if (a.collectionId !== undefined) payload.collectionId = a.collectionId
-      const r = await dispatch(c, `/api/admin/products/${encodeURIComponent(a.id)}`, {
-        method: 'PUT',
-        body: JSON.stringify(payload),
-      })
-      return { status: r.status, data: trimProduct(r.body) }
-    }
-    case 'delete_product': {
-      const r = await dispatch(c, `/api/admin/products/${encodeURIComponent(a.id)}`, { method: 'DELETE' })
-      return { status: r.status, data: r.body ?? null }
-    }
-    case 'list_collections': {
-      const r = await dispatch(c, '/api/admin/collections')
-      return { status: r.status, data: r.body }
-    }
-    case 'create_collection': {
-      const r = await dispatch(c, '/api/admin/collections', {
-        method: 'POST',
-        body: JSON.stringify({ name: a.name, description: a.description ?? '' }),
-      })
-      return { status: r.status, data: r.body }
-    }
-    case 'update_collection': {
-      const payload = {}
-      if (a.name !== undefined) payload.name = a.name
-      if (a.description !== undefined) payload.description = a.description
-      const r = await dispatch(c, `/api/admin/collections/${encodeURIComponent(a.id)}`, {
-        method: 'PUT',
-        body: JSON.stringify(payload),
-      })
-      return { status: r.status, data: r.body }
-    }
-    case 'delete_collection': {
-      const r = await dispatch(c, `/api/admin/collections/${encodeURIComponent(a.id)}`, { method: 'DELETE' })
-      return { status: r.status, data: r.body ?? null }
-    }
-    case 'list_pages': {
-      const r = await dispatch(c, '/api/admin/storefront/pages')
-      return { status: r.status, data: r.body }
-    }
-    case 'create_page':
-    case 'update_page':
-    case 'get_page': {
-      throw new Error(`Tool ${name} handled elsewhere`)
-    }
-    default:
-      return { status: 400, data: { error: `Unknown tool: ${name}` } }
-  }
-}
-
-// Pages need read-modify-write logic, so they are implemented separately.
-async function executePageTool(c, name, args) {
-  const a = args || {}
-  const slug = String(a.slug || '').trim()
-
-  if (name === 'get_page') {
-    const r = await dispatch(c, `/api/admin/storefront/pages/${encodeURIComponent(slug)}`)
-    if (!r.ok) return { status: r.status, data: r.body }
-    const content = Array.isArray(r.body?.data?.content) ? r.body.data.content : []
-    return {
-      status: r.status,
-      data: {
-        slug: r.body.slug,
-        updatedAt: r.body.updatedAt,
-        rootProps: r.body?.data?.root?.props ?? {},
-        content,
-      },
-    }
-  }
-
-  if (name === 'create_page') {
-    const r = await dispatch(c, '/api/admin/storefront/pages', {
-      method: 'POST',
-      body: JSON.stringify({ slug }),
-    })
-    // Treat "already exists" as success so update_page can upsert.
-    if (!r.ok && !String(r.body?.error || '').includes('already exists')) {
-      return { status: r.status, data: r.body }
-    }
-    return { status: 200, data: { slug, created: true } }
-  }
-
-  // update_page: merge requested changes onto the existing page (upsert).
-  const existing = await dispatch(c, `/api/admin/storefront/pages/${encodeURIComponent(slug)}`)
-  let currentData = existing.ok ? existing.body?.data : null
-  if (!currentData) {
-    const created = await dispatch(c, '/api/admin/storefront/pages', {
-      method: 'POST',
-      body: JSON.stringify({ slug }),
-    })
-    if (!created.ok) return { status: created.status, data: created.body }
-    currentData = created.body?.data ?? { content: [], root: { props: {} } }
-  }
-
-  const nextData = {
-    content: Array.isArray(a.content) ? a.content : currentData.content ?? [],
-    root: {
-      props: {
-        ...(currentData.root?.props ?? {}),
-        ...(a.seoTitle !== undefined ? { title: a.seoTitle } : {}),
-        ...(a.seoDescription !== undefined ? { description: a.seoDescription } : {}),
-      },
-    },
-  }
-
-  const r = await dispatch(c, `/api/admin/storefront/pages/${encodeURIComponent(slug)}`, {
-    method: 'PUT',
-    body: JSON.stringify(nextData),
-  })
-  return { status: r.status, data: r.ok ? { slug, updated: true } : r.body }
-}
-
-async function callOpenRouter(apiKey, model, messages) {
-  const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
+async function callOpenRouter(apiKey, model, messages, env) {
+  const res = await fetch(`${await openRouterBase(env)}/chat/completions`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -511,7 +92,7 @@ router.get('/models', asyncHandler(async (c) => {
     return c.json({ models: [], defaultModel: DEFAULT_MODEL, configured: false })
   }
 
-  const res = await fetch(`${OPENROUTER_BASE}/models`, {
+  const res = await fetch(`${await openRouterBase(c.env)}/models`, {
     headers: { Authorization: `Bearer ${apiKey}` },
   })
 
@@ -572,9 +153,10 @@ router.post('/chat', asyncHandler(async (c) => {
     ...history,
   ]
   const actions = []
+  const dispatch = (path, init) => dispatchFrom(c, path, init)
 
   for (let i = 0; i < MAX_TOOL_ITERATIONS; i++) {
-    const completion = await callOpenRouter(apiKey, selectedModel, chatMessages)
+    const completion = await callOpenRouter(apiKey, selectedModel, chatMessages, c.env)
     const choice = completion?.choices?.[0]?.message
 
     if (!choice) {
@@ -597,9 +179,7 @@ router.post('/chat', asyncHandler(async (c) => {
 
       const action = { tool: name, args }
       try {
-        const result = name === 'get_page' || name === 'create_page' || name === 'update_page'
-          ? await executePageTool(c, name, args)
-          : await executeTool(c, name, args)
+        const result = await executeAgentTool(c, name, args, dispatch)
 
         action.ok = result.status < 400
         action.summary = summarizeResult(action, { ...result, ok: action.ok })
@@ -625,7 +205,7 @@ router.post('/chat', asyncHandler(async (c) => {
   const completion = await callOpenRouter(apiKey, selectedModel, [
     ...chatMessages,
     { role: 'user', content: 'Stop using tools and give your final answer now.' },
-  ])
+  ], c.env)
   const finalMessage = completion?.choices?.[0]?.message?.content || ''
   return c.json({ message: finalMessage, model: selectedModel, actions })
 }))

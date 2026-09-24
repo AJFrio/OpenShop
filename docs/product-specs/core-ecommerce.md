@@ -17,6 +17,7 @@ Storefront browse, cart, Stripe checkout, and admin CRUD for products and collec
 - CRUD products (images, variants, archive) and collections (hero image).
 - Store settings: branding, theme-related fields.
 - Website editor: Home and About page content use Puck JSON stored in KV; products, collections, cart, checkout, navigation, and footer remain code-owned storefront behavior.
+- Store agent: dashboard composer can persist those admin edits (see [store-agent.md](./store-agent.md)).
 - Analytics: revenue/orders from Stripe (admin-only).
 
 ## Out of scope

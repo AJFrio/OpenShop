@@ -86,7 +86,9 @@ export const API_ENDPOINTS = {
       }
     },
     ai: {
-      generateImage: '/api/admin/ai/generate-image'
+      generateImage: '/api/admin/ai/generate-image',
+      generateAndStore: '/api/admin/ai/generate-and-store',
+      generateMerchImage: '/api/admin/ai/generate-merch-image'
     },
     agent: {
       chat: '/api/admin/agent/chat',
