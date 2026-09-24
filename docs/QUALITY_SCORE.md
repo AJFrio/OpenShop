@@ -10,9 +10,10 @@ Graded snapshot for agent prioritization. Update when a domain materially improv
 | Collections | services + routes | B | Integration coverage |
 | Checkout / Stripe | services + routes | B | Stripe tests; webhook docs in STRIPE.md |
 | Admin auth | middleware + routes | B | Auth integration tests |
-| Store settings / theme | services + UI | C | Extend tests when changing settings |
+| Store settings / theme | services + UI | B | Partial PUT merges; agent can write identity + theme |
 | Analytics | services + admin UI | C | Perf tests exist; fewer integration tests |
-| Media / R2 / AI | services + routes | C | Optional features; verify env docs |
+| Media / R2 / AI | services + routes | B | Agent generate-and-store + merch persist; optional Drive |
+| Store agent | routes + tools | B | Full admin write tools; secrets stay out of chat |
 | Storefront UI | pages + components | B | Manual UX; limited component tests |
 | Documentation harness | docs + scripts | A | AGENTS.md map + CI validation |
 | Architecture enforcement | harness scripts | A | Import layer linter |

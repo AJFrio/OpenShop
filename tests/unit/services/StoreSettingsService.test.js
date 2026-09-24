@@ -135,6 +135,22 @@ describe('StoreSettingsService', () => {
       expect(result.logoText).toBe('OpenShop')
       expect(result.contactEmail).toBeDefined()
     })
+
+    it('should keep previously saved fields on a partial update', async () => {
+      await settingsService.updateSettings({
+        logoType: 'text',
+        storeName: 'Harbor Goods',
+        contactEmail: 'hello@harbor.test',
+      })
+
+      const result = await settingsService.updateSettings({
+        storeDescription: 'Coastal merch',
+      })
+
+      expect(result.storeName).toBe('Harbor Goods')
+      expect(result.contactEmail).toBe('hello@harbor.test')
+      expect(result.storeDescription).toBe('Coastal merch')
+    })
   })
 
   describe('getContactEmail', () => {

@@ -33,6 +33,10 @@ Applied in `src/worker.js`: CSP, `X-Frame-Options: DENY`, HSTS on HTTPS, etc.
 - Validate IDs and payloads at route/middleware boundaries.
 - Normalize image URLs; don’t fetch arbitrary URLs without proxy controls—see image proxy routes.
 
+## Store agent
+
+Admin dashboard (`POST /api/admin/agent/chat`) can read and write the same store data as the rest of admin. Tool calls reuse `/api/admin/*` with the merchant's token. Secret keys and the admin password are not accepted as tool arguments — see [AGENT.md](./AGENT.md).
+
 ## Agent checklist (security PRs)
 
 - [ ] No new secrets in client bundle or committed `.env`

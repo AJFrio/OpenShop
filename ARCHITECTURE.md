@@ -47,6 +47,7 @@ Dependencies flow **downward** only (enforced by `scripts/harness/validate-archi
 | Checkout | `StripeService` | `routes/public/checkout.js` |
 | Analytics | `AnalyticsService` | `routes/admin/analytics.js` |
 | Media | `MediaService`, `R2Service` | `routes/admin/media.js`, `routes/public/images.js` |
+| Store agent | `agentTools.js` dispatch | `routes/admin/agent.js` |
 
 ## Data store
 
@@ -61,6 +62,7 @@ See [docs/SECURITY.md](./docs/SECURITY.md).
 
 ## Related docs
 
+- [docs/AGENT.md](./docs/AGENT.md) — dashboard store agent tools
 - [docs/DESIGN.md](./docs/DESIGN.md) — patterns and anti-patterns
 - [docs/FRONTEND.md](./docs/FRONTEND.md) — React structure
 - [docs/RELIABILITY.md](./docs/RELIABILITY.md) — failure modes

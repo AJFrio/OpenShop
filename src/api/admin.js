@@ -84,7 +84,8 @@ export const adminAPI = {
    * AI
    */
   ai: {
-    generateImage: (data) => apiClient.post(API_ENDPOINTS.admin.ai.generateImage, data)
+    generateImage: (data) => apiClient.post(API_ENDPOINTS.admin.ai.generateImage, data),
+    generateAndStore: (data) => apiClient.post(API_ENDPOINTS.admin.ai.generateAndStore, data),
   },
 
   /**

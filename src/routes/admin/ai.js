@@ -16,13 +16,37 @@ import { MediaService } from '../../services/MediaService.js'
 
 const router = new Hono()
 
-router.post('/generate-image', asyncHandler(async (c) => {
-  const { prompt, inputs } = await c.req.json()
-
-  if (!prompt || typeof prompt !== 'string') {
-    throw new ValidationError('Missing prompt')
+async function persistGeneratedImage(c, image, filename) {
+  const kv = getKVNamespace(c.env)
+  const r2 = new R2Service(c.env)
+  let stored
+  try {
+    stored = await r2.uploadFile(image.mimeType, image.dataBase64, filename)
+  } catch (error) {
+    // Worth naming precisely: the image generated fine, and only storage
+    // failed. Without this the caller sees a generic 500 and retries the
+    // expensive part.
+    throw new APIError(
+      `Image generated, but could not be saved: ${error?.message ?? error}. Check the R2 bucket binding.`,
+      503,
+    )
   }
 
+  const url = stored.viewUrl || stored.downloadUrl
+  await new MediaService(kv).createMediaItem({
+    url,
+    source: 'storage',
+    filename: String(filename || 'generated').replace(/\.[^.]+$/, '') || 'generated',
+    mimeType: image.mimeType,
+  }).catch((error) => {
+    // A missing media-library entry is cosmetic; the URL still works.
+    console.error('Generated image was stored but not added to the media library:', error)
+  })
+
+  return { url, mimeType: image.mimeType }
+}
+
+async function generateFromOpenRouter(c, { prompt, inputs }) {
   const kv = getKVNamespace(c.env)
   const [openRouterApiKey, openRouterModel, siteUrl] = await Promise.all([
     resolveSetting(kv, c.env, 'OPENROUTER_API_KEY'),
@@ -31,20 +55,50 @@ router.post('/generate-image', asyncHandler(async (c) => {
   ])
 
   try {
-    const image = await generateImage({
+    return await generateImage({
       openRouterApiKey,
       openRouterModel,
       prompt,
       inputs,
       siteUrl,
     })
-    return c.json(image)
   } catch (error) {
     if (error instanceof ImageGenerationError) {
       throw new APIError(error.message, error.statusCode)
     }
     throw error
   }
+}
+
+router.post('/generate-image', asyncHandler(async (c) => {
+  const { prompt, inputs } = await c.req.json()
+
+  if (!prompt || typeof prompt !== 'string') {
+    throw new ValidationError('Missing prompt')
+  }
+
+  const image = await generateFromOpenRouter(c, { prompt, inputs })
+  return c.json(image)
+}))
+
+/**
+ * Generate an image from a free-form prompt, store it, and return a URL.
+ * Used by the store agent for logos, heroes, and page artwork.
+ */
+router.post('/generate-and-store', asyncHandler(async (c) => {
+  const body = await c.req.json()
+  const prompt = typeof body?.prompt === 'string' ? body.prompt.trim() : ''
+  if (!prompt) {
+    throw new ValidationError('prompt is required')
+  }
+
+  const filename = typeof body?.filename === 'string' && body.filename.trim()
+    ? body.filename.trim()
+    : 'generated.png'
+
+  const image = await generateFromOpenRouter(c, { prompt, inputs: body?.inputs })
+  const stored = await persistGeneratedImage(c, image, filename)
+  return c.json({ ...stored, prompt })
 }))
 
 /**
@@ -69,57 +123,9 @@ router.post('/generate-merch-image', asyncHandler(async (c) => {
     references || {},
   )
 
-  const kv = getKVNamespace(c.env)
-  const [openRouterApiKey, openRouterModel, siteUrl] = await Promise.all([
-    resolveSetting(kv, c.env, 'OPENROUTER_API_KEY'),
-    resolveSetting(kv, c.env, 'OPENROUTER_IMAGE_MODEL'),
-    resolveSetting(kv, c.env, 'SITE_URL'),
-  ])
-
-  let image
-  try {
-    image = await generateImage({
-      openRouterApiKey,
-      openRouterModel,
-      prompt,
-      inputs,
-      siteUrl,
-    })
-  } catch (error) {
-    if (error instanceof ImageGenerationError) {
-      throw new APIError(error.message, error.statusCode)
-    }
-    throw error
-  }
-
-  // Persist it. A generated image that only exists in a response body cannot
-  // be attached to a product.
-  const r2 = new R2Service(c.env)
-  let stored
-  try {
-    stored = await r2.uploadFile(image.mimeType, image.dataBase64, 'merch-mockup.png')
-  } catch (error) {
-    // Worth naming precisely: the image generated fine, and only storage
-    // failed. Without this the caller sees a generic 500 and retries the
-    // expensive part.
-    throw new APIError(
-      `Image generated, but could not be saved: ${error?.message ?? error}. Check the R2 bucket binding.`,
-      503,
-    )
-  }
-
-  const url = stored.viewUrl || stored.downloadUrl
-  await new MediaService(kv).createMediaItem({
-    url,
-    source: 'storage',
-    filename: 'merch-mockup',
-    mimeType: image.mimeType,
-  }).catch((error) => {
-    // A missing media-library entry is cosmetic; the URL still works.
-    console.error('Generated image was stored but not added to the media library:', error)
-  })
-
-  return c.json({ url, mimeType: image.mimeType, prompt })
+  const image = await generateFromOpenRouter(c, { prompt, inputs })
+  const stored = await persistGeneratedImage(c, image, 'merch-mockup.png')
+  return c.json({ ...stored, prompt })
 }))
 
 export default router

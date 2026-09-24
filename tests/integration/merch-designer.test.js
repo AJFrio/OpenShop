@@ -151,3 +151,20 @@ describe('POST /api/admin/ai/generate-merch-image', () => {
     expect(body.error).toMatch(/R2/i)
   })
 })
+
+describe('POST /api/admin/ai/generate-and-store', () => {
+  it('requires a prompt', async () => {
+    const app = await createTestApp()
+    const env = createMockEnv()
+    const kv = createMockKV()
+    env.TEST_KV = kv
+    const adminToken = await createAdminToken(env, kv)
+
+    const res = await executeRequest(app, createTestRequest('/api/admin/ai/generate-and-store', {
+      method: 'POST',
+      headers: createAdminHeaders(adminToken),
+      body: JSON.stringify({}),
+    }), env)
+    expect(res.status).toBe(400)
+  })
+})

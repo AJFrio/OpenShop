@@ -70,8 +70,8 @@ function readAsReference(file) {
 
 const EXAMPLE_PROMPTS = [
   'Add a product called "Classic Tee" for $24.99',
-  'Design a hoodie with our logo and list it for $45',
-  'Create a "Summer Sale" collection',
+  'Rename the store to Harbor Goods and use a navy theme',
+  'Create a Summer Sale collection and a matching page',
 ]
 
 function resizeComposer(el) {
