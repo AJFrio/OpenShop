@@ -29,3 +29,7 @@ wrangler.toml
 /toml/
 !toml/*.example
 .env*
+
+# Accidental local verification artifacts
+/verification.png
+/verify_media_modal.py

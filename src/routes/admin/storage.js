@@ -2,12 +2,13 @@ import { Hono } from 'hono'
 import { R2Service } from '../../services/R2Service.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError } from '../../utils/errors.js'
+import { parseJsonBody } from '../../utils/request.js'
 
 const router = new Hono()
 
 // Upload file to storage (R2)
 router.post('/upload', asyncHandler(async (c) => {
-  const { mimeType, dataBase64, filename } = await c.req.json()
+  const { mimeType, dataBase64, filename } = await parseJsonBody(c)
 
   if (!mimeType || !dataBase64) {
     throw new ValidationError('Missing mimeType or dataBase64')

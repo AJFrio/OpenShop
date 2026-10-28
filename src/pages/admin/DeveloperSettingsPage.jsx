@@ -74,7 +74,7 @@ export function DeveloperSettingsPage() {
       setCurrentPassword('')
       setNewPassword('')
       clearMustChangePassword()
-      setPwStatus({ ok: 'Password changed. It applies to the next sign-in.' })
+      setPwStatus({ ok: 'Password changed. Sign in again with the new password.' })
       await load()
     } catch (err) {
       setPwStatus({ error: err.message })
@@ -189,9 +189,9 @@ export function DeveloperSettingsPage() {
 
       <h3 className="text-lg font-semibold text-[var(--admin-text-primary)]">Admin password</h3>
       <p className="mt-1.5 text-sm text-[var(--admin-text-secondary)]">
-        Changing this takes effect on the next sign-in. The current password is
-        required, so an unattended session cannot be used to take the store
-        over.
+        Changing this signs out every admin session immediately. The current
+        password is required, so an unattended session cannot be used to take
+        the store over.
       </p>
 
       <form className="mt-4 space-y-4" onSubmit={changePassword}>

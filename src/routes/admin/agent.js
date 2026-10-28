@@ -3,6 +3,7 @@
 import { Hono } from 'hono'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError } from '../../utils/errors.js'
+import { parseJsonBody } from '../../utils/request.js'
 import { resolveSetting } from '../../services/DeveloperSettingsService.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import {
@@ -120,7 +121,7 @@ router.post('/chat', asyncHandler(async (c) => {
     throw new ValidationError('OpenRouter API key not configured. Add it in Developer Settings.')
   }
 
-  const { messages, model, references } = await c.req.json()
+  const { messages, model, references } = await parseJsonBody(c)
   if (!Array.isArray(messages) || messages.length === 0) {
     throw new ValidationError('messages must be a non-empty array')
   }

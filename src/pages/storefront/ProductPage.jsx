@@ -17,6 +17,8 @@ export function ProductPage() {
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(null)
   const [quantity, setQuantity] = useState(1)
   const [variantErrors, setVariantErrors] = useState({})
+  const [isBuying, setIsBuying] = useState(false)
+  const [buyError, setBuyError] = useState('')
   const { addItem } = useCart()
 
   useEffect(() => {
@@ -116,30 +118,34 @@ export function ProductPage() {
 
   const handleBuyNow = async () => {
     // Use the cart checkout API to preserve line item context (variant names)
-    if (!product) return
+    if (!product || isBuying) return
 
     if (!validateVariants()) return
 
+    setBuyError('')
+    setIsBuying(true)
     try {
       const tempItem = {
         id: effectiveVariant?.id || effectiveVariant2?.id || product.id,
         stripePriceId: effectiveStripePriceId,
-        quantity: 1
+        quantity,
       }
       const response = await fetch('/api/create-cart-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items: [tempItem] })
       })
-      const session = await response.json()
-      if (session.error) throw new Error(session.error)
+      const session = await response.json().catch(() => ({}))
+      if (!response.ok || session.error) throw new Error(session.error || 'Error starting checkout. Please try again.')
       const { loadStripe } = await import('@stripe/stripe-js')
       const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
       const result = await stripe.redirectToCheckout({ sessionId: session.sessionId })
       if (result.error) throw new Error(result.error.message)
     } catch (error) {
       console.error('Error initiating checkout:', error)
-      alert('Error starting checkout. Please try again.')
+      setBuyError(error.message || 'Error starting checkout. Please try again.')
+    } finally {
+      setIsBuying(false)
     }
   }
 
@@ -377,9 +383,10 @@ export function ProductPage() {
               {effectiveStripePriceId ? (
                 <Button 
                   onClick={handleBuyNow}
-                  className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700"
+                  disabled={isBuying}
+                  className="w-full bg-slate-900 text-white hover:bg-gradient-to-r hover:from-slate-600 hover:to-slate-700 disabled:opacity-60"
                 >
-                  Buy Now
+                  {isBuying ? 'Redirecting…' : 'Buy Now'}
                 </Button>
               ) : (
                 <Button 
@@ -390,6 +397,9 @@ export function ProductPage() {
                 </Button>
               )}
             </div>
+            {buyError && (
+              <p role="alert" className="mt-3 text-sm text-red-600">{buyError}</p>
+            )}
 
             {product.description && (
               <div className="mt-10">

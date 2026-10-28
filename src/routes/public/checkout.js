@@ -3,14 +3,16 @@ import { Hono } from 'hono'
 import { StripeService } from '../../services/StripeService.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError } from '../../utils/errors.js'
+import { parseJsonBody } from '../../utils/request.js'
 import { resolveSetting } from '../../services/DeveloperSettingsService.js'
 import { getKVNamespace } from '../../utils/kv.js'
+import { CART_MAX_ITEMS, CART_MAX_ITEM_QUANTITY } from '../../config/index.js'
 
 const router = new Hono()
 
 // Create checkout session (single item)
 router.post('/create-checkout-session', asyncHandler(async (c) => {
-  const { priceId } = await c.req.json()
+  const { priceId } = await parseJsonBody(c)
   
   // Validate and trim priceId
   if (!priceId || typeof priceId !== 'string') {
@@ -43,7 +45,7 @@ router.post('/create-checkout-session', asyncHandler(async (c) => {
 
 // Create cart checkout session
 router.post('/create-cart-checkout-session', asyncHandler(async (c) => {
-  const { items } = await c.req.json()
+  const { items } = await parseJsonBody(c)
   
   // Validate items array
   if (!items || !Array.isArray(items) || items.length === 0) {
@@ -51,7 +53,7 @@ router.post('/create-cart-checkout-session', asyncHandler(async (c) => {
   }
   
   // Limit cart size to prevent DoS
-  if (items.length > 100) {
+  if (items.length > CART_MAX_ITEMS) {
     throw new ValidationError('Cart size exceeds maximum allowed items')
   }
   
@@ -76,8 +78,8 @@ router.post('/create-cart-checkout-session', asyncHandler(async (c) => {
     // Convert to integer if it's a number string
     quantity = Number.parseInt(quantity, 10)
     
-    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 100) {
-      throw new ValidationError(`Invalid quantity in cart item at index ${index} (must be 1-100, got ${quantity})`)
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > CART_MAX_ITEM_QUANTITY) {
+      throw new ValidationError(`Invalid quantity in cart item at index ${index} (must be 1-${CART_MAX_ITEM_QUANTITY}, got ${quantity})`)
     }
     
     // Return normalized item

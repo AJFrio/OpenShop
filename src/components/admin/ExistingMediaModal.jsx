@@ -13,6 +13,15 @@ export default function ExistingMediaModal({ open, onClose, onPick }) {
     load()
   }, [open])
 
+  useEffect(() => {
+    if (!open) return undefined
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose?.()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open, onClose])
+
   async function load() {
     try {
       setIsLoading(true)
@@ -40,9 +49,15 @@ export default function ExistingMediaModal({ open, onClose, onPick }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4 flex flex-col max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="existing-media-title"
+        className="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4 flex flex-col max-h-[80vh] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-4 border-b flex items-center justify-between flex-shrink-0">
-          <h3 className="text-lg font-semibold">Select existing media</h3>
+          <h3 id="existing-media-title" className="text-lg font-semibold">Select existing media</h3>
         </div>
         <div className="p-4 flex-1 overflow-y-auto">
           {isLoading ? (

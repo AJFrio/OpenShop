@@ -3,6 +3,30 @@ import { getKVNamespace } from '../utils/kv.js'
 import { hashToken } from '../utils/crypto.js'
 import { ADMIN_TOKEN_TTL_MS, KV_KEYS } from '../config/index.js'
 
+/** Admin paths that skip token auth. Keep in sync with worker.js / tests. */
+export const UNAUTHENTICATED_ADMIN_PATHS = new Set([
+  '/api/admin/login',
+])
+
+/**
+ * Delete every hashed admin session in KV (e.g. after a password change).
+ * @param {KVNamespace} kvNamespace
+ */
+export async function purgeAdminSessions(kvNamespace) {
+  if (!kvNamespace || typeof kvNamespace.list !== 'function') return
+
+  let cursor
+  do {
+    const page = await kvNamespace.list({
+      prefix: KV_KEYS.ADMIN_TOKEN_PREFIX,
+      cursor,
+    })
+    const keys = page?.keys || []
+    await Promise.all(keys.map((entry) => kvNamespace.delete(entry.name)))
+    cursor = page?.list_complete === false ? page.cursor : undefined
+  } while (cursor)
+}
+
 export async function verifyAdminAuth(request, env) {
   // Support both Hono's HonoRequest (c.req) and the native Request
   let adminToken

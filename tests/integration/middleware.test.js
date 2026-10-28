@@ -60,7 +60,7 @@ describe('Middleware', () => {
       const request = createTestRequest('/api/health', {
         method: 'GET',
         headers: {
-          'Origin': 'https://example.com'
+          'Origin': 'https://test.workers.dev'
         }
       })
 
@@ -76,6 +76,28 @@ describe('Middleware', () => {
       // At least some CORS-related headers should be present
       const hasCorsHeaders = corsHeaders.some(header => response.headers.get(header) !== null)
       expect(hasCorsHeaders).toBe(true)
+    })
+
+    it('should not reflect a disallowed Origin when an allowlist is configured', async () => {
+      env.SITE_URL = 'https://test.workers.dev'
+      const request = createTestRequest('/api/health', {
+        method: 'GET',
+        headers: { Origin: 'https://evil.example' }
+      })
+      const response = await executeRequest(app, request, env)
+      expect(response.headers.get('Access-Control-Allow-Origin')).not.toBe('https://evil.example')
+      expect(response.headers.get('Access-Control-Allow-Origin')).not.toBe('https://test.workers.dev')
+    })
+
+    it('should reflect an allowed Origin', async () => {
+      env.SITE_URL = 'https://test.workers.dev'
+      const request = createTestRequest('/api/health', {
+        method: 'GET',
+        headers: { Origin: 'https://test.workers.dev' }
+      })
+      const response = await executeRequest(app, request, env)
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe('https://test.workers.dev')
+      expect(response.headers.get('Access-Control-Allow-Credentials')).toBe('true')
     })
 
     it('should handle OPTIONS preflight requests', async () => {
@@ -116,15 +138,13 @@ describe('Middleware', () => {
       expect(response.status).toBe(200)
     })
 
-    it('should allow access to Drive OAuth endpoints', async () => {
+    it('should require authentication for Drive OAuth endpoints', async () => {
       const request = createTestRequest('/api/admin/drive/oauth/start', {
         method: 'GET'
       })
 
       const response = await executeRequest(app, request, env)
-
-      // Should not return 401 (may return other status codes)
-      expect(response.status).not.toBe(401)
+      expect(response.status).toBe(401)
     })
   })
 

@@ -1,10 +1,31 @@
 // Image proxy route for Google Drive links
 import { Hono } from 'hono'
-import { ALLOWED_DRIVE_HOSTS } from '../../config/index.js'
+import { ALLOWED_DRIVE_HOSTS, ALLOWED_PROXY_IMAGE_TYPES, IMAGE_PROXY_CSP } from '../../config/index.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
-import { ValidationError } from '../../utils/errors.js'
+import { APIError, ValidationError } from '../../utils/errors.js'
 
 const router = new Hono()
+
+const ALLOWED_TYPE_SET = new Set(ALLOWED_PROXY_IMAGE_TYPES)
+
+function normalizeImageMime(contentType) {
+  if (!contentType || typeof contentType !== 'string') return null
+  const mediaType = contentType.split(';')[0].trim().toLowerCase()
+  if (mediaType === 'image/jpg') return 'image/jpeg'
+  if (ALLOWED_TYPE_SET.has(mediaType)) return mediaType
+  return null
+}
+
+function proxySecurityHeaders(contentType) {
+  const headers = new Headers()
+  if (contentType) headers.set('Content-Type', contentType)
+  headers.set('Cache-Control', 'public, max-age=86400')
+  headers.set('Access-Control-Allow-Origin', '*')
+  headers.set('Cross-Origin-Resource-Policy', 'cross-origin')
+  headers.set('X-Content-Type-Options', 'nosniff')
+  headers.set('Content-Security-Policy', IMAGE_PROXY_CSP)
+  return headers
+}
 
 router.get('/', asyncHandler(async (c) => {
   const src = c.req.query('src')
@@ -53,7 +74,7 @@ router.get('/', asyncHandler(async (c) => {
     redirect: 'follow',
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36',
-      'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+      'Accept': 'image/avif,image/webp,image/png,image/jpeg,image/gif,image/*;q=0.8',
       'Accept-Language': 'en-US,en;q=0.9',
       'Referer': 'https://drive.google.com/',
     },
@@ -61,18 +82,16 @@ router.get('/', asyncHandler(async (c) => {
   })
 
   if (!upstream.ok) {
-    throw new Error(`Upstream error: ${upstream.status}`)
+    throw new APIError(`Upstream error: ${upstream.status}`, 502)
   }
 
-  const headers = new Headers()
-  const contentType = upstream.headers.get('content-type') || 'image/jpeg'
-  headers.set('Content-Type', contentType)
-  headers.set('Cache-Control', 'public, max-age=86400')
-  headers.set('Access-Control-Allow-Origin', '*')
-  headers.set('Cross-Origin-Resource-Policy', 'cross-origin')
+  const allowedType = normalizeImageMime(upstream.headers.get('content-type'))
+  if (!allowedType) {
+    // Do not forward HTML login pages, SVG, or scripts from the OpenShop origin
+    throw new APIError('Upstream response is not a supported image type', 415)
+  }
 
-  return new Response(upstream.body, { headers })
+  return new Response(upstream.body, { headers: proxySecurityHeaders(allowedType) })
 }))
 
 export default router
-

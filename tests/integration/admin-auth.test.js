@@ -198,15 +198,105 @@ describe('Admin Authentication', () => {
       expect(data.token).toBeDefined()
     })
 
-    it('should allow access to Drive OAuth endpoints without authentication', async () => {
+    it('should require authentication for Drive OAuth endpoints', async () => {
       const request = createTestRequest('/api/admin/drive/oauth/start', {
         method: 'GET'
       })
 
       const response = await executeRequest(app, request, env)
-      expect(response.status).not.toBe(401)
+      expect(response.status).toBe(401)
     })
 
+    it('should return 400 for malformed JSON on login', async () => {
+      const request = createTestRequest('/api/admin/login', {
+        method: 'POST',
+        body: '{not-json',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+
+      expect(response.status).toBe(400)
+      expect(data.error).toMatch(/JSON/i)
+    })
+
+    it('should use the first X-Forwarded-For hop when CF-Connecting-IP is absent', async () => {
+      for (let i = 0; i < 5; i++) {
+        await executeRequest(app, createTestRequest('/api/admin/login', {
+          method: 'POST',
+          body: { password: 'wrong_password' },
+          headers: { 'X-Forwarded-For': '203.0.113.50, 10.0.0.1' }
+        }), env)
+      }
+
+      const limited = await executeRequest(app, createTestRequest('/api/admin/login', {
+        method: 'POST',
+        body: { password: 'wrong_password' },
+        headers: { 'X-Forwarded-For': '203.0.113.50, 8.8.8.8' }
+      }), env)
+      const data = await parseJsonResponse(limited)
+      expect(limited.status).toBe(401)
+      expect(data.error).toContain('Too many login attempts')
+
+      const otherHop = await executeRequest(app, createTestRequest('/api/admin/login', {
+        method: 'POST',
+        body: { password: 'wrong_password' },
+        headers: { 'X-Forwarded-For': '198.51.100.10, 203.0.113.50' }
+      }), env)
+      const otherData = await parseJsonResponse(otherHop)
+      expect(otherData.error).toContain('Invalid password')
+    })
+
+    it('should prefer CF-Connecting-IP over X-Forwarded-For', async () => {
+      await kv.put('rate_limit:login:192.0.2.4', '5', { expirationTtl: 900 })
+
+      const request = createTestRequest('/api/admin/login', {
+        method: 'POST',
+        body: { password: 'wrong_password' },
+        headers: {
+          'CF-Connecting-IP': '192.0.2.4',
+          'X-Forwarded-For': '198.51.100.20'
+        }
+      })
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+      expect(response.status).toBe(401)
+      expect(data.error).toContain('Too many login attempts')
+    })
+  })
+
+  describe('POST /api/admin/logout', () => {
+    it('should revoke the current session token', async () => {
+      const token = await createAdminToken(env, kv)
+      const { hashToken } = await import('../../src/utils/crypto.js')
+      const hashedToken = await hashToken(token)
+      const storageKey = `${KV_KEYS.ADMIN_TOKEN_PREFIX}${hashedToken}`
+      expect(await kv.get(storageKey)).not.toBeNull()
+
+      const logout = await executeRequest(app, createTestRequest('/api/admin/logout', {
+        method: 'POST',
+        headers: createAdminHeaders(token)
+      }), env)
+      expect(logout.status).toBe(200)
+      expect(await kv.get(storageKey)).toBeNull()
+
+      const protectedReq = await executeRequest(app, createTestRequest('/api/admin/products', {
+        method: 'GET',
+        headers: createAdminHeaders(token)
+      }), env)
+      expect(protectedReq.status).toBe(401)
+    })
+
+    it('should require authentication', async () => {
+      const response = await executeRequest(app, createTestRequest('/api/admin/logout', {
+        method: 'POST'
+      }), env)
+      expect(response.status).toBe(401)
+    })
+  })
+
+  describe('Expired tokens', () => {
     it('should handle expired tokens', async () => {
       const { hashToken } = await import('../../src/utils/crypto.js')
       const token = 'expired-token'

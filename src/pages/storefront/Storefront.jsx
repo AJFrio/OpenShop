@@ -18,7 +18,8 @@ export function Storefront() {
   const fetchData = async () => {
     try {
       setLoading(true)
-      
+      setLoadError(false)
+
       // Fetch products and collections
       const [productsResponse, collectionsResponse, pageResponse] = await Promise.all([
         fetch('/api/products'),
@@ -26,7 +27,9 @@ export function Storefront() {
         fetch('/api/storefront/pages/home')
       ])
 
-      if (productsResponse.ok) {
+      if (!productsResponse.ok) {
+        setLoadError(true)
+      } else {
         const productsData = await productsResponse.json()
         setProducts(productsData)
       }
@@ -42,6 +45,7 @@ export function Storefront() {
       }
     } catch (error) {
       console.error('Error fetching data:', error)
+      setLoadError(true)
     } finally {
       setLoading(false)
     }

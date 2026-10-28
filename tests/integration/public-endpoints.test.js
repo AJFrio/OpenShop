@@ -1,5 +1,5 @@
 // Integration tests for public API endpoints
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { createTestApp, createTestRequest, executeRequest, parseJsonResponse, createTestProduct, createTestCollection, createTestStoreSettings, setupProductInKV, setupCollectionInKV } from '../utils/test-helpers.js'
 import { createMockEnv, createMockKV } from '../setup.js'
 
@@ -272,22 +272,6 @@ describe('Public Endpoints', () => {
       const response = await executeRequest(app, request, env)
 
       expect(response.status).toBe(400)
-    })
-
-    it('should proxy valid image URLs', async () => {
-      // Mock fetch for image proxy
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        headers: new Headers({ 'content-type': 'image/jpeg' }),
-        arrayBuffer: async () => new ArrayBuffer(8)
-      })
-
-      const request = createTestRequest('/api/image-proxy?src=https://example.com/image.jpg')
-      const response = await executeRequest(app, request, env)
-
-      // Note: Actual implementation may vary, but should handle the request
-      expect(response).toBeDefined()
     })
   })
 

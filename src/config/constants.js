@@ -37,6 +37,25 @@ export const ALLOWED_DRIVE_HOSTS = [
   'lh3.googleusercontent.com',
 ]
 
+// Raster MIME types the image proxy may serve from the OpenShop origin.
+// SVG/HTML/script types are rejected so Drive files cannot become XSS.
+export const ALLOWED_PROXY_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/avif',
+]
+
+export const IMAGE_PROXY_CSP = "default-src 'none'; style-src 'unsafe-inline'"
+
+// Cart / checkout bounds (shared by storefront UI and checkout routes)
+export const CART_MAX_ITEMS = 100
+export const CART_MAX_ITEM_QUANTITY = 100
+
+// Resource IDs used in URL params and KV keys
+export const MAX_RESOURCE_ID_LENGTH = 128
+
 // Admin token expiration (24 hours in milliseconds)
 export const ADMIN_TOKEN_TTL = 86400 // seconds
 export const ADMIN_TOKEN_TTL_MS = 86400000 // milliseconds

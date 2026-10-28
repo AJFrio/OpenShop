@@ -229,7 +229,9 @@ export function Navbar({ previewSettings, disableNavigation }) {
           <div className="flex items-center justify-end space-x-2">
             {/* Cart Button - Visible on all screen sizes */}
             <button
+              type="button"
               onClick={disableNavigation ? (e) => e.preventDefault() : toggleCart}
+              aria-label={itemCount > 0 ? `Shopping cart, ${itemCount} items` : 'Shopping cart'}
               className={`relative p-2 storefront-heading hover:text-slate-600 transition-all duration-200 hover:scale-110 ${disableNavigation ? 'cursor-default' : ''}`}
             >
               <ShoppingCart className="w-6 h-6 transition-transform duration-200" />

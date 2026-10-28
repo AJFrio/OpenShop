@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Navigate, Routes, Route } from 'react-router-dom'
-import { isAdminAuthenticated, clearAdminToken } from '../../lib/auth'
+import { isAdminAuthenticated, adminLogout } from '../../lib/auth'
 import { AdminLogin } from '../../components/admin/AdminLogin'
 import { AdminLayout } from './AdminLayout'
 import { DashboardPage } from './DashboardPage'
@@ -36,8 +36,7 @@ export function AdminDashboard() {
   }
 
   const handleLogout = () => {
-    clearAdminToken()
-    setIsAuthenticated(false)
+    adminLogout().finally(() => setIsAuthenticated(false))
   }
 
   if (loading) {

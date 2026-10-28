@@ -4,6 +4,7 @@ import { CollectionService } from '../../services/CollectionService.js'
 import { ProductService } from '../../services/ProductService.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
+import { assertSafeResourceId } from '../../utils/validation.js'
 
 const router = new Hono()
 
@@ -19,7 +20,7 @@ router.get('/', asyncHandler(async (c) => {
 router.get('/:id', asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env)
   const collectionService = new CollectionService(kvNamespace)
-  const collection = await collectionService.getCollection(c.req.param('id'))
+  const collection = await collectionService.getCollection(assertSafeResourceId(c.req.param('id')))
   return c.json(collection)
 }))
 
@@ -27,7 +28,7 @@ router.get('/:id', asyncHandler(async (c) => {
 router.get('/:id/products', asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env)
   const collectionService = new CollectionService(kvNamespace)
-  const products = await collectionService.getProductsInCollection(c.req.param('id'))
+  const products = await collectionService.getProductsInCollection(assertSafeResourceId(c.req.param('id')))
   return c.json(products)
 }))
 
