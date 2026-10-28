@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-10-20T18:17:35Z
+// Worker Bundle - Built 2026-10-28T18:12:30Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
@@ -5526,6 +5526,17 @@ var ALLOWED_DRIVE_HOSTS = [
   "drive.usercontent.google.com",
   "lh3.googleusercontent.com"
 ];
+var ALLOWED_PROXY_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif"
+];
+var IMAGE_PROXY_CSP = "default-src 'none'; style-src 'unsafe-inline'";
+var CART_MAX_ITEMS = 100;
+var CART_MAX_ITEM_QUANTITY = 100;
+var MAX_RESOURCE_ID_LENGTH = 128;
 var ADMIN_TOKEN_TTL = 86400;
 var ADMIN_TOKEN_TTL_MS = 864e5;
 var DEFAULT_ADMIN_PASSWORD = "admin123";
@@ -5552,18 +5563,18 @@ init_performance2();
 // src/middleware/cors.js
 function createCorsMiddleware(env2 = {}) {
   const origins = getCorsOrigins(env2);
-  const originConfig = origins.length === 1 && origins[0] === "*" ? "*" : (origin) => {
-    const requestOrigin = origin;
-    if (origins.includes("*") || origins.includes(requestOrigin)) {
-      return requestOrigin;
+  const allowAny = origins.length === 1 && origins[0] === "*";
+  const originConfig = allowAny ? "*" : (origin) => {
+    if (origin && origins.includes(origin)) {
+      return origin;
     }
-    return origins[0];
+    return null;
   };
   return cors({
     origin: originConfig,
     allowMethods: CORS_ALLOWED_METHODS,
     allowHeaders: CORS_ALLOWED_HEADERS,
-    credentials: true
+    credentials: !allowAny
   });
 }
 __name(createCorsMiddleware, "createCorsMiddleware");
@@ -5572,6 +5583,20 @@ __name(createCorsMiddleware, "createCorsMiddleware");
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
+var APP_CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+  // Stripe requires unsafe-inline
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "img-src 'self' data: https: blob:",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "connect-src 'self' https://api.stripe.com https://*.stripe.com https://oauth2.googleapis.com https://www.googleapis.com",
+  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "upgrade-insecure-requests"
+].join("; ");
 async function securityHeadersMiddleware(c, next) {
   await next();
   c.header("X-Content-Type-Options", "nosniff");
@@ -5579,22 +5604,9 @@ async function securityHeadersMiddleware(c, next) {
   c.header("X-XSS-Protection", "1; mode=block");
   c.header("Referrer-Policy", "strict-origin-when-cross-origin");
   c.header("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
-  const csp = [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
-    // Stripe requires unsafe-inline
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "img-src 'self' data: https: blob:",
-    "font-src 'self' data: https://fonts.gstatic.com",
-    "connect-src 'self' https://api.stripe.com https://*.stripe.com https://oauth2.googleapis.com https://www.googleapis.com",
-    "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "upgrade-insecure-requests"
-  ].join("; ");
-  c.header("Content-Security-Policy", csp);
   const url = new URL(c.req.url);
+  const isImageProxy = url.pathname === "/api/image-proxy" || url.pathname.startsWith("/api/image-proxy/");
+  c.header("Content-Security-Policy", isImageProxy ? IMAGE_PROXY_CSP : APP_CSP);
   if (url.protocol === "https:") {
     c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
   }
@@ -5661,6 +5673,12 @@ function errorHandler2(error3, c) {
   console.error("Error in request handler:", error3);
   if (error3 instanceof APIError) {
     return c.json(error3.toJSON(), error3.statusCode);
+  }
+  if (error3 instanceof SyntaxError || error3.name === "SyntaxError") {
+    return c.json({
+      error: "Invalid JSON body",
+      status: 400
+    }, 400);
   }
   if (error3.name === "ValidationError" || error3.status === 400) {
     return c.json({
@@ -5821,6 +5839,23 @@ async function timingSafeEqualStrings(a, b) {
 __name(timingSafeEqualStrings, "timingSafeEqualStrings");
 
 // src/middleware/auth.js
+var UNAUTHENTICATED_ADMIN_PATHS = /* @__PURE__ */ new Set([
+  "/api/admin/login"
+]);
+async function purgeAdminSessions(kvNamespace) {
+  if (!kvNamespace || typeof kvNamespace.list !== "function") return;
+  let cursor;
+  do {
+    const page = await kvNamespace.list({
+      prefix: KV_KEYS.ADMIN_TOKEN_PREFIX,
+      cursor
+    });
+    const keys = page?.keys || [];
+    await Promise.all(keys.map((entry) => kvNamespace.delete(entry.name)));
+    cursor = page?.list_complete === false ? page.cursor : void 0;
+  } while (cursor);
+}
+__name(purgeAdminSessions, "purgeAdminSessions");
 async function verifyAdminAuth(request, env2) {
   let adminToken;
   try {
@@ -6284,6 +6319,40 @@ init_performance2();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
+
+// src/utils/validation.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var SAFE_RESOURCE_ID_PATTERN = /^[A-Za-z0-9._:-]+$/;
+function isValidHexColor(color) {
+  if (typeof color !== "string") return false;
+  const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+  return hexColorRegex.test(color.trim());
+}
+__name(isValidHexColor, "isValidHexColor");
+function isNumberInRange(value, min, max) {
+  const num = Number(value);
+  return Number.isFinite(num) && num >= min && num <= max;
+}
+__name(isNumberInRange, "isNumberInRange");
+function isValidObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+__name(isValidObject, "isValidObject");
+function isSafeResourceId(id) {
+  return typeof id === "string" && id.length > 0 && id.length <= MAX_RESOURCE_ID_LENGTH && SAFE_RESOURCE_ID_PATTERN.test(id) && !id.includes("..");
+}
+__name(isSafeResourceId, "isSafeResourceId");
+function assertSafeResourceId(id, label = "id") {
+  if (!isSafeResourceId(id)) {
+    throw new ValidationError(`Invalid ${label}`);
+  }
+  return id;
+}
+__name(assertSafeResourceId, "assertSafeResourceId");
+
+// src/routes/public/products.js
 var router = new Hono2();
 router.get("/", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
@@ -6294,7 +6363,7 @@ router.get("/", asyncHandler(async (c) => {
 router.get("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
-  const product = await productService.getProduct(c.req.param("id"));
+  const product = await productService.getProduct(assertSafeResourceId(c.req.param("id")));
   return c.json(product);
 }));
 var products_default = router;
@@ -6391,13 +6460,13 @@ router2.get("/", asyncHandler(async (c) => {
 router2.get("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
-  const collection = await collectionService.getCollection(c.req.param("id"));
+  const collection = await collectionService.getCollection(assertSafeResourceId(c.req.param("id")));
   return c.json(collection);
 }));
 router2.get("/:id/products", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
-  const products = await collectionService.getProductsInCollection(c.req.param("id"));
+  const products = await collectionService.getProductsInCollection(assertSafeResourceId(c.req.param("id")));
   return c.json(products);
 }));
 var collections_default = router2;
@@ -12296,6 +12365,35 @@ function warnNotConfiguredOnce() {
   }
 }
 __name(warnNotConfiguredOnce, "warnNotConfiguredOnce");
+var CART_METADATA_DETAILED_ITEM_LIMIT = 15;
+function clipMeta(value) {
+  return String(value || "").slice(0, 500);
+}
+__name(clipMeta, "clipMeta");
+function buildCartCheckoutMetadata(items) {
+  const list = Array.isArray(items) ? items : [];
+  const metadata = {
+    order_type: "cart_checkout",
+    item_count: String(list.length),
+    total_quantity: String(list.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0))
+  };
+  const detailed = list.slice(0, CART_METADATA_DETAILED_ITEM_LIMIT);
+  detailed.forEach((item, index) => {
+    metadata[`item_${index}_name`] = clipMeta(item.name || `Item ${index + 1}`);
+    if (item.selectedVariant?.name) {
+      metadata[`item_${index}_variant1`] = clipMeta(item.selectedVariant.name);
+    }
+    if (item.selectedVariant2?.name) {
+      metadata[`item_${index}_variant2`] = clipMeta(item.selectedVariant2.name);
+    }
+  });
+  if (list.length > CART_METADATA_DETAILED_ITEM_LIMIT) {
+    metadata.metadata_truncated = "true";
+    metadata.overflow_item_count = String(list.length - CART_METADATA_DETAILED_ITEM_LIMIT);
+  }
+  return metadata;
+}
+__name(buildCartCheckoutMetadata, "buildCartCheckoutMetadata");
 var StripeService = class {
   static {
     __name(this, "StripeService");
@@ -12439,21 +12537,6 @@ var StripeService = class {
       };
       return lineItem;
     });
-    const metadata = {
-      order_type: "cart_checkout",
-      item_count: items.length.toString(),
-      total_quantity: items.reduce((sum, item) => sum + item.quantity, 0).toString()
-    };
-    items.forEach((item, index) => {
-      const itemName = item.name || `Item ${index + 1}`;
-      metadata[`item_${index}_name`] = itemName;
-      if (item.selectedVariant?.name) {
-        metadata[`item_${index}_variant1`] = item.selectedVariant.name;
-      }
-      if (item.selectedVariant2?.name) {
-        metadata[`item_${index}_variant2`] = item.selectedVariant2.name;
-      }
-    });
     return await this.stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: lineItems,
@@ -12464,13 +12547,14 @@ var StripeService = class {
       billing_address_collection: "required",
       success_url: `${this.siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${this.siteUrl}/`,
-      metadata
+      metadata: buildCartCheckoutMetadata(items)
     });
   }
   /**
    * Get checkout session details
    */
   async getCheckoutSession(sessionId) {
+    this.assertCheckoutAvailable();
     const session = await this.stripe.checkout.sessions.retrieve(sessionId);
     return {
       id: session.id,
@@ -12524,6 +12608,46 @@ var StripeService = class {
     });
   }
 };
+
+// src/utils/request.js
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
+init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
+init_performance2();
+var MAX_IP_LENGTH = 64;
+async function parseJsonBody(c) {
+  let body;
+  try {
+    body = await c.req.json();
+  } catch (error3) {
+    if (error3 instanceof ValidationError) {
+      throw error3;
+    }
+    throw new ValidationError("Invalid JSON body");
+  }
+  if (body === null || typeof body !== "object" || Array.isArray(body)) {
+    throw new ValidationError("Request body must be a JSON object");
+  }
+  return body;
+}
+__name(parseJsonBody, "parseJsonBody");
+function getClientIp(c) {
+  const cfIp = sanitizeIpCandidate(c.req.header("CF-Connecting-IP"));
+  if (cfIp) return cfIp;
+  const forwarded = c.req.header("X-Forwarded-For");
+  if (typeof forwarded === "string" && forwarded.trim()) {
+    const firstHop = sanitizeIpCandidate(forwarded.split(",")[0]);
+    if (firstHop) return firstHop;
+  }
+  return "unknown";
+}
+__name(getClientIp, "getClientIp");
+function sanitizeIpCandidate(value) {
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim().slice(0, MAX_IP_LENGTH);
+  if (!trimmed) return "";
+  return trimmed.replace(/[^0-9a-zA-Z.:_-]/g, "").slice(0, MAX_IP_LENGTH);
+}
+__name(sanitizeIpCandidate, "sanitizeIpCandidate");
 
 // src/services/DeveloperSettingsService.js
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
@@ -12633,7 +12757,7 @@ __name(resolveSetting, "resolveSetting");
 // src/routes/public/checkout.js
 var router4 = new Hono2();
 router4.post("/create-checkout-session", asyncHandler(async (c) => {
-  const { priceId } = await c.req.json();
+  const { priceId } = await parseJsonBody(c);
   if (!priceId || typeof priceId !== "string") {
     throw new ValidationError("Valid price ID is required");
   }
@@ -12655,11 +12779,11 @@ router4.post("/create-checkout-session", asyncHandler(async (c) => {
   return c.json({ sessionId: session.id });
 }));
 router4.post("/create-cart-checkout-session", asyncHandler(async (c) => {
-  const { items } = await c.req.json();
+  const { items } = await parseJsonBody(c);
   if (!items || !Array.isArray(items) || items.length === 0) {
     throw new ValidationError("Cart items are required");
   }
-  if (items.length > 100) {
+  if (items.length > CART_MAX_ITEMS) {
     throw new ValidationError("Cart size exceeds maximum allowed items");
   }
   const normalizedItems = items.map((item, index) => {
@@ -12675,8 +12799,8 @@ router4.post("/create-cart-checkout-session", asyncHandler(async (c) => {
       quantity = 1;
     }
     quantity = Number.parseInt(quantity, 10);
-    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 100) {
-      throw new ValidationError(`Invalid quantity in cart item at index ${index} (must be 1-100, got ${quantity})`);
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > CART_MAX_ITEM_QUANTITY) {
+      throw new ValidationError(`Invalid quantity in cart item at index ${index} (must be 1-${CART_MAX_ITEM_QUANTITY}, got ${quantity})`);
     }
     return {
       ...item,
@@ -12717,6 +12841,26 @@ init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
 var router5 = new Hono2();
+var ALLOWED_TYPE_SET = new Set(ALLOWED_PROXY_IMAGE_TYPES);
+function normalizeImageMime(contentType) {
+  if (!contentType || typeof contentType !== "string") return null;
+  const mediaType = contentType.split(";")[0].trim().toLowerCase();
+  if (mediaType === "image/jpg") return "image/jpeg";
+  if (ALLOWED_TYPE_SET.has(mediaType)) return mediaType;
+  return null;
+}
+__name(normalizeImageMime, "normalizeImageMime");
+function proxySecurityHeaders(contentType) {
+  const headers = new Headers();
+  if (contentType) headers.set("Content-Type", contentType);
+  headers.set("Cache-Control", "public, max-age=86400");
+  headers.set("Access-Control-Allow-Origin", "*");
+  headers.set("Cross-Origin-Resource-Policy", "cross-origin");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Content-Security-Policy", IMAGE_PROXY_CSP);
+  return headers;
+}
+__name(proxySecurityHeaders, "proxySecurityHeaders");
 router5.get("/", asyncHandler(async (c) => {
   const src = c.req.query("src");
   if (!src) {
@@ -12759,22 +12903,20 @@ router5.get("/", asyncHandler(async (c) => {
     redirect: "follow",
     headers: {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36",
-      "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+      "Accept": "image/avif,image/webp,image/png,image/jpeg,image/gif,image/*;q=0.8",
       "Accept-Language": "en-US,en;q=0.9",
       "Referer": "https://drive.google.com/"
     },
     cf: { cacheEverything: true }
   });
   if (!upstream.ok) {
-    throw new Error(`Upstream error: ${upstream.status}`);
+    throw new APIError(`Upstream error: ${upstream.status}`, 502);
   }
-  const headers = new Headers();
-  const contentType = upstream.headers.get("content-type") || "image/jpeg";
-  headers.set("Content-Type", contentType);
-  headers.set("Cache-Control", "public, max-age=86400");
-  headers.set("Access-Control-Allow-Origin", "*");
-  headers.set("Cross-Origin-Resource-Policy", "cross-origin");
-  return new Response(upstream.body, { headers });
+  const allowedType = normalizeImageMime(upstream.headers.get("content-type"));
+  if (!allowedType) {
+    throw new APIError("Upstream response is not a supported image type", 415);
+  }
+  return new Response(upstream.body, { headers: proxySecurityHeaders(allowedType) });
 }));
 var imageProxy_default = router5;
 
@@ -12860,8 +13002,8 @@ var R2Service = class {
 
 // src/routes/public/images.js
 var router7 = new Hono2();
-router7.get("/:key", async (c) => {
-  const key = c.req.param("key");
+router7.get("/:key", asyncHandler(async (c) => {
+  const key = assertSafeResourceId(c.req.param("key"), "image key");
   const r2Service = new R2Service(c.env);
   try {
     const object = await r2Service.getFile(key);
@@ -12879,7 +13021,7 @@ router7.get("/:key", async (c) => {
     console.error("Error fetching image:", e);
     return c.notFound();
   }
-});
+}));
 var images_default = router7;
 
 // src/routes/public/pages.js
@@ -13398,12 +13540,12 @@ init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
 var router9 = new Hono2();
 router9.post("/login", asyncHandler(async (c) => {
-  const { password } = await c.req.json();
+  const { password } = await parseJsonBody(c);
   if (!password || typeof password !== "string") {
     throw new ValidationError("Password is required");
   }
   const kvNamespace = getKVNamespace(c.env);
-  const clientIp = c.req.header("CF-Connecting-IP") || c.req.header("X-Forwarded-For") || "unknown";
+  const clientIp = getClientIp(c);
   const rateLimitKey = `rate_limit:login:${clientIp}`;
   const attempts = await kvNamespace.get(rateLimitKey);
   const attemptCount = attempts ? parseInt(attempts, 10) : 0;
@@ -13438,6 +13580,16 @@ router9.post("/login", asyncHandler(async (c) => {
     // 24 hours
   });
   return c.json({ token, mustChangePassword: usingDefaultPassword });
+}));
+router9.post("/logout", asyncHandler(async (c) => {
+  const adminToken = c.req.header("X-Admin-Token") || c.req.header("x-admin-token");
+  if (!adminToken) {
+    throw new AuthenticationError("Admin authentication required");
+  }
+  const kvNamespace = getKVNamespace(c.env);
+  const hashedToken = await hashToken(adminToken);
+  await kvNamespace.delete(`${KV_KEYS.ADMIN_TOKEN_PREFIX}${hashedToken}`);
+  return c.json({ success: true });
 }));
 var auth_default = router9;
 
@@ -13686,7 +13838,7 @@ router10.get("/", asyncHandler(async (c) => {
   return c.json(products);
 }));
 router10.post("/", asyncHandler(async (c) => {
-  const productData = await c.req.json();
+  const productData = await parseJsonBody(c);
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
   const stripeService = new StripeService(
@@ -13709,11 +13861,12 @@ router10.post("/", asyncHandler(async (c) => {
 router10.get("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
-  const product = await productService.getProduct(c.req.param("id"));
+  const product = await productService.getProduct(assertSafeResourceId(c.req.param("id")));
   return c.json(product);
 }));
 router10.put("/:id", asyncHandler(async (c) => {
-  const updates = await c.req.json();
+  const id = assertSafeResourceId(c.req.param("id"));
+  const updates = await parseJsonBody(c);
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
   const stripeService = new StripeService(
@@ -13721,7 +13874,7 @@ router10.put("/:id", asyncHandler(async (c) => {
     await resolveSetting(getKVNamespace(c.env), c.env, "SITE_URL")
   );
   const productStripeService = new ProductStripeService(stripeService);
-  const existingProduct = await productService.getProduct(c.req.param("id"));
+  const existingProduct = await productService.getProduct(id);
   const isUnlinked = !existingProduct.stripeProductId || existingProduct.stripeProductId === UNLINKED_PRODUCT_ID;
   if (isUnlinked && stripeService.isConfigured) {
     const merged = { ...existingProduct, ...updates };
@@ -13729,7 +13882,7 @@ router10.put("/:id", asyncHandler(async (c) => {
     updates.stripeProductId = stripeProduct.id;
     updates.stripePriceId = basePrice?.id || Object.values(variantPrices)[0] || "";
     updates.variantPrices = variantPrices;
-    const backfilled = await productService.updateProduct(c.req.param("id"), updates);
+    const backfilled = await productService.updateProduct(id, updates);
     return c.json(backfilled);
   }
   if (updates.name || updates.description !== void 0 || updates.images || updates.imageUrl) {
@@ -13760,24 +13913,25 @@ router10.put("/:id", asyncHandler(async (c) => {
     updates.variants = variantUpdates.variants;
     updates.variants2 = variantUpdates.variants2;
   }
-  const updatedProduct = await productService.updateProduct(c.req.param("id"), updates);
+  const updatedProduct = await productService.updateProduct(id, updates);
   return c.json(updatedProduct);
 }));
 router10.delete("/:id", asyncHandler(async (c) => {
+  const id = assertSafeResourceId(c.req.param("id"));
   const kvNamespace = getKVNamespace(c.env);
   const productService = new ProductService(kvNamespace);
   const stripeService = new StripeService(
     await resolveSetting(getKVNamespace(c.env), c.env, "STRIPE_SECRET_KEY"),
     await resolveSetting(getKVNamespace(c.env), c.env, "SITE_URL")
   );
-  const existingProduct = await productService.getProduct(c.req.param("id"));
+  const existingProduct = await productService.getProduct(id);
   if (existingProduct.stripePriceId) {
     await stripeService.archivePrice(existingProduct.stripePriceId);
   }
   if (existingProduct.stripeProductId) {
     await stripeService.archiveProduct(existingProduct.stripeProductId);
   }
-  await productService.deleteProduct(c.req.param("id"));
+  await productService.deleteProduct(id);
   return c.json({ success: true });
 }));
 var products_default2 = router10;
@@ -13794,7 +13948,7 @@ router11.get("/", asyncHandler(async (c) => {
   return c.json(collections);
 }));
 router11.post("/", asyncHandler(async (c) => {
-  const collectionData = await c.req.json();
+  const collectionData = await parseJsonBody(c);
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
   const savedCollection = await collectionService.createCollection(collectionData);
@@ -13803,20 +13957,20 @@ router11.post("/", asyncHandler(async (c) => {
 router11.get("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
-  const collection = await collectionService.getCollection(c.req.param("id"));
+  const collection = await collectionService.getCollection(assertSafeResourceId(c.req.param("id")));
   return c.json(collection);
 }));
 router11.put("/:id", asyncHandler(async (c) => {
-  const updates = await c.req.json();
+  const updates = await parseJsonBody(c);
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
-  const updatedCollection = await collectionService.updateCollection(c.req.param("id"), updates);
+  const updatedCollection = await collectionService.updateCollection(assertSafeResourceId(c.req.param("id")), updates);
   return c.json(updatedCollection);
 }));
 router11.delete("/:id", asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env);
   const collectionService = new CollectionService(kvNamespace);
-  await collectionService.deleteCollection(c.req.param("id"));
+  await collectionService.deleteCollection(assertSafeResourceId(c.req.param("id")));
   return c.json({ success: true });
 }));
 var collections_default2 = router11;
@@ -14209,7 +14363,7 @@ router13.get("/", asyncHandler(async (c) => {
   return c.json(items);
 }));
 router13.post("/", asyncHandler(async (c) => {
-  const body = await c.req.json();
+  const body = await parseJsonBody(c);
   const url = body?.url;
   if (!url || typeof url !== "string" || url.trim() === "") {
     throw new ValidationError("url is required");
@@ -14220,10 +14374,7 @@ router13.post("/", asyncHandler(async (c) => {
   return c.json(saved, 201);
 }));
 router13.delete("/:id", asyncHandler(async (c) => {
-  const id = c.req.param("id");
-  if (!id) {
-    throw new ValidationError("Missing id");
-  }
+  const id = assertSafeResourceId(c.req.param("id"));
   const kvNamespace = getKVNamespace(c.env);
   const mediaService = new MediaService(kvNamespace);
   await mediaService.deleteMediaItem(id);
@@ -14237,7 +14388,7 @@ init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
 var router14 = new Hono2();
 router14.post("/upload", asyncHandler(async (c) => {
-  const { mimeType, dataBase64, filename } = await c.req.json();
+  const { mimeType, dataBase64, filename } = await parseJsonBody(c);
   if (!mimeType || !dataBase64) {
     throw new ValidationError("Missing mimeType or dataBase64");
   }
@@ -14256,28 +14407,6 @@ init_performance2();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
-
-// src/utils/validation.js
-init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
-init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
-init_performance2();
-function isValidHexColor(color) {
-  if (typeof color !== "string") return false;
-  const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-  return hexColorRegex.test(color.trim());
-}
-__name(isValidHexColor, "isValidHexColor");
-function isNumberInRange(value, min, max) {
-  const num = Number(value);
-  return Number.isFinite(num) && num >= min && num <= max;
-}
-__name(isNumberInRange, "isNumberInRange");
-function isValidObject(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-__name(isValidObject, "isValidObject");
-
-// src/middleware/validation.js
 var ALLOWED_FONT_IDS = new Set(FONT_OPTIONS.map((font) => font.id));
 function validateThemePayload(payload) {
   if (!isValidObject(payload)) {
@@ -14319,7 +14448,7 @@ router15.get("/storefront/theme", asyncHandler(async (c) => {
   return c.json(theme);
 }));
 router15.put("/storefront/theme", asyncHandler(async (c) => {
-  const payload = await c.req.json();
+  const payload = await parseJsonBody(c);
   const validation = validateThemePayload(payload);
   if (!validation.valid) {
     throw new ValidationError(validation.message);
@@ -14343,7 +14472,7 @@ router15.get("/store-settings", asyncHandler(async (c) => {
   return c.json(settings);
 }));
 router15.put("/store-settings", asyncHandler(async (c) => {
-  const settings = await c.req.json();
+  const settings = await parseJsonBody(c);
   const kvNamespace = getKVNamespace(c.env);
   const settingsService = new StoreSettingsService(kvNamespace);
   const updatedSettings = await settingsService.updateSettings(settings);
@@ -14356,7 +14485,7 @@ router15.get("/storefront/pages", asyncHandler(async (c) => {
   return c.json(pages);
 }));
 router15.post("/storefront/pages", asyncHandler(async (c) => {
-  const payload = await c.req.json();
+  const payload = await parseJsonBody(c);
   const kvNamespace = getKVNamespace(c.env);
   const pageContentService = new PageContentService(kvNamespace);
   try {
@@ -14381,7 +14510,7 @@ router15.get("/storefront/pages/:slug", asyncHandler(async (c) => {
 }));
 router15.put("/storefront/pages/:slug", asyncHandler(async (c) => {
   const slug = c.req.param("slug");
-  const payload = await c.req.json();
+  const payload = await parseJsonBody(c);
   const kvNamespace = getKVNamespace(c.env);
   const pageContentService = new PageContentService(kvNamespace);
   try {
@@ -14609,7 +14738,7 @@ async function generateFromOpenRouter(c, { prompt, inputs }) {
 }
 __name(generateFromOpenRouter, "generateFromOpenRouter");
 router16.post("/generate-image", asyncHandler(async (c) => {
-  const { prompt, inputs } = await c.req.json();
+  const { prompt, inputs } = await parseJsonBody(c);
   if (!prompt || typeof prompt !== "string") {
     throw new ValidationError("Missing prompt");
   }
@@ -14617,7 +14746,7 @@ router16.post("/generate-image", asyncHandler(async (c) => {
   return c.json(image);
 }));
 router16.post("/generate-and-store", asyncHandler(async (c) => {
-  const body = await c.req.json();
+  const body = await parseJsonBody(c);
   const prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
   if (!prompt) {
     throw new ValidationError("prompt is required");
@@ -14628,7 +14757,7 @@ router16.post("/generate-and-store", asyncHandler(async (c) => {
   return c.json({ ...stored, prompt });
 }));
 router16.post("/generate-merch-image", asyncHandler(async (c) => {
-  const body = await c.req.json();
+  const body = await parseJsonBody(c);
   const { description, model, pose, product, logo, references } = body || {};
   if (!description && !product) {
     throw new ValidationError("Describe the product, or name it in the product field");
@@ -15379,7 +15508,7 @@ router17.post("/chat", asyncHandler(async (c) => {
   if (!apiKey) {
     throw new ValidationError("OpenRouter API key not configured. Add it in Developer Settings.");
   }
-  const { messages, model, references } = await c.req.json();
+  const { messages, model, references } = await parseJsonBody(c);
   if (!Array.isArray(messages) || messages.length === 0) {
     throw new ValidationError("messages must be a non-empty array");
   }
@@ -15456,27 +15585,7 @@ init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_process();
 init_virtual_unenv_global_polyfill_cloudflare_unenv_preset_node_console();
 init_performance2();
 var router18 = new Hono2();
-router18.get("/", asyncHandler(async (c) => {
-  const service = new DeveloperSettingsService(getKVNamespace(c.env));
-  return c.json({ fields: await service.getPublicView(c.env) });
-}));
-router18.put("/", asyncHandler(async (c) => {
-  const updates = await c.req.json();
-  if (!updates || typeof updates !== "object" || Array.isArray(updates)) {
-    throw new ValidationError("Expected an object of settings");
-  }
-  if ("ADMIN_PASSWORD" in updates) {
-    throw new ValidationError("Use /password to change the admin password");
-  }
-  const service = new DeveloperSettingsService(getKVNamespace(c.env));
-  await service.update(updates);
-  return c.json({ fields: await service.getPublicView(c.env) });
-}));
-router18.put("/password", asyncHandler(async (c) => {
-  const { currentPassword, newPassword } = await c.req.json();
-  if (!newPassword || typeof newPassword !== "string" || newPassword.length < 8) {
-    throw new ValidationError("New password must be at least 8 characters");
-  }
+async function verifyCurrentAdminPassword(c, currentPassword) {
   if (!currentPassword || typeof currentPassword !== "string") {
     throw new ValidationError("Current password is required");
   }
@@ -15490,13 +15599,36 @@ router18.put("/password", asyncHandler(async (c) => {
   } else {
     currentValid = await timingSafeEqualStrings(
       currentPassword,
-      c.env.ADMIN_PASSWORD || "admin123"
+      c.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD
     );
   }
   if (!currentValid) {
     throw new ValidationError("Current password is incorrect");
   }
+  return { kvNamespace, service };
+}
+__name(verifyCurrentAdminPassword, "verifyCurrentAdminPassword");
+router18.get("/", asyncHandler(async (c) => {
+  const service = new DeveloperSettingsService(getKVNamespace(c.env));
+  return c.json({ fields: await service.getPublicView(c.env) });
+}));
+router18.put("/", asyncHandler(async (c) => {
+  const updates = await parseJsonBody(c);
+  if ("ADMIN_PASSWORD" in updates) {
+    throw new ValidationError("Use /password to change the admin password");
+  }
+  const service = new DeveloperSettingsService(getKVNamespace(c.env));
+  await service.update(updates);
+  return c.json({ fields: await service.getPublicView(c.env) });
+}));
+router18.put("/password", asyncHandler(async (c) => {
+  const { currentPassword, newPassword } = await parseJsonBody(c);
+  if (!newPassword || typeof newPassword !== "string" || newPassword.length < 8) {
+    throw new ValidationError("New password must be at least 8 characters");
+  }
+  const { kvNamespace, service } = await verifyCurrentAdminPassword(c, currentPassword);
   await service.setAdminPassword(newPassword);
+  await purgeAdminSessions(kvNamespace);
   return c.json({ ok: true });
 }));
 router18.get("/models", asyncHandler(async (c) => {
@@ -15537,8 +15669,10 @@ router18.get("/models", asyncHandler(async (c) => {
   });
 }));
 router18.delete("/password", asyncHandler(async (c) => {
-  const service = new DeveloperSettingsService(getKVNamespace(c.env));
+  const { currentPassword } = await parseJsonBody(c);
+  const { kvNamespace, service } = await verifyCurrentAdminPassword(c, currentPassword);
   await service.clearAdminPassword();
+  await purgeAdminSessions(kvNamespace);
   return c.json({ ok: true });
 }));
 var developer_settings_default = router18;
@@ -15587,12 +15721,7 @@ app.use("*", async (c, next) => {
   return await corsMiddleware(c, next);
 });
 app.use("/api/admin/*", async (c, next) => {
-  const unauthenticatedPaths = /* @__PURE__ */ new Set([
-    "/api/admin/login",
-    "/api/admin/drive/oauth/start",
-    "/api/admin/drive/oauth/callback"
-  ]);
-  if (unauthenticatedPaths.has(c.req.path)) {
+  if (UNAUTHENTICATED_ADMIN_PATHS.has(c.req.path)) {
     return next();
   }
   try {
