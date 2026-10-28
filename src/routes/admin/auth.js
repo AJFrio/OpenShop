@@ -5,20 +5,21 @@ import { getKVNamespace } from '../../utils/kv.js'
 import { ADMIN_TOKEN_TTL, KV_KEYS, DEFAULT_ADMIN_PASSWORD } from '../../config/index.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError, AuthenticationError } from '../../utils/errors.js'
+import { parseJsonBody, getClientIp } from '../../utils/request.js'
 import { DeveloperSettingsService, hashPassword } from '../../services/DeveloperSettingsService.js'
 
 const router = new Hono()
 
 // Admin login with rate limiting protection
 router.post('/login', asyncHandler(async (c) => {
-  const { password } = await c.req.json()
+  const { password } = await parseJsonBody(c)
   
   if (!password || typeof password !== 'string') {
     throw new ValidationError('Password is required')
   }
 
   const kvNamespace = getKVNamespace(c.env)
-  const clientIp = c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || 'unknown'
+  const clientIp = getClientIp(c)
   const rateLimitKey = `rate_limit:login:${clientIp}`
   
   // Simple rate limiting: 5 attempts per 15 minutes
@@ -73,6 +74,20 @@ router.post('/login', asyncHandler(async (c) => {
   })
 
   return c.json({ token, mustChangePassword: usingDefaultPassword })
+}))
+
+// Revoke the current session token server-side
+router.post('/logout', asyncHandler(async (c) => {
+  const adminToken = c.req.header('X-Admin-Token') || c.req.header('x-admin-token')
+  if (!adminToken) {
+    throw new AuthenticationError('Admin authentication required')
+  }
+
+  const kvNamespace = getKVNamespace(c.env)
+  const hashedToken = await hashToken(adminToken)
+  await kvNamespace.delete(`${KV_KEYS.ADMIN_TOKEN_PREFIX}${hashedToken}`)
+
+  return c.json({ success: true })
 }))
 
 export default router

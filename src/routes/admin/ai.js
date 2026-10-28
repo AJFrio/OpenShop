@@ -4,6 +4,7 @@
 import { Hono } from 'hono'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError, APIError } from '../../utils/errors.js'
+import { parseJsonBody } from '../../utils/request.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { resolveSetting } from '../../services/DeveloperSettingsService.js'
 import {
@@ -71,7 +72,7 @@ async function generateFromOpenRouter(c, { prompt, inputs }) {
 }
 
 router.post('/generate-image', asyncHandler(async (c) => {
-  const { prompt, inputs } = await c.req.json()
+  const { prompt, inputs } = await parseJsonBody(c)
 
   if (!prompt || typeof prompt !== 'string') {
     throw new ValidationError('Missing prompt')
@@ -86,7 +87,7 @@ router.post('/generate-image', asyncHandler(async (c) => {
  * Used by the store agent for logos, heroes, and page artwork.
  */
 router.post('/generate-and-store', asyncHandler(async (c) => {
-  const body = await c.req.json()
+  const body = await parseJsonBody(c)
   const prompt = typeof body?.prompt === 'string' ? body.prompt.trim() : ''
   if (!prompt) {
     throw new ValidationError('prompt is required')
@@ -111,7 +112,7 @@ router.post('/generate-and-store', asyncHandler(async (c) => {
  * would be both slow and expensive.
  */
 router.post('/generate-merch-image', asyncHandler(async (c) => {
-  const body = await c.req.json()
+  const body = await parseJsonBody(c)
   const { description, model, pose, product, logo, references } = body || {}
 
   if (!description && !product) {

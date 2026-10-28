@@ -3,6 +3,8 @@ import { Hono } from 'hono'
 import { CollectionService } from '../../services/CollectionService.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
+import { parseJsonBody } from '../../utils/request.js'
+import { assertSafeResourceId } from '../../utils/validation.js'
 
 const router = new Hono()
 
@@ -16,7 +18,7 @@ router.get('/', asyncHandler(async (c) => {
 
 // Create collection
 router.post('/', asyncHandler(async (c) => {
-  const collectionData = await c.req.json()
+  const collectionData = await parseJsonBody(c)
   const kvNamespace = getKVNamespace(c.env)
   const collectionService = new CollectionService(kvNamespace)
   const savedCollection = await collectionService.createCollection(collectionData)
@@ -27,16 +29,16 @@ router.post('/', asyncHandler(async (c) => {
 router.get('/:id', asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env)
   const collectionService = new CollectionService(kvNamespace)
-  const collection = await collectionService.getCollection(c.req.param('id'))
+  const collection = await collectionService.getCollection(assertSafeResourceId(c.req.param('id')))
   return c.json(collection)
 }))
 
 // Update collection
 router.put('/:id', asyncHandler(async (c) => {
-  const updates = await c.req.json()
+  const updates = await parseJsonBody(c)
   const kvNamespace = getKVNamespace(c.env)
   const collectionService = new CollectionService(kvNamespace)
-  const updatedCollection = await collectionService.updateCollection(c.req.param('id'), updates)
+  const updatedCollection = await collectionService.updateCollection(assertSafeResourceId(c.req.param('id')), updates)
   return c.json(updatedCollection)
 }))
 
@@ -44,7 +46,7 @@ router.put('/:id', asyncHandler(async (c) => {
 router.delete('/:id', asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env)
   const collectionService = new CollectionService(kvNamespace)
-  await collectionService.deleteCollection(c.req.param('id'))
+  await collectionService.deleteCollection(assertSafeResourceId(c.req.param('id')))
   return c.json({ success: true })
 }))
 

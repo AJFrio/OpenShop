@@ -39,6 +39,51 @@ function warnNotConfiguredOnce() {
   }
 }
 
+/** Stripe session metadata allows at most 50 keys. */
+export const STRIPE_METADATA_KEY_LIMIT = 50
+
+/**
+ * Per-item keys are item_N_name / variant1 / variant2 (up to 3).
+ * Reserve 3 summary keys + 2 overflow keys so the worst case stays at 50:
+ * 3 + 2 + (15 * 3) = 50.
+ */
+export const CART_METADATA_DETAILED_ITEM_LIMIT = 15
+
+function clipMeta(value) {
+  return String(value || '').slice(0, 500)
+}
+
+/**
+ * Cart checkout metadata that never exceeds Stripe's 50-key limit.
+ * @param {Array<{name?: string, quantity?: number, selectedVariant?: {name?: string}, selectedVariant2?: {name?: string}}>} items
+ */
+export function buildCartCheckoutMetadata(items) {
+  const list = Array.isArray(items) ? items : []
+  const metadata = {
+    order_type: 'cart_checkout',
+    item_count: String(list.length),
+    total_quantity: String(list.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)),
+  }
+
+  const detailed = list.slice(0, CART_METADATA_DETAILED_ITEM_LIMIT)
+  detailed.forEach((item, index) => {
+    metadata[`item_${index}_name`] = clipMeta(item.name || `Item ${index + 1}`)
+    if (item.selectedVariant?.name) {
+      metadata[`item_${index}_variant1`] = clipMeta(item.selectedVariant.name)
+    }
+    if (item.selectedVariant2?.name) {
+      metadata[`item_${index}_variant2`] = clipMeta(item.selectedVariant2.name)
+    }
+  })
+
+  if (list.length > CART_METADATA_DETAILED_ITEM_LIMIT) {
+    metadata.metadata_truncated = 'true'
+    metadata.overflow_item_count = String(list.length - CART_METADATA_DETAILED_ITEM_LIMIT)
+  }
+
+  return metadata
+}
+
 export class StripeService {
   constructor(secretKey, siteUrl) {
     this.secretKey = secretKey
@@ -209,25 +254,6 @@ export class StripeService {
       return lineItem
     })
 
-    // Build metadata with variant information
-    const metadata = {
-      order_type: 'cart_checkout',
-      item_count: items.length.toString(),
-      total_quantity: items.reduce((sum, item) => sum + item.quantity, 0).toString(),
-    }
-
-    // Add variant information to metadata for each item
-    items.forEach((item, index) => {
-      const itemName = item.name || `Item ${index + 1}`
-      metadata[`item_${index}_name`] = itemName
-      if (item.selectedVariant?.name) {
-        metadata[`item_${index}_variant1`] = item.selectedVariant.name
-      }
-      if (item.selectedVariant2?.name) {
-        metadata[`item_${index}_variant2`] = item.selectedVariant2.name
-      }
-    })
-
     return await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
@@ -238,7 +264,7 @@ export class StripeService {
       billing_address_collection: 'required',
       success_url: `${this.siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${this.siteUrl}/`,
-      metadata,
+      metadata: buildCartCheckoutMetadata(items),
     })
   }
 
@@ -246,6 +272,7 @@ export class StripeService {
    * Get checkout session details
    */
   async getCheckoutSession(sessionId) {
+    this.assertCheckoutAvailable()
     const session = await this.stripe.checkout.sessions.retrieve(sessionId)
     return {
       id: session.id,

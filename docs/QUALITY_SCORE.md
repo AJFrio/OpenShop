@@ -8,8 +8,8 @@ Graded snapshot for agent prioritization. Update when a domain materially improv
 |--------|-------|-------|-------|
 | Products | services + routes | B | Unit + integration tests; KV model documented |
 | Collections | services + routes | B | Integration coverage |
-| Checkout / Stripe | services + routes | B | Stripe tests; webhook docs in STRIPE.md |
-| Admin auth | middleware + routes | B | Auth integration tests |
+| Checkout / Stripe | services + routes | B | Metadata key cap; webhook docs in STRIPE.md |
+| Admin auth | middleware + routes | A | Login rate-limit IP hardening, logout revocation, password-change session purge |
 | Store settings / theme | services + UI | B | Partial PUT merges; agent can write identity + theme |
 | Analytics | services + admin UI | C | Perf tests exist; fewer integration tests |
 | Media / R2 / AI | services + routes | B | Agent generate-and-store + merch persist; optional Drive |
@@ -20,7 +20,7 @@ Graded snapshot for agent prioritization. Update when a domain materially improv
 
 ## Gaps to close (priority)
 
-1. Component-level tests for critical cart/checkout UI flows.
+1. Component-level tests for critical cart/checkout UI flows (storefront now surfaces product-fetch errors).
 2. Keep [generated/kv-data-model.md](./generated/kv-data-model.md) aligned with `KVManager`.
 3. Expand media/R2 integration tests when touching `MediaService`.
 

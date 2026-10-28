@@ -13,6 +13,14 @@ export function errorHandler(error, c) {
     return c.json(error.toJSON(), error.statusCode)
   }
 
+  // Malformed JSON bodies from c.req.json()
+  if (error instanceof SyntaxError || error.name === 'SyntaxError') {
+    return c.json({
+      error: 'Invalid JSON body',
+      status: 400
+    }, 400)
+  }
+
   // Handle validation errors
   if (error.name === 'ValidationError' || error.status === 400) {
     return c.json({

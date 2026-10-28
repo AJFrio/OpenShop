@@ -6,6 +6,8 @@ import { ProductStripeService } from '../../services/ProductStripeService.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { resolveSetting } from '../../services/DeveloperSettingsService.js'
+import { parseJsonBody } from '../../utils/request.js'
+import { assertSafeResourceId } from '../../utils/validation.js'
 
 const router = new Hono()
 
@@ -19,7 +21,7 @@ router.get('/', asyncHandler(async (c) => {
 
 // Create product
 router.post('/', asyncHandler(async (c) => {
-  const productData = await c.req.json()
+  const productData = await parseJsonBody(c)
   const kvNamespace = getKVNamespace(c.env)
   const productService = new ProductService(kvNamespace)
   const stripeService = new StripeService(
@@ -48,13 +50,14 @@ router.post('/', asyncHandler(async (c) => {
 router.get('/:id', asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env)
   const productService = new ProductService(kvNamespace)
-  const product = await productService.getProduct(c.req.param('id'))
+  const product = await productService.getProduct(assertSafeResourceId(c.req.param('id')))
   return c.json(product)
 }))
 
 // Update product
 router.put('/:id', asyncHandler(async (c) => {
-  const updates = await c.req.json()
+  const id = assertSafeResourceId(c.req.param('id'))
+  const updates = await parseJsonBody(c)
   const kvNamespace = getKVNamespace(c.env)
   const productService = new ProductService(kvNamespace)
   const stripeService = new StripeService(
@@ -63,7 +66,7 @@ router.put('/:id', asyncHandler(async (c) => {
   )
   const productStripeService = new ProductStripeService(stripeService)
 
-  const existingProduct = await productService.getProduct(c.req.param('id'))
+  const existingProduct = await productService.getProduct(id)
 
   // A product created while the store had no Stripe key carries placeholder
   // ids. Once a key is configured, the first save creates it in Stripe for
@@ -77,7 +80,7 @@ router.put('/:id', asyncHandler(async (c) => {
     updates.stripeProductId = stripeProduct.id
     updates.stripePriceId = basePrice?.id || Object.values(variantPrices)[0] || ''
     updates.variantPrices = variantPrices
-    const backfilled = await productService.updateProduct(c.req.param('id'), updates)
+    const backfilled = await productService.updateProduct(id, updates)
     return c.json(backfilled)
   }
 
@@ -122,12 +125,13 @@ router.put('/:id', asyncHandler(async (c) => {
     updates.variants2 = variantUpdates.variants2
   }
 
-  const updatedProduct = await productService.updateProduct(c.req.param('id'), updates)
+  const updatedProduct = await productService.updateProduct(id, updates)
   return c.json(updatedProduct)
 }))
 
 // Delete product
 router.delete('/:id', asyncHandler(async (c) => {
+  const id = assertSafeResourceId(c.req.param('id'))
   const kvNamespace = getKVNamespace(c.env)
   const productService = new ProductService(kvNamespace)
   const stripeService = new StripeService(
@@ -135,7 +139,7 @@ router.delete('/:id', asyncHandler(async (c) => {
     await resolveSetting(getKVNamespace(c.env), c.env, 'SITE_URL'),
   )
 
-  const existingProduct = await productService.getProduct(c.req.param('id'))
+  const existingProduct = await productService.getProduct(id)
 
   // Archive Stripe product and price
   if (existingProduct.stripePriceId) {
@@ -145,7 +149,7 @@ router.delete('/:id', asyncHandler(async (c) => {
     await stripeService.archiveProduct(existingProduct.stripeProductId)
   }
 
-  await productService.deleteProduct(c.req.param('id'))
+  await productService.deleteProduct(id)
   return c.json({ success: true })
 }))
 

@@ -3,7 +3,7 @@ import { Hono } from 'hono'
 import { createCorsMiddleware } from './middleware/cors.js'
 import { securityHeadersMiddleware } from './middleware/securityHeaders.js'
 import { errorHandler } from './middleware/errorHandler.js'
-import { verifyAdminAuth } from './middleware/auth.js'
+import { verifyAdminAuth, UNAUTHENTICATED_ADMIN_PATHS } from './middleware/auth.js'
 import { productLimitMiddleware } from './middleware/productLimit.js'
 import { registerRoutes } from './routes/index.js'
 
@@ -20,13 +20,8 @@ app.use('*', async (c, next) => {
 
 // Admin authentication middleware
 app.use('/api/admin/*', async (c, next) => {
-  // Skip auth for login and Drive OAuth endpoints (popup has no headers)
-  const unauthenticatedPaths = new Set([
-    '/api/admin/login',
-    '/api/admin/drive/oauth/start',
-    '/api/admin/drive/oauth/callback'
-  ])
-  if (unauthenticatedPaths.has(c.req.path)) {
+  // Only login is public; every other /api/admin/* route requires a session.
+  if (UNAUTHENTICATED_ADMIN_PATHS.has(c.req.path)) {
     return next()
   }
 

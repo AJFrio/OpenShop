@@ -27,7 +27,8 @@ Routes should stay thin: parse input, call a service, map errors to HTTP. KV rea
 ### Validate at boundaries
 
 - HTTP: use `src/middleware/validation.js` and route-level checks.
-- External APIs: treat Stripe responses as untrusted; normalize before storing in KV.
+- JSON bodies: parse with `parseJsonBody` in `src/utils/request.js` so malformed bodies become 400 `ValidationError`, not 500.
+- External APIs: treat Stripe responses as untrusted; normalize before storing in KV. Cart checkout metadata is capped at Stripe's 50-key limit (`buildCartCheckoutMetadata`).
 
 ### Errors
 

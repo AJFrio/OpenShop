@@ -24,7 +24,7 @@ These endpoints handle payment processing and checkout flows.
 |----------|--------|-------------|----------------|
 | `/api/create-checkout-session` | `POST` | Single item checkout | None |
 | `/api/create-cart-checkout-session` | `POST` | Multi-item cart checkout | None |
-| `/api/image-proxy?src=<url>` | `GET` | Proxy for Google Drive images | None |
+| `/api/image-proxy?src=<url>` | `GET` | Proxy for Google Drive raster images (JPEG/PNG/WebP/GIF/AVIF only) | None |
 
 ## Admin Endpoints (Authenticated)
 
@@ -33,6 +33,7 @@ These endpoints require admin authentication via the `X-Admin-Token` header.
 | Endpoint | Method | Description | Authentication |
 |----------|--------|-------------|----------------|
 | `/api/admin/login` | `POST` | Admin authentication | Password |
+| `/api/admin/logout` | `POST` | Revoke the current admin session | Admin Token |
 | `/api/admin/products` | `POST` | Create product | Admin Token |
 | `/api/admin/products/:id` | `PUT, DELETE` | Update/delete product | Admin Token |
 | `/api/admin/store-settings` | `PUT` | Update store settings | Admin Token |
@@ -44,11 +45,10 @@ These endpoints require admin authentication via the `X-Admin-Token` header.
 | `/api/admin/agent/chat` | `POST` | Store agent conversation; tools persist admin edits | Admin Token |
 | `/api/admin/agent/models` | `GET` | List OpenRouter models for the store agent | Admin Token |
 | `/api/admin/drive/status` | `GET` | Google Drive connection status | Admin Token |
-| `/api/admin/drive/oauth/start` | `GET` | Begin Google Drive OAuth | None |
-| `/api/admin/drive/oauth/callback` | `GET` | Handle Drive OAuth callback | None |
+| `/api/admin/drive/oauth/start` | `GET` | Begin Google Drive OAuth | Admin Token |
+| `/api/admin/drive/oauth/callback` | `GET` | Handle Drive OAuth callback | Admin Token |
 | `/api/admin/drive/upload` | `POST` | Upload image to Google Drive | Admin Token |
-
-> **Note**: Drive OAuth endpoints are intentionally unauthenticated to support the popup OAuth flow. All other Drive actions require admin auth.
+| `/api/admin/developer-settings/password` | `PUT, DELETE` | Change or reset admin password (`currentPassword` required); revokes all sessions | Admin Token |
 
 ## Authentication
 
@@ -81,7 +81,7 @@ Include the admin token in the request header:
 X-Admin-Token: your_admin_token_here
 ```
 
-Tokens expire after 24 hours and must be refreshed by logging in again.
+Tokens expire after 24 hours and must be refreshed by logging in again. `POST /api/admin/logout` deletes the hashed token from KV so the session cannot be reused.
 
 ## Example Requests
 

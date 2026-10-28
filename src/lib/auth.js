@@ -104,6 +104,28 @@ export async function adminApiRequest(url, options = {}) {
  * @param {string} password
  * @returns {Promise<{ ok: true } | { ok: false, error: string }>}
  */
+/**
+ * Revoke the current session server-side, then always clear local token state.
+ */
+export async function adminLogout() {
+  const token = getAdminToken()
+  try {
+    if (token) {
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Token': token,
+        },
+      })
+    }
+  } catch {
+    // Network failure must not leave the UI logged in.
+  } finally {
+    clearAdminToken()
+  }
+}
+
 export async function adminLogin(password) {
   try {
     const response = await fetch('/api/admin/login', {

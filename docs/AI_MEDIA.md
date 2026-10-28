@@ -174,6 +174,8 @@ OpenShop includes a built-in image proxy to serve Google Drive images reliably:
 
 **Endpoint**: `GET /api/image-proxy?src=<drive_url>`
 
+The proxy only serves raster images (`image/jpeg`, `image/png`, `image/webp`, `image/gif`, `image/avif`). HTML login pages, SVG, and other types from Drive are rejected so they cannot execute as script on the OpenShop origin.
+
 **Why It's Needed**: Google Drive direct links can return 403 errors or CORS issues. The proxy ensures images load correctly in your storefront.
 
 **Automatic Usage**: The UI automatically normalizes Drive links to use the proxy when displaying images.

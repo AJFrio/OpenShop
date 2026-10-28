@@ -65,6 +65,20 @@ describe('Checkout Process', () => {
       )
     })
 
+    it('should return 400 for malformed JSON', async () => {
+      const request = createTestRequest('/api/create-checkout-session', {
+        method: 'POST',
+        body: '{not-json',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const response = await executeRequest(app, request, env)
+      const data = await parseJsonResponse(response)
+
+      expect(response.status).toBe(400)
+      expect(data.error).toMatch(/JSON/i)
+    })
+
     it('should return 400 for missing priceId', async () => {
       const request = createTestRequest('/api/create-checkout-session', {
         method: 'POST',

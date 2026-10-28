@@ -147,10 +147,16 @@ describe('Developer Settings', () => {
         body: JSON.stringify({ currentPassword: env.ADMIN_PASSWORD, newPassword: 'temporary-password' }),
       }), env)
 
-      // The lockout recovery path, exercised through the API.
+      const login = await executeRequest(app, createTestRequest('/api/admin/login', {
+        method: 'POST',
+        body: JSON.stringify({ password: 'temporary-password' }),
+      }), env)
+      const { token } = await parseJsonResponse(login)
+
       const cleared = await executeRequest(app, createTestRequest('/api/admin/developer-settings/password', {
         method: 'DELETE',
-        headers: createAdminHeaders(adminToken),
+        headers: createAdminHeaders(token),
+        body: JSON.stringify({ currentPassword: 'temporary-password' }),
       }), env)
       expect(cleared.status).toBe(200)
 
@@ -159,6 +165,39 @@ describe('Developer Settings', () => {
         body: JSON.stringify({ password: env.ADMIN_PASSWORD }),
       }), env)
       expect(res.status).toBe(200)
+    })
+
+    it('rejects password reset without the current password', async () => {
+      const res = await executeRequest(app, createTestRequest('/api/admin/developer-settings/password', {
+        method: 'DELETE',
+        headers: createAdminHeaders(adminToken),
+        body: JSON.stringify({}),
+      }), env)
+      expect(res.status).toBe(400)
+    })
+
+    it('rejects password reset with the wrong current password', async () => {
+      const res = await executeRequest(app, createTestRequest('/api/admin/developer-settings/password', {
+        method: 'DELETE',
+        headers: createAdminHeaders(adminToken),
+        body: JSON.stringify({ currentPassword: 'nope' }),
+      }), env)
+      expect(res.status).toBe(400)
+    })
+
+    it('revokes existing sessions after a password change', async () => {
+      const change = await executeRequest(app, createTestRequest('/api/admin/developer-settings/password', {
+        method: 'PUT',
+        headers: createAdminHeaders(adminToken),
+        body: JSON.stringify({ currentPassword: env.ADMIN_PASSWORD, newPassword: 'brand-new-password' }),
+      }), env)
+      expect(change.status).toBe(200)
+
+      const stale = await executeRequest(app, createTestRequest('/api/admin/products', {
+        method: 'GET',
+        headers: createAdminHeaders(adminToken),
+      }), env)
+      expect(stale.status).toBe(401)
     })
 
     it('never stores the password in plaintext', async () => {

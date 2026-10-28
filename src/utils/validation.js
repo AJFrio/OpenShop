@@ -1,4 +1,8 @@
 // Reusable validation utilities
+import { ValidationError } from './errors.js'
+import { MAX_RESOURCE_ID_LENGTH } from '../config/index.js'
+
+const SAFE_RESOURCE_ID_PATTERN = /^[A-Za-z0-9._:-]+$/
 
 /**
  * Validates hex color format
@@ -48,5 +52,32 @@ export function isValidArray(value) {
  */
 export function isValidObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+/**
+ * IDs used in URL params / KV keys: no path separators or traversal.
+ * @param {unknown} id
+ * @returns {boolean}
+ */
+export function isSafeResourceId(id) {
+  return (
+    typeof id === 'string' &&
+    id.length > 0 &&
+    id.length <= MAX_RESOURCE_ID_LENGTH &&
+    SAFE_RESOURCE_ID_PATTERN.test(id) &&
+    !id.includes('..')
+  )
+}
+
+/**
+ * @param {unknown} id
+ * @param {string} [label]
+ * @returns {string}
+ */
+export function assertSafeResourceId(id, label = 'id') {
+  if (!isSafeResourceId(id)) {
+    throw new ValidationError(`Invalid ${label}`)
+  }
+  return id
 }
 

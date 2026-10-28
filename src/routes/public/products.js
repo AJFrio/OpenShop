@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { ProductService } from '../../services/ProductService.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
+import { assertSafeResourceId } from '../../utils/validation.js'
 
 const router = new Hono()
 
@@ -18,7 +19,7 @@ router.get('/', asyncHandler(async (c) => {
 router.get('/:id', asyncHandler(async (c) => {
   const kvNamespace = getKVNamespace(c.env)
   const productService = new ProductService(kvNamespace)
-  const product = await productService.getProduct(c.req.param('id'))
+  const product = await productService.getProduct(assertSafeResourceId(c.req.param('id')))
   return c.json(product)
 }))
 

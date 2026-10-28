@@ -1,10 +1,12 @@
 import { Hono } from 'hono'
 import { R2Service } from '../../services/R2Service.js'
+import { asyncHandler } from '../../middleware/errorHandler.js'
+import { assertSafeResourceId } from '../../utils/validation.js'
 
 const router = new Hono()
 
-router.get('/:key', async (c) => {
-  const key = c.req.param('key')
+router.get('/:key', asyncHandler(async (c) => {
+  const key = assertSafeResourceId(c.req.param('key'), 'image key')
   const r2Service = new R2Service(c.env)
 
   try {
@@ -27,6 +29,6 @@ router.get('/:key', async (c) => {
     console.error('Error fetching image:', e)
     return c.notFound()
   }
-})
+}))
 
 export default router

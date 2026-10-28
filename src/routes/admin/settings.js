@@ -7,6 +7,7 @@ import { getKVNamespace } from '../../utils/kv.js'
 import { validateThemePayload } from '../../middleware/validation.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { APIError, ValidationError } from '../../utils/errors.js'
+import { parseJsonBody } from '../../utils/request.js'
 
 const router = new Hono()
 
@@ -19,7 +20,7 @@ router.get('/storefront/theme', asyncHandler(async (c) => {
 
 // Update storefront theme
 router.put('/storefront/theme', asyncHandler(async (c) => {
-  const payload = await c.req.json()
+  const payload = await parseJsonBody(c)
   const validation = validateThemePayload(payload)
   
   if (!validation.valid) {
@@ -54,7 +55,7 @@ router.get('/store-settings', asyncHandler(async (c) => {
 
 // Update store settings
 router.put('/store-settings', asyncHandler(async (c) => {
-  const settings = await c.req.json()
+  const settings = await parseJsonBody(c)
   const kvNamespace = getKVNamespace(c.env)
   const settingsService = new StoreSettingsService(kvNamespace)
   const updatedSettings = await settingsService.updateSettings(settings)
@@ -71,7 +72,7 @@ router.get('/storefront/pages', asyncHandler(async (c) => {
 
 // Create a new page-builder page
 router.post('/storefront/pages', asyncHandler(async (c) => {
-  const payload = await c.req.json()
+  const payload = await parseJsonBody(c)
   const kvNamespace = getKVNamespace(c.env)
   const pageContentService = new PageContentService(kvNamespace)
 
@@ -102,7 +103,7 @@ router.get('/storefront/pages/:slug', asyncHandler(async (c) => {
 // Publish page-builder content
 router.put('/storefront/pages/:slug', asyncHandler(async (c) => {
   const slug = c.req.param('slug')
-  const payload = await c.req.json()
+  const payload = await parseJsonBody(c)
   const kvNamespace = getKVNamespace(c.env)
   const pageContentService = new PageContentService(kvNamespace)
 

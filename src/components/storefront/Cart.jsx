@@ -4,6 +4,7 @@ import { useCart } from '../../contexts/CartContext'
 import { Button } from '../ui/button'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { buildCheckoutItems } from '../../lib/checkoutPayload'
+import { CART_MAX_ITEM_QUANTITY } from '../../config/index.js'
 import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react'
 
 export function Cart() {
@@ -30,10 +31,10 @@ export function Cart() {
         body: JSON.stringify({ items: checkoutItems }),
       })
 
-      const session = await response.json()
+      const session = await response.json().catch(() => ({}))
 
-      if (session.error) {
-        throw new Error(session.error)
+      if (!response.ok || session.error) {
+        throw new Error(session.error || 'Error starting checkout. Please try again.')
       }
 
       const { loadStripe } = await import('@stripe/stripe-js')
@@ -48,7 +49,7 @@ export function Cart() {
       }
     } catch (error) {
       console.error('Error during checkout:', error)
-      setCheckoutError('Error starting checkout. Please try again.')
+      setCheckoutError(error.message || 'Error starting checkout. Please try again.')
     } finally {
       setIsCheckingOut(false)
     }
@@ -73,7 +74,9 @@ export function Cart() {
   return (
     <>
       {/* Overlay - Desktop */}
-      <div 
+      <button
+        type="button"
+        aria-label="Close cart"
         className={`fixed inset-0 bg-black z-[60] hidden lg:block transition-opacity duration-400 ease-in-out ${
           isOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'
         }`}
@@ -81,7 +84,9 @@ export function Cart() {
       />
 
       {/* Overlay - Mobile */}
-      <div 
+      <button
+        type="button"
+        aria-label="Close cart"
         className={`fixed inset-0 bg-black z-[60] lg:hidden transition-opacity duration-400 ease-in-out ${
           isOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'
         }`}
@@ -146,10 +151,12 @@ function CartContent({ items, totalPrice, updateQuantity, removeItem, toggleCart
       <div className="flex items-center justify-between p-4 border-b animate-fade-in">
         <h2 className="text-lg font-semibold">Shopping Cart</h2>
         <button
+          type="button"
           onClick={toggleCart}
+          aria-label="Close cart"
           className="p-2 hover:bg-slate-100 rounded-full transition-all duration-200 hover:scale-110 hover:rotate-90"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5" aria-hidden />
         </button>
       </div>
 
@@ -302,8 +309,9 @@ function CartItem({ item, updateQuantity, removeItem }) {
           
           <button
             onClick={() => handleQuantityChange(item.quantity + 1)}
+            disabled={item.quantity >= CART_MAX_ITEM_QUANTITY}
             aria-label={`Increase quantity of ${item.name}`}
-            className="p-1.5 hover:bg-slate-100 rounded transition-all duration-200"
+            className="p-1.5 hover:bg-slate-100 rounded transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Plus className="w-4 h-4" />
           </button>

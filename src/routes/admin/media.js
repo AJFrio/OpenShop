@@ -4,6 +4,8 @@ import { MediaService } from '../../services/MediaService.js'
 import { getKVNamespace } from '../../utils/kv.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError } from '../../utils/errors.js'
+import { parseJsonBody } from '../../utils/request.js'
+import { assertSafeResourceId } from '../../utils/validation.js'
 
 const router = new Hono()
 
@@ -17,7 +19,7 @@ router.get('/', asyncHandler(async (c) => {
 
 // Create media item
 router.post('/', asyncHandler(async (c) => {
-  const body = await c.req.json()
+  const body = await parseJsonBody(c)
   const url = body?.url
   
   if (!url || typeof url !== 'string' || url.trim() === '') {
@@ -32,10 +34,7 @@ router.post('/', asyncHandler(async (c) => {
 
 // Delete media item
 router.delete('/:id', asyncHandler(async (c) => {
-  const id = c.req.param('id')
-  if (!id) {
-    throw new ValidationError('Missing id')
-  }
+  const id = assertSafeResourceId(c.req.param('id'))
   
   const kvNamespace = getKVNamespace(c.env)
   const mediaService = new MediaService(kvNamespace)

@@ -1,6 +1,6 @@
 // Unit tests for StripeService
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { StripeService } from '../../../src/services/StripeService.js'
+import { StripeService, buildCartCheckoutMetadata, CART_METADATA_DETAILED_ITEM_LIMIT, STRIPE_METADATA_KEY_LIMIT } from '../../../src/services/StripeService.js'
 import Stripe from 'stripe'
 
 // Mock Stripe
@@ -325,6 +325,40 @@ describe('StripeService', () => {
       expect(callArgs.metadata.item_0_variant1).toBe('Size: Large')
       expect(callArgs.metadata.item_0_variant2).toBe('Color: Red')
     })
+
+    it('caps per-item metadata so Stripe\'s 50-key limit is never exceeded', async () => {
+      const items = Array.from({ length: 20 }, (_, i) => ({
+        stripePriceId: `price_${i}`,
+        quantity: 1,
+        name: `Product ${i + 1}`,
+        selectedVariant: { name: 'Size' },
+        selectedVariant2: { name: 'Color' },
+      }))
+
+      mockStripe.checkout.sessions.create.mockResolvedValue({ id: 'cs_test123' })
+      await stripeService.createCartCheckoutSession(items)
+
+      const metadata = mockStripe.checkout.sessions.create.mock.calls[0][0].metadata
+      expect(Object.keys(metadata).length).toBeLessThanOrEqual(STRIPE_METADATA_KEY_LIMIT)
+      expect(metadata.item_count).toBe('20')
+      expect(metadata.metadata_truncated).toBe('true')
+      expect(metadata.overflow_item_count).toBe(String(20 - CART_METADATA_DETAILED_ITEM_LIMIT))
+      expect(metadata.item_0_name).toBe('Product 1')
+      expect(metadata[`item_${CART_METADATA_DETAILED_ITEM_LIMIT}_name`]).toBeUndefined()
+    })
+  })
+
+  describe('buildCartCheckoutMetadata', () => {
+    it('stays at or under 50 keys in the worst case', () => {
+      const items = Array.from({ length: 40 }, (_, i) => ({
+        name: `Item ${i}`,
+        quantity: 2,
+        selectedVariant: { name: 'A' },
+        selectedVariant2: { name: 'B' },
+      }))
+      const metadata = buildCartCheckoutMetadata(items)
+      expect(Object.keys(metadata).length).toBeLessThanOrEqual(50)
+    })
   })
 
   describe('getCheckoutSession', () => {
@@ -352,6 +386,13 @@ describe('StripeService', () => {
         created: expect.any(Number)
       })
       expect(mockStripe.checkout.sessions.retrieve).toHaveBeenCalledWith(sessionId)
+    })
+
+    it('throws a clean error when Stripe is not configured', async () => {
+      const unconfigured = new StripeService('', 'https://test.workers.dev')
+      await expect(unconfigured.getCheckoutSession('cs_test123')).rejects.toMatchObject({
+        statusCode: 503,
+      })
     })
   })
 

@@ -9,7 +9,10 @@ import { getKVNamespace } from '../../utils/kv.js'
 import { resolveSetting } from '../../services/DeveloperSettingsService.js'
 import { asyncHandler } from '../../middleware/errorHandler.js'
 import { ValidationError } from '../../utils/errors.js'
+import { parseJsonBody } from '../../utils/request.js'
 import { timingSafeEqualStrings } from '../../utils/crypto.js'
+import { DEFAULT_ADMIN_PASSWORD } from '../../config/index.js'
+import { purgeAdminSessions } from '../../middleware/auth.js'
 import {
   DeveloperSettingsService,
   hashPassword,
@@ -17,39 +20,7 @@ import {
 
 const router = new Hono()
 
-// Current settings. Secret values are never returned — only whether each is
-// set, and whether it came from settings or the environment.
-router.get('/', asyncHandler(async (c) => {
-  const service = new DeveloperSettingsService(getKVNamespace(c.env))
-  return c.json({ fields: await service.getPublicView(c.env) })
-}))
-
-// Update non-password settings. An empty string clears an override.
-router.put('/', asyncHandler(async (c) => {
-  const updates = await c.req.json()
-  if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
-    throw new ValidationError('Expected an object of settings')
-  }
-  if ('ADMIN_PASSWORD' in updates) {
-    throw new ValidationError('Use /password to change the admin password')
-  }
-
-  const service = new DeveloperSettingsService(getKVNamespace(c.env))
-  await service.update(updates)
-  return c.json({ fields: await service.getPublicView(c.env) })
-}))
-
-// Change the admin password.
-//
-// Requires the current password even though the caller already holds a valid
-// admin token: a token left open on a shared machine should not be enough to
-// take the store over.
-router.put('/password', asyncHandler(async (c) => {
-  const { currentPassword, newPassword } = await c.req.json()
-
-  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
-    throw new ValidationError('New password must be at least 8 characters')
-  }
+async function verifyCurrentAdminPassword(c, currentPassword) {
   if (!currentPassword || typeof currentPassword !== 'string') {
     throw new ValidationError('Current password is required')
   }
@@ -65,7 +36,7 @@ router.put('/password', asyncHandler(async (c) => {
   } else {
     currentValid = await timingSafeEqualStrings(
       currentPassword,
-      c.env.ADMIN_PASSWORD || 'admin123',
+      c.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD,
     )
   }
 
@@ -73,7 +44,43 @@ router.put('/password', asyncHandler(async (c) => {
     throw new ValidationError('Current password is incorrect')
   }
 
+  return { kvNamespace, service }
+}
+
+// Current settings. Secret values are never returned — only whether each is
+// set, and whether it came from settings or the environment.
+router.get('/', asyncHandler(async (c) => {
+  const service = new DeveloperSettingsService(getKVNamespace(c.env))
+  return c.json({ fields: await service.getPublicView(c.env) })
+}))
+
+// Update non-password settings. An empty string clears an override.
+router.put('/', asyncHandler(async (c) => {
+  const updates = await parseJsonBody(c)
+  if ('ADMIN_PASSWORD' in updates) {
+    throw new ValidationError('Use /password to change the admin password')
+  }
+
+  const service = new DeveloperSettingsService(getKVNamespace(c.env))
+  await service.update(updates)
+  return c.json({ fields: await service.getPublicView(c.env) })
+}))
+
+// Change the admin password.
+//
+// Requires the current password even though the caller already holds a valid
+// admin token: a token left open on a shared machine should not be enough to
+// take the store over. Existing sessions are revoked immediately.
+router.put('/password', asyncHandler(async (c) => {
+  const { currentPassword, newPassword } = await parseJsonBody(c)
+
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
+    throw new ValidationError('New password must be at least 8 characters')
+  }
+
+  const { kvNamespace, service } = await verifyCurrentAdminPassword(c, currentPassword)
   await service.setAdminPassword(newPassword)
+  await purgeAdminSessions(kvNamespace)
   return c.json({ ok: true })
 }))
 
@@ -132,9 +139,12 @@ router.get('/models', asyncHandler(async (c) => {
 }))
 
 // Drop a UI-set password, falling back to the ADMIN_PASSWORD binding.
+// Requires the current password — an admin token alone must not reset it.
 router.delete('/password', asyncHandler(async (c) => {
-  const service = new DeveloperSettingsService(getKVNamespace(c.env))
+  const { currentPassword } = await parseJsonBody(c)
+  const { kvNamespace, service } = await verifyCurrentAdminPassword(c, currentPassword)
   await service.clearAdminPassword()
+  await purgeAdminSessions(kvNamespace)
   return c.json({ ok: true })
 }))
 

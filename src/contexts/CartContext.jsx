@@ -1,4 +1,11 @@
 import { createContext, useContext, useReducer, useEffect } from 'react'
+import { CART_MAX_ITEM_QUANTITY } from '../config/index.js'
+
+function clampQuantity(quantity) {
+  const n = Number.parseInt(quantity, 10)
+  if (!Number.isInteger(n) || n <= 0) return 0
+  return Math.min(CART_MAX_ITEM_QUANTITY, n)
+}
 
 const CartContext = createContext()
 
@@ -18,19 +25,20 @@ function cartReducer(state, action) {
     case CART_ACTIONS.ADD_ITEM: {
       const existingItem = state.items.find(item => item.id === action.payload.id)
       
+      const addQty = clampQuantity(action.payload.quantity || 1) || 1
       if (existingItem) {
         return {
           ...state,
           items: state.items.map(item =>
             item.id === action.payload.id
-              ? { ...item, quantity: item.quantity + (action.payload.quantity || 1) }
+              ? { ...item, quantity: clampQuantity(item.quantity + addQty) }
               : item
           )
         }
       } else {
         return {
           ...state,
-          items: [...state.items, { ...action.payload, quantity: action.payload.quantity || 1 }]
+          items: [...state.items, { ...action.payload, quantity: addQty }]
         }
       }
     }
@@ -43,18 +51,19 @@ function cartReducer(state, action) {
     }
 
     case CART_ACTIONS.UPDATE_QUANTITY: {
-      if (action.payload.quantity <= 0) {
+      const quantity = clampQuantity(action.payload.quantity)
+      if (quantity <= 0) {
         return {
           ...state,
           items: state.items.filter(item => item.id !== action.payload.id)
         }
       }
-      
+
       return {
         ...state,
         items: state.items.map(item =>
           item.id === action.payload.id
-            ? { ...item, quantity: action.payload.quantity }
+            ? { ...item, quantity }
             : item
         )
       }
