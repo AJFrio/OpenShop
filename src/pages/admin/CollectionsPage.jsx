@@ -5,6 +5,7 @@ import { Select } from '../../components/ui/select'
 import { Card, CardContent } from '../../components/ui/card'
 import { CollectionForm } from '../../components/admin/CollectionForm'
 import { adminApiRequest } from '../../lib/auth'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { FolderOpen, Plus, Edit, Trash2 } from 'lucide-react'
 import { Switch } from '../../components/ui/switch'
 import {
@@ -101,13 +102,16 @@ export function CollectionsPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <h1 className="text-2xl font-bold text-[var(--admin-text-primary)]">Collections</h1>
-        <Button onClick={() => setShowForm(true)} size="sm">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Collection
-        </Button>
-      </div>
+      <AdminPageHeader
+        title="Collections"
+        description="Group products for navigation and merchandising."
+        actions={
+          <Button onClick={() => setShowForm(true)} size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Add collection
+          </Button>
+        }
+      />
 
       <div className="max-w-xs">
         <label className="block text-xs font-semibold uppercase text-[var(--admin-text-secondary)] mb-2">

@@ -308,7 +308,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
+    <div className="admin-modal-overlay fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
@@ -426,7 +426,7 @@ export default function AddMediaModal({ open, onClose, onCreated }) {
               )}
 
               {isPickingRefs && (
-                <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={() => setIsPickingRefs(false)}>
+                <div className="admin-modal-overlay fixed inset-0 z-50 flex items-center justify-center" onClick={() => setIsPickingRefs(false)}>
                   <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4 p-4" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="text-base font-semibold">Select reference images</h4>

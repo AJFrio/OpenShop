@@ -19,12 +19,12 @@ import {
 } from 'lucide-react'
 
 const menuItems = [
-  { path: '/admin', label: 'Dashboard', icon: Home, end: true },
+  { path: '/admin', label: 'Home', icon: Home, end: true },
   { path: '/admin/products', label: 'Products', icon: Package },
   { path: '/admin/collections', label: 'Collections', icon: FolderOpen },
   { path: '/admin/fulfillment', label: 'Fulfillment', icon: ShoppingBag },
   { path: '/admin/media', label: 'Media', icon: ImageIcon },
-  { path: '/admin/store-settings', label: 'Store Settings', icon: Settings },
+  { path: '/admin/store-settings', label: 'Store settings', icon: Settings },
   { path: '/admin/pages', label: 'Pages', icon: LayoutTemplate },
   { path: '/admin/developer-settings', label: 'Developer', icon: Wrench },
 ]
@@ -40,10 +40,8 @@ export function AdminLayout({ onLogout }) {
   const location = useLocation()
   const needsPasswordChange = mustChangePassword()
   const [paymentsEnabled, setPaymentsEnabled] = useState(true)
+  const [storeName, setStoreName] = useState('OpenShop')
 
-  // Catalogue-only mode: a store with no STRIPE_SECRET_KEY can still be built
-  // out, but cannot take money. Say so once, at the top, rather than letting
-  // it surface as a failed checkout later.
   useEffect(() => {
     let cancelled = false
     fetch('/api/payments-status')
@@ -55,21 +53,37 @@ export function AdminLayout({ onLogout }) {
     return () => { cancelled = true }
   }, [])
 
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/store-settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.storeName) setStoreName(data.storeName)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
+
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--admin-bg-primary)] admin-container lg:flex-row">
-      <div className="bg-[var(--admin-bg-secondary)] border-b border-[var(--admin-border-primary)] lg:w-64 lg:min-h-screen lg:border-b-0 lg:border-r flex flex-col">
-        <div className="p-5 border-b border-[var(--admin-border-primary)]">
-          <h1 className="text-lg font-bold text-[var(--admin-text-primary)]">OpenShop Admin</h1>
+    <div className="flex min-h-screen flex-col bg-[var(--os-color-bg)] admin-container lg:flex-row">
+      <div className="admin-sidebar flex w-full flex-col border-b border-[var(--os-color-border)] lg:w-[var(--os-sidebar-width)] lg:min-h-screen lg:flex-shrink-0 lg:border-b-0 lg:border-r">
+        <div className="admin-sidebar-header px-4 py-4">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--os-color-text-disabled)]">
+            OpenShop
+          </p>
+          <h1 className="mt-0.5 truncate text-[15px] font-semibold tracking-tight text-[var(--os-color-text)]">
+            {storeName}
+          </h1>
           <Link
             to="/"
-            className="text-xs text-[var(--admin-text-secondary)] hover:text-[var(--admin-accent-light)] transition-colors mt-1 inline-block"
+            className="mt-1.5 inline-flex items-center text-xs text-[var(--os-color-text-secondary)] transition-colors hover:text-[var(--os-color-text-brand)]"
           >
             <Store className="mr-1 inline h-3.5 w-3.5" />
-            Back to Store
+            View store
           </Link>
         </div>
-        <nav className="flex-1 p-3">
-          <ul className="grid grid-cols-2 gap-1 sm:grid-cols-3 lg:block lg:space-y-1">
+        <nav className="flex-1 p-2" aria-label="Admin">
+          <ul className="grid grid-cols-2 gap-0.5 sm:grid-cols-3 lg:block">
             {menuItems.map((item) => {
               const Icon = item.icon
               const isActive = isNavActive(location.pathname, item)
@@ -81,10 +95,8 @@ export function AdminLayout({ onLogout }) {
                       if (!confirmLeaveIfDirty()) e.preventDefault()
                     }}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--admin-bg-primary)] ${
-                      isActive
-                        ? 'bg-[var(--admin-accent)]/15 text-[var(--admin-accent-light)] border-l-2 border-[var(--admin-accent)]'
-                        : 'text-[var(--admin-text-secondary)] hover:bg-[var(--admin-overlay-light)] hover:text-[var(--admin-text-primary)]'
+                    className={`admin-sidebar-link flex items-center gap-3 px-3 py-2 text-sm focus-visible:outline-none focus-visible:shadow-[var(--os-shadow-focus)] ${
+                      isActive ? 'active' : ''
                     }`}
                   >
                     <Icon className="w-4 h-4 flex-shrink-0" />
@@ -95,34 +107,35 @@ export function AdminLayout({ onLogout }) {
             })}
           </ul>
         </nav>
-        <div className="p-3 border-t border-[var(--admin-border-primary)] flex justify-end">
+        <div className="border-t border-[var(--os-color-border)] p-2">
           <Button
             onClick={onLogout}
             variant="ghost"
-            className="text-[var(--admin-text-muted)] hover:text-[var(--admin-error)] hover:bg-[var(--admin-error-bg)] text-sm"
+            className="w-full justify-start text-[var(--os-color-text-disabled)] hover:text-[var(--os-color-text-critical)] hover:bg-[var(--os-color-bg-fill-critical)] text-sm"
           >
             <LogOut className="w-4 h-4 mr-1.5" />
-            Logout
+            Log out
           </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-auto p-4 sm:p-5">
+      <div className="flex-1 overflow-auto">
+        <div className="mx-auto w-full max-w-[var(--os-page-max-width)] p-4 sm:p-6 lg:p-8">
         {needsPasswordChange && location.pathname !== '/admin/developer-settings' && (
           <div
             role="alert"
-            className="mb-4 flex items-start gap-3 rounded-md border border-[var(--admin-error)] bg-[var(--admin-error-bg)] p-3.5"
+            className="admin-alert admin-alert-error mb-4"
           >
-            <ShieldAlert className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--admin-error)]" />
+            <ShieldAlert className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <div className="text-sm">
-              <p className="font-medium text-[var(--admin-text-primary)]">
+              <p className="font-medium text-[var(--os-color-text)]">
                 You are using the default admin password
               </p>
-              <p className="mt-0.5 text-[var(--admin-text-secondary)]">
+              <p className="mt-0.5 text-[var(--os-color-text-secondary)]">
                 It is published in the OpenShop README, so anyone can sign in
                 to this store.{' '}
                 <Link
                   to="/admin/developer-settings"
-                  className="underline hover:text-[var(--admin-text-primary)]"
+                  className="underline hover:text-[var(--os-color-text)]"
                 >
                   Change it now
                 </Link>
@@ -134,19 +147,19 @@ export function AdminLayout({ onLogout }) {
         {!paymentsEnabled && (
           <div
             role="status"
-            className="mb-4 flex items-start gap-3 rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-card)] p-3.5"
+            className="mb-4 flex items-start gap-3 rounded-[var(--os-radius-md)] border border-[var(--os-color-border)] bg-[var(--os-color-bg-surface)] p-3.5"
           >
-            <CreditCard className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--admin-text-muted)]" />
+            <CreditCard className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--os-color-icon)]" />
             <div className="text-sm">
-              <p className="font-medium text-[var(--admin-text-primary)]">
+              <p className="font-medium text-[var(--os-color-text)]">
                 Payments are not set up yet
               </p>
-              <p className="mt-0.5 text-[var(--admin-text-secondary)]">
+              <p className="mt-0.5 text-[var(--os-color-text-secondary)]">
                 You can add and edit products, but customers cannot check out.
                 Add <code>STRIPE_SECRET_KEY</code> under{' '}
                 <Link
                   to="/admin/developer-settings"
-                  className="underline hover:text-[var(--admin-text-primary)]"
+                  className="underline hover:text-[var(--os-color-text)]"
                 >
                   Developer Settings
                 </Link>{' '}
@@ -157,6 +170,7 @@ export function AdminLayout({ onLogout }) {
           </div>
         )}
         <Outlet />
+        </div>
       </div>
     </div>
   )

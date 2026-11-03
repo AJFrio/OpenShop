@@ -26,7 +26,8 @@ Secret keys (`STRIPE_SECRET_KEY`, `OPENROUTER_API_KEY`) and the admin password a
 
 - HTTP: `src/routes/admin/agent.js` (`POST /api/admin/agent/chat`, `GET /api/admin/agent/models`)
 - Tools: `src/routes/admin/agentTools.js` (`TOOL_DEFINITIONS`, `executeAgentTool`)
-- UI: `src/components/admin/AgentChat.jsx`
+- UI: `src/components/admin/AgentChat.jsx` (dashboard centerpiece; composer, chips, recent activity)
+- Session: `src/lib/agentThread.js` (local transcript + recent prompts)
 - Image persist: `POST /api/admin/ai/generate-and-store` and `POST /api/admin/ai/generate-merch-image`
 
 ## Related

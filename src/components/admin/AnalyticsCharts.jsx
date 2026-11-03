@@ -1,6 +1,24 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { formatCurrency } from '../../lib/utils'
+import { adminTokens } from '../../lib/adminTheme'
+
+const chartColors = {
+  brand: adminTokens.color.brand['600'],
+  textMuted: adminTokens.color.text.disabled,
+  border: adminTokens.color.border.default,
+  surface: adminTokens.color.bg.surface,
+  text: adminTokens.color.text.default,
+}
+
+function chartTooltipStyle() {
+  return {
+    backgroundColor: chartColors.surface,
+    border: `1px solid ${chartColors.border}`,
+    borderRadius: '8px',
+    color: chartColors.text,
+  }
+}
 
 export function RevenueChart({ data, period }) {
   const formatTooltip = (value, name) => {
@@ -11,7 +29,6 @@ export function RevenueChart({ data, period }) {
   }
 
   const formatXAxisLabel = (value) => {
-    // For longer periods, show fewer labels
     if (period === '1y') {
       const date = new Date(value)
       return date.getDate() === 1 ? date.toLocaleDateString('en-US', { month: 'short' }) : ''
@@ -21,43 +38,40 @@ export function RevenueChart({ data, period }) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-          Revenue Over Time
-        </CardTitle>
+      <CardHeader className="pb-2">
+        <CardTitle>Revenue</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-80">
+        <div className="h-52">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis 
-                dataKey="formattedDate" 
-                tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }}
+              <CartesianGrid strokeDasharray="3 3" stroke={chartColors.border} />
+              <XAxis
+                dataKey="formattedDate"
+                tick={{ fontSize: 12, fill: chartColors.textMuted, style: { fontVariantNumeric: 'tabular-nums' } }}
                 tickFormatter={formatXAxisLabel}
+                axisLine={{ stroke: chartColors.border }}
+                tickLine={false}
               />
-              <YAxis 
-                tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }}
+              <YAxis
+                tick={{ fontSize: 12, fill: chartColors.textMuted, style: { fontVariantNumeric: 'tabular-nums' } }}
                 tickFormatter={(value) => `$${value}`}
+                axisLine={false}
+                tickLine={false}
               />
-              <Tooltip 
+              <Tooltip
                 formatter={formatTooltip}
-                labelStyle={{ color: '#71717a', fontVariantNumeric: 'tabular-nums' }}
-                itemStyle={{ fontVariantNumeric: 'tabular-nums' }}
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #27272a',
-                  borderRadius: '6px'
-                }}
+                labelStyle={{ color: chartColors.textMuted, fontVariantNumeric: 'tabular-nums' }}
+                itemStyle={{ fontVariantNumeric: 'tabular-nums', color: chartColors.text }}
+                contentStyle={chartTooltipStyle()}
               />
-              <Line 
-                type="monotone" 
-                dataKey="revenue" 
-                stroke="#2563eb" 
-                strokeWidth={3}
-                dot={{ fill: '#2563eb', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#2563eb', strokeWidth: 2 }}
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke={chartColors.brand}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 5, stroke: chartColors.brand, strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -78,37 +92,36 @@ export function OrdersChart({ data, period }) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-          Orders Over Time
-        </CardTitle>
+      <CardHeader className="pb-2">
+        <CardTitle>Orders</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-80">
+        <div className="h-52">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis 
-                dataKey="formattedDate" 
-                tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }}
+              <CartesianGrid strokeDasharray="3 3" stroke={chartColors.border} />
+              <XAxis
+                dataKey="formattedDate"
+                tick={{ fontSize: 12, fill: chartColors.textMuted, style: { fontVariantNumeric: 'tabular-nums' } }}
                 tickFormatter={formatXAxisLabel}
+                axisLine={{ stroke: chartColors.border }}
+                tickLine={false}
               />
-              <YAxis tick={{ fontSize: 12, style: { fontVariantNumeric: 'tabular-nums' } }} />
+              <YAxis
+                tick={{ fontSize: 12, fill: chartColors.textMuted, style: { fontVariantNumeric: 'tabular-nums' } }}
+                axisLine={false}
+                tickLine={false}
+              />
               <Tooltip
                 formatter={(value, _name) => [value, 'Orders']}
-                labelStyle={{ color: '#71717a', fontVariantNumeric: 'tabular-nums' }}
-                itemStyle={{ fontVariantNumeric: 'tabular-nums' }}
-                contentStyle={{
-                  backgroundColor: 'white', 
-                  border: '1px solid #27272a',
-                  borderRadius: '6px'
-                }}
+                labelStyle={{ color: chartColors.textMuted, fontVariantNumeric: 'tabular-nums' }}
+                itemStyle={{ fontVariantNumeric: 'tabular-nums', color: chartColors.text }}
+                contentStyle={chartTooltipStyle()}
               />
-              <Bar 
-                dataKey="orders" 
-                fill="#2563eb" 
-                radius={[2, 2, 0, 0]}
+              <Bar
+                dataKey="orders"
+                fill={chartColors.brand}
+                radius={[4, 4, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>

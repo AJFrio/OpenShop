@@ -1,28 +1,38 @@
-// Admin theme palette is intentionally static to keep configuration
-// isolated from the storefront customization system.
+import tokens from './admin-tokens.json'
+
+/**
+ * JS export of the admin design tokens.
+ *
+ * Canonical values live in `src/lib/admin-tokens.json`. CSS custom
+ * properties in `src/styles/admin-tokens.css` (`--os-*`, with `--admin-*`
+ * aliases) must stay in sync. OpenShop-Service should import the JSON.
+ */
+export const adminTokens = tokens
 
 export const adminTheme = {
   colors: {
-    background: '#f9fafb',
-    surface: '#ffffff',
-    border: '#e5e7eb',
-    text: '#111827',
-    textMuted: '#6b7280',
-    primary: '#4b5563',
-    primaryHover: '#374151',
+    background: tokens.color.bg.canvas,
+    surface: tokens.color.bg.surface,
+    surfaceHover: tokens.color.bg.surfaceHover,
+    surfaceSecondary: tokens.color.bg.surfaceSecondary,
+    border: tokens.color.border.default,
+    borderSubdued: tokens.color.border.subdued,
+    text: tokens.color.text.default,
+    textMuted: tokens.color.text.secondary,
+    textDisabled: tokens.color.text.disabled,
+    primary: tokens.color.brand['600'],
+    primaryHover: tokens.color.brand['700'],
+    primaryLight: tokens.color.brand['400'],
+    primaryDark: tokens.color.brand['900'],
+    success: tokens.color.text.success,
+    warning: tokens.color.text.caution,
+    error: tokens.color.text.critical,
+    info: tokens.color.text.info,
   },
+  fontFamily: tokens.font.family,
+  radius: tokens.radius,
+  space: tokens.space,
+  shadow: tokens.shadow,
 }
 
-export const adminColorScale = {
-  50: '#f9fafb',
-  100: '#f3f4f6',
-  200: '#e5e7eb',
-  300: '#d1d5db',
-  400: '#9ca3af',
-  500: '#6b7280',
-  600: '#4b5563',
-  700: '#374151',
-  800: '#1f2937',
-  900: '#111827',
-}
-
+export const adminColorScale = tokens.color.brand

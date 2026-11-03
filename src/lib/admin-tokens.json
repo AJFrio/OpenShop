@@ -1,0 +1,165 @@
+{
+  "$comment": "Canonical OpenShop admin design tokens. OpenShop-Service (ENG-19) should adopt these values 1:1. CSS runtime lives in admin-tokens.css (--os-* canonical, --admin-* aliases). Brand ramp matches docs/DESIGN-TOKENS.md.",
+  "meta": {
+    "name": "openshop-admin",
+    "version": "2026.11",
+    "theme": "dark",
+    "inspiration": "Shopify Polaris surface hierarchy, density, and primitive roles on the OpenShop brand ramp",
+    "fontFamily": "Plus Jakarta Sans",
+    "fontWeights": [400, 500, 600, 700, 800],
+    "baseUnitPx": 4
+  },
+  "color": {
+    "brand": {
+      "50": "#eff6ff",
+      "100": "#dbeafe",
+      "200": "#bfdbfe",
+      "300": "#93c5fd",
+      "400": "#60a5fa",
+      "500": "#3b82f6",
+      "600": "#2563eb",
+      "700": "#1d4ed8",
+      "800": "#1e40af",
+      "900": "#1e3a8a",
+      "950": "#172554"
+    },
+    "bg": {
+      "canvas": "#09090b",
+      "surface": "#18181b",
+      "surfaceHover": "#1c1c20",
+      "surfaceActive": "#202024",
+      "surfaceSecondary": "#27272a",
+      "surfaceTertiary": "#3f3f46",
+      "fillBrand": "#2563eb",
+      "fillBrandHover": "#1d4ed8",
+      "fillBrandActive": "#1e40af",
+      "fillSuccess": "rgba(34, 197, 94, 0.12)",
+      "fillCaution": "rgba(245, 158, 11, 0.12)",
+      "fillCritical": "rgba(239, 68, 68, 0.12)",
+      "fillInfo": "rgba(59, 130, 246, 0.12)",
+      "fillBrandMuted": "rgba(37, 99, 235, 0.14)",
+      "overlay": "rgba(9, 9, 11, 0.72)",
+      "overlayLight": "rgba(255, 255, 255, 0.04)"
+    },
+    "text": {
+      "default": "#f4f4f5",
+      "secondary": "#a1a1aa",
+      "disabled": "#71717a",
+      "brand": "#60a5fa",
+      "inverse": "#09090b",
+      "onBrand": "#ffffff",
+      "success": "#22c55e",
+      "caution": "#f59e0b",
+      "critical": "#ef4444",
+      "criticalHover": "#dc2626",
+      "criticalLight": "#fca5a5",
+      "info": "#3b82f6"
+    },
+    "border": {
+      "default": "#27272a",
+      "subdued": "#3f3f46",
+      "hover": "#52525b",
+      "focus": "#2563eb",
+      "brand": "#2563eb",
+      "critical": "rgba(239, 68, 68, 0.35)",
+      "success": "rgba(34, 197, 94, 0.28)",
+      "caution": "rgba(245, 158, 11, 0.28)"
+    },
+    "icon": {
+      "default": "#a1a1aa",
+      "secondary": "#71717a",
+      "brand": "#60a5fa",
+      "onBrand": "#ffffff",
+      "success": "#22c55e",
+      "caution": "#f59e0b",
+      "critical": "#ef4444"
+    }
+  },
+  "shadow": {
+    "sm": "0 1px 2px 0 rgba(37, 99, 235, 0.06)",
+    "md": "0 4px 12px -2px rgba(37, 99, 235, 0.10)",
+    "lg": "0 18px 45px -15px rgba(37, 99, 235, 0.28), 0 6px 18px -6px rgba(37, 99, 235, 0.14)",
+    "glow": "0 0 20px rgba(37, 99, 235, 0.15)",
+    "focus": "0 0 0 3px rgba(37, 99, 235, 0.35)"
+  },
+  "space": {
+    "025": "0.125rem",
+    "050": "0.25rem",
+    "100": "0.25rem",
+    "150": "0.375rem",
+    "200": "0.5rem",
+    "300": "0.75rem",
+    "400": "1rem",
+    "500": "1.25rem",
+    "600": "1.5rem",
+    "800": "2rem",
+    "1000": "2.5rem",
+    "1200": "3rem"
+  },
+  "radius": {
+    "sm": "0.375rem",
+    "md": "0.5rem",
+    "lg": "0.75rem",
+    "xl": "1rem",
+    "2xl": "1.5rem",
+    "full": "9999px"
+  },
+  "font": {
+    "family": "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif",
+    "size": {
+      "075": "0.75rem",
+      "100": "0.8125rem",
+      "200": "0.875rem",
+      "300": "1rem",
+      "400": "1.125rem",
+      "500": "1.25rem",
+      "600": "1.5rem"
+    },
+    "weight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "lineHeight": {
+      "tight": 1.15,
+      "snug": 1.25,
+      "normal": 1.5,
+      "relaxed": 1.65
+    }
+  },
+  "motion": {
+    "durationFast": "150ms",
+    "durationBase": "200ms",
+    "durationSlow": "300ms",
+    "ease": "cubic-bezier(0.4, 0, 0.2, 1)"
+  },
+  "layout": {
+    "sidebarWidth": "15.5rem",
+    "pageMaxWidth": "80rem",
+    "controlHeight": "2.25rem",
+    "controlHeightSm": "2rem"
+  },
+  "cssAliases": {
+    "--admin-bg-primary": "--os-color-bg",
+    "--admin-bg-secondary": "--os-color-bg-surface",
+    "--admin-bg-elevated": "--os-color-bg-surface-secondary",
+    "--admin-bg-card": "--os-color-bg-surface",
+    "--admin-text-primary": "--os-color-text",
+    "--admin-text-secondary": "--os-color-text-secondary",
+    "--admin-text-muted": "--os-color-text-disabled",
+    "--admin-text-inverse": "--os-color-text-inverse",
+    "--admin-border-primary": "--os-color-border",
+    "--admin-border-secondary": "--os-color-border-subdued",
+    "--admin-border-focus": "--os-color-border-hover",
+    "--admin-accent": "--os-color-bg-fill-brand",
+    "--admin-accent-hover": "--os-color-bg-fill-brand-hover",
+    "--admin-accent-light": "--os-color-text-brand",
+    "--admin-accent-dark": "--os-color-brand-900",
+    "--admin-accent-bg": "--os-color-bg-fill-brand-muted",
+    "--admin-success": "--os-color-text-success",
+    "--admin-warning": "--os-color-text-caution",
+    "--admin-error": "--os-color-text-critical",
+    "--admin-info": "--os-color-text-info"
+  }
+}

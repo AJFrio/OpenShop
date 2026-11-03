@@ -6,13 +6,22 @@ import { RevenueChart, OrdersChart } from '../../components/admin/AnalyticsChart
 import { MetricCard, RecentOrdersCard } from '../../components/admin/AnalyticsCards'
 import { AgentChat } from '../../components/admin/AgentChat'
 import { adminApiRequest } from '../../lib/auth'
-import { Package, DollarSign, ShoppingBag, BarChart3, Plus } from 'lucide-react'
+import { BarChart3, ExternalLink } from 'lucide-react'
+
+function greetingForNow(date = new Date()) {
+  const hour = date.getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
 
 export function DashboardPage() {
+  const [storeName, setStoreName] = useState('your store')
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalCollections: 0,
   })
+  const [paymentsEnabled, setPaymentsEnabled] = useState(true)
   const [analytics, setAnalytics] = useState(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(true)
   const [analyticsError, setAnalyticsError] = useState(false)
@@ -20,23 +29,33 @@ export function DashboardPage() {
 
   useEffect(() => {
     fetchDashboardData()
+  }, [])
+
+  useEffect(() => {
     fetchAnalytics()
   }, [selectedPeriod])
 
   const fetchDashboardData = async () => {
     try {
-      const [productsResponse, collectionsResponse] = await Promise.all([
+      const [productsResponse, collectionsResponse, settingsResponse, paymentsResponse] = await Promise.all([
         fetch('/api/products'),
         fetch('/api/collections'),
+        fetch('/api/store-settings'),
+        fetch('/api/payments-status'),
       ])
 
       const products = productsResponse.ok ? await productsResponse.json() : []
       const collections = collectionsResponse.ok ? await collectionsResponse.json() : []
+      const settings = settingsResponse.ok ? await settingsResponse.json() : null
+      const payments = paymentsResponse.ok ? await paymentsResponse.json() : null
+      const activeProducts = Array.isArray(products) ? products.filter((p) => !p.archived).length : 0
 
       setStats({
-        totalProducts: products.length,
-        totalCollections: collections.length,
+        totalProducts: activeProducts,
+        totalCollections: Array.isArray(collections) ? collections.length : 0,
       })
+      if (settings?.storeName) setStoreName(settings.storeName)
+      if (payments) setPaymentsEnabled(payments.paymentsEnabled !== false)
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
     }
@@ -63,20 +82,69 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <h1 className="sr-only">Dashboard</h1>
+    <div className="space-y-6">
+      <header className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-[var(--os-color-text-disabled)]">
+            Home
+          </p>
+          <h1 className="admin-page-title mt-1">
+            {greetingForNow()}, {storeName}
+          </h1>
+        </div>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1 text-xs font-medium text-[var(--os-color-text-brand)] hover:underline"
+        >
+          View storefront
+          <ExternalLink className="h-3 w-3" />
+        </Link>
+      </header>
+
+      <section aria-labelledby="dashboard-pulse-heading" data-testid="dashboard-stats">
+        <h2 id="dashboard-pulse-heading" className="sr-only">
+          Store pulse
+        </h2>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <MetricCard
+            title="Sales"
+            value={analytics && !analyticsLoading && !analyticsError ? analytics.totalRevenue : '—'}
+            change={analytics?.revenueGrowth}
+            prefix={analytics && !analyticsLoading && !analyticsError ? '$' : ''}
+          />
+          <MetricCard
+            title="Orders"
+            value={analytics && !analyticsLoading && !analyticsError ? analytics.totalOrders : '—'}
+            change={analytics?.ordersGrowth}
+            href="/admin/fulfillment"
+          />
+          <MetricCard
+            title="Active products"
+            value={stats.totalProducts}
+            href="/admin/products"
+            hint={stats.totalCollections ? `${stats.totalCollections} collections` : 'Catalog'}
+          />
+          <MetricCard
+            title="Store status"
+            value={paymentsEnabled ? 'Live' : 'Catalogue'}
+            href={paymentsEnabled ? '/' : '/admin/developer-settings'}
+            hint={paymentsEnabled ? 'Checkout is on' : 'Payments not set up'}
+          />
+        </div>
+      </section>
+
       <AgentChat />
 
-      <section className="space-y-5" aria-labelledby="dashboard-overview-heading" data-testid="dashboard-stats">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <section className="space-y-4" aria-labelledby="dashboard-overview-heading">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2
             id="dashboard-overview-heading"
-            className="text-lg font-semibold text-[var(--admin-text-primary)]"
+            className="text-sm font-semibold text-[var(--os-color-text)]"
           >
-            Overview
+            Analytics
           </h2>
 
-          <div className="flex gap-1">
+          <div className="inline-flex rounded-[var(--os-radius-md)] border border-[var(--os-color-border)] bg-[var(--os-color-bg-surface)] p-0.5">
             {[
               { value: '1d', label: '24H' },
               { value: '7d', label: '7D' },
@@ -86,10 +154,10 @@ export function DashboardPage() {
             ].map((period) => (
               <Button
                 key={period.value}
-                variant={selectedPeriod === period.value ? 'default' : 'ghost'}
+                variant={selectedPeriod === period.value ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setSelectedPeriod(period.value)}
-                className="px-2.5 text-xs"
+                className="h-7 px-2.5 text-xs"
               >
                 {period.label}
               </Button>
@@ -97,38 +165,17 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-          <Link to="/admin/products/new" className="contents">
-            <Button variant="outline" className="h-10 text-sm">
-              <Plus className="mr-2 h-4 w-4" />
-              New product
-            </Button>
-          </Link>
-          <Link to="/admin/fulfillment" className="contents">
-            <Button variant="outline" className="h-10 text-sm">
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              Manage orders
-            </Button>
-          </Link>
-          <Link to="/admin/collections" className="contents">
-            <Button variant="outline" className="h-10 text-sm">
-              <BarChart3 className="mr-2 h-4 w-4" />
-              Collections
-            </Button>
-          </Link>
-        </div>
-
         {analyticsLoading ? (
-          <div className="flex h-40 items-center justify-center">
+          <div className="flex h-28 items-center justify-center">
             <div className="admin-spinner"></div>
-            <span className="ml-3 text-sm text-[var(--admin-text-secondary)]">Loading analytics...</span>
+            <span className="ml-3 text-sm text-[var(--os-color-text-secondary)]">Loading analytics...</span>
           </div>
         ) : analyticsError ? (
           <Card>
-            <CardContent className="p-12 text-center">
-              <BarChart3 className="mx-auto mb-4 h-12 w-12 text-[var(--admin-border-secondary)]" />
-              <h3 className="mb-2 text-base font-medium text-[var(--admin-text-primary)]">Couldn't load analytics</h3>
-              <p className="mb-4 text-sm text-[var(--admin-text-secondary)]">
+            <CardContent className="p-8 text-center">
+              <BarChart3 className="mx-auto mb-3 h-8 w-8 text-[var(--os-color-icon-secondary)]" />
+              <h3 className="mb-1 text-sm font-medium text-[var(--os-color-text)]">Couldn't load analytics</h3>
+              <p className="mb-3 text-sm text-[var(--os-color-text-secondary)]">
                 Something went wrong while loading analytics data.
               </p>
               <Button variant="outline" size="sm" onClick={fetchAnalytics}>Retry</Button>
@@ -136,42 +183,18 @@ export function DashboardPage() {
           </Card>
         ) : analytics ? (
           <>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <MetricCard title="Products" value={stats.totalProducts} icon={Package} />
-              <MetricCard
-                title="Total Revenue"
-                value={analytics.totalRevenue}
-                change={analytics.revenueGrowth}
-                icon={DollarSign}
-                prefix="$"
-              />
-              <MetricCard
-                title="Total Orders"
-                value={analytics.totalOrders}
-                change={analytics.ordersGrowth}
-                icon={ShoppingBag}
-              />
-              <MetricCard
-                title="Average Order"
-                value={analytics.averageOrderValue}
-                icon={BarChart3}
-                prefix="$"
-              />
-            </div>
-
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <RevenueChart data={analytics.chartData} period={selectedPeriod} />
               <OrdersChart data={analytics.chartData} period={selectedPeriod} />
             </div>
-
             <RecentOrdersCard orders={analytics.recentOrders} />
           </>
         ) : (
           <Card>
-            <CardContent className="p-12 text-center">
-              <BarChart3 className="mx-auto mb-4 h-12 w-12 text-[var(--admin-border-secondary)]" />
-              <h3 className="mb-2 text-base font-medium text-[var(--admin-text-primary)]">No Analytics Data</h3>
-              <p className="text-sm text-[var(--admin-text-secondary)]">
+            <CardContent className="p-8 text-center">
+              <BarChart3 className="mx-auto mb-3 h-8 w-8 text-[var(--os-color-icon-secondary)]" />
+              <h3 className="mb-1 text-sm font-medium text-[var(--os-color-text)]">No analytics data</h3>
+              <p className="text-sm text-[var(--os-color-text-secondary)]">
                 Analytics data will appear here once you have orders.
               </p>
             </CardContent>

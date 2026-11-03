@@ -33,10 +33,10 @@ export function AlertDialogContent({ children, className }) {
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
+      <div className="admin-modal-overlay absolute inset-0" onClick={() => setOpen(false)} />
       <div
         className={cn(
-          "relative w-full max-w-md mx-4 rounded-lg border border-[var(--admin-border-primary)] bg-[var(--admin-bg-card)] text-[var(--admin-text-primary)] shadow-[var(--admin-shadow-lg)]",
+          "admin-modal relative w-full max-w-md mx-4 text-[var(--os-color-text)]",
           className
         )}
       >
@@ -51,11 +51,11 @@ export function AlertDialogHeader({ children }) {
 }
 
 export function AlertDialogTitle({ children }) {
-  return <h2 className="text-lg font-semibold text-[var(--admin-text-primary)]">{children}</h2>
+  return <h2 className="text-lg font-semibold text-[var(--os-color-text)]">{children}</h2>
 }
 
 export function AlertDialogDescription({ children }) {
-  return <p className="mt-2 text-sm text-[var(--admin-text-secondary)]">{children}</p>
+  return <p className="mt-2 text-sm text-[var(--os-color-text-secondary)]">{children}</p>
 }
 
 export function AlertDialogFooter({ children }) {
@@ -69,7 +69,7 @@ export function AlertDialogCancel({ children, onClick, disabled, className }) {
       type="button"
       disabled={disabled}
       className={cn(
-        "px-4 py-2 rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] text-sm text-[var(--admin-text-primary)] hover:bg-[var(--admin-bg-card)] disabled:pointer-events-none disabled:opacity-50",
+        "px-4 py-2 rounded-[var(--os-radius-md)] border border-[var(--os-color-border)] bg-[var(--os-color-bg-surface-secondary)] text-sm text-[var(--os-color-text)] hover:bg-[var(--os-color-bg-surface-hover)] disabled:pointer-events-none disabled:opacity-50",
         className
       )}
       onClick={(e) => { onClick?.(e); setOpen(false) }}
@@ -88,8 +88,8 @@ export function AlertDialogAction({ children, onClick, disabled, variant = 'defa
       className={cn(
         "px-4 py-2 rounded-md text-sm font-medium disabled:pointer-events-none disabled:opacity-50",
         variant === 'destructive'
-          ? "border border-[var(--admin-error)] bg-transparent text-[var(--admin-error)] hover:bg-[var(--admin-error-bg)]"
-          : "bg-[var(--admin-accent)] text-white hover:bg-[var(--admin-accent-hover)]",
+          ? "border border-[var(--os-color-text-critical)] bg-transparent text-[var(--os-color-text-critical)] hover:bg-[var(--os-color-bg-fill-critical)]"
+          : "bg-[var(--os-color-bg-fill-brand)] text-[var(--os-color-text-on-brand)] hover:bg-[var(--os-color-bg-fill-brand-hover)]",
         className
       )}
       onClick={(e) => {
