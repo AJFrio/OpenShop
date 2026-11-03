@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { adminLogin } from '../../lib/auth'
+import { Store } from 'lucide-react'
 
 export function AdminLogin({ onLoginSuccess }) {
   const [password, setPassword] = useState('')
@@ -28,21 +29,19 @@ export function AdminLogin({ onLoginSuccess }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--admin-bg-primary)]">
-      <div className="w-full max-w-md p-8 rounded-xl bg-[var(--admin-bg-card)] border border-[var(--admin-border-primary)] shadow-[var(--admin-shadow-lg)]">
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 mx-auto mb-4 rounded-lg flex items-center justify-center bg-gradient-to-br from-[var(--admin-accent-dark)] to-[var(--admin-accent)]">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
+    <div className="admin-container flex min-h-screen items-center justify-center p-4">
+      <div className="admin-card w-full max-w-md p-8">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-[var(--os-radius-md)] bg-[var(--os-color-bg-fill-brand-muted)]">
+            <Store className="h-5 w-5 text-[var(--os-color-icon-brand)]" />
           </div>
-          <h1 className="text-2xl font-bold mb-2 text-[var(--admin-text-primary)]">OpenShop Admin</h1>
-          <p className="text-[var(--admin-text-muted)]">Sign in to manage your store</p>
+          <h1 className="admin-page-title mb-1">OpenShop Admin</h1>
+          <p className="text-sm text-[var(--os-color-text-secondary)]">Sign in to manage your store</p>
         </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
+
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="admin-password" className="block text-xs font-semibold tracking-wider mb-2 text-[var(--admin-text-secondary)]">Password</label>
+            <label htmlFor="admin-password" className="admin-label">Password</label>
             <Input
               id="admin-password"
               type="password"
@@ -54,25 +53,25 @@ export function AdminLogin({ onLoginSuccess }) {
               disabled={loading}
             />
           </div>
-          
+
           {error && (
-            <div role="alert" className="px-4 py-3 rounded-lg text-sm bg-[var(--admin-error-bg)] border border-[var(--admin-error)]/20 text-[var(--admin-error-light)]">
+            <div role="alert" className="admin-alert admin-alert-error">
               {error}
             </div>
           )}
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full"
             disabled={loading}
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
                 Signing in...
               </span>
             ) : (
-              'Sign In'
+              'Sign in'
             )}
           </Button>
         </form>

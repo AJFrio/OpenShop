@@ -303,7 +303,7 @@ export function PuckPageEditor() {
         {(message || error || publishing || draftInfo) && (
           <div className="mt-3 space-y-2">
             {draftInfo && (
-              <div className="flex items-center justify-between rounded-md bg-[var(--admin-warning-bg, #fef3c7)] px-3 py-2 text-xs text-yellow-800">
+              <div className="flex items-center justify-between rounded-[var(--os-radius-md)] bg-[var(--os-color-bg-fill-caution)] px-3 py-2 text-xs text-[var(--os-color-text-caution)]">
                 <span>Local draft restored (saved {draftInfo.savedAt ? new Date(draftInfo.savedAt).toLocaleString() : 'recently'}). Not published yet.</span>
                 <button
                   type="button"

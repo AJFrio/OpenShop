@@ -7,6 +7,7 @@ import { Select } from "../ui/select"
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
 import { Switch } from "../ui/switch"
+import { AdminPageHeader } from "./AdminPageHeader"
 import { RefreshCcw, Plus, Save, Trash2, CheckCircle2, AlertTriangle, Package } from "lucide-react"
 import { AdminImage } from "./AdminImage"
 import {
@@ -822,13 +823,10 @@ export function ProductWorkspace() {
   }, [storeSettings, products])
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-[var(--admin-text-primary)]">Products</h1>
-          <p className="text-xs text-[var(--admin-text-secondary)]">
-            Browse the catalog on the left, then edit details in the workspace on the right.
-          </p>
-        </div>
+      <AdminPageHeader
+        title="Products"
+        description="Browse the catalog on the left, then edit details in the workspace on the right."
+        actions={
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="outline" onClick={handleRefresh} disabled={isLoading} size="sm">
             <RefreshCcw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -856,7 +854,8 @@ export function ProductWorkspace() {
             )}
           </div>
         </div>
-      </div>
+        }
+      />
 
       <div className="flex flex-col gap-5 xl:flex-row">
         <aside className="xl:w-72 xl:flex-shrink-0">
@@ -1242,7 +1241,7 @@ export function ProductWorkspace() {
 
       {modalImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+          className="admin-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-6"
           onClick={() => setModalImage(null)}
         >
           <div

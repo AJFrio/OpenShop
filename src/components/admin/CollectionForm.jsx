@@ -171,7 +171,7 @@ export function CollectionForm({ collection, onSave, onCancel }) {
     </Card>
     </div>
     {modalImage && (
-      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
+      <div className="admin-modal-overlay fixed inset-0 z-50 flex items-center justify-center" onClick={() => setModalImage(null)}>
         <div className="bg-[var(--admin-bg-card)] rounded-lg shadow-xl max-w-3xl w-full mx-4 relative max-h-[90vh] overflow-auto border border-[var(--admin-border-primary)]" onClick={(e) => e.stopPropagation()}>
           <button
             type="button"

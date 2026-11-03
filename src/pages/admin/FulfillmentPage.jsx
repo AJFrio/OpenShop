@@ -3,6 +3,7 @@ import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
 import { formatCurrency } from '../../lib/utils'
 import { adminApiRequest } from '../../lib/auth'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { X, ShoppingBag, Check } from 'lucide-react'
 
 export function FulfillmentPage() {
@@ -259,27 +260,30 @@ export function FulfillmentPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <h1 className="text-2xl font-bold text-[var(--admin-text-primary)]">Fulfillment</h1>
-        <div className="inline-flex rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] p-1">
-          {[
-            { value: 'open', label: 'Open' },
-            { value: 'fulfilled', label: 'Fulfilled' },
-            { value: 'all', label: 'All' },
-          ].map((item) => (
-            <Button
-              key={item.value}
-              type="button"
-              size="sm"
-              variant={statusFilter === item.value ? 'default' : 'ghost'}
-              className="h-8 px-3 text-xs"
-              onClick={() => setStatusFilter(item.value)}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Fulfillment"
+        description="Open orders waiting to ship, and a record of fulfilled orders."
+        actions={
+          <div className="inline-flex rounded-[var(--os-radius-md)] border border-[var(--os-color-border)] bg-[var(--os-color-bg-surface)] p-0.5">
+            {[
+              { value: 'open', label: 'Open' },
+              { value: 'fulfilled', label: 'Fulfilled' },
+              { value: 'all', label: 'All' },
+            ].map((item) => (
+              <Button
+                key={item.value}
+                type="button"
+                size="sm"
+                variant={statusFilter === item.value ? 'secondary' : 'ghost'}
+                className="h-8 px-3 text-xs"
+                onClick={() => setStatusFilter(item.value)}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </div>
+        }
+      />
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
@@ -407,11 +411,11 @@ export function FulfillmentPage() {
 
       {isModalOpen && selectedOrder && (
         <div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+          className="admin-modal-overlay fixed inset-0 z-50 flex items-center justify-center"
           onClick={() => setIsModalOpen(false)}
         >
           <div
-            className="bg-[var(--admin-bg-card)] rounded-lg shadow-[var(--admin-shadow-lg)] w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden border border-[var(--admin-border-primary)]"
+            className="admin-modal mx-4 w-full max-w-4xl max-h-[90vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-5 border-b border-[var(--admin-border-primary)]">

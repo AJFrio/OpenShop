@@ -32,7 +32,7 @@ One accent family: **cart-aligned blue** (navy → sky). No purple, violet, or i
 
 **Existing repo mapping (do not rename):**
 - Lander / Service: `--color-primary: #2563eb` (= `brand-600`), `--color-primary-dark: #1e3a8a` (= `brand-900`), `--color-primary-light: #60a5fa` (= `brand-400`).
-- Admin (`admin-theme.css`): `--admin-accent` → `#2563eb`, `--admin-accent-hover` → `#1d4ed8`, `--admin-accent-light` → `#60a5fa`, `--admin-accent-dark` → `#1e3a8a`. Replace the legacy purple `#8b5cf6 / #7c3aed / #a78bfa / #6d28d9`.
+- Admin: `--os-color-bg-fill-brand` / `--admin-accent` → `#2563eb`, `--os-color-bg-fill-brand-hover` / `--admin-accent-hover` → `#1d4ed8`, `--os-color-text-brand` / `--admin-accent-light` → `#60a5fa`, `--os-color-brand-900` / `--admin-accent-dark` → `#1e3a8a`. Full mapping in [§10](#10-admin-token-implementation). Never reintroduce purple `#8b5cf6 / #7c3aed / #a78bfa / #6d28d9`.
 
 ### Neutrals (cool zinc, dark base)
 
@@ -137,5 +137,55 @@ One accent family: **cart-aligned blue** (navy → sky). No purple, violet, or i
 
 ## 9. Scope boundaries
 
-- **OpenShop storefront** (`storefront-theme.css`, `src/pages/storefront/`, `src/components/storefront/`) is the customer-facing theme and is **out of scope**. Only the admin surface (`admin-theme.css`, `src/pages/admin/`, `src/components/admin/`, `src/components/ui/`) is redesigned.
+- **OpenShop storefront** (`storefront-theme.css`, `src/pages/storefront/`, `src/components/storefront/`) is the customer-facing theme and is **out of scope**. Only the admin surface (`admin-tokens.css`, `admin-theme.css`, `src/pages/admin/`, `src/components/admin/`, `src/components/ui/`) is redesigned.
 - Never commit built assets or secrets. OpenShop's `build.yml` owns `dist/` commits on main.
+
+---
+
+## 10. Admin token implementation
+
+Machine-readable source for **OpenShop-Service** (ENG-19) and any other surface that must match admin:
+
+| File | Role |
+|------|------|
+| [`src/lib/admin-tokens.json`](../src/lib/admin-tokens.json) | Canonical values (import this) |
+| [`src/styles/admin-tokens.css`](../src/styles/admin-tokens.css) | CSS custom properties: `--os-*` (canonical) and `--admin-*` (aliases) |
+| [`src/styles/admin-theme.css`](../src/styles/admin-theme.css) | Admin primitives (sidebar, card, input, button, table, modal, chip, stat) |
+| [`src/lib/adminTheme.js`](../src/lib/adminTheme.js) | JS export of the JSON |
+
+Do not invent new hex values in Service. Map Service Tailwind `@theme` / CSS variables onto the JSON keys below.
+
+### Surface hierarchy (Polaris-style roles)
+
+| Role | JSON path | Hex / value | CSS |
+|------|-----------|-------------|-----|
+| Canvas (page) | `color.bg.canvas` | `#09090b` | `--os-color-bg` |
+| Surface (card, sidebar, modal) | `color.bg.surface` | `#18181b` | `--os-color-bg-surface` |
+| Surface hover | `color.bg.surfaceHover` | `#1c1c20` | `--os-color-bg-surface-hover` |
+| Inset / input fill | `color.bg.surfaceSecondary` | `#27272a` | `--os-color-bg-surface-secondary` |
+| Brand fill (primary button) | `color.bg.fillBrand` | `#2563eb` | `--os-color-bg-fill-brand` |
+| Brand fill hover | `color.bg.fillBrandHover` | `#1d4ed8` | `--os-color-bg-fill-brand-hover` |
+| Brand muted (nav selected) | `color.bg.fillBrandMuted` | `rgba(37, 99, 235, 0.14)` | `--os-color-bg-fill-brand-muted` |
+| Text | `color.text.default` | `#f4f4f5` | `--os-color-text` |
+| Text secondary | `color.text.secondary` | `#a1a1aa` | `--os-color-text-secondary` |
+| Text disabled | `color.text.disabled` | `#71717a` | `--os-color-text-disabled` |
+| Text brand / links | `color.text.brand` | `#60a5fa` | `--os-color-text-brand` |
+| Text on brand | `color.text.onBrand` | `#ffffff` | `--os-color-text-on-brand` |
+| Border | `color.border.default` | `#27272a` | `--os-color-border` |
+| Border subdued | `color.border.subdued` | `#3f3f46` | `--os-color-border-subdued` |
+| Focus ring | `shadow.focus` | `0 0 0 3px rgba(37, 99, 235, 0.35)` | `--os-shadow-focus` |
+
+### Typography, radius, density
+
+- Font: `Plus Jakarta Sans` 400/500/600/700. No serif in admin.
+- Page title: `1.25rem` / 600 / tight tracking. Body: `0.875rem`. Captions: `0.75rem`.
+- Radius: controls `0.5rem`, cards `0.75rem`, chips/pills `9999px`.
+- Control height: `2.25rem` default, `2rem` compact.
+- Sidebar width: `15.5rem`. Page max width: `80rem`.
+- Numbers (prices, stats, counts): `font-variant-numeric: tabular-nums`.
+
+### Primitive classes (apply equivalently in Service)
+
+`admin-card`, `admin-btn` / `admin-btn-primary` / `admin-btn-secondary` / `admin-btn-ghost` / `admin-btn-danger`, `admin-input`, `admin-select`, `admin-textarea`, `admin-label`, `admin-table`, `admin-modal`, `admin-chip`, `admin-badge-*`, `admin-stat-card`, `admin-page-title`, `admin-sidebar-link`.
+
+`--admin-*` aliases remain for older admin markup. New code should prefer `--os-*`. Service should bind its theme to `--os-*` (or copy the JSON keys) rather than the aliases.

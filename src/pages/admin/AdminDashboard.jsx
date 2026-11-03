@@ -41,7 +41,7 @@ export function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--admin-bg-primary)] flex items-center justify-center">
+      <div className="admin-container flex min-h-screen items-center justify-center">
         <div className="admin-spinner"></div>
       </div>
     )

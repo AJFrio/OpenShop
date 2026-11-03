@@ -273,13 +273,9 @@ export function StoreSettingsEditor() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-[var(--admin-border-primary)] bg-[var(--admin-bg-card)] p-4 shadow-sm">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-[var(--admin-text-primary)]">Store settings</h2>
-            <p className="text-xs text-[var(--admin-text-muted)]">Manage brand, theme, and store identity.</p>
-          </div>
-        </div>
+      <div className="admin-card p-4">
+        <h1 className="admin-page-title">Store settings</h1>
+        <p className="admin-page-description">Manage brand, theme, and store identity.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
@@ -471,7 +467,7 @@ export function StoreSettingsEditor() {
         </form>
 
       {modalImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => setModalImage(null)}>
+        <div className="admin-modal-overlay fixed inset-0 z-50 flex items-center justify-center" onClick={() => setModalImage(null)}>
           <div className="mx-4 w-full max-w-3xl rounded-lg border border-[var(--admin-border-primary)] bg-[var(--admin-bg-card)] shadow-xl" onClick={(event) => event.stopPropagation()}>
             <img src={modalImage} alt="preview" className="h-auto w-full rounded object-contain" />
           </div>

@@ -6,7 +6,7 @@ The admin dashboard Store Agent can configure the same storefront surface a merc
 
 ## Behavior
 
-- The composer on `/admin` sends conversation + optional merch reference images to `POST /api/admin/agent/chat`.
+- Admin Home (`/admin`) centers the store assistant: a prominent composer, quick-action chips (add product, update theme, draft promo, review orders), and recent activity. The composer sends conversation + optional merch reference images to `POST /api/admin/agent/chat`.
 - The model calls tools; each tool dispatches the matching `/api/admin/*` endpoint with the merchant's admin token.
 - Successful tool results are written to KV (and Stripe / R2 when those services apply) the same way the admin UI would.
 - Storefront navigation is derived from collections + logo settings; there is no independent nav document.

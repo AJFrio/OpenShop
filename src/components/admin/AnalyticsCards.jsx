@@ -1,74 +1,59 @@
+import { Link } from 'react-router-dom'
 import { Card, CardContent } from '../ui/card'
 import { formatCurrency } from '../../lib/utils'
-import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, BarChart3, Package } from 'lucide-react'
+import { TrendingUp, TrendingDown, ShoppingBag } from 'lucide-react'
 
-const iconStyles = {
-  [DollarSign?.name || 'DollarSign']: { bg: 'var(--admin-success-bg)', color: 'var(--admin-success)' },
-  [ShoppingBag?.name || 'ShoppingBag']: { bg: 'var(--admin-info-bg)', color: 'var(--admin-info)' },
-  [BarChart3?.name || 'BarChart3']: { bg: 'var(--admin-accent-bg, rgba(37, 99, 235, 0.15))', color: 'var(--admin-accent-light)' },
-  [Package?.name || 'Package']: { bg: 'var(--admin-warning-bg)', color: 'var(--admin-warning)' },
-}
-
-function getIconStyle(Icon) {
-  return iconStyles[Icon?.name] || { bg: 'var(--admin-accent-bg, rgba(37, 99, 235, 0.15))', color: 'var(--admin-accent-light)' }
-}
-
-export function MetricCard({ title, value, change, changeType, icon: Icon, prefix = '' }) {
+export function MetricCard({ title, value, change, changeType, icon: _Icon, prefix = '', href, hint }) {
   const isPositive = changeType === 'positive' || change > 0
-  const isNeutral = change === 0
-  const iconStyle = getIconStyle(Icon)
-  
-  return (
-    <Card className="admin-stat-card relative overflow-hidden group">
-      {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" 
-           style={{ background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.04) 0%, transparent 50%)' }} />
-      
-      <CardContent className="p-5 relative">
-        <div className="flex items-center justify-between">
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium uppercase tracking-wider mb-1 truncate" style={{ color: 'var(--admin-text-secondary)' }}>
-              {title}
-            </p>
-            <p className="text-2xl font-bold truncate tabular-nums" style={{ color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
-              {typeof value === 'number'
-                ? (prefix === '$' ? formatCurrency(value) : `${prefix}${value}`)
-                : `${prefix}${value}`}
-            </p>
-            {change !== undefined && (
-              <div className={`flex items-center mt-2 text-sm tabular-nums ${
-                isNeutral ? 'text-[var(--admin-text-muted)]' : isPositive ? 'text-[var(--admin-success)]' : 'text-[var(--admin-error)]'
-              }`}>
-                {!isNeutral && (
-                  isPositive ? (
-                    <TrendingUp className="w-4 h-4 mr-1" />
-                  ) : (
-                    <TrendingDown className="w-4 h-4 mr-1" />
-                  )
-                )}
-                <span>
-                  {isNeutral ? 'No change' : `${isPositive ? '+' : ''}${change.toFixed(1)}%`}
-                </span>
-                <span style={{ color: 'var(--admin-text-muted)' }} className="ml-1">vs last period</span>
-              </div>
-            )}
+  const isNeutral = change === 0 || change === undefined
+  const display =
+    typeof value === 'number'
+      ? (prefix === '$' ? formatCurrency(value) : `${prefix}${value}`)
+      : `${prefix}${value}`
+
+  const inner = (
+    <Card className="admin-stat-card h-full transition-colors">
+      <CardContent className="p-4">
+        <p className="text-xs font-medium text-[var(--os-color-text-secondary)]">{title}</p>
+        <p className="mt-1 truncate text-xl font-semibold tabular-nums tracking-tight text-[var(--os-color-text)]">
+          {display}
+        </p>
+        {change !== undefined && (
+          <div
+            className={`mt-1.5 flex items-center text-xs tabular-nums ${
+              isNeutral
+                ? 'text-[var(--os-color-text-disabled)]'
+                : isPositive
+                  ? 'text-[var(--os-color-text-success)]'
+                  : 'text-[var(--os-color-text-critical)]'
+            }`}
+          >
+            {!isNeutral && (isPositive ? <TrendingUp className="mr-1 h-3.5 w-3.5" /> : <TrendingDown className="mr-1 h-3.5 w-3.5" />)}
+            <span>{isNeutral ? 'No change' : `${isPositive ? '+' : ''}${change.toFixed(1)}%`}</span>
+            <span className="ml-1 text-[var(--os-color-text-disabled)]">vs last period</span>
           </div>
-          <div className="flex-shrink-0 ml-4">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
-                 style={{ backgroundColor: iconStyle.bg }}>
-              <Icon className="w-6 h-6" style={{ color: iconStyle.color }} />
-            </div>
-          </div>
-        </div>
+        )}
+        {hint && change === undefined && (
+          <p className="mt-1.5 text-xs text-[var(--os-color-text-disabled)]">{hint}</p>
+        )}
       </CardContent>
     </Card>
   )
+
+  if (href) {
+    return (
+      <Link to={href} className="block h-full focus-visible:outline-none focus-visible:shadow-[var(--os-shadow-focus)] rounded-[var(--os-radius-lg)]">
+        {inner}
+      </Link>
+    )
+  }
+  return inner
 }
 
 const statusStyles = {
-  paid: { bg: 'var(--admin-success-bg)', color: 'var(--admin-success)' },
-  pending: { bg: 'var(--admin-warning-bg)', color: 'var(--admin-warning)' },
-  failed: { bg: 'var(--admin-error-bg)', color: 'var(--admin-error)' },
+  paid: { bg: 'var(--os-color-bg-fill-success)', color: 'var(--os-color-text-success)' },
+  pending: { bg: 'var(--os-color-bg-fill-caution)', color: 'var(--os-color-text-caution)' },
+  failed: { bg: 'var(--os-color-bg-fill-critical)', color: 'var(--os-color-text-critical)' },
 }
 
 function getStatusStyle(status) {
@@ -78,49 +63,50 @@ function getStatusStyle(status) {
 export function RecentOrdersCard({ orders }) {
   return (
     <Card className="admin-card h-full">
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-base font-semibold" style={{ color: 'var(--admin-text-primary)' }}>Recent Orders</h3>
-          <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--admin-info-bg)' }}>
-            <ShoppingBag className="w-4 h-4" style={{ color: 'var(--admin-info)' }} />
-          </div>
+      <CardContent className="p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-[var(--os-color-text)]">Recent orders</h3>
+          <Link
+            to="/admin/fulfillment"
+            className="text-xs font-medium text-[var(--os-color-text-brand)] hover:underline"
+          >
+            View all
+          </Link>
         </div>
-        
+
         {orders.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--admin-bg-elevated)' }}>
-              <ShoppingBag className="w-8 h-8" style={{ color: 'var(--admin-border-secondary)' }} />
-            </div>
-            <p style={{ color: 'var(--admin-text-muted)' }}>No recent orders</p>
+          <div className="py-8 text-center">
+            <ShoppingBag className="mx-auto mb-2 h-6 w-6 text-[var(--os-color-icon-secondary)]" />
+            <p className="text-sm text-[var(--os-color-text-disabled)]">No recent orders</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="divide-y divide-[var(--os-color-border)]">
             {orders.slice(0, 5).map((order) => {
               const statusStyle = getStatusStyle(order.status)
               return (
-                <div key={order.id} 
-                     className="p-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
-                     style={{ backgroundColor: 'var(--admin-bg-elevated)', border: '1px solid var(--admin-border-primary)' }}>
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-semibold tabular-nums" style={{ color: 'var(--admin-text-primary)' }}>
-                      {formatCurrency(order.amount, order.currency)}
+                <div key={order.id} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-[var(--os-color-text)]">{order.customerEmail}</p>
+                    <p className="text-xs text-[var(--os-color-text-disabled)]">
+                      {new Date(order.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </p>
-                    <span className="px-2 py-0.5 text-xs font-medium rounded-full" 
-                          style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+                      style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}
+                    >
                       {order.status}
                     </span>
+                    <p className="text-sm font-semibold tabular-nums text-[var(--os-color-text)]">
+                      {formatCurrency(order.amount, order.currency)}
+                    </p>
                   </div>
-                  <p className="text-xs truncate" style={{ color: 'var(--admin-text-secondary)' }}>
-                    {order.customerEmail}
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: 'var(--admin-text-muted)' }}>
-                    {new Date(order.createdAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
                 </div>
               )
             })}

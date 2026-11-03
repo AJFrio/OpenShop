@@ -1,0 +1,192 @@
+/* OpenShop admin design tokens
+ * Canonical names: --os-*
+ * Compatibility aliases: --admin-*  (existing admin UI)
+ *
+ * Source of truth for values: src/lib/admin-tokens.json
+ * Human docs: docs/DESIGN-TOKENS.md
+ * OpenShop-Service (ENG-19) should map these 1:1.
+ *
+ * Surface model is Shopify Polaris-inspired (canvas / surface / fill /
+ * text / border / icon) on the OpenShop dark zinc + brand-blue ramp.
+ */
+
+:root {
+  /* —— Brand ramp (docs/DESIGN-TOKENS.md) —— */
+  --os-color-brand-50: #eff6ff;
+  --os-color-brand-100: #dbeafe;
+  --os-color-brand-200: #bfdbfe;
+  --os-color-brand-300: #93c5fd;
+  --os-color-brand-400: #60a5fa;
+  --os-color-brand-500: #3b82f6;
+  --os-color-brand-600: #2563eb;
+  --os-color-brand-700: #1d4ed8;
+  --os-color-brand-800: #1e40af;
+  --os-color-brand-900: #1e3a8a;
+  --os-color-brand-950: #172554;
+
+  /* —— Surfaces —— */
+  --os-color-bg: #09090b;
+  --os-color-bg-surface: #18181b;
+  --os-color-bg-surface-hover: #1c1c20;
+  --os-color-bg-surface-active: #202024;
+  --os-color-bg-surface-secondary: #27272a;
+  --os-color-bg-surface-tertiary: #3f3f46;
+  --os-color-bg-fill-brand: #2563eb;
+  --os-color-bg-fill-brand-hover: #1d4ed8;
+  --os-color-bg-fill-brand-active: #1e40af;
+  --os-color-bg-fill-brand-muted: rgba(37, 99, 235, 0.14);
+  --os-color-bg-fill-success: rgba(34, 197, 94, 0.12);
+  --os-color-bg-fill-caution: rgba(245, 158, 11, 0.12);
+  --os-color-bg-fill-critical: rgba(239, 68, 68, 0.12);
+  --os-color-bg-fill-info: rgba(59, 130, 246, 0.12);
+  --os-color-bg-overlay: rgba(9, 9, 11, 0.72);
+  --os-color-bg-overlay-light: rgba(255, 255, 255, 0.04);
+
+  /* —— Text —— */
+  --os-color-text: #f4f4f5;
+  --os-color-text-secondary: #a1a1aa;
+  --os-color-text-disabled: #71717a;
+  --os-color-text-brand: #60a5fa;
+  --os-color-text-inverse: #09090b;
+  --os-color-text-on-brand: #ffffff;
+  --os-color-text-success: #22c55e;
+  --os-color-text-caution: #f59e0b;
+  --os-color-text-critical: #ef4444;
+  --os-color-text-critical-hover: #dc2626;
+  --os-color-text-critical-light: #fca5a5;
+  --os-color-text-info: #3b82f6;
+
+  /* —— Border —— */
+  --os-color-border: #27272a;
+  --os-color-border-subdued: #3f3f46;
+  --os-color-border-hover: #52525b;
+  --os-color-border-focus: #2563eb;
+  --os-color-border-brand: #2563eb;
+  --os-color-border-critical: rgba(239, 68, 68, 0.35);
+  --os-color-border-success: rgba(34, 197, 94, 0.28);
+  --os-color-border-caution: rgba(245, 158, 11, 0.28);
+
+  /* —— Icon —— */
+  --os-color-icon: #a1a1aa;
+  --os-color-icon-secondary: #71717a;
+  --os-color-icon-brand: #60a5fa;
+  --os-color-icon-on-brand: #ffffff;
+  --os-color-icon-success: #22c55e;
+  --os-color-icon-caution: #f59e0b;
+  --os-color-icon-critical: #ef4444;
+
+  /* —— Elevation (brand-tinted, no glass) —— */
+  --os-shadow-sm: 0 1px 2px 0 rgba(37, 99, 235, 0.06);
+  --os-shadow-md: 0 4px 12px -2px rgba(37, 99, 235, 0.10);
+  --os-shadow-lg: 0 18px 45px -15px rgba(37, 99, 235, 0.28), 0 6px 18px -6px rgba(37, 99, 235, 0.14);
+  --os-shadow-glow: 0 0 20px rgba(37, 99, 235, 0.15);
+  --os-shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.35);
+
+  /* —— Space (4px base) —— */
+  --os-space-025: 0.125rem;
+  --os-space-050: 0.25rem;
+  --os-space-100: 0.25rem;
+  --os-space-150: 0.375rem;
+  --os-space-200: 0.5rem;
+  --os-space-300: 0.75rem;
+  --os-space-400: 1rem;
+  --os-space-500: 1.25rem;
+  --os-space-600: 1.5rem;
+  --os-space-800: 2rem;
+  --os-space-1000: 2.5rem;
+  --os-space-1200: 3rem;
+
+  /* —— Radius —— */
+  --os-radius-sm: 0.375rem;
+  --os-radius-md: 0.5rem;
+  --os-radius-lg: 0.75rem;
+  --os-radius-xl: 1rem;
+  --os-radius-2xl: 1.5rem;
+  --os-radius-full: 9999px;
+
+  /* —— Typography —— */
+  --os-font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --os-font-size-075: 0.75rem;
+  --os-font-size-100: 0.8125rem;
+  --os-font-size-200: 0.875rem;
+  --os-font-size-300: 1rem;
+  --os-font-size-400: 1.125rem;
+  --os-font-size-500: 1.25rem;
+  --os-font-size-600: 1.5rem;
+  --os-font-weight-regular: 400;
+  --os-font-weight-medium: 500;
+  --os-font-weight-semibold: 600;
+  --os-font-weight-bold: 700;
+  --os-line-height-tight: 1.15;
+  --os-line-height-snug: 1.25;
+  --os-line-height-normal: 1.5;
+  --os-line-height-relaxed: 1.65;
+
+  /* —— Motion —— */
+  --os-duration-fast: 150ms;
+  --os-duration-base: 200ms;
+  --os-duration-slow: 300ms;
+  --os-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* —— Layout —— */
+  --os-sidebar-width: 15.5rem;
+  --os-page-max-width: 80rem;
+  --os-control-height: 2.25rem;
+  --os-control-height-sm: 2rem;
+  --os-z-modal: 50;
+
+  /* —— Compatibility aliases (do not invent new --admin-* values) —— */
+  --admin-bg-primary: var(--os-color-bg);
+  --admin-bg-secondary: var(--os-color-bg-surface);
+  --admin-bg-elevated: var(--os-color-bg-surface-secondary);
+  --admin-bg-card: var(--os-color-bg-surface);
+  --admin-text-primary: var(--os-color-text);
+  --admin-text-secondary: var(--os-color-text-secondary);
+  --admin-text-muted: var(--os-color-text-disabled);
+  --admin-text-inverse: var(--os-color-text-inverse);
+  --admin-border-primary: var(--os-color-border);
+  --admin-border-secondary: var(--os-color-border-subdued);
+  --admin-border-focus: var(--os-color-border-hover);
+  --admin-accent: var(--os-color-bg-fill-brand);
+  --admin-accent-hover: var(--os-color-bg-fill-brand-hover);
+  --admin-accent-light: var(--os-color-text-brand);
+  --admin-accent-dark: var(--os-color-brand-900);
+  --admin-accent-bg: var(--os-color-bg-fill-brand-muted);
+  --admin-success: var(--os-color-text-success);
+  --admin-success-bg: var(--os-color-bg-fill-success);
+  --admin-warning: var(--os-color-text-caution);
+  --admin-warning-bg: var(--os-color-bg-fill-caution);
+  --admin-error: var(--os-color-text-critical);
+  --admin-error-bg: var(--os-color-bg-fill-critical);
+  --admin-error-hover: var(--os-color-text-critical-hover);
+  --admin-error-light: var(--os-color-text-critical-light);
+  --admin-info: var(--os-color-text-info);
+  --admin-info-bg: var(--os-color-bg-fill-info);
+  --admin-overlay: var(--os-color-bg-overlay);
+  --admin-overlay-light: var(--os-color-bg-overlay-light);
+  --admin-shadow-sm: var(--os-shadow-sm);
+  --admin-shadow: var(--os-shadow-md);
+  --admin-shadow-lg: var(--os-shadow-lg);
+  --admin-shadow-glow: var(--os-shadow-glow);
+  --admin-space-1: var(--os-space-100);
+  --admin-space-2: var(--os-space-200);
+  --admin-space-3: var(--os-space-300);
+  --admin-space-4: var(--os-space-400);
+  --admin-space-5: var(--os-space-500);
+  --admin-space-6: var(--os-space-600);
+  --admin-transition-fast: var(--os-duration-fast) var(--os-ease);
+  --admin-transition-base: var(--os-duration-base) var(--os-ease);
+  --admin-transition-slow: var(--os-duration-slow) var(--os-ease);
+  --admin-radius-sm: var(--os-radius-sm);
+  --admin-radius: var(--os-radius-md);
+  --admin-radius-lg: var(--os-radius-lg);
+  --admin-radius-xl: var(--os-radius-xl);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --os-duration-fast: 0.01ms;
+    --os-duration-base: 0.01ms;
+    --os-duration-slow: 0.01ms;
+  }
+}

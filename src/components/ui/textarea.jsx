@@ -5,12 +5,12 @@ const Textarea = React.forwardRef(({ className, ...props }, ref) => {
   return (
     <textarea
       className={cn(
-        "flex min-h-[80px] w-full rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] px-3 py-2 text-sm text-[var(--admin-text-primary)]",
-        "placeholder:text-[var(--admin-text-muted)]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--admin-bg-primary)]",
+        "flex min-h-[80px] w-full rounded-[var(--os-radius-md)] border border-[var(--os-color-border)] bg-[var(--os-color-bg-surface-secondary)] px-3 py-2 text-sm text-[var(--os-color-text)]",
+        "placeholder:text-[var(--os-color-text-disabled)]",
+        "focus-visible:outline-none focus-visible:border-[var(--os-color-border-focus)] focus-visible:shadow-[var(--os-shadow-focus)]",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        "transition-all duration-150",
-        "hover:border-[var(--admin-border-secondary)]",
+        "transition-[border-color,box-shadow] duration-150",
+        "hover:border-[var(--os-color-border-subdued)]",
         "resize-y",
         className
       )}

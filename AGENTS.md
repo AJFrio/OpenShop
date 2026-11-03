@@ -50,6 +50,7 @@ OpenShop is an open-source e-commerce platform on **Cloudflare Workers** (Hono A
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Top-level map (start here) |
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Full technical architecture |
 | [docs/DESIGN.md](./docs/DESIGN.md) | Layering, boundaries, patterns |
+| [docs/DESIGN-TOKENS.md](./docs/DESIGN-TOKENS.md) | Admin visual tokens (shared with OpenShop-Service) |
 | [docs/FRONTEND.md](./docs/FRONTEND.md) | React, routing, UI conventions |
 | [docs/AGENT.md](./docs/AGENT.md) | Store agent tools and persist surface |
 | [docs/SECURITY.md](./docs/SECURITY.md) | Auth, secrets, CSP |

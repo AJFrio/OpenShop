@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { adminApiRequest, clearMustChangePassword } from '../../lib/auth'
 import { Button } from '../../components/ui/button'
+import { Input } from '../../components/ui/input'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 
 /**
  * Developer settings — API keys and runtime options, editable without a
@@ -86,8 +88,8 @@ export function DeveloperSettingsPage() {
   if (!fields) {
     return (
       <section className="admin-section">
-        <h2 className="text-xl font-semibold text-[var(--admin-text-primary)]">Developer Settings</h2>
-        <p className="mt-2 text-sm text-[var(--admin-text-secondary)]" aria-busy="true">Loading…</p>
+        <AdminPageHeader title="Developer settings" />
+        <p className="mt-2 text-sm text-[var(--os-color-text-secondary)]" aria-busy="true">Loading…</p>
       </section>
     )
   }
@@ -109,7 +111,7 @@ export function DeveloperSettingsPage() {
         id={`ds-${field.key}`}
         value={value}
         onChange={(e) => setDrafts({ ...drafts, [field.key]: e.target.value })}
-        className="mt-1 flex h-9 w-full rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] px-3 py-2 text-sm text-[var(--admin-text-primary)]"
+        className="admin-select mt-1 w-full"
       >
         <option value="">Not set (use environment default)</option>
         {!listed && value && (
@@ -123,13 +125,11 @@ export function DeveloperSettingsPage() {
   }
 
   return (
-    <section className="admin-section max-w-2xl">
-      <h2 className="text-xl font-semibold text-[var(--admin-text-primary)]">Developer Settings</h2>
-      <p className="mt-1.5 text-sm text-[var(--admin-text-secondary)]">
-        API keys and runtime options. Values saved here take effect immediately
-        and override the Worker&apos;s environment. Clear a field to go back to
-        the environment value.
-      </p>
+    <section className="admin-section max-w-2xl space-y-5">
+      <AdminPageHeader
+        title="Developer settings"
+        description="API keys and runtime options. Values saved here take effect immediately and override the Worker environment. Clear a field to go back to the environment value."
+      />
 
       <div className="mt-5 space-y-4">
         {editable.map((field) => {
@@ -143,12 +143,12 @@ export function DeveloperSettingsPage() {
           <div key={field.key}>
             <label
               htmlFor={`ds-${field.key}`}
-              className="block text-sm font-medium text-[var(--admin-text-primary)]"
+              className="block text-sm font-medium text-[var(--os-color-text)]"
             >
               {field.label}
             </label>
             {useSelect ? renderModelSelect(field, modelKeys) : (
-            <input
+            <Input
               id={`ds-${field.key}`}
               type={field.secret ? 'password' : 'text'}
               autoComplete="off"
@@ -159,7 +159,7 @@ export function DeveloperSettingsPage() {
                   : 'Not set'
               }
               onChange={(e) => setDrafts({ ...drafts, [field.key]: e.target.value })}
-              className="mt-1 flex h-9 w-full rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] px-3 py-2 text-sm text-[var(--admin-text-primary)]"
+              className="mt-1"
             />
             )}
             <p className="mt-1 text-xs text-[var(--admin-text-muted)]">
@@ -199,27 +199,27 @@ export function DeveloperSettingsPage() {
           <label htmlFor="ds-current-pw" className="block text-sm font-medium text-[var(--admin-text-primary)]">
             Current password
           </label>
-          <input
+          <Input
             id="ds-current-pw"
             type="password"
             autoComplete="current-password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="mt-1 flex h-9 w-full rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] px-3 py-2 text-sm text-[var(--admin-text-primary)]"
+            className="mt-1"
           />
         </div>
         <div>
           <label htmlFor="ds-new-pw" className="block text-sm font-medium text-[var(--admin-text-primary)]">
             New password
           </label>
-          <input
+          <Input
             id="ds-new-pw"
             type="password"
             autoComplete="new-password"
             minLength={8}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="mt-1 flex h-9 w-full rounded-md border border-[var(--admin-border-primary)] bg-[var(--admin-bg-elevated)] px-3 py-2 text-sm text-[var(--admin-text-primary)]"
+            className="mt-1"
           />
           <p className="mt-1 text-xs text-[var(--admin-text-muted)]">At least 8 characters.</p>
         </div>

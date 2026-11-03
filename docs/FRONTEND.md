@@ -26,7 +26,7 @@ src/api/                # Fetch wrappers for public/admin APIs
 
 ## Conventions
 
-- **Styling:** Tailwind utility classes; theme tokens in `src/styles/storefront-theme.css` and `admin-theme.css`.
+- **Styling:** Tailwind utility classes. Storefront tokens: `src/styles/storefront-theme.css`. Admin tokens: `src/lib/admin-tokens.json` + `src/styles/admin-tokens.css` (primitives in `admin-theme.css`).
 - **Images:** Use `normalizeImageUrl` from `src/lib/utils.js` for consistent CDN/proxy URLs.
 - **Admin auth:** `adminApiRequest` attaches `X-Admin-Token` from session storage.
 - **Cart:** `CartContext` persists to `localStorage`.
@@ -38,7 +38,9 @@ Public routes and admin are client-side via React Router. The Worker serves `ind
 
 ## Admin dashboard
 
-`DashboardPage` leads with a full-width store agent composer (`AgentChat`). Analytics, period filters, and quick actions sit in an Overview section below it and must not gate the composer — the agent stays visible while stats load.
+`DashboardPage` (Admin Home) is agent-first: compact Shopify-style pulse cards (sales, orders, products, store status) sit above a prominent store assistant (`AgentChat`) with a command composer, quick-action chips, and recent activity. Analytics charts sit below and must not gate the composer — the agent stays visible while stats load.
+
+Admin visual tokens are centralized in [`src/lib/admin-tokens.json`](../src/lib/admin-tokens.json) and [`src/styles/admin-tokens.css`](../src/styles/admin-tokens.css). See [DESIGN-TOKENS.md](./DESIGN-TOKENS.md) §10.
 
 The agent can persist the same catalogue, pages, media, branding, and fulfillment edits as the rest of admin. Tool list and limits: [AGENT.md](./AGENT.md).
 

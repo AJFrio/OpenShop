@@ -15,6 +15,7 @@ Graded snapshot for agent prioritization. Update when a domain materially improv
 | Media / R2 / AI | services + routes | B | Agent generate-and-store + merch persist; optional Drive |
 | Store agent | routes + tools | B | Full admin write tools; secrets stay out of chat |
 | Storefront UI | pages + components | B | Manual UX; limited component tests |
+| Admin UI | pages + tokens | B | Agent-first home; Polaris-inspired tokens in `admin-tokens.json` |
 | Documentation harness | docs + scripts | A | AGENTS.md map + CI validation |
 | Architecture enforcement | harness scripts | A | Import layer linter |
 

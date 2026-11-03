@@ -4,6 +4,7 @@ import { Card, CardContent } from '../../components/ui/card'
 import { normalizeImageUrl } from '../../lib/utils'
 import { AdminImage } from '../../components/admin/AdminImage'
 import { adminApiRequest } from '../../lib/auth'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { Plus, Trash2, Image as ImageIcon, X, Copy } from 'lucide-react'
 import AddMediaModal from '../../components/admin/AddMediaModal'
 import {
@@ -65,18 +66,21 @@ export function MediaLibraryPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <h1 className="text-2xl font-bold text-[var(--admin-text-primary)]">Media</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={load} size="sm">
-            Refresh
-          </Button>
-          <Button onClick={() => setAddOpen(true)} size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Add media
-          </Button>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Media"
+        description="Images used on products, collections, and pages."
+        actions={
+          <>
+            <Button variant="outline" onClick={load} size="sm">
+              Refresh
+            </Button>
+            <Button onClick={() => setAddOpen(true)} size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Add media
+            </Button>
+          </>
+        }
+      />
 
       {status && (
         <div className="rounded-md border border-[var(--admin-success)]/30 bg-[var(--admin-success-bg)] px-4 py-3 text-sm text-[var(--admin-success)]">
@@ -132,7 +136,7 @@ export function MediaLibraryPage() {
 
       {selected && (
         <div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+          className="admin-modal-overlay fixed inset-0 z-50 flex items-center justify-center"
           onClick={() => setSelected(null)}
         >
           <div
