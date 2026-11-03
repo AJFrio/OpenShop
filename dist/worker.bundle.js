@@ -1,4 +1,4 @@
-// Worker Bundle - Built 2026-10-28T18:12:30Z
+// Worker Bundle - Built 2026-11-03T19:49:49Z
 // Version: 0.0.0
 // Built with wrangler (nodejs_compat enabled, node: imports resolved)
 var __create = Object.create;
