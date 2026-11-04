@@ -39,12 +39,14 @@ Both create secure Stripe Checkout Sessions that handle payment processing.
 1. Sign up for a [Stripe account](https://stripe.com)
 2. Navigate to **Developers** → **API keys**
 3. Copy your **Secret key** (for server-side use)
-4. Copy your **Publishable key** (for client-side use)
+
+The storefront redirects shoppers to Stripe's hosted Checkout page using the
+session URL returned by the server, so no publishable key is needed for checkout.
 
 ### Test vs Live Mode
 
-- **Test Mode**: Use `sk_test_` and `pk_test_` keys for development
-- **Live Mode**: Use `sk_live_` and `pk_live_` keys for production
+- **Test Mode**: Use `sk_test_` keys for development
+- **Live Mode**: Use `sk_live_` keys for production
 
 Always test thoroughly in test mode before going live.
 
@@ -55,15 +57,12 @@ Add your Stripe keys during `npm run setup` or manually:
 **Local Development** (`.env` file):
 ```env
 STRIPE_SECRET_KEY=sk_test_your_secret_key
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key
 ```
 
 **Production** (via Wrangler):
 ```bash
 wrangler secret put STRIPE_SECRET_KEY
 ```
-
-The publishable key should be set as an environment variable in your `wrangler.toml` or site configuration.
 
 ## Running Without Stripe (Catalogue-Only Mode)
 
@@ -117,7 +116,7 @@ You can extend OpenShop to handle webhook events by modifying the webhook handle
 ### Customer Checkout Process
 
 1. **Customer adds items to cart** - Items stored in browser localStorage
-2. **Customer clicks checkout** - Creates Stripe Checkout Session
+2. **Customer clicks checkout** - Server creates a Stripe Checkout Session and returns its `url`; the browser navigates to it
 3. **Stripe Checkout** - Customer enters payment details on Stripe's secure page
 4. **Payment Processing** - Stripe processes the payment
 5. **Success Redirect** - Customer redirected to success page

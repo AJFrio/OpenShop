@@ -33,7 +33,6 @@
   "dependencies": {
     "@hono/node-server": "^2.0.10",
     "@puckeditor/core": "^0.23.0",
-    "@stripe/stripe-js": "^7.9.0",
     "@tailwindcss/vite": "^4.1.13",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

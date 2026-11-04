@@ -40,7 +40,7 @@ router.post('/create-checkout-session', asyncHandler(async (c) => {
     await resolveSetting(getKVNamespace(c.env), c.env, 'SITE_URL'),
   )
   const session = await stripeService.createCheckoutSession(trimmedPriceId)
-  return c.json({ sessionId: session.id })
+  return c.json({ sessionId: session.id, url: session.url })
 }))
 
 // Create cart checkout session
@@ -95,7 +95,7 @@ router.post('/create-cart-checkout-session', asyncHandler(async (c) => {
     await resolveSetting(getKVNamespace(c.env), c.env, 'SITE_URL'),
   )
   const session = await stripeService.createCartCheckoutSession(normalizedItems)
-  return c.json({ sessionId: session.id })
+  return c.json({ sessionId: session.id, url: session.url })
 }))
 
 // Get checkout session details

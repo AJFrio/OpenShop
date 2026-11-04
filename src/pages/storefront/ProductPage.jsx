@@ -7,6 +7,7 @@ import { Card, CardContent } from '../../components/ui/card'
 import { SmartImage } from '../../components/storefront/SmartImage'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { useCart } from '../../contexts/CartContext'
+import { goToCheckout } from '../../lib/stripe'
 import { Minus, Plus } from 'lucide-react'
 
 export function ProductPage() {
@@ -137,10 +138,8 @@ export function ProductPage() {
       })
       const session = await response.json().catch(() => ({}))
       if (!response.ok || session.error) throw new Error(session.error || 'Error starting checkout. Please try again.')
-      const { loadStripe } = await import('@stripe/stripe-js')
-      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
-      const result = await stripe.redirectToCheckout({ sessionId: session.sessionId })
-      if (result.error) throw new Error(result.error.message)
+      goToCheckout(session)
+      return
     } catch (error) {
       console.error('Error initiating checkout:', error)
       setBuyError(error.message || 'Error starting checkout. Please try again.')

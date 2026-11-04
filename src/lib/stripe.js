@@ -1,44 +1,25 @@
-import { loadStripe } from '@stripe/stripe-js'
+// Client-side checkout helpers.
+//
+// Stripe.js's redirectToCheckout() is deprecated. The server returns the
+// hosted Checkout Session URL instead, and the browser simply navigates to it,
+// so the storefront needs neither Stripe.js nor a publishable key.
 
-// Initialize Stripe
-let stripePromise
-const getStripe = () => {
-  if (!stripePromise) {
-    stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
+export function goToCheckout(session) {
+  if (!session?.url) {
+    throw new Error('Checkout is unavailable. Please try again.')
   }
-  return stripePromise
+  window.location.assign(session.url)
 }
 
-export { getStripe }
-
-// Client-side Stripe operations
 export async function redirectToCheckout(priceId) {
-  try {
-    const stripe = await getStripe()
-    
-    const response = await fetch('/api/create-checkout-session', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ priceId }),
-    })
-
-    const session = await response.json()
-
-    if (session.error) {
-      throw new Error(session.error)
-    }
-
-    const result = await stripe.redirectToCheckout({
-      sessionId: session.sessionId,
-    })
-
-    if (result.error) {
-      throw new Error(result.error.message)
-    }
-  } catch (error) {
-    console.error('Error redirecting to checkout:', error)
-    throw error
+  const response = await fetch('/api/create-checkout-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ priceId }),
+  })
+  const session = await response.json().catch(() => ({}))
+  if (!response.ok || session.error) {
+    throw new Error(session.error || 'Error starting checkout. Please try again.')
   }
+  goToCheckout(session)
 }

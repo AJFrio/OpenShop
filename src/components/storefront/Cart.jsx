@@ -4,6 +4,7 @@ import { useCart } from '../../contexts/CartContext'
 import { Button } from '../ui/button'
 import { formatCurrency, normalizeImageUrl } from '../../lib/utils'
 import { buildCheckoutItems } from '../../lib/checkoutPayload'
+import { goToCheckout } from '../../lib/stripe'
 import { CART_MAX_ITEM_QUANTITY } from '../../config/index.js'
 import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react'
 
@@ -37,16 +38,8 @@ export function Cart() {
         throw new Error(session.error || 'Error starting checkout. Please try again.')
       }
 
-      const { loadStripe } = await import('@stripe/stripe-js')
-      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
-
-      const result = await stripe.redirectToCheckout({
-        sessionId: session.sessionId,
-      })
-
-      if (result.error) {
-        throw new Error(result.error.message)
-      }
+      goToCheckout(session)
+      return
     } catch (error) {
       console.error('Error during checkout:', error)
       setCheckoutError(error.message || 'Error starting checkout. Please try again.')
