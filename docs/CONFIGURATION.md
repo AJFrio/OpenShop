@@ -13,7 +13,6 @@ CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
 
 # Stripe Configuration  
 STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
 
 # Admin Configuration
 ADMIN_PASSWORD=your_secure_admin_password
@@ -103,12 +102,13 @@ For multi-site deployments, each site has its own configuration file in `toml/<s
 1. Sign up for a [Stripe account](https://stripe.com)
 2. Navigate to **Developers** → **API keys**
 3. Copy your **Secret key** (starts with `sk_test_` or `sk_live_`)
-4. Copy your **Publishable key** (starts with `pk_test_` or `pk_live_`)
+
+A publishable key is not required: checkout redirects to Stripe's hosted page server-side.
 
 ### Test vs Live Mode
 
-- **Test keys** (`sk_test_`, `pk_test_`): Use for development and testing
-- **Live keys** (`sk_live_`, `pk_live_`): Use for production stores
+- **Test keys** (`sk_test_`): Use for development and testing
+- **Live keys** (`sk_live_`): Use for production stores
 
 Always test thoroughly with test keys before switching to live mode.
 

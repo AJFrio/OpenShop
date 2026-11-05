@@ -57,6 +57,7 @@ describe('Checkout Process', () => {
 
       expect(response.status).toBe(200)
       expect(data.sessionId).toBe(sessionId)
+      expect(data.url).toBe('https://checkout.stripe.com/test')
       expect(mockStripe.checkout.sessions.create).toHaveBeenCalledWith(
         expect.objectContaining({
           line_items: [{ price: priceId, quantity: 1 }],
@@ -175,6 +176,7 @@ describe('Checkout Process', () => {
 
       expect(response.status).toBe(200)
       expect(data.sessionId).toBe(sessionId)
+      expect(data.url).toBe('https://checkout.stripe.com/test')
       expect(mockStripe.checkout.sessions.create).toHaveBeenCalled()
       const callArgs = mockStripe.checkout.sessions.create.mock.calls[0][0]
       expect(callArgs.line_items).toHaveLength(2)

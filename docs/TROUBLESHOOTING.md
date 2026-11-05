@@ -117,7 +117,7 @@ npm install -g wrangler@latest
 
 **Solutions**:
 1. Verify Stripe keys are correct (test vs live)
-2. Check `STRIPE_SECRET_KEY` and `VITE_STRIPE_PUBLISHABLE_KEY` are set
+2. Check `STRIPE_SECRET_KEY` is set (`GET /api/payments-status` should return `paymentsEnabled: true`)
 3. Verify Stripe account is active
 4. Check browser console for errors
 5. Test with Stripe test cards
